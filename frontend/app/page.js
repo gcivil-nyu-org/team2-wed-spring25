@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Map, Navigation, Shield, AlertCircle } from 'lucide-react';
+import Image from 'next/image'
 import Link from 'next/link'
 import AnimatedBackground from "./custom-components/AnimatedBackground";
 export default function Home() {
@@ -19,6 +20,15 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             {/* Left side - Hero Text */}
             <div className="text-center lg:text-left lg:w-1/2 space-y-6">
+              <div>
+                <Image
+                className="animate-float mx-auto lg:mx-0"
+                  src="/owl-logo.svg"
+                  width={64}
+                  height={64}
+                  alt="Nightwalkers Logo"
+                />
+              </div>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-400/20 rounded-full text-blue-200 backdrop-blur-sm animate-float">
                 <Shield className="w-4 h-4" />
                 <span className="text-sm font-medium">Safe Navigation for Everyone</span>
@@ -35,22 +45,6 @@ export default function Home() {
                 Using real-time data and community insights to provide the safest routes for your journey.
               </p>
 
-              {/* <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button 
-                  size="lg" 
-                  className="bg-blue-500 text-white hover:bg-blue-600 font-semibold group transition-all duration-300"
-                >
-                  Get Started
-                  <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="text-blue-200 border-blue-400/50 hover:bg-blue-800/20 backdrop-blur-sm"
-                >
-                  Learn More
-                </Button>
-              </div> */}
             </div>
 
             {/* Right side - Auth Card */}
