@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --experimental-https --experimental-https-key ../certs/localhost+1-key.pem --experimental-https-cert ../certs/localhost+1.pem",
+    "dev": "next dev --experimental-https --experimental-https-key ../certs/localhost-key.pem --experimental-https-cert ../certs/localhost.pem",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
