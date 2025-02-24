@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, getSession, signOut } from 'next-auth/react';
-import { apiGet, apiPost } from './fetch/fetch';
+import { apiGet, apiPost } from '../../utils/fetch/fetch';
 import { isTokenExpired, setupTokenRefresh, refreshDjangoToken as refreshToken } from '@/utils/token-utils';
 
 // Create auth context
@@ -164,27 +164,3 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Protected route wrapper component
-export function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    // If not loading and not authenticated, redirect to login
-    if (!loading && !isAuthenticated) {
-      router.push('/users/login');
-    }
-  }, [isAuthenticated, loading, router]);
-
-  // Show loading state while checking authentication
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
-  }
-
-  // Only render children if authenticated
-  return isAuthenticated ? children : null;
-}

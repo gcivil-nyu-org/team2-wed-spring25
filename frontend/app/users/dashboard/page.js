@@ -1,5 +1,5 @@
 'use client'
-import { useAuth } from '@/utils/AuthHook';
+import { useAuth } from '@/app/custom-components/AuthHook';
 import { Button } from "@/components/ui/button";
 
 // This can be added to your navbar component

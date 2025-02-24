@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/utils/AuthHook';
+import { useAuth } from '@/app/custom-components/AuthHook';
 
 export default function ProtectedLayout({ children }) {
   const { isAuthenticated, loading } = useAuth();
