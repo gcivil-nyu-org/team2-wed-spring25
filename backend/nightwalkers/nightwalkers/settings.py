@@ -32,13 +32,11 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 # CORS settings
 # CORS_ALLOWED_ORIGINS = os.getenv('DJANGO_CORS_ALLOWED_ORIGINS', 'https://localhost:3000').split(',')
-CORS_ALLOWED_ORIGINS = ["*"]
 CORS_ALLOW_CREDENTIALS = True
 
 # Proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# CSRF_TRUSTED_ORIGINS = ['https://localhost', "https://localhost:3000",]
-CSRF_TRUSTED_ORIGINS = ["*"]
+CSRF_TRUSTED_ORIGINS = ['https://localhost', "https://localhost:3000", "https://night-walkers.onrender.com", "https://test-night-walkers.onrender.com"]
 
 # Application definition
 
