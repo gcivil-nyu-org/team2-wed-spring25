@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from 'next/link';
 import AnimatedBackground from "../../custom-components/AnimatedBackground";
-import { signIn, useSession } from "next-auth/react";
+import { signIn} from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { getSession } from "next-auth/react"
@@ -21,13 +21,20 @@ export default function LoginPage() {
     const [error, setError] = useState(null);
     useEffect(() => {
         const checkAuth = async () => {
+            setLoading(true);
+            
+            // Check for session or tokens
             const session = await getSession();
-
-            // If we have a session and the Django token exists in localStorage
-            // (set by the NextAuth signIn callback)
-            if (session && localStorage.getItem('djangoAccessToken')) {
-                router.push('/users/dashboard');
+            const hasToken = localStorage.getItem('djangoAccessToken');
+            const hasUser = localStorage.getItem('user');
+            const isAuthenticated = !!(hasToken && hasUser);
+            
+            // If authenticated by any means, redirect to home
+            if ((session && hasToken) || isAuthenticated) {
+                console.log("User is authenticated, redirecting from login page");
+                router.replace('/users/home');
             } else {
+                // Not authenticated, allow login page access
                 setLoading(false);
             }
         };
@@ -39,16 +46,17 @@ export default function LoginPage() {
             setLoading(true);
 
             await signIn(provider, {
-                callbackUrl: '/users/dashboard' // Redirect after successful login
+                callbackUrl: '/users/home' // Redirect after successful login
             });
 
             // The NextAuth signIn callback will save the Django tokens
-            // and handle redirecting to the dashboard
+            // and handle redirecting to the user home
         } catch (error) {
             console.error('Login failed:', error);
             setLoading(false);
         }
     };
+
     const handleEmailLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -63,13 +71,22 @@ export default function LoginPage() {
                 throw new Error(result?.detail || "Login failed");
             }
 
-            // Store tokens in localStorage (or cookies for better security)
+            // ✅ Store tokens before redirecting
             localStorage.setItem("djangoAccessToken", result.access);
             localStorage.setItem("djangoRefreshToken", result.refresh);
             localStorage.setItem("user", JSON.stringify(result.user));
 
-            // Redirect to dashboard
-            router.push("/users/dashboard");
+            console.log("Stored Token:", localStorage.getItem("djangoAccessToken"));
+
+            // ✅ Dispatch custom auth-updated event to notify AuthProvider
+            window.dispatchEvent(new CustomEvent('auth-updated'));
+
+            // ✅ Force Next.js to recognize the update
+            router.refresh();
+
+            // ✅ Redirect after ensuring storage update
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            router.push("/users/home");
 
         } catch (error) {
             console.error("Login failed:", error.message);
@@ -78,7 +95,6 @@ export default function LoginPage() {
             setLoading(false);
         }
     };
-
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">

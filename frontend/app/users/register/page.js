@@ -27,7 +27,7 @@ export default function RegisterPage() {
     useEffect(() => {
         getSession().then((session) => {
             if (session) {
-                router.push('/dashboard');
+                router.push('/home');
             } else {
                 setLoading(false);
             }
@@ -37,7 +37,7 @@ export default function RegisterPage() {
     const handleOAuthSignup = async (provider) => {
         try {
             await signIn(provider, {
-                callbackUrl: '/users/dashboard'
+                callbackUrl: '/users/home'
             });
         } catch (error) {
             console.error('Signup failed:', error);
@@ -92,8 +92,8 @@ export default function RegisterPage() {
                     localStorage.setItem('djangoUser', JSON.stringify(response.user));
                 }
                 
-                // Redirect to dashboard
-                router.push('/users/dashboard');
+                // Redirect to user home
+                router.push('/users/home');
             } else {
                 setError('Invalid response from server');
                 setLoading(false);
