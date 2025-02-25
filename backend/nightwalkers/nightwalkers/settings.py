@@ -46,7 +46,7 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
-
+CORS_ORIGIN_ALLOW_ALL = True
 # Proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = ['https://localhost', "https://localhost:3000", "https://night-walkers.onrender.com", "https://test-night-walkers.onrender.com", "https://testnyuwalkers.netlify.app/", "https://nyuwalkers.netlify.app"]
@@ -60,10 +60,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # "sslserver",
     'django_extensions',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'accounts'
+    
 ]
 # Current command to run https server: python manage.py runserver_plus --cert-file ../../certs/localhost+1.pem --key-file ../../certs/localhost+1-key.pem
 
