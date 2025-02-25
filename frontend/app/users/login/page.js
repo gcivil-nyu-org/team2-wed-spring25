@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from 'next/link';
 import AnimatedBackground from "../../custom-components/AnimatedBackground";
-import { signIn} from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { getSession } from "next-auth/react"
@@ -20,15 +20,19 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null);
     useEffect(() => {
+        if (typeof window === 'undefined') {
+            return
+        }
         const checkAuth = async () => {
             setLoading(true);
-            
+
             // Check for session or tokens
             const session = await getSession();
-            const hasToken = localStorage.getItem('djangoAccessToken');
-            const hasUser = localStorage.getItem('user');
+            const hasToken = typeof window !== 'undefined' ? localStorage.getItem('djangoAccessToken') : null;
+            const hasUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+
             const isAuthenticated = !!(hasToken && hasUser);
-            
+
             // If authenticated by any means, redirect to home
             if ((session && hasToken) || isAuthenticated) {
                 console.log("User is authenticated, redirecting from login page");
@@ -60,7 +64,6 @@ export default function LoginPage() {
     const handleEmailLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-
         try {
             const result = await apiPost('/auth/login/', {
                 email,

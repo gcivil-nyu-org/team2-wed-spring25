@@ -25,6 +25,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const initialCheckDone = useRef(false);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   // Error handler function
   const handleAuthError = useCallback((message, details = null, type = null) => {
@@ -39,6 +40,19 @@ export function AuthProvider({ children }) {
     // Clear error after 8 seconds (longer than toast duration)
     setTimeout(() => {
       setError(null);
+    }, 8000);
+  }, []);
+  const handleSuccessMessage = useCallback((message, details = null, type = null) => {
+    setSuccessMessage({
+      message,
+      details,
+      type,
+      timestamp: new Date().toISOString()
+    });
+
+    // Clear error after 8 seconds (longer than toast duration)
+    setTimeout(() => {
+      setSuccessMessage(null);
     }, 8000);
   }, []);
 
@@ -59,12 +73,14 @@ export function AuthProvider({ children }) {
       handleLogout();
       throw error;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleAuthError]);
 
   // Fetch user data from Django
   const fetchUserData = useCallback(async (accessToken) => {
     try {
       setError(null); // Clear any previous errors
+
       const token = accessToken || localStorage.getItem('djangoAccessToken');
 
       if (!token) {
@@ -92,6 +108,7 @@ export function AuthProvider({ children }) {
   // Handle logout
   const handleLogout = useCallback(async () => {
     try {
+      
       setError(null); // Clear any previous errors
       // Sign out from NextAuth
       await signOut({ redirect: false });
@@ -272,7 +289,10 @@ export function AuthProvider({ children }) {
     refreshToken: refreshDjangoToken,
     fetchUserData,
     clearError: () => setError(null),
+    clearSuccess: () => setSuccessMessage(null),
     handleAuthError,
+    handleSuccessMessage,
+    successMessage,
   };
 
   // Provide auth context
