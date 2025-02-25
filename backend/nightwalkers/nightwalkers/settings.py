@@ -31,12 +31,14 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 # ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 ALLOWED_HOSTS = ['*']
 # CORS settings
-CORS_ALLOWED_ORIGINS = os.getenv('DJANGO_CORS_ALLOWED_ORIGINS', 'https://localhost:3000').split(',')
+# CORS_ALLOWED_ORIGINS = os.getenv('DJANGO_CORS_ALLOWED_ORIGINS', 'https://localhost:3000').split(',')
+CORS_ALLOWED_ORIGINS = ["*"]
 CORS_ALLOW_CREDENTIALS = True
 
 # Proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_TRUSTED_ORIGINS = ['https://localhost', "https://localhost:3000",]
+# CSRF_TRUSTED_ORIGINS = ['https://localhost', "https://localhost:3000",]
+CSRF_TRUSTED_ORIGINS = ["*"]
 
 # Application definition
 
@@ -89,7 +91,7 @@ WSGI_APPLICATION = 'nightwalkers.wsgi.application'
 # Database
 DATABASES = {
         'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL'),
+            default=os.getenv('DJANGO_DATABASE_URL'),
             conn_max_age=600  # Optional: Improves performance by reusing connections
         )
     }
