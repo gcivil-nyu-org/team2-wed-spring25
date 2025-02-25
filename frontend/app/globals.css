@@ -101,3 +101,68 @@ body {
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Add to your global.css file */
+
+/* Error type-specific styles */
+.my-toast[data-sonner-toast][data-type="error"].auth-error-toast.error-token {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(109, 40, 217, 0.95)) !important; /* Purple for token errors */
+}
+
+.my-toast[data-sonner-toast][data-type="error"].auth-error-toast.error-login {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95)) !important; /* Red for login errors */
+}
+
+.my-toast[data-sonner-toast][data-type="error"].auth-error-toast.error-api {
+  background: linear-gradient(135deg, rgba(243, 166, 33, 0.95), rgba(217, 119, 6, 0.95)) !important; /* Amber for API errors */
+}
+
+.my-toast[data-sonner-toast][data-type="error"].auth-error-toast.error-permission {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.95), rgba(8, 145, 178, 0.95)) !important; /* Cyan for permission errors */
+}
+
+/* Improved action button styles */
+.my-toast[data-sonner-toast] [data-button] {
+  font-weight: 500;
+  padding: 4px 10px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.my-toast[data-sonner-toast] [data-button]:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+[data-sonner-toast][data-type="error"] [data-title] {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+}
+/* Make the content easier to read */
+[data-sonner-toast][data-type="error"] [data-description] {
+  font-size: 0.95rem !important;
+  opacity: 1 !important;
+  margin-top: 6px !important;
+  line-height: 1.4 !important;
+}
+
+/* Improve icon styling */
+.my-toast[data-sonner-toast] [data-icon] {
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 6px;
+  border-radius: 50%;
+  margin-right: 15px !important;
+}
+
+

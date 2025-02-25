@@ -5,12 +5,95 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from 'next/link';
-import AnimatedBackground from "../custom-components/AnimatedBackground";
+import AnimatedBackground from "../../custom-components/AnimatedBackground";
+import { signIn} from "next-auth/react";
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { getSession } from "next-auth/react"
+import { apiPost } from "@/utils/fetch/fetch";
+
 
 export default function LoginPage() {
-    const handleOAuthLogin = (provider) => {
-        // Handle OAuth login
-        console.log(`Logging in with ${provider}`);
+    const router = useRouter();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null);
+    useEffect(() => {
+        const checkAuth = async () => {
+            setLoading(true);
+            
+            // Check for session or tokens
+            const session = await getSession();
+            const hasToken = localStorage.getItem('djangoAccessToken');
+            const hasUser = localStorage.getItem('user');
+            const isAuthenticated = !!(hasToken && hasUser);
+            
+            // If authenticated by any means, redirect to home
+            if ((session && hasToken) || isAuthenticated) {
+                console.log("User is authenticated, redirecting from login page");
+                router.replace('/users/home');
+            } else {
+                // Not authenticated, allow login page access
+                setLoading(false);
+            }
+        };
+
+        checkAuth();
+    }, [router]);
+    const handleOAuthLogin = async (provider) => {
+        try {
+            setLoading(true);
+
+            await signIn(provider, {
+                callbackUrl: '/users/home' // Redirect after successful login
+            });
+
+            // The NextAuth signIn callback will save the Django tokens
+            // and handle redirecting to the user home
+        } catch (error) {
+            console.error('Login failed:', error);
+            setLoading(false);
+        }
+    };
+
+    const handleEmailLogin = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const result = await apiPost('/auth/login/', {
+                email,
+                password
+            });
+
+            if (!result || !result.access) {
+                throw new Error(result?.detail || "Login failed");
+            }
+
+            // ✅ Store tokens before redirecting
+            localStorage.setItem("djangoAccessToken", result.access);
+            localStorage.setItem("djangoRefreshToken", result.refresh);
+            localStorage.setItem("user", JSON.stringify(result.user));
+
+            console.log("Stored Token:", localStorage.getItem("djangoAccessToken"));
+
+            // ✅ Dispatch custom auth-updated event to notify AuthProvider
+            window.dispatchEvent(new CustomEvent('auth-updated'));
+
+            // ✅ Force Next.js to recognize the update
+            router.refresh();
+
+            // ✅ Redirect after ensuring storage update
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            router.push("/users/home");
+
+        } catch (error) {
+            console.error("Login failed:", error.message);
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -41,16 +124,6 @@ export default function LoginPage() {
                                 </svg>
                                 Continue with Google
                             </Button>
-                            <Button
-                                variant="outline"
-                                className="w-full bg-white hover:bg-blue-50 text-blue-600"
-                                onClick={() => handleOAuthLogin('facebook')}
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 50 50">
-                                    <path d="M25,3C12.85,3,3,12.85,3,25c0,11.03,8.125,20.137,18.712,21.728V30.831h-5.443v-5.783h5.443v-3.848 c0-6.371,3.104-9.168,8.399-9.168c2.536,0,3.877,0.188,4.512,0.274v5.048h-3.612c-2.248,0-3.033,2.131-3.033,4.533v3.161h6.588 l-0.894,5.783h-5.694v15.944C38.716,45.318,47,36.137,47,25C47,12.85,37.15,3,25,3z"></path>
-                                </svg>
-                                Continue with Facebook
-                            </Button>
                         </div>
 
                         <div className="relative">
@@ -65,7 +138,7 @@ export default function LoginPage() {
                         </div>
 
                         {/* Email Login Form */}
-                        <form className="space-y-4">
+                        <form className="space-y-4" onSubmit={handleEmailLogin}>
                             <div className="space-y-2">
                                 <Label htmlFor="email" className="text-white">Email</Label>
                                 <Input
@@ -74,6 +147,8 @@ export default function LoginPage() {
                                     required
                                     className="bg-white/10 border-white/20 text-white placeholder:text-blue-200"
                                     placeholder="Enter your email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -84,17 +159,21 @@ export default function LoginPage() {
                                     required
                                     className="bg-white/10 border-white/20 text-white"
                                     placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
                             <Button type="submit" className="w-full bg-white text-blue-600 hover:bg-blue-50">
-                                Sign In
+                                {loading ? "Signing In..." : "Sign In"}
                             </Button>
                         </form>
-
+                        {error && (
+                            <p className="text-red-500 text-sm text-center">{error}</p>
+                        )}
                         <div className="text-center text-blue-200">
                             <span>Don&apos;t have an account? </span>
                             <Link
-                                href="/login/register"
+                                href="/users/register"
                                 className="text-white hover:underline font-semibold"
                             >
                                 Sign up
