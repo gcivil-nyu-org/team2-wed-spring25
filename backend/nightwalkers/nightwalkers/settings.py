@@ -49,7 +49,7 @@ CORS_ALLOW_HEADERS = [
 CORS_ORIGIN_ALLOW_ALL = True
 # Proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_TRUSTED_ORIGINS = ['https://localhost', "https://localhost:3000", "https://night-walkers.onrender.com", "https://test-night-walkers.onrender.com", "https://testnyuwalkers.netlify.app/", "https://nyuwalkers.netlify.app"]
+CSRF_TRUSTED_ORIGINS = ['https://localhost', "https://localhost:3000", "https://night-walkers.onrender.com", "https://test-night-walkers.onrender.com", "https://testnyuwalkers.netlify.app", "https://nyuwalkers.netlify.app"]
 
 # Application definition
 
