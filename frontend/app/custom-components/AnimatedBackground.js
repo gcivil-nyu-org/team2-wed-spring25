@@ -1,3 +1,6 @@
+'use client'
+
+
 import { Map, Navigation, Shield, AlertCircle } from 'lucide-react';
 
 export const AnimatedBackground = () => {
