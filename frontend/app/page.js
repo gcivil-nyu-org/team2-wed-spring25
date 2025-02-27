@@ -48,7 +48,7 @@ export default function Home() {
             </div>
 
             {/* Right side - Auth Card */}
-            <Card className="w-full lg:w-96 bg-white/10 backdrop-blur-md border-white/20 animate-float">
+            <Card className="w-full lg:w-96 bg-white/10 backdrop-blur-md border-white/20">
               <CardContent className="p-8">
                 <div className="">
                   <div className="text-center">

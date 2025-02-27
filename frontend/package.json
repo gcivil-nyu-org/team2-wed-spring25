@@ -35,6 +35,8 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/eslint-parser": "^7.26.8",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.24",
     "postcss": "^8",
