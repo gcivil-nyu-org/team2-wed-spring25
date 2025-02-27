@@ -111,6 +111,7 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+
 }
 
 /* Add to your global.css file */

@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *.so
 .Python
+.env
+.env.example
+
 env/
 build/
 develop-eggs/
