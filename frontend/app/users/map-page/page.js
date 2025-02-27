@@ -1,10 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Loading from "../../components/ui/Loading";
+import Loading from "@/components/ui/Loading";
 
 const DynamicMap = dynamic(
-  () => import("../../components/ui/Map"),
+  () => import("@/components/ui/Map"),
   {
     ssr: false,
     loading: () => <Loading />  

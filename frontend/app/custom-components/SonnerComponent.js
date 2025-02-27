@@ -3,13 +3,16 @@
 import { useEffect, useRef } from 'react';
 import { useAuth } from './AuthHook';
 import { toast } from "sonner";
-import { AlertCircle, KeyRound, Ban, Server, Info } from 'lucide-react';
+import { AlertCircle, KeyRound, Ban, Server, Info, Zap, Heart, ThumbsUp, CheckCircle } from 'lucide-react';
 
 export default function AuthErrorSonner() {
-  const { error } = useAuth();
+  const { error, successMessage, clearSuccess} = useAuth();
   const lastErrorRef = useRef(null);
-
+  const lastSuccessRef = useRef(null);
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
     // Only trigger toast if error is present and different from last shown error
     if (error && (!lastErrorRef.current || lastErrorRef.current.timestamp !== error.timestamp)) {
       lastErrorRef.current = error;
@@ -67,7 +70,7 @@ export default function AuthErrorSonner() {
 
             toast.error("Error Details", {
               description: details,
-              duration: 8000,
+              duration: 6000,
               icon: <Info className="h-5 w-5" />,
               className: "my-toast"
             });
@@ -76,7 +79,46 @@ export default function AuthErrorSonner() {
       });
     }
   }, [error]);
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    if (successMessage && (!lastSuccessRef.current || lastSuccessRef.current.timestamp !== successMessage.timestamp)) {
+      lastSuccessRef.current = successMessage;
+
+      // Choose icon based on success type
+      let icon = <CheckCircle className="h-5 w-5" />;
+      let title = "Success";
+
+      if (successMessage.type) {
+        switch (successMessage.type) {
+          case 'login':
+            title = "Login Successful";
+            icon = <ThumbsUp className="h-5 w-5" />;
+            break;
+          case 'signup':
+            title = "Registration Complete";
+            icon = <Zap className="h-5 w-5" />;
+            break;
+          case 'profile':
+            title = "Profile Updated";
+            icon = <Heart className="h-5 w-5" />;
+            break;
+          default:
+            title = "Success";
+            icon = <CheckCircle className="h-5 w-5" />;
+        }
+      }
+
+      toast.success(title, {
+        description: successMessage.message,
+        duration: 5000,
+        icon: icon,
+        className: `my-toast auth-success-toast ${successMessage.type ? `success-${successMessage.type}` : ''}`,
+      });
+    }
+  }, [successMessage]);
 
   // This component doesn't render anything, it just shows toasts
-  return null;
+  return (<></>);
 }

@@ -49,7 +49,9 @@ CORS_ALLOW_HEADERS = [
 CORS_ORIGIN_ALLOW_ALL = True
 # Proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_TRUSTED_ORIGINS = ['https://localhost', "https://localhost:3000", "https://night-walkers.onrender.com", "https://test-night-walkers.onrender.com", "https://testnyuwalkers.netlify.app/", "https://nyuwalkers.netlify.app"]
+CSRF_TRUSTED_ORIGINS = ['https://localhost', "https://localhost:3000", "https://night-walkers.onrender.com",
+                        "https://test-night-walkers.onrender.com", "https://testnyuwalkers.netlify.app/",
+                        "https://nyuwalkers.netlify.app"]
 
 # Application definition
 
@@ -65,7 +67,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'accounts'
-    
+
 ]
 # Current command to run https server: python manage.py runserver_plus --cert-file ../../certs/localhost+1.pem --key-file ../../certs/localhost+1-key.pem
 
@@ -105,11 +107,21 @@ WSGI_APPLICATION = 'nightwalkers.wsgi.application'
 
 # Database
 DATABASES = {
-        'default': dj_database_url.config(
-            default=os.getenv('DJANGO_DATABASE_URL'),
-            conn_max_age=600  # Optional: Improves performance by reusing connections
-        )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
+}
+# DATABASES = {
+#         'default': dj_database_url.config(
+#             default=os.getenv('DJANGO_DATABASE_URL'),
+#             conn_max_age=600  # Optional: Improves performance by reusing connections
+#         )
+#     }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
