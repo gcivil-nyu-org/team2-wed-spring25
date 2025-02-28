@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { getSession } from "next-auth/react"
 import { apiPost } from "@/utils/fetch/fetch";
+import Image from "next/image";
 
 
 export default function LoginPage() {
