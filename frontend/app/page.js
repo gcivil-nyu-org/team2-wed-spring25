@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Map, Navigation, Shield, AlertCircle } from 'lucide-react';
-import Image from 'next/image'
-import Link from 'next/link'
+import { Map, Navigation, Shield, AlertCircle } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import AnimatedBackground from "./custom-components/AnimatedBackground";
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
@@ -14,12 +15,18 @@ export default function Home() {
 
         {/* Radial Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/50 to-blue-900/80"></div>
-
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 pt-20">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             {/* Left side - Hero Text */}
             <div className="text-center lg:text-left lg:w-1/2 space-y-6">
+                <Image
+                  className="mx-auto lg:mx-0 h-auto"
+                  src="/owl-logo.svg"
+                  width={64}
+                  height={64}
+                  alt="Nightwalkers Logo"
+                />
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-400/20 rounded-full text-blue-200 backdrop-blur-sm animate-float">
                 <Shield className="w-4 h-4" />
                 <span className="text-sm font-medium">
@@ -45,15 +52,6 @@ export default function Home() {
               <CardContent className="p-8">
                 <div className="">
                   <div className="text-center">
-                    <div className="absolute -top-10 -left-6">
-                      <Image
-                        className="mx-auto lg:mx-0 mb-4"
-                        src="/owl-logo.svg"
-                        width={64}
-                        height={64}
-                        alt="Nightwalkers Logo"
-                      />
-                    </div>
                     <h2 className="text-2xl font-semibold text-white mb-2">
                       Join Nightwalkers
                     </h2>
@@ -223,4 +221,3 @@ export default function Home() {
     </div>
   );
 }
-
