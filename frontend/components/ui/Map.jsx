@@ -10,9 +10,11 @@ import {
   TileLayer,
   useMapEvents,
   useMap,
+  ZoomControl,
 } from "react-leaflet";
 import { useState, useEffect } from "react";
 import "leaflet.heat";
+import * as Switch from "@radix-ui/react-switch";
 
 function LocationMarker() {
   const [position, setPosition] = useState(null);
@@ -43,7 +45,7 @@ function LocationMarker() {
 
   return (
     <>
-      <div className="leaflet-top leaflet-right mt-2.5 mr-2.5">
+      <div className="leaflet-top leaflet-left mt-2.5 ml-2.5">
         <form onSubmit={handleSearch} className="leaflet-control">
           <input
             type="text"
@@ -69,7 +71,7 @@ function LocationMarker() {
   );
 }
 
-function HeatmapLayer({ points }) {
+function HeatmapLayer({ points, visible }) {
   const map = useMap();
 
   useEffect(() => {
@@ -80,30 +82,37 @@ function HeatmapLayer({ points }) {
       canvas.willReadFrequently = true;
     });
 
-    const heatLayer = L.heatLayer(points, {
-      radius: 25,
-      blur: 15,
-      maxZoom: 20,
-      max: 1.0,
-      minOpacity: 0.5,
-      gradient: {
-        0.2: "#4575b4", // Dark blue
-        0.4: "#74add1", // Medium blue
-        0.6: "#f46d43", // Orange
-        0.8: "#d73027", // Dark red
-        1.0: "#a50026", // Very dark red
-      },
-    }).addTo(map);
+    let heatLayer = null;
+    if (visible) {
+      heatLayer = L.heatLayer(points, {
+        radius: 25,
+        blur: 15,
+        maxZoom: 20,
+        max: 1.0,
+        minOpacity: 0.5,
+        gradient: {
+          0.2: "#4575b4", // Dark blue
+          0.4: "#74add1", // Medium blue
+          0.6: "#f46d43", // Orange
+          0.8: "#d73027", // Dark red
+          1.0: "#a50026", // Very dark red
+        },
+      }).addTo(map);
+    }
 
     return () => {
-      map.removeLayer(heatLayer);
+      if (heatLayer) {
+        map.removeLayer(heatLayer);
+      }
     };
-  }, [map, points]);
+  }, [map, points, visible]);
 
   return null;
 }
 
 export default function Map() {
+  const [showHeatmap, setShowHeatmap] = useState(true);
+
   const points = [
     [40.7527, -73.9772, 0.7], // Midtown East
     [40.7589, -73.9851, 0.8], // Times Square
@@ -115,27 +124,39 @@ export default function Map() {
   ];
 
   return (
-    <MapContainer
-      preferCanvas={true}
-      center={[40.7308, -73.9974]}
-      zoom={11}
-      scrollWheelZoom={true}
-      className="h-[100vh] w-full rounded-lg shadow-md"
-      whenCreated={(map) => {
-        const canvas = document.createElement("canvas");
-        canvas.willReadFrequently = true;
-        return map;
-      }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <Marker position={[40.7128, -74.006]}>
-        <Popup>New York City</Popup>
-      </Marker>
-      <HeatmapLayer points={points} />
-      <LocationMarker />
-    </MapContainer>
+    <div className="relative">
+      <div className="leaflet-top leaflet-left mt-[80px] ml-2.5 z-[1000]">
+        <div className="leaflet-control flex items-center gap-2 bg-white px-3 py-2 rounded-md shadow-md">
+            <Switch.Root
+              checked={showHeatmap}
+              onCheckedChange={setShowHeatmap}
+              className="w-[42px] h-[25px] bg-gray-200 rounded-full relative data-[state=checked]:bg-blue-500 outline-none cursor-default"
+            >
+                <Switch.Thumb className="block w-[21px] h-[21px] bg-white rounded-full transition-transform duration-100 translate-x-0.5 will-change-transform data-[state=checked]:translate-x-[19px]" />
+            </Switch.Root>
+          <span className="text-sm font-medium">Show Heatmap</span>
+        </div>
+      </div>
+
+      <MapContainer
+        preferCanvas={true}
+        center={[40.7308, -73.9974]}
+        zoom={11}
+        scrollWheelZoom={true}
+        className="h-[100vh] w-full rounded-lg shadow-md"
+        zoomControl={false}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <ZoomControl position="bottomright" />
+        <Marker position={[40.7128, -74.006]}>
+          <Popup>New York City</Popup>
+        </Marker>
+        <HeatmapLayer points={points} visible={showHeatmap} />
+        <LocationMarker />
+      </MapContainer>
+    </div>
   );
 }
