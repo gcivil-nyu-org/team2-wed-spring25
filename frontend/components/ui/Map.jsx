@@ -113,6 +113,12 @@ function HeatmapLayer({ points, visible }) {
 export default function Map() {
   const [showHeatmap, setShowHeatmap] = useState(true);
 
+  // Define NYC bounds (roughly covering the five boroughs)
+  const nycBounds = [
+    [40.4957, -74.2557], // Southwest coordinates
+    [40.9176, -73.7002], // Northeast coordinates
+  ];
+
   const points = [
     [40.7527, -73.9772, 0.7], // Midtown East
     [40.7589, -73.9851, 0.8], // Times Square
@@ -145,6 +151,10 @@ export default function Map() {
         scrollWheelZoom={true}
         className="h-[100vh] w-full rounded-lg shadow-md"
         zoomControl={false}
+        maxBounds={nycBounds}
+        minZoom={11}
+        maxZoom={18}
+        boundsOptions={{ padding: [50, 50] }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
