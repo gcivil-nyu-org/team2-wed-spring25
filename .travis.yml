@@ -40,6 +40,7 @@ jobs:
 deploy:
   - provider: script
     script: ./deploy-to-render.sh  # Custom script to deploy to Render
+    cleanup: false
     on:
       branch: main  # Deploy only when pushing to the main branch
 
@@ -50,7 +51,10 @@ deploy:
   #   on:
   #     branch: main  # Deploy only when pushing to the main branch
 
-
+notifications:
+  email:
+    on_success: never
+    on_failure: always
 
 # # .travis.yml
 
@@ -93,7 +97,3 @@ deploy:
 #     branch: main  # Update to your main branch name (e.g., main, master)
 
 # # Notifications (optional)
-# notifications:
-#   email:
-#     on_success: never
-#     on_failure: always
