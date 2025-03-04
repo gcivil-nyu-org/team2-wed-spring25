@@ -34,8 +34,9 @@ deploy:
   script: ./deploy-to-render.sh  # Custom script to deploy to Render
   cleanup: false
   on:
-    branch: main  # Update to your main branch name (e.g., main, master)
-
+    branches: 
+      - main  # Update to your main branch name (e.g., main, master)
+      - develop
 # Notifications (optional)
 notifications:
   email:
