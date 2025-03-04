@@ -14,7 +14,7 @@ jobs:
     - name: "Backend"
       language: python
       python:
-        - "3.13"  # Python version for backend
+        - "3.10"  # Python version for backend
       install:
         - pip install -r requirements.txt  # Install Python dependencies
         - pip install black flake8 coverage coveralls
