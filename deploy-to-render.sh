@@ -1,18 +1,16 @@
 #!/bin/bash
 
-# Deploy to Render
-# Replace with your Render service ID and API key
-RENDER_SERVICE_ID="srv-curvftrv2p9s73aq6k30"
-RENDER_API_KEY=$RENDER_API_KEY
+# Debugging: Print environment variables
+echo "TRAVIS_BRANCH: $TRAVIS_BRANCH"
 
-# Trigger a deployment on Render
-curl -s -X POST \
-  -H "Authorization: Bearer $RENDER_API_KEY" \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
-  -d '{
-        "clearCache": "clear"
-      }'
-
-echo "Deployment to Render triggered!"
+# Deploy based on the branch
+if [ "$TRAVIS_BRANCH" == "main" ]; then
+  echo "Deploying to production..."
+  ./deploy-to-production.sh
+elif [ "$TRAVIS_BRANCH" == "develop" ]; then
+  echo "Deploying to develop..."
+  ./deploy-to-develop.sh
+else
+  echo "Skipping deployment for branch $TRAVIS_BRANCH."
+  exit 0
+fi
