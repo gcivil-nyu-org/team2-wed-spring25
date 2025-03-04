@@ -12,6 +12,10 @@ install:
   - pip install -r backend/nightwalkers/requirements.txt
   - pip install black flake8 coverage coveralls
 
+# Make the script executable
+before_script:
+  - chmod +x deploy-to-render.sh
+
 # Run checks and tests
 script:
   - black --check backend/nightwalkers/
