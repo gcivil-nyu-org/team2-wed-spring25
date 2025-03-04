@@ -38,10 +38,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-<<<<<<< HEAD
-certificates
-=======
 certificates/
 *.pem
 *.key
->>>>>>> main

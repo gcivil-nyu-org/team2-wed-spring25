@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
-# Create your models here.
+
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, first_name, last_name, password=None, **extra_fields):
+
+    def create_user(self, email, first_name,
+                    last_name, password=None, **extra_fields):
         if not email:
             raise ValueError('Users must have an email address')
         if not first_name:
@@ -28,15 +30,16 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_admin', True)
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('email_verified', True)
-        extra_fields.setdefault('first_name', 'Admin')  # Default value for superuser
-        extra_fields.setdefault('last_name', 'User')  # Default value for superuser
+        extra_fields.setdefault('first_name', 'Admin')
+        extra_fields.setdefault('last_name', 'User')
         return self.create_user(email, password=password, **extra_fields)
+
 
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=150, blank=False, null=False)  # Make required
-    last_name = models.CharField(max_length=150, blank=False, null=False)   # Make required
+    first_name = models.CharField(max_length=150, blank=False, null=False)
+    last_name = models.CharField(max_length=150, blank=False, null=False)
     email_verified = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -57,7 +60,11 @@ class User(AbstractUser):
 
     @property
     def get_avatar(self):
-        """Returns the user avatar either uploaded (if we end up supporting this but thought I would add this now) or for now OAuth avatar"""
+        """
+            Returns the user avatar either uploaded \
+            (if we end up supporting this but thought\
+            I would add this now) or for now OAuth avatar
+        """
         if self.avatar:
             return self.avatar.url
         elif self.avatar_url:

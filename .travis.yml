@@ -1,0 +1,36 @@
+language: python
+python:
+  - "3.11"  # Use a stable Python version (3.13 is not yet stable)
+dist: focal
+os: linux
+
+# Install dependenciess
+install:
+  - pip install -r requirements.txt
+  - pip install black flake8 coverage coveralls
+
+# Run checks and tests
+script:
+  - black --check .  # Validate code formatting with black
+  - flake8 .  # Check code style with flake8
+  - coverage run --source=mysite manage.py test mysite  # Run tests with coverage
+  - coverage report  # Print coverage report
+  - coverage xml  # Generate coverage XML for coveralls
+
+# Report coverage to coveralls
+after_success:
+  - coveralls --service=travis-pro
+
+# Deploy to AWS Elastic Beanstalk upon successful tests
+deploy:
+  provider: script
+  script: ./deploy-to-render.sh  # Custom script to deploy to Render
+  cleanup: false
+  on:
+    branch: main  # Update to your main branch name (e.g., main, master)
+
+# Notifications (optional)
+notifications:
+  email:
+    on_success: never
+    on_failure: always
