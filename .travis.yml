@@ -1,0 +1,99 @@
+language: node_js  # Default language for Travis CI (frontend uses Node.js)
+node_js:
+  - 22  # Node.js version for frontend
+
+# Cache node_modules and Python dependencies to speed up builds
+cache:
+  directories:
+    - frontend/node_modules
+    # - backend/.venv  # If using a virtual environment for Python
+
+# Install dependencies and run tests for both backend and frontend
+jobs:
+  include:
+    - name: "Backend"
+      language: python
+      python:
+        - "3.13"  # Python version for backend
+      install:
+        - pip install -r requirements.txt  # Install Python dependencies
+        - pip install black flake8 coverage coveralls
+      script:
+        - black --check .  # Validate code formatting with black
+        - flake8 .  # Check code style with flake8
+        - coverage run --source=mysite manage.py test mysite  # Run tests with coverage
+        - coverage report  # Print coverage report
+        - coverage xml  # Generate coverage XML for coveralls
+
+    # - name: "Frontend"
+    #   language: node_js
+    #   node_js:
+    #     - 16  # Node.js version for frontend
+    #   install:
+    #     - cd frontend
+    #     - npm install  # Install frontend dependencies
+    #   script:
+    #     - npm test  # Run frontend tests
+    #     - npm run build  # Build the frontend
+
+# Deploy to Heroku (backend) and Netlify (frontend)
+deploy:
+  - provider: script
+    script: ./deploy-to-render.sh  # Custom script to deploy to Render
+    on:
+      branch: main  # Deploy only when pushing to the main branch
+
+  # - provider: netlify
+  #   skip_cleanup: true
+  #   site_id: $NETLIFY_SITE_ID
+  #   auth_token: $NETLIFY_AUTH_TOKEN
+  #   on:
+  #     branch: main  # Deploy only when pushing to the main branch
+
+
+
+# # .travis.yml
+
+# # Specify the language and Python versions
+# language: python
+# python:
+#   - "3.13"  # Use a stable Python version (3.13 is not yet stable)
+# dist: focal
+# os: linux
+
+# # Install dependencies
+# install:
+#   - pip install -r requirements.txt
+#   - pip install black flake8 coverage coveralls
+
+# # Run checks and tests
+# script:
+#   - black --check .  # Validate code formatting with black
+#   - flake8 .  # Check code style with flake8
+#   - coverage run --source=mysite manage.py test mysite  # Run tests with coverage
+#   - coverage report  # Print coverage report
+#   - coverage xml  # Generate coverage XML for coveralls
+
+# # Report coverage to coveralls
+# after_success:
+#   - coveralls --service=travis-pro
+
+# # Deploy to AWS Elastic Beanstalk upon successful tests
+# deploy:
+#   provider: elasticbeanstalk
+#   access_key_id: $AWS_ACCESS_KEY_ID
+#   secret_access_key: $AWS_SECRET_ACCESS_KEY
+#   region: "us-west-2"  # Update to your AWS region
+#   app: "django-tutorial"  # Update to your EB application name
+#   env: "django-env"  # Update to your EB environment name
+#   bucket: $AWS_S3_BUCKET  # Update to your S3 bucket name
+#   bucket_path: "django-poll"  # Update to your S3 bucket path
+#   cleanup: false
+#   on:
+#     branch: main  # Update to your main branch name (e.g., main, master)
+
+# # Notifications (optional)
+# notifications:
+#   email:
+#     on_success: never
+#     on_failure: always
