@@ -1,6 +1,6 @@
 language: python
 python:
-  - "3.13"  # Use a stable Python version (3.13 is not yet stable)
+  - "3.10"  # Use a stable Python version (3.13 is not yet stable)
 dist: focal
 os: linux
 
