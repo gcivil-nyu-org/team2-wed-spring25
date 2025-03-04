@@ -1,3 +1,40 @@
+# Data processing
 .conda/*
-data/*
+output_data/*
+input_data/*
 *.zip
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+.env
+.env.example
+
+env/
+build/
+develop-eggs/
+dist/
+eggs/
+*.egg-info/
+
+# Node
+node_modules/
+.next/
+.nuxt/
+dist/
+.cache/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Certificates
+certs/
+*.pem
+*.key
+
+# Docker
+.docker/
