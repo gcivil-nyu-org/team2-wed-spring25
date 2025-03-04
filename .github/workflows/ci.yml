@@ -9,13 +9,13 @@ on:
       - main
 
 jobs:
-  backend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend  # Set working directory to backend folder
+  # backend:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./backend  # Set working directory to backend folder
 
-    steps:
+  #   steps:
     # - name: Checkout repository
     #   uses: actions/checkout@v2
 
