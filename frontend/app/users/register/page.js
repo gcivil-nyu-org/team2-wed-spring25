@@ -11,9 +11,11 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { getSession } from "next-auth/react"
 import { apiPost } from "@/utils/fetch/fetch";
+import { useAuth } from '@/app/custom-components/AuthHook';
 
 export default function RegisterPage() {
     const router = useRouter();
+    const {handleSuccessMessage} = useAuth();
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
         first_name: '',
@@ -84,16 +86,13 @@ export default function RegisterPage() {
             });
 
             if (response.access && response.refresh) {
-                // Store tokens in localStorage
-                localStorage.setItem('djangoAccessToken', response.access);
-                localStorage.setItem('djangoRefreshToken', response.refresh);
-                
-                if (response.user) {
-                    localStorage.setItem('djangoUser', JSON.stringify(response.user));
-                }
-                
                 // Redirect to user home
-                router.push('/users/home');
+                handleSuccessMessage(
+                    "You have successfully created your account!", // Message
+                    null, // Details (optional)
+                    "signup" // Type (login, signup, profile, etc.)
+                  );
+                router.push('/users/login');
             } else {
                 setError('Invalid response from server');
                 setLoading(false);
