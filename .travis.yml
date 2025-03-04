@@ -1,10 +1,10 @@
 language: python
 python:
-  - "3.10"  # Use a stable Python version (3.13 is not yet stable)
+  - "3.11"  # Use a stable Python version (3.13 is not yet stable)
 dist: focal
 os: linux
 
-# Install dependencies
+# Install dependenciess
 install:
   - pip install -r requirements.txt
   - pip install black flake8 coverage coveralls
