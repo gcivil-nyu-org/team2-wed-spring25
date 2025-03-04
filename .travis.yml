@@ -1,6 +1,6 @@
 language: node_js  # Default language for Travis CI (frontend uses Node.js)
 node_js:
-  - 22  # Node.js version for frontend
+  - 22  # Node.js version for frontendd
 
 # Cache node_modules and Python dependencies to speed up builds
 cache:
