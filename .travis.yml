@@ -4,6 +4,9 @@ python:
 dist: focal
 os: linux
 
+env:
+  - BASE_PATH="backend/nightwalkers"
+
 # Install dependencies
 install:
   - pip install -r backend/nightwalkers/requirements.txt
@@ -13,8 +16,8 @@ install:
 script:
   - black --check backend/nightwalkers/
   - flake8 backend/nightwalkers/
-  - coverage run --source=backend/nightwalkers \
-    manage.py test backend/nightwalkers
+  - coverage run --source=$BASE_PATH $BASE_PATH/manage.py \
+    test $BASE_PATH
   - coverage report  # Print coverage report
   - coverage xml  # Generate coverage XML for coveralls
 
