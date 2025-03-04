@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend  # Set working directory to backend folder
+
+    steps:
+    # - name: Checkout repository
+    #   uses: actions/checkout@v2
+
+    # - name: Set up Python
+    #   uses: actions/setup-python@v2
+    #   with:
+    #     python-version: '3.9'
+
+    # - name: Install backend dependencies
+    #   run: |
+    #     pip install -r requirements.txt
+
+    # - name: Check code formatting with black
+    #   run: |
+    #     pip install black
+    #     black --check .
+
+    # - name: Run flake8 linter
+    #   run: |
+    #     pip install flake8
+    #     flake8 .
+
+    # - name: Run tests with coverage.py
+    #   run: |
+    #     pip install coverage pytest
+    #     coverage run -m pytest
+
+    # - name: Report coverage to Coveralls
+    #   run: |
+    #     pip install coveralls
+    #     coveralls
+    #   env:
+    #     COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend  # Set working directory to frontend folder
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    - name: Install frontend dependencies
+      run: npm install
+
+    - name: Run frontend tests
+      run: npm test
+
+    - name: Build frontend
+      run: npm run build
+
+    - name: Deploy to Netlify
+      if: github.ref == 'refs/heads/main'
+      run: |
+        npm install -g netlify-cli
+        netlify deploy --prod
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
