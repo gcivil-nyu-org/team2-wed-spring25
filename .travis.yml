@@ -1,19 +1,19 @@
 language: python
 python:
-  - "3.11"  # Use a stable Python version (3.13 is not yet stable)
+  - "3.11"  # Use a stable Python version
 dist: focal
 os: linux
 
-# Install dependenciess
+# Install dependencies
 install:
-  - pip install -r requirements.txt
+  - pip install -r backend/requirements.txt  # Path to requirements.txt inside the backend folder
   - pip install black flake8 coverage coveralls
 
 # Run checks and tests
 script:
-  - black --check .  # Validate code formatting with black
-  - flake8 .  # Check code style with flake8
-  - coverage run --source=mysite manage.py test mysite  # Run tests with coverage
+  - black --check backend/  # Validate code formatting with black (point to backend folder)
+  - flake8 backend/  # Check code style with flake8 (point to backend folder)
+  - coverage run --source=backend/mysite manage.py test backend/mysite  # Run tests with coverage (update paths)
   - coverage report  # Print coverage report
   - coverage xml  # Generate coverage XML for coveralls
 
