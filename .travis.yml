@@ -13,8 +13,8 @@ install:
 script:
   - black --check backend/nightwalkers/
   - flake8 backend/nightwalkers/
-  - coverage run --source=backend/nightwalkers/mysite \
-    backend/nightwalkers/manage.py test backend/nightwalkers/mysite
+  - coverage run --source=backend/nightwalkers \
+    backend/nightwalkers/manage.py test backend/nightwalkers
   - coverage report  # Print coverage report
   - coverage xml  # Generate coverage XML for coveralls
 
