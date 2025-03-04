@@ -6,14 +6,15 @@ os: linux
 
 # Install dependencies
 install:
-  - pip install -r backend/nightwalkers/requirements.txt  # Path to requirements.txt inside the backend/nightwalkers folder
+  - pip install -r backend/nightwalkers/requirements.txt
   - pip install black flake8 coverage coveralls
 
 # Run checks and tests
 script:
-  - black --check backend/nightwalkers/  # Validate code formatting with black (point to backend/nightwalkers folder)
-  - flake8 backend/nightwalkers/  # Check code style with flake8 (point to backend/nightwalkers folder)
-  - coverage run --source=backend/nightwalkers/mysite manage.py test backend/nightwalkers/mysite  # Run tests with coverage (update paths)
+  - black --check backend/nightwalkers/
+  - flake8 backend/nightwalkers/
+  - coverage run --source=backend/nightwalkers/mysite \
+    backend/nightwalkers/manage.py test backend/nightwalkers/mysite
   - coverage report  # Print coverage report
   - coverage xml  # Generate coverage XML for coveralls
 

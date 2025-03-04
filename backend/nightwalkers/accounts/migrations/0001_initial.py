@@ -24,7 +24,8 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("password", models.CharField(max_length=128, verbose_name="password")),
+                ("password", models.CharField(max_length=128,
+                                              verbose_name="password")),
                 (
                     "last_login",
                     models.DateTimeField(
@@ -53,9 +54,11 @@ class Migration(migrations.Migration):
                 ("provider_id", models.CharField(blank=True, max_length=100)),
                 (
                     "avatar",
-                    models.ImageField(blank=True, null=True, upload_to="avatars/"),
+                    models.ImageField(blank=True,
+                                      null=True, upload_to="avatars/"),
                 ),
-                ("avatar_url", models.URLField(blank=True, max_length=1024, null=True)),
+                ("avatar_url", models.URLField(blank=True,
+                                               max_length=1024, null=True)),
                 (
                     "groups",
                     models.ManyToManyField(

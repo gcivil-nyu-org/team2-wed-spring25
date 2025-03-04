@@ -39,7 +39,8 @@ class GoogleAuthView(APIView):
         if name:
             name_parts = name.split()
             first_name = name_parts[0] if name_parts else ""
-            last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+            last_name = " ".join(name_parts[1:]) \
+                if len(name_parts) > 1 else ""
 
         try:
             # Verify the Google token
@@ -85,15 +86,18 @@ class GoogleAuthView(APIView):
             tokens = get_tokens_for_user(user)
 
             return Response(
-                {**tokens, "user": UserSerializer(user).data}, status=status.HTTP_200_OK
+                {**tokens, "user": UserSerializer(user).data},
+                status=status.HTTP_200_OK
             )
 
         except ValueError:
             return Response(
-                {"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid token"},
+                status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView):
@@ -143,7 +147,8 @@ class LoginView(APIView):
             )
         else:
             return Response(
-                {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+                {"detail": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED
             )
 
 
@@ -180,7 +185,8 @@ class RegisterView(APIView):
         try:
             validate_password(password)
         except ValidationError as e:
-            return Response({"detail": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": e.messages},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         # Create the user
         try:
@@ -210,7 +216,8 @@ class RegisterView(APIView):
             )
 
         except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfileView(APIView):
@@ -224,6 +231,7 @@ class UserProfileView(APIView):
                 "email": user.email,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
-                "avatar_url": user.avatar_url if hasattr(user, "avatar_url") else None,
+                "avatar_url": user.avatar_url
+                if hasattr(user, "avatar_url") else None,
             }
         )
