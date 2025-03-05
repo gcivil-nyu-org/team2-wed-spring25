@@ -51,12 +51,12 @@ after_success:
 # Deploy to AWS Elastic Beanstalk upon successful tests
 deploy:
   provider: script
-  script: ./deploy.sh  # Custom script to deploy to Render
+  script: ./deploy.sh
   cleanup: false
   on:
-    branches: 
-      - main  # Update to your main branch name (e.g., main, master)
-      - develop  # Update to your develop branch name
+    branches:
+      - main
+      - develop
 # Notifications (optional)
 notifications:
   email:
