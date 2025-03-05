@@ -45,7 +45,7 @@ after_success:
 # Deploy to AWS Elastic Beanstalk upon successful tests
 deploy:
   provider: script
-  script: ./deploy-to-render.sh  # Custom script to deploy to Render
+  script: ./deploy.sh  # Custom script to deploy to Render
   cleanup: false
   on:
     branches: 
