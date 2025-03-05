@@ -7,9 +7,11 @@ echo "TRAVIS_BRANCH: $TRAVIS_BRANCH"
 if [ "$TRAVIS_BRANCH" == "main" ]; then
   echo "Deploying to production..."
   ./deploy-to-production.sh
+  ./deploy-to-netlify.sh production  # Deploy frontend to production
 elif [ "$TRAVIS_BRANCH" == "develop" ]; then
   echo "Deploying to develop..."
   ./deploy-to-develop.sh
+  ./deploy-to-netlify.sh develop  # Deploy frontend to develop
 else
   echo "Skipping deployment for branch $TRAVIS_BRANCH."
   exit 0

@@ -6,15 +6,24 @@ os: linux
 
 env:
   - BASE_PATH="backend/nightwalkers"
+  - FRONTEND_PATH="frontend"
 
 # Install dependencies
 install:
   - pip install -r backend/nightwalkers/requirements.txt
   - pip install black flake8 coverage coveralls
 
+# Install Node.js and frontend dependencies
+  - nvm install 22  # Install Node.js 22 (or the version your Next.js app requires)
+  - npm install -g npm@latest  # Update npm to the latest version
+  - cd $FRONTEND_PATH && npm install --legacy-peer-deps && cd ..  # Install frontend dependencies
+
 # Make the script executable
 before_script:
   - chmod +x deploy-to-render.sh
+  - chmod +x deploy-to-production.sh
+  - chmod +x deploy-to-develop.sh
+  - chmod +x deploy-to-netlify.sh
 
 # Run checks and tests
 script:
@@ -23,6 +32,9 @@ script:
   - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH
   - coverage report  # Print coverage report
   - coverage xml  # Generate coverage XML for coveralls
+
+  # Frontend build
+  - cd $FRONTEND_PATH && npm run build && cd ..  # Build the Next.js app
 
 # Report coverage to coveralls
 after_success:
@@ -36,7 +48,7 @@ deploy:
   on:
     branches: 
       - main  # Update to your main branch name (e.g., main, master)
-      - develop
+      - develop  # Update to your develop branch name
 # Notifications (optional)
 notifications:
   email:
