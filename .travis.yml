@@ -54,9 +54,7 @@ deploy:
   script: ./deploy.sh
   cleanup: false
   on:
-    branches:
-      - main
-      - develop
+    branch: main
 # Notifications (optional)
 notifications:
   email:
