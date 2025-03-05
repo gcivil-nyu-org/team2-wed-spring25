@@ -70,24 +70,16 @@ function LocationMarker() {
 }
 
 function HeatmapLayer({ points }) {
-  const [geoJsonPoints, setGeoJsonPoints] = useState([]);
   const map = useMap();
 
   useEffect(() => {
     if (!map) return;
-    fetch('/location_json/') // Fetch the GeoJSON data from your endpoint
-      .then(response => response.json())
-      .then(data => {
-          const geoJsonPoints = data.features.map(feature => {
-              const coordinates = feature.geometry.coordinates;
-              return [coordinates[1], coordinates[0], 0.8]; //Longitude and latitude are flipped in GeoJSON
-          });
-        setGeoJsonPoints(geoJsonPoints); // Update the state with the fetched points
 
-        document.querySelectorAll("canvas").forEach((canvas) => {
-            canvas.willReadFrequently = true;
-        });
-      
+    // Set willReadFrequently on all canvas elements
+    document.querySelectorAll("canvas").forEach((canvas) => {
+      canvas.willReadFrequently = true;
+    });
+
     const heatLayer = L.heatLayer(points, {
       radius: 25,
       blur: 15,
@@ -106,10 +98,7 @@ function HeatmapLayer({ points }) {
     return () => {
       map.removeLayer(heatLayer);
     };
-  })
-  .catch(error => console.error("Error fetching GeoJSON:", error));
-
-  }, [map]);
+  }, [map, points]);
 
   return null;
 }
