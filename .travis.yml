@@ -5,8 +5,7 @@ dist: focal
 os: linux
 
 env:
-  - BASE_PATH="backend/nightwalkers"
-  - FRONTEND_PATH="frontend"
+  - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
 # Install dependencies
 install:
@@ -28,7 +27,6 @@ before_script:
 # Run checks and tests
 script:
   - pwd
-  - ls -R
 
   - black --check backend/nightwalkers/
   - flake8 backend/nightwalkers/
