@@ -5,6 +5,9 @@ echo "TRAVIS_BRANCH: $TRAVIS_BRANCH"
 echo "NETLIFY_SITE_ID: $NETLIFY_SITE_ID"
 echo "NETLIFY_AUTH_TOKEN: $NETLIFY_AUTH_TOKEN"
 
+# Print the current directory
+echo "Current directory: $(pwd)"
+
 # Set Netlify site ID and auth token based on the environment
 if [ "$1" == "main" ]; then
   NETLIFY_SITE_ID=$NETLIFY_PRODUCTION_SITE_ID
@@ -20,7 +23,7 @@ fi
 # Deploy to Netlify
 echo "Deploying to Netlify ($1)..."
 # npx netlify deploy --build --prod --dir=frontend/.next --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
-npx netlify deploy --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
+npx netlify-cli deploy --build --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
 
 # Check if the deployment was successful
 if [ $? -eq 0 ]; then
