@@ -12,6 +12,7 @@ cache:
     - ~/.cache/pip  # Cache pip downloads
     - frontend/node_modules  # Cache frontend dependencies
     - frontend/build  # Cache frontend build artifacts
+    - frontend/.next/cache
 
 # Install dependencies
 install:

@@ -13,11 +13,11 @@ handle_error() {
 if [ "$TRAVIS_BRANCH" == "main" ]; then
   echo "Deploying to production..."
   ./deploy-to-production.sh || handle_error "Backend (Production)"
-  ./deploy-to-netlify.sh || handle_error "Frontend (Production)"
+  ./deploy-to-netlify.sh main || handle_error "Frontend (Production)"
 elif [ "$TRAVIS_BRANCH" == "develop" ]; then
   echo "Deploying to staging..."
   ./deploy-to-staging.sh || handle_error "Backend (Staging)"
-  ./deploy-to-netlify.sh || handle_error "Frontend (Staging)"
+  ./deploy-to-netlify.sh develop || handle_error "Frontend (Staging)"
 else
   echo "Skipping deployment for branch $TRAVIS_BRANCH."
   exit 0
