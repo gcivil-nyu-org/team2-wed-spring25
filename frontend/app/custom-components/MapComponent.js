@@ -206,6 +206,8 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
           [40.9176, -73.7002], // Northeast coordinates (Bronx)
         ],
         maxBoundsViscosity: 1.0, // Makes the bounds "harder" to scroll past
+        minZoom: 11, // Restrict zoom out level
+        maxZoom: 18, // Restrict zoom in level
         bounceAtZoomLimits: true,
       }).setView(userLocation, 15);
       mapInstanceRef.current = map;
@@ -216,14 +218,16 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
         {
           attribution:
             'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+          maxZoom: 18,
+          minZoom: 11,
           id: "mapbox/streets-v11",
           tileSize: 512,
           zoomOffset: -1,
           accessToken: mapboxToken,
           bounds: [
             [40.4957, -74.2557], // Southwest coordinates (Staten Island)
-            [40.9176, -73.7002], // Northeast coordinates (Bronx)
-          ],
+            [40.9176, -73.7002], // Northeast coordinates (Bronx),
+          ], 
         }
       ).addTo(map);
 
