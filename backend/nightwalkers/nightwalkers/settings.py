@@ -62,12 +62,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     # "sslserver",
     'django_extensions',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
-    'accounts'
-
+    'accounts',
+    'map'
 ]
 # Current command to run https server: python manage.py runserver_plus --cert-file ../../certs/localhost+1.pem --key-file ../../certs/localhost+1-key.pem
 
@@ -108,7 +109,7 @@ WSGI_APPLICATION = 'nightwalkers.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
