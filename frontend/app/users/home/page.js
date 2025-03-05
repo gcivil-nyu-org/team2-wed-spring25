@@ -1,7 +1,7 @@
 'use client'
 import { useAuth } from '@/app/custom-components/AuthHook';
 import { Button } from "@/components/ui/button";
-
+import Link from 'next/link';
 // This can be added to your navbar component
 export function LogoutButton() {
   const { logout } = useAuth();
@@ -39,6 +39,8 @@ export function DashboardHeader() {
         >
           Logout
         </Button>
+        <Button><Link href={`map/`}>Map Route</Link></Button>
+
         <button onClick={() => handleAuthError("API request failed", null, "api")}>
           Test Error Toast
         </button>
