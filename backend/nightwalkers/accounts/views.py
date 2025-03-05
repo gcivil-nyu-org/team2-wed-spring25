@@ -15,7 +15,8 @@ from .serializers import UserSerializer
 from django.contrib.auth import authenticate
 
 
-User = get_user_model()
+User = get_user_model()  # noqa: F811
+
 
 
 def get_tokens_for_user(user):

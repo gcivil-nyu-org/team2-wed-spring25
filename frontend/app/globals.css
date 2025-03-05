@@ -177,4 +177,7 @@ body {
   margin-right: 15px !important;
 }
 
-
+.leaflet-container {
+  touch-action: none !important;
+  -ms-touch-action: none !important;
+}
