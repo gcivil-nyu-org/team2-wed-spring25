@@ -35,3 +35,5 @@ certs/
 
 .coverage
 coverage.xml
+# Local Netlify folder
+.netlify
