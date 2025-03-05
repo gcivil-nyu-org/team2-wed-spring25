@@ -38,3 +38,6 @@ certs/
 
 # Docker
 .docker/
+
+.coverage
+coverage.xml
