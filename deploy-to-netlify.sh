@@ -6,7 +6,7 @@ echo "NETLIFY_SITE_ID: $NETLIFY_SITE_ID"
 echo "NETLIFY_AUTH_TOKEN: $NETLIFY_AUTH_TOKEN"
 
 # Set Netlify site ID and auth token based on the environment
-if [ "$1" == "production" ]; then
+if [ "$1" == "main" ]; then
   NETLIFY_SITE_ID=$NETLIFY_PRODUCTION_SITE_ID
   NETLIFY_AUTH_TOKEN=$NETLIFY_PRODUCTION_AUTH_TOKEN
 elif [ "$1" == "develop" ]; then

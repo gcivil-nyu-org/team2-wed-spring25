@@ -11,7 +11,7 @@ handle_error() {
 
 # Deploy based on the branch
 if [ "$TRAVIS_BRANCH" == "main" ]; then
-  echo "Deploying to production..."
+  echo "Deploying to main..."
   ./deploy-to-production.sh || handle_error "Backend (Production)"
   ./deploy-to-netlify.sh main || handle_error "Frontend (Production)"
 elif [ "$TRAVIS_BRANCH" == "develop" ]; then
