@@ -19,7 +19,8 @@ fi
 
 # Deploy to Netlify
 echo "Deploying to Netlify ($1)..."
-npx netlify deploy --prod --dir=frontend/.next --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
+# npx netlify deploy --build --prod --dir=frontend/.next --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
+npx netlify deploy --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
 
 # Check if the deployment was successful
 if [ $? -eq 0 ]; then
