@@ -3,4 +3,4 @@ package = "@netlify/plugin-nextjs"
 
 [build]
   command = "npm run build"
-  publish = "frontend/.next" # or "frontend/out" if using `output: 'export'`
+  publish = ".next" # or "frontend/out" if using `output: 'export'`
