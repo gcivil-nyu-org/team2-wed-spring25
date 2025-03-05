@@ -9,12 +9,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ValidationError
-from .models import User
+
+# from .models import User
 from .serializers import UserSerializer
 from django.contrib.auth import authenticate
 
 
 User = get_user_model()  # noqa: F811
+
 
 
 def get_tokens_for_user(user):
@@ -161,7 +163,10 @@ class RegisterView(APIView):
         # Validate required fields
         if not email or not password or not first_name or not last_name:
             return Response(
-                {"detail": "First name, last name, email, and password are required"},
+                {
+                    "detail": "First name, last name, \
+                email, and password are required"
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

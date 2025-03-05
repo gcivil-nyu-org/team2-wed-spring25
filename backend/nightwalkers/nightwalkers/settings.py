@@ -30,10 +30,11 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG")
 
-# ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', \
+# 'localhost,127.0.0.1').split(',')
 ALLOWED_HOSTS = ["*"]
 # CORS settings
-# CORS_ALLOWED_ORIGINS = os.getenv('DJANGO_CORS_ALLOWED_ORIGINS',
+# CORS_ALLOWED_ORIGINS = os.getenv('DJANGO_CORS_ALLOWED_ORIGINS', \
 # 'https://localhost:3000').split(',')
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
@@ -55,7 +56,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://localhost:3000",
     "https://night-walkers.onrender.com",
     "https://test-night-walkers.onrender.com",
-    "https://testnyuwalkers.netlify.app/",
+    "https://testnyuwalkers.netlify.app",
     "https://nyuwalkers.netlify.app",
 ]
 
@@ -75,7 +76,9 @@ INSTALLED_APPS = [
     "accounts",
 ]
 # Current command to run https server:
-# python manage.py runserver_plus --cert-file ../../certs/localhost+1.pem --key-file ../../certs/localhost+1-key.pem # noqa: E501
+# python manage.py runserver_plus
+# --cert-file ../../certs/localhost+1.pem
+# --key-file ../../certs/localhost+1-key.pem
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -113,21 +116,23 @@ WSGI_APPLICATION = "nightwalkers.wsgi.application"
 
 # Database
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DJANGO_DATABASE_URL"),
+        conn_max_age=600,  # Optional:
+        # Improves performance by reusing connections
+    )
 }
+# Database
 # DATABASES = {
-#         'default': dj_database_url.config(
-#             default=os.getenv('DJANGO_DATABASE_URL'),
-#             conn_max_age=600  # Optional: Improves performance by reusing connections
-#         )
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("DB_NAME"),
+#         "USER": os.getenv("DB_USER"),
+#         "PASSWORD": os.getenv("DB_PASSWORD"),
+#         "HOST": os.getenv("DB_HOST"),
+#         "PORT": os.getenv("DB_PORT"),
 #     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -136,17 +141,16 @@ AUTH_USER_MODEL = "accounts.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
+        "NAME": "django.contrib.auth.password_validation."
+        "UserAttributeSimilarityValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": "django.contrib.auth.password_validation." "MinimumLengthValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation." "CommonPasswordValidator",
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation." "NumericPasswordValidator"},
 ]
 
 # Internationalization
@@ -164,10 +168,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(
-    BASE_DIR, "staticfiles"
-)  # Keep static collected files separate
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  # Your custom static files
+# Keep static collected files separate
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -180,7 +183,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework." "permissions.IsAuthenticated",),
     "DEFAULT_PARSER_CLASSES": (
         "rest_framework.parsers.JSONParser",
         "rest_framework.parsers.FormParser",
