@@ -28,3 +28,12 @@ else
   echo "Failed to trigger deployment to Netlify ($1)."
   exit 1
 fi
+
+
+# netlify.toml
+# [[plugins]]
+# package = "@netlify/plugin-nextjs"
+
+# [build]
+#   command = "npm run build" # or "yarn build"
+#   publish = ".next" # This is the default output directory for Next.js builds
