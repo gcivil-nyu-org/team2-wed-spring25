@@ -7,6 +7,12 @@ os: linux
 env:
   - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
+cache:
+  directories:
+    - ~/.cache/pip  # Cache pip downloads
+    - frontend/node_modules  # Cache frontend dependencies
+    - frontend/build  # Cache frontend build artifacts
+
 # Install dependencies
 install:
   - pip install -r backend/nightwalkers/requirements.txt
@@ -19,7 +25,7 @@ install:
 
 # Make the script executable
 before_script:
-  - chmod +x deploy-to-render.sh
+  - chmod +x deploy.sh
   - chmod +x deploy-to-production.sh
   - chmod +x deploy-to-develop.sh
   - chmod +x deploy-to-netlify.sh
@@ -56,3 +62,6 @@ notifications:
   email:
     on_success: never
     on_failure: always
+
+
+
