@@ -43,7 +43,7 @@ script:
   - coverage xml  # Generate coverage XML for coveralls
 
   # Frontend build
-  - cd $FRONTEND_PATH && npm run build && cd ..  # Build the Next.js app
+  - cd $FRONTEND_PATH && npm run build && && npm run export && cd ..  # Build the Next.js app
 
 # Report coverage to coveralls
 after_success:
