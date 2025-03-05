@@ -49,13 +49,14 @@ script:
 after_success:
   - coveralls --service=travis-pro
 
-# Deploy to AWS Elastic Beanstalk upon successful tests
+# Deploy to AWS Elastic Beanstalk upon successful tests for the main and develop branches
 deploy:
   provider: script
   script: ./deploy.sh
   cleanup: false
   on:
-    branch: main
+    all_branches: true
+    condition: $TRAVIS_BRANCH =~ ^(main|develop)$
 # Notifications (optional)
 notifications:
   email:
