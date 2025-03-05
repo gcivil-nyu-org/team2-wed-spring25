@@ -34,3 +34,4 @@ certs/
 .docker/
 
 .coverage
+coverage.xml
