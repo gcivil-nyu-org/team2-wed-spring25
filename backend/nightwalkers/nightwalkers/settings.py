@@ -63,19 +63,19 @@ CSRF_TRUSTED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.gis',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.gis",
     # "sslserver",
-    'django_extensions',
-    'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
-    'accounts',
-    'map'
+    "django_extensions",
+    "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
+    "accounts",
+    "map",
 ]
 # Current command to run https server:
 # python manage.py runserver_plus
@@ -98,7 +98,7 @@ ROOT_URLCONF = "nightwalkers.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],  # Add this line
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -118,22 +118,11 @@ WSGI_APPLICATION = "nightwalkers.wsgi.application"
 
 # Database
 DATABASES = {
-<<<<<<< HEAD
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-    }
-=======
     "default": dj_database_url.config(
         default=os.getenv("DJANGO_DATABASE_URL"),
         conn_max_age=600,  # Optional:
         # Improves performance by reusing connections
     )
->>>>>>> develop
 }
 # Database
 # DATABASES = {

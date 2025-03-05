@@ -21,9 +21,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
+from map import views  # Add this line
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("accounts.urls")),
+    path("map/", views.road_view, name="road_data"),
     path("", include("accounts.urls")),
 ]
 if settings.DEBUG:
