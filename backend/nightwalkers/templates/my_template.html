@@ -1,18 +1,33 @@
+<!-- my_template.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My View</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoJSON Data</title>
 </head>
 <body>
-    <h1>Data from filtered_grouped_data</h1>
-    {% if data %}
-        <ul>
-            {% for row in data %}
-                <li>{{ row }}</li>
+    <h1>GeoJSON Points Data</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Other Attributes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for point in data %}
+            <tr>
+                <td>{{ point.id }}</td> <!-- Assuming the 'id' field exists in the GeoJSON -->
+                <td>{{ point.geometry.coordinates.1 }}</td> <!-- Latitude -->
+                <td>{{ point.geometry.coordinates.0 }}</td> <!-- Longitude -->
+                <td>{{ point.other_attribute }}</td> <!-- Example of another attribute -->
+            </tr>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p>No data found.</p>
-    {% endif %}
+        </tbody>
+    </table>
 </body>
 </html>
