@@ -8,24 +8,25 @@
 </head>
 <body>
     <h1>GeoJSON Points Data</h1>
-
     <table border="1">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Latitude</th>
                 <th>Longitude</th>
-                <th>Other Attributes</th>
+                <th>Total Population</th>
+                <th>Number Complaints</th>
+                <th>Complaint to Population Ratio</th>
             </tr>
         </thead>
         <tbody>
             {% for point in data %}
             <tr>
-                <td>{{ point.road_seg_id }}</td> <!-- Assuming the 'id' field exists in the GeoJSON -->
-                <td>{{ point.geometry.coordinates.1 }}</td> <!-- Latitude -->
-                <td>{{ point.geometry.coordinates.0 }}</td> <!-- Longitude -->
+                <td>{{ point.road_seg_i }}</td> <!-- Assuming the 'id' field exists in the GeoJSON -->
+                <td>{{ point.latitude }}</td> <!-- Latitude -->
+                <td>{{ point.longitude }}</td> <!-- Longitude -->
                 <td>{{ point.total_popu }}</td> <!-- Example of another attribute -->
-                <td>{{ point.CMPLT_NUM }}</td> <!-- Example of another attribute -->
+                <td>{{ point.CMPLNT_NUM }}</td> <!-- Example of another attribute -->
                 <td>{{ point.ratio }}</td> <!-- Example of another attribute -->
             </tr>
             {% endfor %}

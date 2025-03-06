@@ -13,5 +13,10 @@ def road_view(request):
     # Convert the GeoDataFrame to a list of dictionaries (similar to what you would get from the database)
     rows = points_gdf.to_dict(orient='records')
 
+    for row in rows:
+        geometry = row['geometry']
+        row['longitude'] = geometry.x  # Longitude (geometry.x gives the longitude)
+        row['latitude'] = geometry.y   # Latitude (geometry.y gives the latitude)
+
     # Pass the data to the template
     return render(request, "my_template.html", {"data": rows})
