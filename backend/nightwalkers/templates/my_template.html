@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My View</title>
+</head>
+<body>
+    <h1>Data from filtered_grouped_data</h1>
+    {% if data %}
+        <ul>
+            {% for row in data %}
+                <li>{{ row }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No data found.</p>
+    {% endif %}
+</body>
+</html>
