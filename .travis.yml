@@ -7,6 +7,10 @@ os: linux
 env:
   - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libgdal-dev
+  
 # cache:
 #   directories:
 #     - ~/.cache/pip  # Cache pip downloads

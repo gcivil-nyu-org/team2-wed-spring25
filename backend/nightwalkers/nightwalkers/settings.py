@@ -69,11 +69,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # "django.contrib.gis",
     # "sslserver",
     "django_extensions",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "accounts",
+    "map",
 ]
 # Current command to run https server:
 # python manage.py runserver_plus
@@ -96,7 +98,7 @@ ROOT_URLCONF = "nightwalkers.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],  # Add this line
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
