@@ -1,6 +1,6 @@
 language: python
 python:
-  - "3.11"  # Only test with one Python version
+  - "3.11" # Use a stable Python version
 dist: focal
 os: linux
 
@@ -14,7 +14,9 @@ before_install:
 cache:
   directories:
     - ~/.cache/pip
-    - frontend/node_modules
+    - ~/.npm  # Cache global npm packages
+    - ~/.cache/npm  # Cache npm cache
+    - frontend/node_modules  # Cache project dependencies
     - frontend/build
     - frontend/.next/cache
   npm: true # Add explicit npm caching
@@ -28,7 +30,7 @@ install:
   # Install Node.js and frontend dependencies
   - nvm install 22 # Install Node.js 22 (or the version your Next.js app requires)
   - npm install -g npm@latest # Update npm to the latest version
-  - cd $FRONTEND_PATH && npm install && cd .. # Install frontend dependencies
+  - cd $FRONTEND_PATH && npm ci --production && cd ..  # Faster, uses package-lock.json
 
 # Make the script executable
 before_script:
@@ -43,7 +45,7 @@ script:
 
   - black --check backend/nightwalkers/
   - flake8 backend/nightwalkers/
-
+  - psql -c 'DROP DATABASE IF EXISTS test_nightwalkers;' -U postgres
   - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH
   - coverage report # Print coverage report
   - coverage xml # Generate coverage XML for coveralls
@@ -68,3 +70,5 @@ notifications:
   email:
     on_success: never
     on_failure: always
+
+if: branch IN (main, develop) OR type = pull_request
