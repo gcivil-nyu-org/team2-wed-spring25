@@ -6,7 +6,6 @@ import SettingPanel from "@/app/custom-components/SettingPanel";
 const SettingsPage = () => {
   return (
     <>
-      <div>SettingsPage</div>
       <SettingPanel />
     </>
   );
