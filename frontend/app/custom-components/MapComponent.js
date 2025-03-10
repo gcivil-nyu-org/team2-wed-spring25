@@ -23,24 +23,33 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
   const [locationDenied, setLocationDenied] = useState(false);
   const [error, setError] = useState(null);
 
-  // Add state for heatmap
   const [showHeatmap, setShowHeatmap] = useState(true);
   const heatLayerRef = useRef(null);
+  const [heatmapPoints, setHeatmapPoints] = useState([]); // Use state for heatmap data
 
-  // Add heatmap data
-  const heatmapPoints = [
-    [40.7308, -73.9974, 1.0], // Washington Square Park (increased intensity)
-    [40.7484, -73.9857, 0.9], // Times Square
-    [40.7587, -73.9877, 0.85], // Bryant Park
-    [40.7794, -73.9632, 0.95], // Central Park
-    [40.7127, -74.006, 0.7], // Financial District
-    [40.7527, -73.9772, 0.75], // Midtown East
-    [40.7831, -73.9653, 0.6], // Upper East Side
-    [40.7618, -73.9708, 0.85], // Rockefeller Center
-    [40.7411, -74.0046, 0.7], // Chelsea
-    [40.7352, -73.989, 0.8], // Union Square
-  ];
+  useEffect(() => {
+    const fetchHeatmapData = async () => {
+      try {
+        const response = await fetch("/map/heatmap-data/"); // Adjust URL if needed
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        const formattedData = data.map(item => [
+          item.latitude,
+          item.longitude,
+          item.intensity,
+        ]);
+        setHeatmapPoints(formattedData);
+      } catch (err) {
+        console.error("Error fetching heatmap data:", err);
+        setError("Failed to load heatmap data. Please try again.");
+      }
+    };
 
+    fetchHeatmapData();
+  }, []);
+  
   // Fix Leaflet icon issues on load
   useEffect(() => {
     if (typeof window === "undefined") return;
