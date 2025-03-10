@@ -4,10 +4,12 @@ import os
 from django.conf import settings
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-#  from .models import SavedRoute
-from .serializers import *
+from rest_framework.permissions import IsAuthenticated
+
+from .models import SavedRoute
+from .serializers import RouteInputSerializer
 import requests
+
 
 def road_view(request):
     # Define the path to the GeoJSON file you want to query
@@ -28,10 +30,10 @@ def road_view(request):
     # Pass the data to the template
     return render(request, "my_template.html", {"data": rows})
 
+
 class RouteViewAPI(generics.GenericAPIView):
     serializer_class = RouteInputSerializer
-    permission_classes = [AllowAny] #Change to IsAuthenticated on develop
-
+    permission_classes = [IsAuthenticated]  # Change to IsAuthenticated on develop
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -44,11 +46,11 @@ class RouteViewAPI(generics.GenericAPIView):
             if not request.user.is_authenticated:
                 return Response(
                     {"error": "No valid credentials found"},
-                    status=status.HTTP_401_UNAUTHORIZED
+                    status=status.HTTP_401_UNAUTHORIZED,
                 )
 
-        #if we want to save routes then this will check
-        #in the database first if not then use the coordinates
+        # if we want to save routes then this will check
+        # in the database first if not then use the coordinates
         if route_id:
             try:
                 saved_route = SavedRoute.objects.get(id=route_id)
@@ -61,7 +63,7 @@ class RouteViewAPI(generics.GenericAPIView):
             except SavedRoute.DoesNotExist:
                 return Response(
                     {"error": "The route provided does not exist"},
-                    status=status.HTTP_404_NOT_FOUND
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         else:
             departure_lat, departure_lon = validated_data.get("departure")
@@ -71,14 +73,11 @@ class RouteViewAPI(generics.GenericAPIView):
 
         initial_route = self.get_initial_route(departure, destination)
 
-        if 'error' in initial_route:
-            return Response(
-                initial_route,
-                status = status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        if "error" in initial_route:
+            return Response(initial_route, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            #TODO: Call the function that will process the data
-            #safer_route = process_route_with_crime_data(initial_route)
+            # TODO: Call the function that will process the data
+            # safer_route = process_route_with_crime_data(initial_route)
             saved_id = None
             if save_route and not route_id:
                 saved_route = SavedRoute.objects.create(
@@ -90,13 +89,16 @@ class RouteViewAPI(generics.GenericAPIView):
                     destination_lon=destination_lon,
                 )
                 saved_id = saved_route.id
-            return Response({
-                "initial_route": initial_route,
-                "safer_route": None,
-                "route_id": saved_id
-            }, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "initial_route": initial_route,
+                    "safer_route": None,
+                    "route_id": saved_id,
+                },
+                status=status.HTTP_200_OK,
+            )
         except Exception as e:
-            #if there is an error on getting the safer route fallback
+            # if there is an error on getting the safer route fallback
             saved_id = None
             if save_route and request.user.is_authenticated and not route_id:
                 saved_route = SavedRoute.objects.create(
@@ -108,12 +110,15 @@ class RouteViewAPI(generics.GenericAPIView):
                     destination_lon=destination_lon,
                 )
                 saved_id = saved_route.id
-            return Response({
-                "initial_route": initial_route,
-                "safer_route": None,  #This will be none
-                "message": f"Could not fetch a safer route: {str(e)}",
-                "route_id": saved_id
-            }, status = status.HTTP_200_OK)
+            return Response(
+                {
+                    "initial_route": initial_route,
+                    "safer_route": None,  # This will be none
+                    "message": f"Could not fetch a safer route: {str(e)}",
+                    "route_id": saved_id,
+                },
+                status=status.HTTP_200_OK,
+            )
 
     def get_initial_route(self, departure, destination):
         """
@@ -122,8 +127,8 @@ class RouteViewAPI(generics.GenericAPIView):
         map_api_key = os.getenv("ORS_API_KEY")
         map_url = "https://api.openrouteservice.org/v2/directions/foot-walking"
         headers = {
-            'Authorization': f"{map_api_key}",
-            'Content-Type': 'application/json; charset=utf-8',
+            "Authorization": f"{map_api_key}",
+            "Content-Type": "application/json; charset=utf-8",
         }
         body = {
             "coordinates": [departure, destination],
@@ -134,10 +139,6 @@ class RouteViewAPI(generics.GenericAPIView):
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            return {
-                "error":f"Error processing route request: {str(e)}"
-            }
+            return {"error": f"Error processing route request: {str(e)}"}
         except Exception as e:
-            return {
-                "error":f"Error processing route request: {str(e)}"
-            }
+            return {"error": f"Error processing route request: {str(e)}"}
