@@ -6,6 +6,7 @@ import {
   ShieldPlus,
   Settings,
   LogOut,
+  X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -70,14 +71,27 @@ const SettingsSidebar = () => {
         {/* Banner */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <div>
-              <Avatar className="h-24 w-24">
-                <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="@shadcn"
-                />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
+            <div className="w-full">
+              <div className="flex justify-between">
+                <div className="flex-1" /> {/* Spacer */}
+                <div className="p-2 cursor-pointer hover:opacity-70">
+                  <X
+                    onClick={() =>
+                      isMobile ? setOpenMobile(false) : setOpen(false)
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-5">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage
+                    src="https://github.com/shadcn.png"
+                    alt="@shadcn"
+                  />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <span>Username</span>
+              </div>
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
