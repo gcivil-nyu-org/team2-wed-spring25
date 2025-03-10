@@ -24,5 +24,5 @@ export default function AuthLayout({ children }) {
         </AuthProvider>
       </NotificationProvider>
     </SessionProvider>
-  )
+  );
 }
