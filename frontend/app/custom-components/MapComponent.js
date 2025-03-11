@@ -1,5 +1,6 @@
 // app/custom-components/MapComponent.js
 "use client";
+import { apiGet } from '../../utils/fetch/fetch';
 
 import React, { useEffect, useRef, useState } from "react";
 // Import Leaflet statically - this works better in Next.js
@@ -28,19 +29,18 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
   const [heatmapPoints, setHeatmapPoints] = useState([]); // Use state for heatmap data
 
   useEffect(() => {
+    console.log("useEffect for heatmap data is running"); // Add this line
     const fetchHeatmapData = async () => {
       try {
-        const response = await fetch("/api/map/heatmap-data/"); // Adjust URL if needed
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await apiGet("/map/heatmap-data/"); // Use apiGet
         const formattedData = data.map(item => [
           item.latitude,
           item.longitude,
           item.intensity,
         ]);
+        console.log("Formatted Heatmap Data (before set):", formattedData);
         setHeatmapPoints(formattedData);
+        console.log(formattedData);
       } catch (err) {
         console.error("Error fetching heatmap data:", err);
         setError("Failed to load heatmap data. Please try again.");
@@ -535,8 +535,8 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
 
     if (!heatLayerRef.current) {
       heatLayerRef.current = L.heatLayer(heatmapPoints, {
-        radius: 25,
-        blur: 15,
+        radius: 50, // Even larger radius
+        blur: 40, // Even larger blur
         maxZoom: 20,
         max: 100, // Adjust to the maximum intensity in your data
         minOpacity: 0.6,
@@ -551,7 +551,9 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
     }
 
     if (showHeatmap) {
+      console.log(mapLoaded);
       heatLayerRef.current.addTo(map);
+      console.log("heatmap points length: ", heatmapPoints.length);
     } else {
       map.removeLayer(heatLayerRef.current);
     }
