@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from .models import Post, Comment, Like
+
 import json
 
 User = get_user_model()
@@ -16,23 +17,35 @@ def parse_json_request(request):
         return None
 
 
-# Create a new post
 @csrf_exempt
 def create_post(request):
     if request.method == "POST":
-        data = parse_json_request(request)
-        if not data:
+        try:
+            # Parse JSON data from the request body
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
-        user = request.user
+        user_id = data.get("user_id")
         content = data.get("content")
-        image_urls = data.get("imageUrl", [])
-        print("user")
-        print(user)
-        print(type(user))
+        image_urls = data.get("image_urls", [])
+        if not user_id or not content:
+            return JsonResponse(
+                {"error": "user_id and content are required"}, status=400
+            )
+
+        try:
+            # Fetch the user by ID
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+
+        # Create the post
         post = Post.objects.create(
             user=user, title="", content=content, image_urls=image_urls
         )
+
+        # Include user details in the response
         return JsonResponse(
             {
                 "id": post.id,
@@ -40,7 +53,13 @@ def create_post(request):
                 "content": post.content,
                 "image_urls": post.image_urls,
                 "date_created": post.date_created,
-                "user": post.user.get_full_name(),
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                },
             },
             status=201,
         )
@@ -59,7 +78,9 @@ def get_posts(request):
                 "content": post.content,
                 "image_urls": post.image_urls,
                 "date_created": post.date_created,
-                "user": post.user.get_full_name(),
+                "user_id": post.user.get_user_id(),
+                "user_fullname": post.user.get_full_name(),
+                "user_avatar": post.user.get_avatar_url(),
                 "comments_count": post.comments.count(),
                 "likes_count": post.likes.count(),
             }

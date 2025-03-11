@@ -26,7 +26,6 @@ export default function PostDialog({
     } = useFileUpload();
 
     const {
-        textAreaRef,
         postContent,
         setPostContent,
         handleSubmit
@@ -89,7 +88,6 @@ export default function PostDialog({
                             type="text" 
                             className="pl-7 text-xl flex-1 resize-none outline-none placeholder-slate-600 " 
                             placeholder="Share Your Thoughts..."      
-                            ref={textAreaRef}
                             value={postContent}
                             onChange={(e) => setPostContent(e.target.value)}
                         />
@@ -163,7 +161,8 @@ export default function PostDialog({
                             />
                         </div>
                         <Button onClick={() => {
-                            handleSubmit(selectedImage);
+                            handleSubmit(selectedImage, onClick);
+
                         }}>
                             Post
                         </Button>

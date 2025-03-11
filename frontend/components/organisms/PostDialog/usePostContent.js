@@ -4,9 +4,8 @@ import { useState, useRef } from 'react';
 
 export const usePostContent = ( ) => {
     const [postContent, setPostContent] = useState('');
-    const textAreaRef = useRef(null);
-
-    const handleSubmit = async (selectedImage) => {
+    
+    const handleSubmit = async (selectedImage, onClick) => {
         if (postContent.trim() === '' && !selectedImage) {
             return;
         }
@@ -16,27 +15,40 @@ export const usePostContent = ( ) => {
             return;
         }
         try {
-            const accessToken = localStorage.getItem('djangoAccessToken');
-            console.log('accessToken', accessToken);
+            const userString = localStorage.getItem('user'); // Retrieve the string
+            let user = null;
+            if (userString) {
+                user = JSON.parse(userString); // Parse the string into a JSON object
+                console.log(user); // Use the JSON object
+            } else {
+                console.log('No user data found in localStorage');
+            }
             
+            if (!user) {
+                alert('Please login to post');
+                return;
+            }
+
             const imageUrl = selectedImage ? await uploadImage(selectedImage) : null;
-            console.log('content', postContent);
-            console.log('imageUrl', imageUrl);
             await apiPost('/api/forum/posts/create/', {
                 content: postContent,
                 image_urls: [imageUrl],
+                user_id: user.id,
             },  {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
                 },
             });
         } catch (error) {
             console.error('Error submitting post:', error);
+        } finally {
+            // Reset the textarea content
+            onClick();
+            setPostContent('');
         }
 
         // Reset states
-        setPostContent('');
+        
     };
     return {
         handleSubmit,

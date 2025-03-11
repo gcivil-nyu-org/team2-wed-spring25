@@ -66,6 +66,12 @@ class User(AbstractUser):
     def get_provider(self):
         return self.provider if self.provider else "email"
 
+    def get_avatar_url(self):
+        return self.avatar_url if self.avatar_url else None
+
+    def get_user_id(self):
+        return self.id if self.id else None
+
     @property
     def get_avatar(self):
         """
