@@ -31,6 +31,7 @@ def road_view(request):
     # Pass the data to the template
     return render(request, "my_template.html", {"data": rows})
 
+
 def heatmap_data(request):
     geojson_file_path = os.path.join(
         settings.BASE_DIR, "map", "data", "filtered_grouped_data_centroid.geojson"
@@ -42,23 +43,30 @@ def heatmap_data(request):
     # Extract latitude, longitude, and complaints
     heatmap_points = []
     for index, row in points_gdf.iterrows():
-        latitude = row['geometry'].y
-        longitude = row['geometry'].x
-        complaints = row.get('CMPLNT_NUM')  # Use .get() to handle potential missing 'complaints'
+        latitude = row["geometry"].y
+        longitude = row["geometry"].x
+        complaints = row.get(
+            "CMPLNT_NUM"
+        )  # Use .get() to handle potential missing 'complaints'
 
         # Ensure complaints is a number (handle potential None or non-numeric values)
         try:
-            complaints = float(complaints) if complaints is not None else 0.0  # Default to 0 if None
+            complaints = (
+                float(complaints) if complaints is not None else 0.0
+            )  # Default to 0 if None
         except (ValueError, TypeError):
-            complaints = 0.0 #Default to zero if the complaints is not a valid number.
+            complaints = 0.0  # Default to zero if the complaints is not a valid number.
 
-        heatmap_points.append({
-            'latitude': latitude,
-            'longitude': longitude,
-            'intensity': complaints,
-        })
+        heatmap_points.append(
+            {
+                "latitude": latitude,
+                "longitude": longitude,
+                "intensity": complaints,
+            }
+        )
 
     return JsonResponse(heatmap_points, safe=False)
+
 
 class RouteViewAPI(generics.GenericAPIView):
     serializer_class = RouteInputSerializer
