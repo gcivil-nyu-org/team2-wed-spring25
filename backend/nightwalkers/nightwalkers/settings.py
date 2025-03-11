@@ -23,7 +23,6 @@ load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
@@ -54,6 +53,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost",
     "https://localhost:3000",
+    "https://127.0.0.1:3000",
     "https://night-walkers.onrender.com",
     "https://test-night-walkers.onrender.com",
     "https://testnyuwalkers.netlify.app",

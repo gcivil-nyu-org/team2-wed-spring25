@@ -25,15 +25,13 @@ def create_post(request):
             return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
         user = request.user
-        title = data.get("title")
         content = data.get("content")
-        image_urls = data.get("image_urls", [])
-
-        if not title or not content:
-            return JsonResponse({"error": "Title and content are required"}, status=400)
-
+        image_urls = data.get("imageUrl", [])
+        print("user")
+        print(user)
+        print(type(user))
         post = Post.objects.create(
-            user=user, title=title, content=content, image_urls=image_urls
+            user=user, title="", content=content, image_urls=image_urls
         )
         return JsonResponse(
             {

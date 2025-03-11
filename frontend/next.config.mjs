@@ -3,7 +3,7 @@ const nextConfig = {
     reactStrictMode: true,
     transpilePackages: ['leaflet', 'leaflet-routing-machine'],
     images: {
-        domains: ['randomuser.me', 'picsum.photos'], // Add the domain(s) you want to allow
+        domains: ['randomuser.me', 'picsum.photos', 'res.cloudinary.com'], // Add the domain(s) you want to allow
       },
 };
 

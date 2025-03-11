@@ -1,62 +1,64 @@
 import Button from "@/components/atom/Button/Button";
 import Icon from "@/components/atom/Icon/Icon";
 import UserImage from "@/components/atom/UserImage/UserImage";
+import { useEmojiPicker } from "@/hooks/useEmojiPicker";
+import { useFileUpload } from "@/hooks/useFileUpload";
 import EmojiPicker from "emoji-picker-react";
-import Image from "next/image";
-import { useRef, useState, useEffect } from "react";
-
+import { usePostContent } from "./usePostContent";
 export default function PostDialog({
     onClick,
 }) {
-    const fileInputRef = useRef(null);
-    const emojiPickerRef = useRef(null);
-    const textAreaRef = useRef(null);
 
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const {
+        emojiPickerRef,
+        showEmojiPicker,
+        handleClickOnEmojiPicker,
+        handleOnEmojiClick,
+    } = useEmojiPicker();
+
+    const {
+        fileInputRef,
+        selectedImage,
+        selectedImageName,
+        handleOpenImageSelector,
+        handleRemoveImage,
+        handleFileChange,
+    } = useFileUpload();
+
+    const {
+        textAreaRef,
+        postContent,
+        setPostContent,
+        handleSubmit
+    } = usePostContent();
     
-    const handleClickOnEmojiPicker = () => {
-        setShowEmojiPicker(!showEmojiPicker);
-    }
 
-    const handleOpenImageSelector = (e) => {
-        fileInputRef.current.click();
-    }
+    // const contentEditableRef = useRef(null);
 
-    const handleRemoveImage = (e) => {
-        setSelectedImage(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    }
+    // Handle keydown events
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        console.log(file);
-        
-        if (file){
-            setSelectedImage(file);
-        }
-    }
+    // Handle input changes
+    // const handleInput = (e) => {
+    //     const text = e.target.textContent;
+    //     if (postContent === "Share Your Thoughts...") {
+    //         setPostContent(text);
+    //         return;
+    //     }else{
+    //         setPostContent(text);
+    //     }
+    // };
 
-    const handleOnEmojiClick = (emojiObject) => {
-        textAreaRef.current.value += emojiObject.emoji;
-        setShowEmojiPicker(false);
-    }
-
-    useEffect(() => {
-        const handleClickOutsideEmojiPicker = (e) => {
-            if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target)) {
-                setShowEmojiPicker(false);
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutsideEmojiPicker);
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutsideEmojiPicker);
-        }
-    });
-
+    // useEffect(() => {
+    //     if (contentEditableRef.current) {
+    //         contentEditableRef.current.textContent = postContent;
+    //     }
+    // }
+    // , [postContent]);
+    // useEffect(() => {
+    //     if (contentEditableRef.current) {
+    //         contentEditableRef.current.focus();
+    //     }
+    // }, []);
     return (
         <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0">
             <div className="w-1/2 h-4/5 bg-white rounded-lg flex flex-col">
@@ -82,19 +84,20 @@ export default function PostDialog({
                         />
                 </div>
                 <div className="mb-4 flex-1 flex flex-col justify-between relative">
-                    <div className="flex flex-col flex-1 justify-between ">
+                    <div className="flex flex-col flex-1 justify-between overflow-y-auto h-full">
                         <textarea sd
                             type="text" 
                             className="pl-7 text-xl flex-1 resize-none outline-none placeholder-slate-600 " 
                             placeholder="Share Your Thoughts..."      
-                            ref={textAreaRef}   
+                            ref={textAreaRef}
+                            value={postContent}
+                            onChange={(e) => setPostContent(e.target.value)}
                         />
                         {
-                            //TODO: do it similar to linkedin
                             selectedImage && 
                             <div className="mx-5 px-3 p-2 flex justify-between items-center border-2 border-slate-300 rounded">
                                 <p className="text-lg">
-                                    {selectedImage.name}
+                                    {selectedImageName}
                                 </p>
                                 <Icon onClick={handleRemoveImage} src={"/icons/close.svg"}
                                     width={15}
@@ -103,13 +106,35 @@ export default function PostDialog({
                                     size={"md"}
                                 />
                             </div>
+                            
                         }
+                        {/* <div 
+                            className="w-full h-1 outline-none pl-7 text-xl relative text-slate-700 select-text" 
+                            contentEditable="true"
+                            ref={contentEditableRef}
+                            onInput={handleInput}
+                            suppressContentEditableWarning={true} 
+                            >
+                            {postContent === "" && "Share Your Thoughts..."}
+                            {postContent !== "" && postContent}
+                            <div>
+                            {selectedImage &&
+                                <Image
+                                    src={selectedImage}
+                                    width={500}
+                                    height={500}
+                                    alt={selectedImageName}
+                                    className="absolute w-full left-0 mt-4 select-none"
+                                />
+                                }
+                            </div>
+                        </div> */}
                     </div>
                     
                     <div className="flex justify-between items-center mx-3 px-2 pt-3">
                         {
                             showEmojiPicker && <div className="absolute bottom-14" ref={emojiPickerRef}>
-                                <EmojiPicker height={400} onEmojiClick={handleOnEmojiClick}/>
+                                <EmojiPicker height={400} onEmojiClick={(emojiObject) => handleOnEmojiClick(emojiObject, setPostContent)}/>
                             </div>
                         }
                         <div className="flex">
@@ -137,7 +162,9 @@ export default function PostDialog({
                                 onChange={handleFileChange}
                             />
                         </div>
-                        <Button>
+                        <Button onClick={() => {
+                            handleSubmit(selectedImage);
+                        }}>
                             Post
                         </Button>
                     </div>
