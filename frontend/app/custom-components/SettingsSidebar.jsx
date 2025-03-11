@@ -21,31 +21,32 @@ import {
   SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 
 const items = [
   {
     title: "Profile",
-    url: "#",
+    url: "/users/settings/profile",
     icon: UserRound,
   },
   {
     title: "Routes",
-    url: "#",
+    url: "/users/settings/routes",
     icon: MapPinCheck,
   },
   {
     title: "Report",
-    url: "#",
+    url: "/users/settings/report",
     icon: Flag,
   },
   {
     title: "Resources",
-    url: "#",
+    url: "/users/resources",
     icon: ShieldPlus,
   },
   {
     title: "Settings",
-    url: "#",
+    url: "/users/settings",
     icon: Settings,
   },
   {
@@ -104,10 +105,10 @@ const SettingsSidebar = () => {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                   <SidebarSeparator />
                 </SidebarMenuItem>
