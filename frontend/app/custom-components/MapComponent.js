@@ -432,8 +432,8 @@ const RoutingMapComponent = ({
 
         if (!heatLayerRef.current) {
             heatLayerRef.current = L.heatLayer(heatmapPoints, {
-                radius: 25,
-                blur: 15,
+                radius: 10,
+                blur: 10,
                 maxZoom: 20,
                 max: 1,
                 minOpacity: 0.6,
