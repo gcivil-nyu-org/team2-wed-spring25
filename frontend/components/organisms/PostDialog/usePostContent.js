@@ -1,3 +1,4 @@
+'use client'
 import { apiPost } from '@/utils/fetch/fetch';
 import uploadImage from '@/utils/uploadImage';
 import { useState, useRef } from 'react';

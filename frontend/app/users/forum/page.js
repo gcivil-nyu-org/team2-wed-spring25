@@ -5,11 +5,16 @@ import PostDialog from "@/components/organisms/PostDialog/PostDialog"
 import useForum from "./useForum"
 export default function ForumsPage(){
     const {
+        isLoading,
         isOpen,
         userPosts,
         handleClick,
         user,
     } = useForum();
+    console.log(user);
+    if (isLoading){
+        return (<div className="h-screen w-screen flex justify-center items-center"><h1>Loading</h1></div>);
+    }
     return (
         <div className="flex flex-row justify-center items-start h-screen my-4">
             <div className="w-1/6 flex flex-col justify-center items-center bg-white rounded-sm h-1/2">
@@ -38,6 +43,6 @@ export default function ForumsPage(){
             <div className="w-1/6 flex flex-col justify-center items-center bg-white rounded-sm h-1/2">
                 <h1>Useful Links</h1>
             </div>
-        </div>
+        </div> 
     )
 }
