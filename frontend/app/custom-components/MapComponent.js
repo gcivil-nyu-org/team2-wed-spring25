@@ -30,7 +30,7 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
   useEffect(() => {
     const fetchHeatmapData = async () => {
       try {
-        const response = await fetch("/map/heatmap-data/"); // Adjust URL if needed
+        const response = await fetch("/api/map/heatmap-data/"); // Adjust URL if needed
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -538,7 +538,7 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
         radius: 25,
         blur: 15,
         maxZoom: 20,
-        max: 1,
+        max: 100, // Adjust to the maximum intensity in your data
         minOpacity: 0.6,
         gradient: {
           0.2: "#1e3a8a",

@@ -22,14 +22,12 @@ from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from map import views  # Add this line
-
+from map.views import RouteViewAPI
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("accounts.urls")),
-    path("map/road-data", views.road_view, name="road-data"),
-    path("map/heatmap-data", views.heatmap_data, name="heatmap-data"),
-    path("", include("accounts.urls")),
+    path("api/", include("map.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()  # Add this
