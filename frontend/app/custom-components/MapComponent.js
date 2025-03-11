@@ -38,7 +38,9 @@ const RoutingMapComponent = ({
     const [showInstructions, setShowInstructions] = useState(false);
     const [activeRoute, setActiveRoute] = useState('initial'); // 'initial' or 'safer'
     const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
-    
+    const [heatmapPoints, setHeatmapPoints] = useState([]); // Use state for heatmap data
+    const [heatmapDataLoaded, setHeatmapDataLoaded] = useState(false); // New state
+      
     // Track if location has been set by explicit coordinates
     const [hasExplicitCoordinates, setHasExplicitCoordinates] = useState(false);
     // Track if we've attempted to get location on initial load
