@@ -52,7 +52,19 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
     def __str__(self):
-        return self.email
+        return f"{self.get_full_name()} ({self.email})"
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def get_short_name(self):
+        return self.first_name
+
+    def has_verified_email(self):
+        return self.email_verified
+
+    def get_provider(self):
+        return self.provider if self.provider else "email"
 
     @property
     def get_avatar(self):

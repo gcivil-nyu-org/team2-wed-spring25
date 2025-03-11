@@ -25,6 +25,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("accounts.urls")),
     path("", include("accounts.urls")),
+    path('api/forum/', include('forum.urls')),
+    path('forum/', include('forum.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()  # Add this
