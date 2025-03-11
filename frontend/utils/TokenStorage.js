@@ -18,7 +18,6 @@ export default function TokenStorage() {
       return
     }
     if (status === 'authenticated' && session && session.djangoTokens) {
-      console.log('TokenStorage: Syncing Django tokens from NextAuth session');
 
       // Store Django tokens in localStorage
       localStorage.setItem('djangoAccessToken', session.djangoTokens.access);
@@ -35,7 +34,6 @@ export default function TokenStorage() {
       // Redirect to home page after successful OAuth login
       // Only if we're on the login page
       if (window.location.pathname.includes('/login')) {
-        console.log('TokenStorage: Redirecting to home after OAuth login');
         router.replace('/users/home');
       }
     }
@@ -51,7 +49,6 @@ export default function TokenStorage() {
       const storedUser = localStorage.getItem('user');
 
       if (accessToken && storedUser && status !== 'authenticated') {
-        console.log('TokenStorage: Detected credential login, notifying auth provider');
         window.dispatchEvent(new CustomEvent('auth-updated'));
       }
     };
