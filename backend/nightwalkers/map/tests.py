@@ -259,4 +259,4 @@ class HeatmapDataViewTest(TestCase):
                 self.assertIsNotNone(item['intensity'], "Intensity should not be None")
                 self.assertTrue(-90 <= item['latitude'] <= 90, "Latitude should be within valid range")
                 self.assertTrue(-180 <= item['longitude'] <= 180, "Longitude should be within valid range")
-                self.assertTrue(0 <= item['intensity'] <= 100, "Intensity should be within valid range")
+                self.assertTrue(0 <= item['intensity'] <= 50, "Intensity should be within valid range")

@@ -27,6 +27,7 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
   const [showHeatmap, setShowHeatmap] = useState(true);
   const heatLayerRef = useRef(null);
   const [heatmapPoints, setHeatmapPoints] = useState([]); // Use state for heatmap data
+  const [heatmapDataLoaded, setHeatmapDataLoaded] = useState(false); // New state
 
   useEffect(() => {
     console.log("useEffect for heatmap data is running"); // Add this line
@@ -41,6 +42,8 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
         console.log("Formatted Heatmap Data (before set):", formattedData);
         setHeatmapPoints(formattedData);
         console.log(formattedData);
+        console.log(heatmapPoints);
+        setHeatmapDataLoaded(true); // Set to true when data is loaded
       } catch (err) {
         console.error("Error fetching heatmap data:", err);
         setError("Failed to load heatmap data. Please try again.");
@@ -49,6 +52,19 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
 
     fetchHeatmapData();
   }, []);
+    
+    // const heatmapPoints = [
+    //   [40.83966017062337, -73.90546599999998, 42],
+    //   [40.852016503262384, -73.922446, 39],
+    //   [40.73443349380265, -73.98029349999999, 35],
+    //   [40.751721727334406, -73.99008549999998, 24],
+    //   [40.750046506722086, -73.9913145, 24],
+    //   [40.821590770818474, -73.94280299999998, 23],
+    //   [40.821590770818474, -73.94280299999998, 23],
+    //   [40.83009650011502, -73.9372585, 23],
+    //   [40.83425726075048, -73.905219, 23],
+    //   [40.78831800101413, -73.9390575, 21]
+    // ];
   
   // Fix Leaflet icon issues on load
   useEffect(() => {
@@ -529,16 +545,16 @@ const MapComponent = ({ mapboxToken, startCoords, endCoords }) => {
 
   // Heatmap layer
   useEffect(() => {
-    if (!mapInstanceRef.current || !mapLoaded) return;
+    if (!mapInstanceRef.current || !mapLoaded || !heatmapDataLoaded) return;
 
     const map = mapInstanceRef.current;
 
     if (!heatLayerRef.current) {
       heatLayerRef.current = L.heatLayer(heatmapPoints, {
-        radius: 50, // Even larger radius
-        blur: 40, // Even larger blur
+        radius: 10, // Even larger radius
+        blur: 10, // Even larger blur
         maxZoom: 20,
-        max: 100, // Adjust to the maximum intensity in your data
+        max: 50, // Adjust to the maximum intensity in your data
         minOpacity: 0.6,
         gradient: {
           0.2: "#1e3a8a",

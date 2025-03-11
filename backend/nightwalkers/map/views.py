@@ -39,23 +39,23 @@ def heatmap_data(request):
     # Load the GeoJSON file as a GeoDataFrame using GeoPandas
     points_gdf = gpd.read_file(geojson_file_path)
 
-    # Extract latitude, longitude, and ratio
+    # Extract latitude, longitude, and complaints
     heatmap_points = []
     for index, row in points_gdf.iterrows():
         latitude = row['geometry'].y
         longitude = row['geometry'].x
-        ratio = row.get('ratio')  # Use .get() to handle potential missing 'ratio'
+        complaints = row.get('CMPLNT_NUM')  # Use .get() to handle potential missing 'complaints'
 
-        # Ensure ratio is a number (handle potential None or non-numeric values)
+        # Ensure complaints is a number (handle potential None or non-numeric values)
         try:
-            ratio = float(ratio) if ratio is not None else 0.0  # Default to 0 if None
+            complaints = float(complaints) if complaints is not None else 0.0  # Default to 0 if None
         except (ValueError, TypeError):
-            ratio = 0.0 #Default to zero if the ratio is not a valid number.
+            complaints = 0.0 #Default to zero if the complaints is not a valid number.
 
         heatmap_points.append({
             'latitude': latitude,
             'longitude': longitude,
-            'intensity': ratio,
+            'intensity': complaints,
         })
 
     return JsonResponse(heatmap_points, safe=False)
