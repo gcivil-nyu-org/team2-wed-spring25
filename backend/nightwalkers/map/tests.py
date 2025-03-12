@@ -1,5 +1,5 @@
 # map/tests.py
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.conf import settings
 import os
@@ -8,6 +8,8 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.contrib.auth import get_user_model
 import requests
+import json
+from django.core.exceptions import ImproperlyConfigured
 
 User = get_user_model()
 
@@ -33,7 +35,7 @@ class RoadViewTest(TestCase):
     def test_road_view(self):
         # Use the Django test client to make a GET request to the view
         response = self.client.get(
-            reverse("road_data")
+            reverse("road-data")
         )  # Update with your actual URL name if different
 
         # Assert that the response was successful (HTTP status code 200)
@@ -220,3 +222,59 @@ class RouteViewAPITests(TestCase):
         response = self.client.post(self.url, self.valid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertIn("error", response.data)
+
+
+class HeatmapDataViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_heatmap_data_view_real_data_not_empty(self):
+        # Test the view with a real GeoJSON file and check for non-empty data
+        real_geojson_path = os.path.join(
+            settings.BASE_DIR, "map", "data", "filtered_grouped_data_centroid.geojson"
+        )  # Adjust the path if needed.
+
+        if not os.path.exists(real_geojson_path):
+            raise ImproperlyConfigured(
+                f"Real GeoJSON file not found at: {real_geojson_path}"
+            )
+
+        with self.settings(BASE_DIR=settings.BASE_DIR):
+            response = self.client.get(reverse("heatmap-data"))
+            # response = self.client.get('/map/heatmap-data/')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response["content-type"], "application/json")
+
+            data = json.loads(response.content)
+            self.assertIsInstance(data, list)
+            self.assertTrue(len(data) > 0, "Real data should not be empty")
+
+            for item in data:
+                self.assertIsInstance(item, dict)
+                self.assertIn("latitude", item)
+                self.assertIn("longitude", item)
+                self.assertIn("intensity", item)
+                self.assertIsInstance(
+                    item["latitude"], (int, float), "Latitude should be a number"
+                )
+                self.assertIsInstance(
+                    item["longitude"], (int, float), "Longitude should be a number"
+                )
+                self.assertIsInstance(
+                    item["intensity"], (int, float), "Intensity should be a number"
+                )
+                self.assertIsNotNone(item["latitude"], "Latitude should not be None")
+                self.assertIsNotNone(item["longitude"], "Longitude should not be None")
+                self.assertIsNotNone(item["intensity"], "Intensity should not be None")
+                self.assertTrue(
+                    -90 <= item["latitude"] <= 90,
+                    "Latitude should be within valid range",
+                )
+                self.assertTrue(
+                    -180 <= item["longitude"] <= 180,
+                    "Longitude should be within valid range",
+                )
+                self.assertTrue(
+                    0 <= item["intensity"] <= 100,
+                    "Intensity should be within valid range",
+                )

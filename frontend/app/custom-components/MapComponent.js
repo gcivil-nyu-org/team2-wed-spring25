@@ -1,3 +1,7 @@
+// app/custom-components/MapComponent.js
+"use client";
+import { apiGet } from '../../utils/fetch/fetch';
+
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -28,13 +32,15 @@ const RoutingMapComponent = ({
     const [isGettingLocation, setIsGettingLocation] = useState(false);
     const [locationDenied, setLocationDenied] = useState(false);
     const [isLoadingRoute, setIsLoadingRoute] = useState(false);
-    const [showHeatmap, setShowHeatmap] = useState(true);
+    const [showHeatmap, setShowHeatmap] = useState(false);
     const heatLayerRef = useRef(null);
     const [routeDetails, setRouteDetails] = useState(null);
     const [showInstructions, setShowInstructions] = useState(false);
     const [activeRoute, setActiveRoute] = useState('initial'); // 'initial' or 'safer'
     const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
-    
+    const [heatmapPoints, setHeatmapPoints] = useState([]); // Use state for heatmap data
+    const [heatmapDataLoaded, setHeatmapDataLoaded] = useState(false); // New state
+      
     // Track if location has been set by explicit coordinates
     const [hasExplicitCoordinates, setHasExplicitCoordinates] = useState(false);
     // Track if we've attempted to get location on initial load
@@ -49,18 +55,30 @@ const RoutingMapComponent = ({
     // Default location (Washington Square Park)
     const defaultLocation = [40.7308, -73.9974];
 
-    // Add heatmap data - NYC crime hotspots (placeholder data)
-    const heatmapPoints = [
-        [40.7308, -73.9974, 1.0], // Washington Square Park
-        [40.7484, -73.9857, 0.9], // Times Square
-        [40.7587, -73.9877, 0.85], // Bryant Park
-        [40.7794, -73.9632, 0.95], // Central Park
-        [40.7501, -74.0058, 0.8], // Chelsea
-        [40.7145, -73.9425, 0.7], // Williamsburg
-        [40.8307, -73.9465, 0.85], // Harlem
-        [40.7064, -74.0094, 0.6], // Financial District
-        [40.6872, -73.9418, 0.75], // Brooklyn
-    ];
+    // Add heatmap data
+    useEffect(() => {
+      console.log("useEffect for heatmap data is running"); // Add this line
+      const fetchHeatmapData = async () => {
+        try {
+          const data = await apiGet("/map/heatmap-data/"); // Use apiGet
+          const formattedData = data.map(item => [
+            item.latitude,
+            item.longitude,
+            item.intensity,
+          ]);
+          console.log("Formatted Heatmap Data (before set):", formattedData);
+          setHeatmapPoints(formattedData);
+          console.log(formattedData);
+          console.log(heatmapPoints);
+          setHeatmapDataLoaded(true); // Set to true when data is loaded
+        } catch (err) {
+          console.error("Error fetching heatmap data:", err);
+          setError("Failed to load heatmap data. Please try again.");
+        }
+      };
+  
+      fetchHeatmapData();
+    }, []);
 
     // Function to check if coordinates are within NYC
     const isWithinNYC = (coords) => {
@@ -408,14 +426,14 @@ const RoutingMapComponent = ({
 
     // Heatmap layer
     useEffect(() => {
-        if (!mapInstanceRef.current || !mapLoaded) return;
+        if (!mapInstanceRef.current || !mapLoaded || !heatmapDataLoaded) return;
 
         const map = mapInstanceRef.current;
 
         if (!heatLayerRef.current) {
             heatLayerRef.current = L.heatLayer(heatmapPoints, {
-                radius: 25,
-                blur: 15,
+                radius: 10,
+                blur: 10,
                 maxZoom: 20,
                 max: 1,
                 minOpacity: 0.6,

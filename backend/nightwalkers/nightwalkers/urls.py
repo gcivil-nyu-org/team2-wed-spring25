@@ -22,13 +22,12 @@ from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from map import views  # Add this line
-
+from map.views import RouteViewAPI
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("accounts.urls")),
-    path("map/", views.road_view, name="road_data"),
-    path("", include("accounts.urls")),
+    path("api/", include("map.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()  # Add this
