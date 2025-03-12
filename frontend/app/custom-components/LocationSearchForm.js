@@ -1,11 +1,12 @@
-// app/custom-components/LocationSearchForm.js
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useNotification } from '@/app/custom-components/ToastComponent/NotificationContext'; // Update path as needed
 
 const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
+    const { showError, showWarning, showSuccess } = useNotification();
     const [departure, setDeparture] = useState('');
     const [destination, setDestination] = useState('');
     const [departureCoordinates, setDepartureCoordinates] = useState(null);
@@ -17,14 +18,32 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
     const [isSearchingDeparture, setIsSearchingDeparture] = useState(false);
     const [isSearchingDestination, setIsSearchingDestination] = useState(false);
     const [useCurrentLocation, setUseCurrentLocation] = useState(false);
-    const [formError, setFormError] = useState(null);
+    const [isGettingLocation, setIsGettingLocation] = useState(false);
+    const [formError, setFormError] = useState(null); 
+    
+    // NYC bounds for validation
+    const nycBounds = {
+        sw: [40.4957, -74.2557], // Southwest coordinates (Staten Island)
+        ne: [40.9176, -73.7002], // Northeast coordinates (Bronx)
+    };
+    
+    // Function to check if coordinates are within NYC
+    const isWithinNYC = useCallback((coords) => {
+        if (!coords || !Array.isArray(coords) || coords.length < 2) return false;
+        
+        const [lat, lng] = coords;
+        return (
+            lat >= nycBounds.sw[0] && 
+            lat <= nycBounds.ne[0] &&
+            lng >= nycBounds.sw[1] && 
+            lng <= nycBounds.ne[1]
+        );
+    }, []);
     
     // Clear form error when inputs change
     useEffect(() => {
         if (formError) setFormError(null);
     }, [departure, destination, useCurrentLocation, formError]);
-    
-    // Remove auto-search to conserve Mapbox API requests
     
     // Function to fetch suggestions for departure
     const fetchDepartureSuggestions = async () => {
@@ -37,22 +56,36 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
                 `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(departure)}.json?access_token=${mapboxToken}&types=address,place,poi&limit=5`
             );
             
-            if (!response.ok) throw new Error('Geocoding failed');
+            if (!response.ok) {
+                throw new Error('Geocoding failed with status: ' + response.status);
+            }
             
             const data = await response.json();
             if (data.features && data.features.length > 0) {
                 console.log("Received departure suggestions:", data.features.length);
+                // Show all suggestions instead of filtering
                 setDepartureSuggestions(data.features);
                 setShowDepartureSuggestions(true);
             } else {
                 console.log("No departure suggestions found");
                 setDepartureSuggestions([]);
                 setShowDepartureSuggestions(false);
+                showWarning(
+                    'No locations found',
+                    `No results found for "${departure}". Try a different search term.`,
+                    'location_search_empty'
+                );
             }
         } catch (error) {
             console.error('Error fetching departure suggestions:', error);
             setDepartureSuggestions([]);
-            setFormError("Failed to fetch location suggestions. Please check your internet connection.");
+            setFormError("Failed to fetch location suggestions");
+            
+            showError(
+                'Location search failed',
+                error.message || 'Failed to fetch location suggestions. Please check your internet connection.',
+                'location_search_error'
+            );
         } finally {
             setIsSearchingDeparture(false);
         }
@@ -69,56 +102,211 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
                 `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(destination)}.json?access_token=${mapboxToken}&types=address,place,poi&limit=5`
             );
             
-            if (!response.ok) throw new Error('Geocoding failed');
+            if (!response.ok) {
+                throw new Error('Geocoding failed with status: ' + response.status);
+            }
             
             const data = await response.json();
             if (data.features && data.features.length > 0) {
                 console.log("Received destination suggestions:", data.features.length);
+                // Show all suggestions instead of filtering
                 setDestinationSuggestions(data.features);
                 setShowDestinationSuggestions(true);
             } else {
                 console.log("No destination suggestions found");
                 setDestinationSuggestions([]);
                 setShowDestinationSuggestions(false);
+                
+                showWarning(
+                    'No locations found',
+                    `No results found for "${destination}". Try a different search term.`,
+                    'location_search_empty'
+                );
             }
         } catch (error) {
             console.error('Error fetching destination suggestions:', error);
             setDestinationSuggestions([]);
-            setFormError("Failed to fetch location suggestions. Please check your internet connection.");
+            setFormError("Failed to fetch location suggestions");
+            
+            showError(
+                'Location search failed',
+                error.message || 'Failed to fetch location suggestions. Please check your internet connection.',
+                'location_search_error'
+            );
         } finally {
             setIsSearchingDestination(false);
+        }
+    };
+
+    // Function to get current location when the checkbox is toggled
+    const getCurrentLocation = async () => {
+        if (!navigator.geolocation) {
+            showWarning(
+                'Geolocation not supported',
+                'Your browser does not support geolocation services.',
+                'location_not_supported'
+            );
+            setUseCurrentLocation(false);
+            return;
+        }
+        
+        setIsGettingLocation(true);
+        
+        try {
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0,
+                });
+                
+                // Also set a timeout
+                setTimeout(() => {
+                    reject(new Error("Geolocation timeout"));
+                }, 5000);
+            });
+            
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // Check if within NYC
+            if (isWithinNYC([lat, lng])) {
+                // Location is within NYC - we can use it
+                showSuccess(
+                    'Using your current location',
+                    'Successfully obtained your location.',
+                    'using_current_location'
+                );
+                // Keep checkbox checked
+                setUseCurrentLocation(true);
+                // Clear departure field since we're using current location
+                setDeparture('');
+                setDepartureCoordinates(null);
+            } else {
+                // Outside NYC - warn and uncheck
+                showWarning(
+                    'Location outside NYC',
+                    'Your current location is outside New York City. SafeRouteNYC only works within the five boroughs.',
+                    'location_outside_nyc'
+                );
+                setUseCurrentLocation(false);
+            }
+        } catch (error) {
+            console.error("Error getting location:", error);
+            
+            if (error.code === 1) {
+                // Permission denied
+                showWarning(
+                    'Location access denied',
+                    'Please enable location services in your browser to use this feature.',
+                    'location_permission_denied'
+                );
+            } else {
+                showError(
+                    'Location error',
+                    error.message || 'Failed to get your current location.',
+                    'location_error'
+                );
+            }
+            
+            // Uncheck the box since we couldn't get location
+            setUseCurrentLocation(false);
+        } finally {
+            setIsGettingLocation(false);
         }
     };
     
     // Handle selecting a departure suggestion
     const handleSelectDeparture = (suggestion) => {
         console.log("Selected departure:", suggestion.place_name);
-        setDeparture(suggestion.place_name);
+        
         // Convert coordinates to [lat, lng] for Leaflet
         const [lng, lat] = suggestion.center;
-        setDepartureCoordinates([lat, lng]);
-        setShowDepartureSuggestions(false);
-        setUseCurrentLocation(false);
+        
+        // Check if location is within NYC
+        if (isWithinNYC([lat, lng])) {
+            setDeparture(suggestion.place_name);
+            setDepartureCoordinates([lat, lng]);
+            setShowDepartureSuggestions(false);
+            setUseCurrentLocation(false);
+            
+        } else {
+            // Clear the input if outside NYC
+            setDeparture('');
+            setDepartureCoordinates(null);
+            setShowDepartureSuggestions(false);
+            
+            showWarning(
+                'Location outside NYC',
+                `${suggestion.place_name} is outside New York City. SafeRouteNYC only works within the five boroughs.`,
+                'location_outside_nyc'
+            );
+        }
     };
     
     // Handle selecting a destination suggestion
     const handleSelectDestination = (suggestion) => {
         console.log("Selected destination:", suggestion.place_name);
-        setDestination(suggestion.place_name);
+        
         // Convert coordinates to [lat, lng] for Leaflet
         const [lng, lat] = suggestion.center;
-        setDestinationCoordinates([lat, lng]);
-        setShowDestinationSuggestions(false);
+        
+        // Check if location is within NYC
+        if (isWithinNYC([lat, lng])) {
+            setDestination(suggestion.place_name);
+            setDestinationCoordinates([lat, lng]);
+            setShowDestinationSuggestions(false);
+            
+        } else {
+            // Clear the input if outside NYC
+            setDestination('');
+            setDestinationCoordinates(null);
+            setShowDestinationSuggestions(false);
+            
+            showWarning(
+                'Location outside NYC',
+                `${suggestion.place_name} is outside New York City. SafeRouteNYC only works within the five boroughs.`,
+                'location_outside_nyc'
+            );
+        }
     };
     
     // Toggle current location usage
     const toggleUseCurrentLocation = () => {
-        setUseCurrentLocation(!useCurrentLocation);
-        if (!useCurrentLocation) {
-            // If enabling current location, clear departure
-            setDeparture('');
-            setDepartureCoordinates(null);
-            setShowDepartureSuggestions(false);
+        const newValue = !useCurrentLocation;
+        
+        if (newValue) {
+            // User is trying to enable current location
+            getCurrentLocation();
+        } else {
+            // User is disabling current location
+            setUseCurrentLocation(false);
+        }
+    };
+    
+    // Handle Enter key press for departure input
+    const handleDepartureKeyDown = (e) => {
+        // Check if the Enter key was pressed
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            
+            // Only search if there's enough text and the field isn't disabled
+            if (departure.length >= 3 && !isSearchingDeparture && !useCurrentLocation) {
+                fetchDepartureSuggestions();
+            }
+        }
+    };
+
+    // Handle Enter key press for destination input
+    const handleDestinationKeyDown = (e) => {
+        // Check if the Enter key was pressed
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            
+            // Only search if there's enough text
+            if (destination.length >= 3 && !isSearchingDestination) {
+                fetchDestinationSuggestions();
+            }
         }
     };
     
@@ -130,11 +318,50 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
         // Validation
         if (!useCurrentLocation && !departureCoordinates) {
             setFormError('Please select a departure location from the suggestions');
+            
+            showWarning(
+                'Departure location missing',
+                'Please enter and select a departure location from the suggestions',
+                'location_validation_error'
+            );
             return;
         }
         
         if (!destinationCoordinates) {
             setFormError('Please select a destination from the suggestions');
+            
+            showWarning(
+                'Destination location missing',
+                'Please enter and select a destination location from the suggestions',
+                'location_validation_error'
+            );
+            return;
+        }
+        
+        // Final check that coordinates are within NYC
+        if (!useCurrentLocation && departureCoordinates && !isWithinNYC(departureCoordinates)) {
+            setFormError('Departure location must be within New York City');
+            setDeparture('');
+            setDepartureCoordinates(null);
+            
+            showWarning(
+                'Departure outside NYC',
+                'Your departure location is outside New York City. SafeRouteNYC only works within the five boroughs.',
+                'location_outside_nyc'
+            );
+            return;
+        }
+        
+        if (destinationCoordinates && !isWithinNYC(destinationCoordinates)) {
+            setFormError('Destination must be within New York City');
+            setDestination('');
+            setDestinationCoordinates(null);
+            
+            showWarning(
+                'Destination outside NYC',
+                'Your destination is outside New York City. SafeRouteNYC only works within the five boroughs.',
+                'location_outside_nyc'
+            );
             return;
         }
         
@@ -145,6 +372,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             destinationCoordinates: destinationCoordinates
         });
         
+        // Send the search data to the parent component
         onSearch({
             departure: useCurrentLocation ? "Current Location" : departure,
             departureCoordinates: useCurrentLocation ? null : departureCoordinates, 
@@ -152,6 +380,12 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             destinationCoordinates,
             useCurrentLocation
         });
+        
+        showSuccess(
+            'Calculating route',
+            'Finding the safest route for your journey',
+            'route_calculation_started'
+        );
     };
     
     // Close suggestion dropdowns when clicking outside
@@ -191,8 +425,12 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
                                 id="useCurrentLocation"
                                 checked={useCurrentLocation}
                                 onChange={toggleUseCurrentLocation}
+                                disabled={isGettingLocation}
                                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                             />
+                            {isGettingLocation && (
+                                <div className="ml-2 w-4 h-4 border-2 border-t-transparent border-indigo-600 rounded-full animate-spin"></div>
+                            )}
                         </div>
                     </div>
                     <div className="flex space-x-2">
@@ -202,13 +440,15 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
                             placeholder={useCurrentLocation ? "Using current location" : "Enter departure location"}
                             value={departure}
                             onChange={(e) => setDeparture(e.target.value)}
+                            onKeyDown={handleDepartureKeyDown}
                             onFocus={() => {}}
                             onClick={(e) => e.stopPropagation()}
-                            className={`flex-1 ${useCurrentLocation ? 'bg-gray-100' : ''}`}
+                            className={`text-black flex-1 ${useCurrentLocation ? 'bg-gray-100' : ''}`}
                             disabled={useCurrentLocation}
                         />
                         <Button 
                             type="button" 
+                            className="text-black"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 fetchDepartureSuggestions();
@@ -224,13 +464,13 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
                     
                     {/* Departure Suggestions Dropdown */}
                     {showDepartureSuggestions && departureSuggestions.length > 0 && (
-                        <div className="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                        <div className="absolute z-[2000] mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
                             <div className="max-h-60 overflow-auto">
                                 {departureSuggestions.map((suggestion) => (
                                     <div
                                         key={suggestion.id}
                                         onClick={() => handleSelectDeparture(suggestion)}
-                                        className="cursor-pointer hover:bg-gray-100 p-3 border-b border-gray-100"
+                                        className="cursor-pointer text-black hover:bg-gray-100 p-3 border-b border-gray-100"
                                     >
                                         <div className="font-medium">{suggestion.text}</div>
                                         <div className="text-sm text-gray-500">{suggestion.place_name}</div>
@@ -253,12 +493,14 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
                             placeholder="Enter destination"
                             value={destination}
                             onChange={(e) => setDestination(e.target.value)}
+                            onKeyDown={handleDestinationKeyDown}
                             onFocus={() => {}}
                             onClick={(e) => e.stopPropagation()}
-                            className="flex-1"
+                            className="flex-1 text-black"
                         />
                         <Button 
                             type="button" 
+                            className="text-black"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 fetchDestinationSuggestions();
@@ -274,13 +516,13 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
                     
                     {/* Destination Suggestions Dropdown */}
                     {showDestinationSuggestions && destinationSuggestions.length > 0 && (
-                        <div className="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                        <div className="absolute z-[2000] mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
                             <div className="max-h-60 overflow-auto">
                                 {destinationSuggestions.map((suggestion) => (
                                     <div
                                         key={suggestion.id}
                                         onClick={() => handleSelectDestination(suggestion)}
-                                        className="cursor-pointer hover:bg-gray-100 p-3 border-b border-gray-100"
+                                        className="cursor-pointer text-black hover:bg-gray-100 p-3 border-b border-gray-100"
                                     >
                                         <div className="font-medium">{suggestion.text}</div>
                                         <div className="text-sm text-gray-500">{suggestion.place_name}</div>
@@ -294,7 +536,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             
             <Button
                 type="submit"
-                disabled={isLoading || (!useCurrentLocation && !departureCoordinates) || !destinationCoordinates}
+                disabled={isLoading || isGettingLocation || (!useCurrentLocation && !departureCoordinates) || !destinationCoordinates}
                 className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700"
             >
                 {isLoading ? 
@@ -304,6 +546,11 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
                     </span>
                     : 'Get Directions'}
             </Button>
+            
+            {/* Add note about NYC-only policy */}
+            <div className="text-xs text-gray-500 mt-2 text-center">
+                Note: SafeRouteNYC only supports locations within New York City's five boroughs.
+            </div>
         </form>
     );
 };

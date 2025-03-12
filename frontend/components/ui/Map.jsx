@@ -104,15 +104,28 @@ function HeatmapLayer({ points }) {
 }
 
 export default function Map() {
-  const points = [
-    [40.7527, -73.9772, 0.7], // Midtown East
-    [40.7589, -73.9851, 0.8], // Times Square
-    [40.7484, -73.9857, 0.6], // Korea Town
-    [40.7466, -73.9742, 0.5], // Murray Hill
-    [40.7308, -73.9974, 0.9], // Washington Square Park Center
-    [40.7312, -73.9979, 0.8], // WSP Northwest Corner
-    [40.7304, -73.9969, 0.8], // WSP Southeast Corner
-  ];
+  const [realDataPoints, setRealDataPoints] = useState([]);
+
+  useEffect(() => {
+    const fetchRealData = async () => {
+      try {
+        const response = await fetch("/api/heatmap-data/"); // Adjust the path
+        const data = await response.json();
+
+        const formattedPoints = data.map((item) => [
+          item.latitude,
+          item.longitude,
+          item.intensity,
+        ]);
+        setRealDataPoints(formattedPoints);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Fallback or handle error
+      }
+    };
+
+    fetchRealData();
+  }, []);
 
   return (
     <MapContainer

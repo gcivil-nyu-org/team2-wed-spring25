@@ -9,7 +9,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:all": "concurrently \"python /Users/naliniramanathan/projects/se_1/team2-wed-spring25/backend/nightwalkers/manage.py runserver\" \"next dev --experimental-https\""
   },
   "dependencies": {
     "@babel/preset-env": "^7.26.9",
@@ -52,6 +53,7 @@
     "@babel/core": "^7.26.9",
     "@babel/eslint-parser": "^7.26.8",
     "@netlify/plugin-nextjs": "^5.9.4",
+    "concurrently": "^9.1.2",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.24",
     "netlify-cli": "^19.0.1",

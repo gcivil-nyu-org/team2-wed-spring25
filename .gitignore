@@ -1,3 +1,9 @@
+# Data processing
+.conda/*
+output_data/*
+input_data/*
+*.zip
+
 # Python
 __pycache__/
 *.py[cod]
