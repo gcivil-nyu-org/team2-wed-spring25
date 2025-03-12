@@ -13,7 +13,6 @@ export default function AuthLayout({ children }) {
       <NotificationProvider>
         <AuthProvider>
           <ToastNotifications />
-          <SettingPanel/>
         {children}
           <Toaster 
             position="top-right"
