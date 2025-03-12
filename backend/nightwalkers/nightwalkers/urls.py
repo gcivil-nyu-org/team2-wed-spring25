@@ -27,6 +27,7 @@ from map import views  # Add this line
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("accounts.urls")),
+    path("api/", include("map.urls")),
     path("map/", views.road_view, name="road_data"),
     path("", include("accounts.urls")),
 ]
