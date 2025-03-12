@@ -7,7 +7,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import * as Switch from "@radix-ui/react-switch";
-import { apiPost } from "@/utils/fetch/fetch";
+import { apiPost, authAPI } from "@/utils/fetch/fetch";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Navigation, Clock, CornerDownRight } from "lucide-react";
@@ -508,7 +508,7 @@ const RoutingMapComponent = ({
 
             // Make API call
             console.log("Fetching route with:", requestData);
-            const response = await apiPost('get-route/', requestData);
+            const response = await authAPI.authenticatedPost('get-route/', requestData);
             console.log("API response:", response);
 
             // Extract route summary for display

@@ -105,5 +105,16 @@ export const authAPI = {
                 ...this.getAuthHeaders()
             }
         });
+    },
+    authenticatedPost(url, data, options = {}) {
+        return enhancedFetch(url, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            ...options,
+            headers: {
+                ...options.headers,
+                ...this.getAuthHeaders()
+            }
+        });
     }
 };
