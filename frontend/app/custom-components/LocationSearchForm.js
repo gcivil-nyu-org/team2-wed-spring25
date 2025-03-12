@@ -38,6 +38,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             lng >= nycBounds.sw[1] && 
             lng <= nycBounds.ne[1]
         );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     
     // Clear form error when inputs change
@@ -549,7 +550,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             
             {/* Add note about NYC-only policy */}
             <div className="text-xs text-gray-500 mt-2 text-center">
-                Note: SafeRouteNYC only supports locations within New York City's five boroughs.
+                Note: SafeRouteNYC only supports locations within New York City &apos;s five boroughs.
             </div>
         </form>
     );

@@ -45,6 +45,7 @@ export function AuthProvider({ children }) {
       handleLogout();
       throw error;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showError]);
 
   // Fetch user data from Django

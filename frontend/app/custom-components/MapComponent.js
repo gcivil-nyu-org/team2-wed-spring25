@@ -97,6 +97,7 @@ const RoutingMapComponent = ({
                 setOutsideNYC(true);
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [departureCoords, hasExplicitCoordinates, showWarning]);
 
     // Get user location on initial load
@@ -185,6 +186,7 @@ const RoutingMapComponent = ({
         };
 
         getUserLocationOnLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasExplicitCoordinates, showWarning]); // Only run on initial mount and if no explicit coordinates
 
     // Get user location when explicitly requested through useCurrentLocation
@@ -269,6 +271,7 @@ const RoutingMapComponent = ({
         };
 
         getUserLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [useCurrentLocation, hasExplicitCoordinates, showWarning]);
 
     // If we don't have a location yet and no explicit coordinates, use default
@@ -277,6 +280,7 @@ const RoutingMapComponent = ({
             console.log("No location set, using default location");
             setUserLocation(defaultLocation);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userLocation, isGettingLocation, hasExplicitCoordinates]);
 
     // Initialize map when we have location
@@ -404,6 +408,7 @@ const RoutingMapComponent = ({
                 'map_initialization_error'
             );
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userLocation, mapboxToken, showError]);
 
     // Heatmap layer
@@ -434,6 +439,7 @@ const RoutingMapComponent = ({
         } else {
             map.removeLayer(heatLayerRef.current);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mapLoaded, showHeatmap]);
 
     // Fetch route when coordinates change
@@ -446,6 +452,7 @@ const RoutingMapComponent = ({
                 fetchRouteData(actualDepartureCoords, destinationCoords);
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mapLoaded, departureCoords, destinationCoords, userLocation, useCurrentLocation]);
 
     // Function to format duration from seconds to minutes/hours
@@ -809,6 +816,7 @@ const RoutingMapComponent = ({
                 }
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeRoute, showWarning]);
 
     return (
