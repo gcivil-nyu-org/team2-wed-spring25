@@ -40,7 +40,7 @@ const RoutingMapComponent = ({
     const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
     const [heatmapPoints, setHeatmapPoints] = useState([]); // Use state for heatmap data
     const [heatmapDataLoaded, setHeatmapDataLoaded] = useState(false); // New state
-      
+
     // Track if location has been set by explicit coordinates
     const [hasExplicitCoordinates, setHasExplicitCoordinates] = useState(false);
     // Track if we've attempted to get location on initial load
@@ -51,44 +51,45 @@ const RoutingMapComponent = ({
         sw: [40.4957, -74.2557], // Southwest coordinates (Staten Island)
         ne: [40.9176, -73.7002], // Northeast coordinates (Bronx)
     };
-    
+
     // Default location (Washington Square Park)
     const defaultLocation = [40.7308, -73.9974];
 
     // Add heatmap data
     useEffect(() => {
-      console.log("useEffect for heatmap data is running"); // Add this line
-      const fetchHeatmapData = async () => {
-        try {
-          const data = await apiGet("/map/heatmap-data/"); // Use apiGet
-          const formattedData = data.map(item => [
-            item.latitude,
-            item.longitude,
-            item.intensity,
-          ]);
-          console.log("Formatted Heatmap Data (before set):", formattedData);
-          setHeatmapPoints(formattedData);
-          console.log(formattedData);
-          console.log(heatmapPoints);
-          setHeatmapDataLoaded(true); // Set to true when data is loaded
-        } catch (err) {
-          console.error("Error fetching heatmap data:", err);
-          setError("Failed to load heatmap data. Please try again.");
-        }
-      };
-  
-      fetchHeatmapData();
+        console.log("useEffect for heatmap data is running"); // Add this line
+        const fetchHeatmapData = async () => {
+            try {
+                const data = await apiGet("/map/heatmap-data/"); // Use apiGet
+                const formattedData = data.map(item => [
+                    item.latitude,
+                    item.longitude,
+                    item.intensity,
+                ]);
+                console.log("Formatted Heatmap Data (before set):", formattedData);
+                setHeatmapPoints(formattedData);
+                console.log(formattedData);
+                console.log(heatmapPoints);
+                setHeatmapDataLoaded(true); // Set to true when data is loaded
+            } catch (err) {
+                console.error("Error fetching heatmap data:", err);
+                setError("Failed to load heatmap data. Please try again.");
+            }
+        };
+
+        fetchHeatmapData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Function to check if coordinates are within NYC
     const isWithinNYC = (coords) => {
         if (!coords || !Array.isArray(coords) || coords.length < 2) return false;
-        
+
         const [lat, lng] = coords;
         return (
-            lat >= nycBounds.sw[0] && 
+            lat >= nycBounds.sw[0] &&
             lat <= nycBounds.ne[0] &&
-            lng >= nycBounds.sw[1] && 
+            lng >= nycBounds.sw[1] &&
             lng <= nycBounds.ne[1]
         );
     };
@@ -97,7 +98,7 @@ const RoutingMapComponent = ({
     useEffect(() => {
         if (departureCoords && Array.isArray(departureCoords) && !hasExplicitCoordinates) {
             console.log("Setting explicit departure coordinates:", departureCoords);
-            
+
             // Check if coordinates are within NYC
             if (isWithinNYC(departureCoords)) {
                 setUserLocation(departureCoords);
@@ -115,15 +116,15 @@ const RoutingMapComponent = ({
                 setOutsideNYC(true);
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [departureCoords, hasExplicitCoordinates, showWarning]);
 
     // Get user location on initial load
     useEffect(() => {
         if (
             typeof window === "undefined" ||
-            userLocation || 
-            mapInitializedRef.current || 
+            userLocation ||
+            mapInitializedRef.current ||
             initialLocationAttemptRef.current ||
             hasExplicitCoordinates
         ) {
@@ -131,7 +132,7 @@ const RoutingMapComponent = ({
         }
 
         initialLocationAttemptRef.current = true;
-        
+
         const getUserLocationOnLoad = async () => {
             setIsGettingLocation(true);
             console.log("Getting user location on initial load...");
@@ -204,14 +205,14 @@ const RoutingMapComponent = ({
         };
 
         getUserLocationOnLoad();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasExplicitCoordinates, showWarning]); // Only run on initial mount and if no explicit coordinates
 
     // Get user location when explicitly requested through useCurrentLocation
     useEffect(() => {
         if (
             typeof window === "undefined" ||
-            !useCurrentLocation || 
+            !useCurrentLocation ||
             hasExplicitCoordinates
         ) {
             return;
@@ -289,7 +290,7 @@ const RoutingMapComponent = ({
         };
 
         getUserLocation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [useCurrentLocation, hasExplicitCoordinates, showWarning]);
 
     // If we don't have a location yet and no explicit coordinates, use default
@@ -298,7 +299,7 @@ const RoutingMapComponent = ({
             console.log("No location set, using default location");
             setUserLocation(defaultLocation);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userLocation, isGettingLocation, hasExplicitCoordinates]);
 
     // Initialize map when we have location
@@ -426,7 +427,7 @@ const RoutingMapComponent = ({
                 'map_initialization_error'
             );
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userLocation, mapboxToken, showError]);
 
     // Heatmap layer
@@ -457,7 +458,7 @@ const RoutingMapComponent = ({
         } else {
             map.removeLayer(heatLayerRef.current);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mapLoaded, showHeatmap]);
 
     // Fetch route when coordinates change
@@ -465,12 +466,12 @@ const RoutingMapComponent = ({
         if (mapLoaded && departureCoords && destinationCoords) {
             // Get actual departure coordinates (user location if using current location, or provided departure coords)
             const actualDepartureCoords = useCurrentLocation ? userLocation : departureCoords;
-            
+
             if (actualDepartureCoords) {
                 fetchRouteData(actualDepartureCoords, destinationCoords);
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mapLoaded, departureCoords, destinationCoords, userLocation, useCurrentLocation]);
 
     // Function to format duration from seconds to minutes/hours
@@ -512,7 +513,7 @@ const RoutingMapComponent = ({
 
             // Extract route summary for display
             const routeInfo = extractRouteSummary(response);
-            
+
             // Enhance turn instructions by adding missing street names
             if (routeInfo.initial && routeInfo.initial.instructions) {
                 routeInfo.initial.instructions = enhanceTurnInstructions(routeInfo.initial.instructions);
@@ -520,7 +521,7 @@ const RoutingMapComponent = ({
             if (routeInfo.safer && routeInfo.safer.instructions) {
                 routeInfo.safer.instructions = enhanceTurnInstructions(routeInfo.safer.instructions);
             }
-            
+
             setRouteDetails(routeInfo);
 
             // Display the route on the map
@@ -565,7 +566,7 @@ const RoutingMapComponent = ({
 
         // Get route coordinates using the imported utility function
         const initialRouteCoords = extractCoordinates(routeData.initial_route, 'ors');
-        const saferRouteCoords = routeData.safer_route ? 
+        const saferRouteCoords = routeData.safer_route ?
             extractCoordinates(routeData.safer_route, 'mapbox') : null;
 
         if (initialRouteCoords.length === 0 && (!saferRouteCoords || saferRouteCoords.length === 0)) {
@@ -694,7 +695,7 @@ const RoutingMapComponent = ({
                 (position) => {
                     console.log("Got user location on retry:", position.coords);
                     const { latitude, longitude } = position.coords;
-                    
+
                     // Check if within NYC
                     if (isWithinNYC([latitude, longitude])) {
                         setUserLocation([latitude, longitude]);
@@ -702,14 +703,14 @@ const RoutingMapComponent = ({
                     } else {
                         setUserLocation([latitude, longitude]);
                         setOutsideNYC(true);
-                        
+
                         showWarning(
                             'Your location is outside NYC',
                             'Routes in SafeRouteNYC are optimized for NYC area.',
                             'location_outside_nyc'
                         );
                     }
-                    
+
                     setIsGettingLocation(false);
 
                     // Update map view
@@ -750,7 +751,7 @@ const RoutingMapComponent = ({
                         );
                     }
                     setIsGettingLocation(false);
-                    
+
                     // Set to default location
                     setUserLocation(defaultLocation);
                 },
@@ -763,7 +764,7 @@ const RoutingMapComponent = ({
                 'Your browser does not support geolocation',
                 'location_not_supported'
             );
-            
+
             // Set to default location
             setUserLocation(defaultLocation);
         }
@@ -834,7 +835,7 @@ const RoutingMapComponent = ({
                 }
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeRoute, showWarning]);
 
     return (
