@@ -34,18 +34,20 @@ export async function enhancedFetch(url, options = {}) {
 
         // Clear timeout since request completed
         clearTimeout(timeoutId);
-
+        console.log('Response:', response);
+        
         const data = await response.json();
 
         if (!response.ok) {
             const errorMessage = getDjangoErrorMessage(data);
             throw new Error(errorMessage);
-        }
+        }   
 
         return data;
     } catch (error) {
         clearTimeout(timeoutId);
-
+        console.log(error);
+    
         // Handle different types of errors
         if (error instanceof Error) {
             if (error.name === 'AbortError') {

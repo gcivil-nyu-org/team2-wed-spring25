@@ -72,7 +72,9 @@ const RoutingMapComponent = ({
                 setHeatmapDataLoaded(true); // Set to true when data is loaded
             } catch (err) {
                 console.error("Error fetching heatmap data:", err);
-                setError("Failed to load heatmap data. Please try again.");
+                // setError("Failed to load heatmap data. Please try again.");
+                alert("Failed to load heatmap data. Please try again.");
+                alert(err);
             }
         };
 
