@@ -14,62 +14,50 @@ from .serializers import (
     SavedRouteUpdateSerializer,
 )
 import requests
+from django.db import connection  # Import the connection object
 
 
 def road_view(request):
-    # Define the path to the GeoJSON file you want to query
-    geojson_file_path = os.path.join(
-        settings.BASE_DIR, "map", "data", "filtered_grouped_data_centroid.geojson"
-    )
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT latitude, longitude, * FROM filtered_grouped_data_centroid;")
 
-    # Load the GeoJSON file as a GeoDataFrame using GeoPandas
-    points_gdf = gpd.read_file(geojson_file_path)
+            rows = []
+            columns = [desc[0] for desc in cursor.description]
+            for row in cursor.fetchall():
+                row_dict = dict(zip(columns, row))
+                rows.append(row_dict)
 
-    rows = points_gdf.to_dict(orient="records")
+        return render(request, "my_template.html", {"data": rows})
 
-    for row in rows:
-        geometry = row["geometry"]
-        row["longitude"] = geometry.x  # Longitude (geometry.x gives the longitude)
-        row["latitude"] = geometry.y  # Latitude (geometry.y gives the latitude)
-
-    # Pass the data to the template
-    return render(request, "my_template.html", {"data": rows})
-
+    except Exception as error:
+        print("Error while fetching data from PostgreSQL", error)
+        return render(request, "my_template.html", {"data": []})
 
 def heatmap_data(request):
-    geojson_file_path = os.path.join(
-        settings.BASE_DIR, "map", "data", "filtered_grouped_data_centroid.geojson"
-    )
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT latitude, longitude, CMPLNT_NUM FROM filtered_grouped_data_centroid;")
 
-    # Load the GeoJSON file as a GeoDataFrame using GeoPandas
-    points_gdf = gpd.read_file(geojson_file_path)
+            heatmap_points = []
+            for row in cursor.fetchall():
+                latitude, longitude, complaints = row
+                try:
+                    complaints = float(complaints) if complaints is not None else 0.0
+                except (ValueError, TypeError):
+                    complaints = 0.0
 
-    # Extract latitude, longitude, and complaints
-    heatmap_points = []
-    for index, row in points_gdf.iterrows():
-        latitude = row["geometry"].y
-        longitude = row["geometry"].x
-        complaints = row.get(
-            "CMPLNT_NUM"
-        )  # Use .get() to handle potential missing 'complaints'
+                heatmap_points.append({
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "intensity": complaints,
+                })
 
-        # Ensure complaints is a number (handle potential None or non-numeric values)
-        try:
-            complaints = (
-                float(complaints) if complaints is not None else 0.0
-            )  # Default to 0 if None
-        except (ValueError, TypeError):
-            complaints = 0.0  # Default to zero if the complaints is not a valid number.
+        return JsonResponse(heatmap_points, safe=False)
 
-        heatmap_points.append(
-            {
-                "latitude": latitude,
-                "longitude": longitude,
-                "intensity": complaints,
-            }
-        )
-
-    return JsonResponse(heatmap_points, safe=False)
+    except Exception as error:
+        print("Error while fetching data from PostgreSQL", error)
+        return JsonResponse([], safe=False)
 
 
 class RouteViewAPI(generics.GenericAPIView):
