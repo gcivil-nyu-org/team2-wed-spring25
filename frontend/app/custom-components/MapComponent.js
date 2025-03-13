@@ -383,7 +383,7 @@ const RoutingMapComponent = ({
             // Add user marker
             map._userMarker = L.marker(userLocation, {
                 icon: userIcon,
-                zIndexOffset: 1000,
+                zIndexOffset: 499,
             }).addTo(map);
 
             // Add locate button
@@ -399,7 +399,7 @@ const RoutingMapComponent = ({
             locateButton.style.position = "absolute";
             locateButton.style.left = "10px";
             locateButton.style.top = "80px";
-            locateButton.style.zIndex = "1000";
+            locateButton.style.zIndex = "499";
 
             // Add locate button to container
             container.appendChild(locateButton);
@@ -860,7 +860,7 @@ const RoutingMapComponent = ({
             )}
             <div className="relative w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
                 {/* Heatmap Toggle */}
-                <div className="absolute bottom-4 left-4 z-[1000] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
+                <div className="absolute bottom-4 left-4 z-[499] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
                     <label
                         className="text-sm font-medium text-gray-700"
                         htmlFor="heatmap-switch"
