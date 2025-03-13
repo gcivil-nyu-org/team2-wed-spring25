@@ -118,14 +118,6 @@ WSGI_APPLICATION = "nightwalkers.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # Database
-# DATABASES = {
-#     "default": dj_database_url.config(
-#         default=os.getenv("DJANGO_DATABASE_URL"),
-#         conn_max_age=600,  # Optional:
-#         # Improves performance by reusing connections
-#     )
-# }
-# Database
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DJANGO_DATABASE_URL"),
