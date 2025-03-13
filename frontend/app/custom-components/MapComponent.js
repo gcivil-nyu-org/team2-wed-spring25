@@ -59,7 +59,7 @@ const RoutingMapComponent = ({
         console.log("useEffect for heatmap data is running"); // Add this line
         const fetchHeatmapData = async () => {
             try {
-                const data = await apiGet("/api/map/heatmap-data/"); // Use apiGet
+                const data = await apiGet("map/heatmap-data/"); // Use apiGet
                 const formattedData = data.map(item => [
                     item.latitude,
                     item.longitude,
@@ -509,7 +509,7 @@ const RoutingMapComponent = ({
 
             // Make API call
             console.log("Fetching route with:", requestData);
-            const response = await authAPI.authenticatedPost('/api/get-route/', requestData);
+            const response = await authAPI.authenticatedPost('/get-route/', requestData);
             console.log("API response:", response);
 
             // Extract route summary for display
