@@ -1,4 +1,3 @@
-// app/custom-components/MapComponent.js
 "use client";
 import { apiGet } from '../../utils/fetch/fetch';
 
@@ -60,7 +59,7 @@ const RoutingMapComponent = ({
         console.log("useEffect for heatmap data is running"); // Add this line
         const fetchHeatmapData = async () => {
             try {
-                const data = await apiGet("/map/heatmap-data/"); // Use apiGet
+                const data = await apiGet("/api/map/heatmap-data/"); // Use apiGet
                 const formattedData = data.map(item => [
                     item.latitude,
                     item.longitude,
@@ -73,7 +72,9 @@ const RoutingMapComponent = ({
                 setHeatmapDataLoaded(true); // Set to true when data is loaded
             } catch (err) {
                 console.error("Error fetching heatmap data:", err);
-                setError("Failed to load heatmap data. Please try again.");
+                // setError("Failed to load heatmap data. Please try again.");
+                alert("Failed to load heatmap data. Please try again.");
+                alert(err);
             }
         };
 
@@ -508,7 +509,7 @@ const RoutingMapComponent = ({
 
             // Make API call
             console.log("Fetching route with:", requestData);
-            const response = await authAPI.authenticatedPost('get-route/', requestData);
+            const response = await authAPI.authenticatedPost('/api/get-route/', requestData);
             console.log("API response:", response);
 
             // Extract route summary for display

@@ -9,7 +9,7 @@ env:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libgdal-dev
+  - sudo apt-get install -y libgdal-dev gdal-bin
   
 # cache:
 #   directories:
@@ -20,6 +20,8 @@ before_install:
 
 # Install dependencies
 install:
+# Install GDAL via pip (ensure it matches the system-installed version)
+  - pip install GDAL==$(gdal-config --version) --no-cache-dir
   - pip install -r backend/nightwalkers/requirements.txt
   - pip install black flake8 coverage coveralls
 
