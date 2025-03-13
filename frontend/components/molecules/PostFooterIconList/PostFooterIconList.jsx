@@ -1,7 +1,5 @@
-import React from 'react';
-import IconText from '../IconText/IconText';
-import LikeOptionList from '../LikeOptionList/LikeOptionList';
-
+import IconText from '@/components/molecules/IconText/IconText';
+import LikeIconTextWithTooltip from '@/components/molecules/LikeIconTextWithTooltip/LikeIconTextWithTooltip';
 const PostFooterIconList = () => {
     const iconsData = [
         {
@@ -33,22 +31,14 @@ const PostFooterIconList = () => {
             text: "Send",
         },
     ];
-    return (
-        <div className='flex flex-1'>
-            <div className="flex-1 relative group">
-                {/* IconText Component */}
-                <IconText
-                    src={iconsData[0].src}
-                    width={iconsData[0].width}
-                    height={iconsData[0].height}
-                    alt={iconsData[0].alt}
-                    text={iconsData[0].text}
-                />
 
-                {/* Tooltip Div */}
-                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-white  px-3 py-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <LikeOptionList />
-                </div>
+    
+    
+    return (
+        <div className='flex flex-1 relative'>
+            <div className="flex-1 group">
+                {/* like option list */}
+                <LikeIconTextWithTooltip iconData={iconsData[0]} />
             </div>
             <div className='flex-1'>
                 <IconText
