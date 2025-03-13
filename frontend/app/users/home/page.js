@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { useAuth } from '@/app/custom-components/AuthHook';
 import { useNotification } from '@/app/custom-components/ToastComponent/NotificationContext';
+import SettingPanel from '@/app/custom-components/SettingPanel';
 
 
 
@@ -34,19 +35,26 @@ export function DashboardHeader() {
 
   }
   return (
-    <div className="flex justify-between items-center mb-8">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      <div className="flex items-center gap-4">
-        {user && (
-          <span className="text-sm text-white/80">
-            Logged in as: {user.email}
-          </span>
-        )}
-        <Button asChild><Link href={`home/`}>Home</Link></Button>
-        <Button asChild><Link href={`map/`}>Map Route</Link></Button>
-        <LogoutButton />
+    <>
+      <SettingPanel />
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div className="flex items-center gap-4">
+          {user && (
+            <span className="text-sm text-white/80">
+              Logged in as: {user.email}
+            </span>
+          )}
+          <Button asChild>
+            <Link href={`home/`}>Home</Link>
+          </Button>
+          <Button asChild>
+            <Link href={`map/`}>Map Route</Link>
+          </Button>
+          <LogoutButton />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
