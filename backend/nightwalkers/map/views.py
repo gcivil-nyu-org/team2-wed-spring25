@@ -1,7 +1,7 @@
-import geopandas as gpd
+# import geopandas as gpd
 from django.shortcuts import render
 import os
-from django.conf import settings
+# from django.conf import settings
 from django.http import JsonResponse
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -20,7 +20,11 @@ from django.db import connection  # Import the connection object
 def road_view(request):
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT latitude, longitude, * FROM filtered_grouped_data_centroid;")
+            cursor.execute(
+                """SELECT ST_Y(wkb_geometry) AS latitude,
+                ST_X(wkb_geometry) AS longitude,
+                * FROM filtered_grouped_data_centroid;"""
+            )
 
             rows = []
             columns = [desc[0] for desc in cursor.description]
@@ -34,10 +38,16 @@ def road_view(request):
         print("Error while fetching data from PostgreSQL", error)
         return render(request, "my_template.html", {"data": []})
 
+
 def heatmap_data(request):
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT latitude, longitude, CMPLNT_NUM FROM filtered_grouped_data_centroid;")
+            cursor.execute(
+                """SELECT ST_Y(wkb_geometry) AS latitude,
+                ST_X(wkb_geometry) AS longitude,
+                CMPLNT_NUM
+                FROM filtered_grouped_data_centroid;"""
+            )
 
             heatmap_points = []
             for row in cursor.fetchall():
@@ -47,11 +57,13 @@ def heatmap_data(request):
                 except (ValueError, TypeError):
                     complaints = 0.0
 
-                heatmap_points.append({
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "intensity": complaints,
-                })
+                heatmap_points.append(
+                    {
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "intensity": complaints,
+                    }
+                )
 
         return JsonResponse(heatmap_points, safe=False)
 
