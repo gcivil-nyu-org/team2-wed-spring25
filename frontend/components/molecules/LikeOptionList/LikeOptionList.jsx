@@ -1,63 +1,29 @@
 import Icon from "@/components/atom/Icon/Icon";
+import useLikeOptionList from "./useLikeOptionList";
 
 export default function LikeOptionList() {
+    const {
+        hoveredIcon,
+        setHoveredIcon,
+        icons
+    } = useLikeOptionList(); // Custom hook to manage state and icons
+
     return (
-        <div className="flex">
-            <div>
+        <div className={`flex justify-center items-center ${hoveredIcon != null ? "max-h-12" : "max-h-14"} `}>
+            {icons.map((icon, index) => (
                 <Icon
-                    src="/icons/likeli.svg"
-                    width={25}
-                    height={25}
-                    alt="like"
-                    size="sm"
+                    key={index}
+                    selected={hoveredIcon != null ? hoveredIcon == index : null} // Highlight the hovered icon
+                    src={icon.src}
+                    width={50}
+                    height={50}
+                    alt={icon.alt}
+                    size="xl"
+                    onMouseEnter={() => setHoveredIcon(index)} // Set hovered icon
+                    onMouseLeave={() => setHoveredIcon(null)} // Reset hovered icon
+                    tooltipText={icon.alt} // Tooltip text
                 />
-            </div>
-            <div >
-                <Icon 
-                    src="/icons/clap.svg"
-                    width={25}
-                    height={25}
-                    alt="heart"
-                    size="sm"
-                    
-                />
-            </div>
-            <div >
-                <Icon
-                    src="/icons/support.svg"
-                    width={25}
-                    height={25}
-                    alt="laugh"
-                    size="sm"
-                />
-            </div>
-            <div >
-                <Icon 
-                    src="/icons/heart.svg"
-                    width={25}
-                    height={25}
-                    alt="laugh"
-                    size="sm"
-                />
-            </div>
-            <div>
-                <Icon 
-                    src="/icons/bulb.svg"
-                    width={25}
-                    height={25}
-                    alt="laugh"
-                    size="sm"
-                />
-            </div>
-            <div>
-                <Icon 
-                    src="/icons/laugh.svg"
-                    width={25}
-                    height={25}
-                    alt="laugh"
-                    size="sm"
-                />
-            </div>
+            ))}
         </div>
     );
 }

@@ -3,3 +3,5 @@
 
 
 Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
+TODO:
+for post, get the location coordinate
