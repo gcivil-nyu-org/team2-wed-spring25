@@ -1,6 +1,7 @@
 import Icon from "@/components/atom/Icon/Icon";
 
 export default function LikeOptionList() {
+    // check
     return (
         <div className="flex">
             <div>
