@@ -2,29 +2,36 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.conf import settings
-import os
+# import os
 from unittest.mock import patch, MagicMock
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.contrib.auth import get_user_model
 import requests
 import json
-from django.core.exceptions import ImproperlyConfigured
+# from django.core.exceptions import ImproperlyConfigured
 
 User = get_user_model()
+
+from django.db import connection  # Import the connection object
 
 
 class RoadViewTest(TestCase):
     def setUp(self):
-        # Ensure the GeoJSON file exists
-        self.geojson_file_path = os.path.join(
-            settings.BASE_DIR, "map", "data", "filtered_grouped_data_centroid.geojson"
-        )
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM filtered_grouped_data_centroid")
+            rows = cursor.fetchall()
+            self.assertGreater(len(rows), 0, "No data found in the filtered_grouped_data_centroid table.")
 
-        if not os.path.exists(self.geojson_file_path):
-            raise FileNotFoundError(
-                f"The GeoJSON file does not exist at {self.geojson_file_path}"
-            )
+        # # Ensure the GeoJSON file exists
+        # self.geojson_file_path = os.path.join(
+        #     settings.BASE_DIR, "map", "data", "filtered_grouped_data_centroid.geojson"
+        # )
+
+        # if not os.path.exists(self.geojson_file_path):
+        #     raise FileNotFoundError(
+        #         f"The GeoJSON file does not exist at {self.geojson_file_path}"
+        #     )
 
         # Define the bounds for latitude and longitude
         self.min_longitude = -74.30
@@ -227,17 +234,21 @@ class RouteViewAPITests(TestCase):
 class HeatmapDataViewTest(TestCase):
     def setUp(self):
         self.client = Client()
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM filtered_grouped_data_centroid")
+            rows = cursor.fetchall()
+            self.assertGreater(len(rows), 0, "No data found in the filtered_grouped_data_centroid table.")
 
     def test_heatmap_data_view_real_data_not_empty(self):
-        # Test the view with a real GeoJSON file and check for non-empty data
-        real_geojson_path = os.path.join(
-            settings.BASE_DIR, "map", "data", "filtered_grouped_data_centroid.geojson"
-        )  # Adjust the path if needed.
+        # # Test the view with a real GeoJSON file and check for non-empty data
+        # real_geojson_path = os.path.join(
+        #     settings.BASE_DIR, "map", "data", "filtered_grouped_data_centroid.geojson"
+        # )  # Adjust the path if needed.
 
-        if not os.path.exists(real_geojson_path):
-            raise ImproperlyConfigured(
-                f"Real GeoJSON file not found at: {real_geojson_path}"
-            )
+        # if not os.path.exists(real_geojson_path):
+        #     raise ImproperlyConfigured(
+        #         f"Real GeoJSON file not found at: {real_geojson_path}"
+        #     )
 
         with self.settings(BASE_DIR=settings.BASE_DIR):
             response = self.client.get(reverse("heatmap-data"))
