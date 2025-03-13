@@ -1,7 +1,8 @@
 import Image from "next/image";
+import { useState } from "react";
 
-export default function Icon({ onClick = null, src, width, height, alt, size, key = null, onMouseEnter = null, onMouseLeave  = null, selected  = null }) {
-
+export default function Icon({ onClick = null, src, width, height, alt, size, key = null, onMouseEnter = null, onMouseLeave  = null, selected  = null,  tooltipText = "", }) {
+    const [isHovered, setIsHovered] = useState(false); // State to manage hover
     let data = "flex justify-center items-center rounded-full hover:cursor-pointer transition-all duration-200 inline-block";
     if(selected == null){
         data = "hover:bg-gray-200 " + data;
@@ -30,8 +31,18 @@ export default function Icon({ onClick = null, src, width, height, alt, size, ke
             onClick={onClick} 
             className={data}
             key={key}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
+            onMouseEnter={() => {
+                setIsHovered(true);
+                if (onMouseEnter) {
+                    onMouseEnter();
+                }
+            }}
+            onMouseLeave={() => {
+                setIsHovered(false);
+                if (onMouseLeave) {
+                    onMouseLeave();
+                }
+            }}
             >
                 <Image
                     src={src}
@@ -39,6 +50,12 @@ export default function Icon({ onClick = null, src, width, height, alt, size, ke
                     height={selected != null ? selected ? 80 : 40 : height}
                     alt={alt}
                 />
+                {/* Tooltip */}
+                {isHovered && tooltipText && (
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-sm px-2 py-1 rounded-full whitespace-nowrap">
+                        {tooltipText}
+                    </div>
+                )}
         </div>
     );
 }

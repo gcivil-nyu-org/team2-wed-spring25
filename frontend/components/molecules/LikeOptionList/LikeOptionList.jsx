@@ -1,18 +1,12 @@
-import React, { useState } from "react";
 import Icon from "@/components/atom/Icon/Icon";
+import useLikeOptionList from "./useLikeOptionList";
 
 export default function LikeOptionList() {
-    const [hoveredIcon, setHoveredIcon] = useState(null); // Track which icon is hovered
-
-    // Icons data
-    const icons = [
-        { src: "/icons/likeli.svg", alt: "like" },
-        { src: "/icons/clap.svg", alt: "clap" },
-        { src: "/icons/support.svg", alt: "support" },
-        { src: "/icons/heart.svg", alt: "heart" },
-        { src: "/icons/bulb.svg", alt: "bulb" },
-        { src: "/icons/laugh.svg", alt: "laugh" },
-    ];
+    const {
+        hoveredIcon,
+        setHoveredIcon,
+        icons
+    } = useLikeOptionList(); // Custom hook to manage state and icons
 
     return (
         <div className={`flex justify-center items-center ${hoveredIcon != null ? "max-h-12" : "max-h-14"} `}>
@@ -27,6 +21,7 @@ export default function LikeOptionList() {
                     size="xl"
                     onMouseEnter={() => setHoveredIcon(index)} // Set hovered icon
                     onMouseLeave={() => setHoveredIcon(null)} // Reset hovered icon
+                    tooltipText={icon.alt} // Tooltip text
                 />
             ))}
         </div>
