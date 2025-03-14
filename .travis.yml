@@ -30,8 +30,8 @@ install:
   - pip install black flake8 coverage coveralls
 
 # Install Node.js and frontend dependencies
-  - nvm install 22  # Install Node.js 22 (or the version your Next.js app requires)
-  - npm install -g npm@latest  # Update npm to the latest version
+  - nvm install 18.19.0  # Install Node.js 22 (or the version your Next.js app requires)
+  - npm install -g npm@10.9.2  # Update npm to the latest version
   - cd $FRONTEND_PATH && npm install && cd ..  # Install frontend dependencies
 
 # Make the script executable
