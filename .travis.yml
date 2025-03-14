@@ -10,6 +10,8 @@ env:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y gdal-bin libgdal-dev
+  - which gdal-config
+  - gdal-config --version
   
 cache:
   directories:
