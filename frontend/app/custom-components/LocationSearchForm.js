@@ -315,11 +315,11 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         setFormError(null);
-
+    
         // Validation
         if (!useCurrentLocation && !departureCoordinates) {
             setFormError('Please select a departure location from the suggestions');
-
+    
             showWarning(
                 'Departure location missing',
                 'Please enter and select a departure location from the suggestions',
@@ -327,10 +327,10 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             );
             return;
         }
-
+    
         if (!destinationCoordinates) {
             setFormError('Please select a destination from the suggestions');
-
+    
             showWarning(
                 'Destination location missing',
                 'Please enter and select a destination location from the suggestions',
@@ -338,13 +338,13 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             );
             return;
         }
-
-        // Final check that coordinates are within NYC
+    
+        // Final check that coordinates are within NYC - only for explicit coordinates
         if (!useCurrentLocation && departureCoordinates && !isWithinNYC(departureCoordinates)) {
             setFormError('Departure location must be within New York City');
             setDeparture('');
             setDepartureCoordinates(null);
-
+    
             showWarning(
                 'Departure outside NYC',
                 'Your departure location is outside New York City. SafeRouteNYC only works within the five boroughs.',
@@ -352,12 +352,12 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             );
             return;
         }
-
+    
         if (destinationCoordinates && !isWithinNYC(destinationCoordinates)) {
             setFormError('Destination must be within New York City');
             setDestination('');
             setDestinationCoordinates(null);
-
+    
             showWarning(
                 'Destination outside NYC',
                 'Your destination is outside New York City. SafeRouteNYC only works within the five boroughs.',
@@ -365,23 +365,24 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             );
             return;
         }
-
+    
         console.log("Form is valid, submitting with coordinates:", {
             departure: useCurrentLocation ? "Current Location" : departure,
             departureCoordinates: departureCoordinates,
             destination: destination,
             destinationCoordinates: destinationCoordinates
         });
-
+    
+        // For current location, we don't need to pass coordinates - the map will get them
         // Send the search data to the parent component
         onSearch({
             departure: useCurrentLocation ? "Current Location" : departure,
-            departureCoordinates: useCurrentLocation ? null : departureCoordinates,
+            departureCoordinates: departureCoordinates, // Keep sending this even if null
             destination,
             destinationCoordinates,
             useCurrentLocation
         });
-
+    
         showSuccess(
             'Calculating route',
             'Finding the safest route for your journey',
