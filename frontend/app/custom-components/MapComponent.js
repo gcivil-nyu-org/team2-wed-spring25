@@ -1,6 +1,5 @@
 "use client";
 import { apiGet } from '../../utils/fetch/fetch';
-
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -12,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Navigation, Clock, CornerDownRight } from "lucide-react";
 import { useNotification } from "./ToastComponent/NotificationContext";
 import { extractCoordinates, extractRouteSummary, enhanceTurnInstructions } from "./RoutingComponets/RouteHandler";
+import SaveRouteComponent from './RoutingComponets/SaveRoute';
+import '@/styles/map_styles.css'
 
 const RoutingMapComponent = ({
     mapboxToken,
@@ -38,7 +39,8 @@ const RoutingMapComponent = ({
     const [activeRoute, setActiveRoute] = useState('initial'); // 'initial' or 'safer'
     const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
     const [heatmapPoints, setHeatmapPoints] = useState([]); // Use state for heatmap data
-    const [heatmapDataLoaded, setHeatmapDataLoaded] = useState(false); // New state
+    const [heatmapDataLoaded, setHeatmapDataLoaded] = useState(false);
+    const [successfulRoute, setSuccessfulRoute] = useState(false);
 
     // Track if location has been set by explicit coordinates
     const [hasExplicitCoordinates, setHasExplicitCoordinates] = useState(false);
@@ -315,8 +317,6 @@ const RoutingMapComponent = ({
             return;
         }
 
-        console.log("Initializing map with location:", userLocation);
-
         // Clean up any existing map
         if (mapInstanceRef.current) {
             try {
@@ -351,10 +351,11 @@ const RoutingMapComponent = ({
                 bounceAtZoomLimits: true,
             }).setView(userLocation, 15);
             mapInstanceRef.current = map;
-
+            const mapboxNavigationNightId = 'mapbox/navigation-night-v1';
+            const mapboxUrl = `https://api.mapbox.com/styles/v1/${mapboxNavigationNightId}/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`;
             // Add tile layer
             L.tileLayer(
-                `https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`,
+                mapboxUrl,
                 {
                     attribution:
                         'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
@@ -382,7 +383,7 @@ const RoutingMapComponent = ({
             // Add user marker
             map._userMarker = L.marker(userLocation, {
                 icon: userIcon,
-                zIndexOffset: 1000,
+                zIndexOffset: 499,
             }).addTo(map);
 
             // Add locate button
@@ -398,7 +399,7 @@ const RoutingMapComponent = ({
             locateButton.style.position = "absolute";
             locateButton.style.left = "10px";
             locateButton.style.top = "80px";
-            locateButton.style.zIndex = "1000";
+            locateButton.style.zIndex = "499";
 
             // Add locate button to container
             container.appendChild(locateButton);
@@ -464,12 +465,21 @@ const RoutingMapComponent = ({
 
     // Fetch route when coordinates change
     useEffect(() => {
-        if (mapLoaded && departureCoords && destinationCoords) {
-            // Get actual departure coordinates (user location if using current location, or provided departure coords)
-            const actualDepartureCoords = useCurrentLocation ? userLocation : departureCoords;
-
-            if (actualDepartureCoords) {
-                fetchRouteData(actualDepartureCoords, destinationCoords);
+        if (mapLoaded && destinationCoords) {
+            // Only proceed if we have a destination
+            if (useCurrentLocation) {
+                // If using current location, we need to wait until userLocation is set
+                if (userLocation) {
+                    console.log("Using current location for route:", userLocation);
+                    fetchRouteData(userLocation, destinationCoords);
+                } else {
+                    console.log("Waiting for current location to be detected...");
+                    // The userLocation will be set by the geolocation logic elsewhere in the component
+                }
+            } else if (departureCoords) {
+                // Using explicit departure coordinates
+                console.log("Using explicit departure coordinates for route:", departureCoords);
+                fetchRouteData(departureCoords, destinationCoords);
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -500,7 +510,7 @@ const RoutingMapComponent = ({
         setMapCriticalError(null); // Clear any previous errors
 
         try {
-            // Prepare the request data for your Django API
+            // Prepare the request data for the Django API
             const requestData = {
                 departure: departure,
                 destination: destination,
@@ -534,6 +544,10 @@ const RoutingMapComponent = ({
                 null,
                 'route_found'
             );
+
+            //Show the option to save this route
+            setSuccessfulRoute(true);
+
         } catch (error) {
             console.error("Error fetching route:", error);
 
@@ -841,9 +855,12 @@ const RoutingMapComponent = ({
 
     return (
         <div className="space-y-4">
+            {successfulRoute && (
+                <SaveRouteComponent departure={useCurrentLocation ? userLocation : departureCoords} destination={destinationCoords} />
+            )}
             <div className="relative w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
                 {/* Heatmap Toggle */}
-                <div className="absolute bottom-4 left-4 z-[1000] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
+                <div className="absolute bottom-4 left-4 z-[499] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
                     <label
                         className="text-sm font-medium text-gray-700"
                         htmlFor="heatmap-switch"
