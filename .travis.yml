@@ -40,6 +40,7 @@ before_script:
   - chmod +x deploy-to-production.sh
   - chmod +x deploy-to-develop.sh
   - chmod +x deploy-to-netlify.sh
+  - psql -U postgres -c "DROP DATABASE IF EXISTS test_[secure];"  # For PostgreSQL
 
 # Run checks and tests
 script:
