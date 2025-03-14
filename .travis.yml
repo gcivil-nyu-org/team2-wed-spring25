@@ -9,7 +9,7 @@ env:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libgdal-dev gdal-bin
+  - sudo apt-get install -y libgdal-dev
   
 cache:
   directories:
