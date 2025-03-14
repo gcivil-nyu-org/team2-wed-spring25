@@ -31,7 +31,7 @@ install:
 
 # Install Node.js and frontend dependencies
   - nvm install 22.9  # Install Node.js 22 (or the version your Next.js app requires)
-  - npm install -g npm@10.9.2  # Update npm to the latest version
+  - npm install -g npm@10.8  # Update npm to the latest version
   - cd $FRONTEND_PATH && npm install && cd ..  # Install frontend dependencies
 
 # Make the script executable
