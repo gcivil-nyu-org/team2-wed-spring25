@@ -79,7 +79,7 @@ class UserModelTests(TestCase):
             first_name="Test",
             last_name="User",
         )
-        self.assertEqual(str(user), f"Test User (test@example.com)")
+        self.assertEqual(str(user), "Test User (test@example.com)")
 
     def test_get_avatar_with_uploaded_avatar(self):
         """Test get_avatar property with uploaded avatar"""
