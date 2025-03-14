@@ -21,8 +21,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-from map import views  # Add this line
-from map.views import RouteViewAPI
+from map import views  # noqa: F401
+from map.views import RouteViewAPI  # noqa: F401
 
 urlpatterns = [
     path("admin/", admin.site.urls),
