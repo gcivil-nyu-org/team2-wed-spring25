@@ -40,7 +40,7 @@ before_script:
   - chmod +x deploy-to-production.sh
   - chmod +x deploy-to-develop.sh
   - chmod +x deploy-to-netlify.sh
-  - psql -U postgres -c "DROP DATABASE IF EXISTS test_[secure];"  # For PostgreSQL
+  # - psql -U postgres -c "DROP DATABASE IF EXISTS test_[secure];"  # For PostgreSQL
 
 # Run checks and tests
 script:
@@ -49,7 +49,7 @@ script:
   - black --check backend/nightwalkers/
   - flake8 backend/nightwalkers/
 
-  - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH
+  - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH --keepdb
   - coverage report  # Print coverage report
   - coverage xml  # Generate coverage XML for coveralls
 
