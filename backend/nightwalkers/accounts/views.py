@@ -227,3 +227,15 @@ class UserProfileView(APIView):
                 "avatar_url": user.avatar_url if hasattr(user, "avatar_url") else None,
             }
         )
+
+
+class GetUserView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Debugging: Print current directory
+# Debugging: Print current directoryy
 echo "Current directory: $(pwd)"
 
 # Debugging: Print environment variables

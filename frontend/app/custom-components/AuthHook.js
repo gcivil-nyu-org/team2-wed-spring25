@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const initialCheckDone = useRef(false);
-  
+
   // Use the notification context instead of managing notifications internally
   const { showError, showSuccess } = useNotification();
 
@@ -45,6 +45,7 @@ export function AuthProvider({ children }) {
       handleLogout();
       throw error;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showError]);
 
   // Fetch user data from Django
