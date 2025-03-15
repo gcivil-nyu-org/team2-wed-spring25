@@ -1,19 +1,16 @@
-# map/tests.py
-from django.test import TestCase
-
-# Client
+from django.test import TestCase, Client
 from django.urls import reverse
-
-# from django.conf import settings
-# import os
-from unittest.mock import patch, MagicMock
+from django.contrib.auth import get_user_model
+from django.conf import settings
 from rest_framework.test import APIClient
 from rest_framework import status
-from django.contrib.auth import get_user_model
+import json
+import os
+from unittest.mock import patch, MagicMock
 import requests
+from django.core.exceptions import ImproperlyConfigured
 
-# import json
-# from django.core.exceptions import ImproperlyConfigured
+from .models import SavedRoute
 
 User = get_user_model()
 
@@ -25,22 +22,22 @@ class BaseTestCase(TestCase):
         """Set up test data and clients that are common across test cases"""
         # Create test users
         self.user1 = User.objects.create_user(
-            email='test1@example.com',
-            password='testpass123',
-            first_name='Test',
-            last_name='User1'
+            email="test1@example.com",
+            password="testpass123",
+            first_name="Test",
+            last_name="User1",
         )
 
         self.user2 = User.objects.create_user(
-            email='test2@example.com',
-            password='testpass123',
-            first_name='Test',
-            last_name='User2'
+            email="test2@example.com",
+            password="testpass123",
+            first_name="Test",
+            last_name="User2",
         )
 
         # Set up API client
-        self.api_client = APIClient()  #For DRF
-        self.client = Client()  #For simpler django endpoints
+        self.api_client = APIClient()
+        self.client = Client()
 
 
 class SavedRouteAPITestCase(BaseTestCase):
@@ -53,75 +50,75 @@ class SavedRouteAPITestCase(BaseTestCase):
         # Create test routes for user1
         self.route1 = SavedRoute.objects.create(
             user=self.user1,
-            name='Home to Work',
+            name="Home to Work",
             departure_lat=40.7128,
             departure_lon=-74.0060,
             destination_lat=40.7580,
             destination_lon=-73.9855,
-            favorite=True
+            favorite=True,
         )
 
         self.route2 = SavedRoute.objects.create(
             user=self.user1,
-            name='Home to Gym',
+            name="Home to Gym",
             departure_lat=40.7128,
             departure_lon=-74.0060,
             destination_lat=40.7431,
             destination_lon=-73.9712,
-            favorite=False
+            favorite=False,
         )
 
         # Create test route for user2
         self.route3 = SavedRoute.objects.create(
             user=self.user2,
-            name='My Route',
+            name="My Route",
             departure_lat=40.6892,
             departure_lon=-74.0445,
             destination_lat=40.7831,
             destination_lon=-73.9712,
-            favorite=True
+            favorite=True,
         )
 
         # URLs for the endpoints
-        self.save_route_url = reverse('save-route')
-        self.retrieve_routes_url = reverse('retrieve-routes')
-        self.update_route_url = reverse('update-route')
-        self.delete_route_url = reverse('delete-route')
+        self.save_route_url = reverse("save-route")
+        self.retrieve_routes_url = reverse("retrieve-routes")
+        self.update_route_url = reverse("update-route")
+        self.delete_route_url = reverse("delete-route")
 
     def test_save_route_authenticated(self):
         """Test saving a new route as an authenticated user"""
         self.api_client.force_authenticate(user=self.user1)
 
         data = {
-            'name': 'New Test Route',
-            'departure_lat': 40.7128,
-            'departure_lon': -74.0060,
-            'destination_lat': 40.7580,
-            'destination_lon': -73.9855,
-            'favorite': False
+            "name": "New Test Route",
+            "departure_lat": 40.7128,
+            "departure_lon": -74.0060,
+            "destination_lat": 40.7580,
+            "destination_lon": -73.9855,
+            "favorite": False,
         }
 
-        response = self.api_client.post(self.save_route_url, data, format='json')
+        response = self.api_client.post(self.save_route_url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(SavedRoute.objects.count(), 4)
         self.assertEqual(SavedRoute.objects.filter(user=self.user1).count(), 3)
-        self.assertEqual(response.data['name'], 'New Test Route')
+        self.assertEqual(response.data["name"], "New Test Route")
 
     def test_save_route_duplicate_name(self):
         """Test that a user cannot save two routes with the same name"""
         self.api_client.force_authenticate(user=self.user1)
 
         data = {
-            'name': 'Home to Work',  # This name already exists for user1
-            'departure_lat': 40.7128,
-            'departure_lon': -74.0060,
-            'destination_lat': 40.7580,
-            'destination_lon': -73.9855,
-            'favorite': False
+            "name": "Home to Work",  # This name already exists for user1
+            "departure_lat": 40.7128,
+            "departure_lon": -74.0060,
+            "destination_lat": 40.7580,
+            "destination_lon": -73.9855,
+            "favorite": False,
         }
 
-        response = self.api_client.post(self.save_route_url, data, format='json')
+        response = self.api_client.post(self.save_route_url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(SavedRoute.objects.count(), 3)  # No new route added
@@ -129,15 +126,15 @@ class SavedRouteAPITestCase(BaseTestCase):
     def test_save_route_unauthenticated(self):
         """Test that unauthenticated users cannot save routes"""
         data = {
-            'name': 'Unauthenticated Route',
-            'departure_lat': 40.7128,
-            'departure_lon': -74.0060,
-            'destination_lat': 40.7580,
-            'destination_lon': -73.9855,
-            'favorite': False
+            "name": "Unauthenticated Route",
+            "departure_lat": 40.7128,
+            "departure_lon": -74.0060,
+            "destination_lat": 40.7580,
+            "destination_lon": -73.9855,
+            "favorite": False,
         }
 
-        response = self.api_client.post(self.save_route_url, data, format='json')
+        response = self.api_client.post(self.save_route_url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(SavedRoute.objects.count(), 3)  # No new route added
@@ -152,8 +149,8 @@ class SavedRouteAPITestCase(BaseTestCase):
         self.assertEqual(len(response.data), 2)  # user1 has 2 routes
 
         # Check that the routes are ordered by favorite and created_at
-        self.assertEqual(response.data[0]['id'], self.route1.id)  # route1 is favorite
-        self.assertEqual(response.data[1]['id'], self.route2.id)
+        self.assertEqual(response.data[0]["id"], self.route1.id)  # route1 is favorite
+        self.assertEqual(response.data[1]["id"], self.route2.id)
 
     def test_retrieve_saved_routes_unauthenticated(self):
         """Test that unauthenticated users cannot retrieve routes"""
@@ -165,12 +162,9 @@ class SavedRouteAPITestCase(BaseTestCase):
         """Test updating a saved route (favorite status)"""
         self.api_client.force_authenticate(user=self.user1)
 
-        data = {
-            'id': self.route2.id,
-            'favorite': True
-        }
+        data = {"id": self.route2.id, "favorite": True}
 
-        response = self.api_client.put(self.update_route_url, data, format='json')
+        response = self.api_client.put(self.update_route_url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -187,14 +181,17 @@ class SavedRouteAPITestCase(BaseTestCase):
         # We need to catch this exception and make sure the route is unchanged
 
         data = {
-            'id': self.route3.id,  # This belongs to user2
-            'favorite': False  # Change to False to see if it remains True
+            "id": self.route3.id,  # This belongs to user2
+            "favorite": False,  # Change to False to see if it remains True
         }
 
         try:
-            response = self.api_client.put(self.update_route_url, data, format='json')
+            response = self.api_client.put(self.update_route_url, data, format="json")
             # If we get here, check status code
-            self.assertIn(response.status_code, [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN])
+            self.assertIn(
+                response.status_code,
+                [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN],
+            )
         except Exception:
             # The test may raise an exception due to the DoesNotExist being raised
             # That's okay, as long as the route is unchanged
@@ -206,12 +203,9 @@ class SavedRouteAPITestCase(BaseTestCase):
 
     def test_update_route_unauthenticated(self):
         """Test that unauthenticated users cannot update routes"""
-        data = {
-            'id': self.route1.id,
-            'favorite': False
-        }
+        data = {"id": self.route1.id, "favorite": False}
 
-        response = self.api_client.put(self.update_route_url, data, format='json')
+        response = self.api_client.put(self.update_route_url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -223,11 +217,9 @@ class SavedRouteAPITestCase(BaseTestCase):
         """Test deleting a saved route"""
         self.api_client.force_authenticate(user=self.user1)
 
-        data = {
-            'id': self.route2.id
-        }
+        data = {"id": self.route2.id}
 
-        response = self.api_client.delete(self.delete_route_url, data, format='json')
+        response = self.api_client.delete(self.delete_route_url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(SavedRoute.objects.count(), 2)
@@ -237,14 +229,17 @@ class SavedRouteAPITestCase(BaseTestCase):
         """Test that a user cannot delete another user's route"""
         self.api_client.force_authenticate(user=self.user1)
 
-        data = {
-            'id': self.route3.id  # This belongs to user2
-        }
+        data = {"id": self.route3.id}  # This belongs to user2
 
         try:
-            response = self.api_client.delete(self.delete_route_url, data, format='json')
+            response = self.api_client.delete(
+                self.delete_route_url, data, format="json"
+            )
             # If we get here, check status code
-            self.assertIn(response.status_code, [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN])
+            self.assertIn(
+                response.status_code,
+                [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN],
+            )
         except Exception:
             # The test may raise an exception due to the DoesNotExist being raised
             # That's okay, as long as the route is not deleted
@@ -256,11 +251,9 @@ class SavedRouteAPITestCase(BaseTestCase):
 
     def test_delete_route_unauthenticated(self):
         """Test that unauthenticated users cannot delete routes"""
-        data = {
-            'id': self.route1.id
-        }
+        data = {"id": self.route1.id}
 
-        response = self.api_client.delete(self.delete_route_url, data, format='json')
+        response = self.api_client.delete(self.delete_route_url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(SavedRoute.objects.count(), 3)  # No route deleted
@@ -362,26 +355,8 @@ class RouteViewAPITests(BaseTestCase):
     """
 
     def setUp(self):
-        """Set up test data and client"""
-        self.client = APIClient()
-
-        # Create a test user
-        self.test_user = User.objects.create_user(
-            first_name="Test",
-            last_name="User",
-            email="test@example.com",
-            password="testpassword123",
-        )
-
-        # Create a test saved route
-        # self.saved_route = SavedRoute.objects.create(
-        #     user=self.test_user,
-        #     name="Test Route",
-        #     departure_lat=40.7128,
-        #     departure_lon=-74.0060,
-        #     destination_lat=34.0522,
-        #     destination_lon=-118.2437
-        # )
+        """Set up test data specific to RouteViewAPI tests"""
+        super().setUp()
 
         # URL for API endpoint
         self.url = reverse("get-route")
@@ -414,7 +389,7 @@ class RouteViewAPITests(BaseTestCase):
     @patch("requests.post")
     def test_unauthenticated_access_denied(self, mock_post):
         """Test that unauthenticated users cannot access the endpoint"""
-        response = self.client.post(self.url, self.valid_data, format="json")
+        response = self.api_client.post(self.url, self.valid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     @patch("requests.post")
@@ -427,9 +402,9 @@ class RouteViewAPITests(BaseTestCase):
         mock_post.return_value = mock_response
 
         # Authenticate user
-        self.client.force_authenticate(user=self.test_user)
+        self.api_client.force_authenticate(user=self.user1)
 
-        response = self.client.post(self.url, self.valid_data, format="json")
+        response = self.api_client.post(self.url, self.valid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("initial_route", response.data)
 
@@ -443,9 +418,9 @@ class RouteViewAPITests(BaseTestCase):
         mock_post.return_value = mock_response
 
         # Authenticate user
-        self.client.force_authenticate(user=self.test_user)
+        self.api_client.force_authenticate(user=self.user1)
 
-        response = self.client.post(self.url, self.valid_data, format="json")
+        response = self.api_client.post(self.url, self.valid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["initial_route"], self.mock_ors_response)
         self.assertIsNone(response.data["safer_route"])
@@ -461,7 +436,7 @@ class RouteViewAPITests(BaseTestCase):
             "name": "New Saved Route",
         }
 
-        response = self.client.post(self.url, data, format="json")
+        response = self.api_client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     @patch("requests.post")
@@ -471,8 +446,63 @@ class RouteViewAPITests(BaseTestCase):
         mock_post.side_effect = requests.exceptions.RequestException("API Error")
 
         # Authenticate user
-        self.client.force_authenticate(user=self.test_user)
+        self.api_client.force_authenticate(user=self.user1)
 
-        response = self.client.post(self.url, self.valid_data, format="json")
+        response = self.api_client.post(self.url, self.valid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertIn("error", response.data)
+
+
+class HeatmapDataViewTest(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        # The real GeoJSON file path
+        self.real_geojson_path = os.path.join(
+            settings.BASE_DIR, "map", "data", "filtered_grouped_data_centroid.geojson"
+        )
+
+        if not os.path.exists(self.real_geojson_path):
+            raise ImproperlyConfigured(
+                f"Real GeoJSON file not found at: {self.real_geojson_path}"
+            )
+
+    def test_heatmap_data_view_real_data_not_empty(self):
+        # Test the view with a real GeoJSON file and check for non-empty data
+        with self.settings(BASE_DIR=settings.BASE_DIR):
+            response = self.client.get(reverse("heatmap-data"))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response["content-type"], "application/json")
+
+            data = json.loads(response.content)
+            self.assertIsInstance(data, list)
+            self.assertTrue(len(data) > 0, "Real data should not be empty")
+
+            for item in data:
+                self.assertIsInstance(item, dict)
+                self.assertIn("latitude", item)
+                self.assertIn("longitude", item)
+                self.assertIn("intensity", item)
+                self.assertIsInstance(
+                    item["latitude"], (int, float), "Latitude should be a number"
+                )
+                self.assertIsInstance(
+                    item["longitude"], (int, float), "Longitude should be a number"
+                )
+                self.assertIsInstance(
+                    item["intensity"], (int, float), "Intensity should be a number"
+                )
+                self.assertIsNotNone(item["latitude"], "Latitude should not be None")
+                self.assertIsNotNone(item["longitude"], "Longitude should not be None")
+                self.assertIsNotNone(item["intensity"], "Intensity should not be None")
+                self.assertTrue(
+                    -90 <= item["latitude"] <= 90,
+                    "Latitude should be within valid range",
+                )
+                self.assertTrue(
+                    -180 <= item["longitude"] <= 180,
+                    "Longitude should be within valid range",
+                )
+                self.assertTrue(
+                    0 <= item["intensity"] <= 100,
+                    "Intensity should be within valid range",
+                )
