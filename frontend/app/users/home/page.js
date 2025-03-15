@@ -7,21 +7,6 @@ import { useNotification } from '@/app/custom-components/ToastComponent/Notifica
 import SettingPanel from '@/app/custom-components/SettingPanel';
 
 
-
-export function LogoutButton() {
-  const { logout } = useAuth();
-
-  return (
-    <Button
-      onClick={logout}
-      variant="outline"
-      className="bg-white/10 hover:bg-white/20 border-white/20 text-white"
-    >
-      Logout
-    </Button>
-  );
-}
-
 // Dashboard header component
 export function DashboardHeader() {
   const { user} = useAuth();
@@ -36,7 +21,6 @@ export function DashboardHeader() {
   }
   return (
     <>
-      <SettingPanel />
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <div className="flex items-center gap-4">
@@ -51,7 +35,7 @@ export function DashboardHeader() {
           <Button asChild>
             <Link href={`map/`}>Map Route</Link>
           </Button>
-          <LogoutButton />
+          <SettingPanel />
         </div>
       </div>
     </>

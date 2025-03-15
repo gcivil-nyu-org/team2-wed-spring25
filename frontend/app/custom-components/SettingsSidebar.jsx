@@ -22,6 +22,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useAuth } from "./AuthHook";
 
 const items = [
   {
@@ -49,11 +50,6 @@ const items = [
     url: "/users/settings",
     icon: Settings,
   },
-  {
-    title: "Sign Out",
-    url: "#",
-    icon: LogOut,
-  },
 ];
 const SettingsSidebar = () => {
   const {
@@ -65,6 +61,7 @@ const SettingsSidebar = () => {
     isMobile,
     toggleSidebar,
   } = useSidebar();
+  const { logout } = useAuth();
 
   return (
     <Sidebar side="right" collapsible="offcanvas">
@@ -113,6 +110,13 @@ const SettingsSidebar = () => {
                   <SidebarSeparator />
                 </SidebarMenuItem>
               ))}
+              {/* Log Out */}
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={logout}>
+                  <LogOut />
+                  <span>Log Out</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
