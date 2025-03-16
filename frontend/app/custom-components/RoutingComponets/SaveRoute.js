@@ -117,6 +117,7 @@ export default function SaveRouteComponent({ departure, destination }) {
                   onChange={(e) => setRouteName(e.target.value)}
                   required 
                   placeholder="Name this route"
+                  maxLength={50}
                   className="w-full"
                 />
               </div>

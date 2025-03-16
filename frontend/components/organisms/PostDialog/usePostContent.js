@@ -31,7 +31,7 @@ export const usePostContent = ( ) => {
             }
 
             const imageUrl = selectedImage ? await uploadImage(selectedImage) : null;
-            await apiPost('/api/forum/posts/create/', {
+            await apiPost('forum/posts/create/', {
                 content: postContent,
                 image_urls: [imageUrl],
                 user_id: user.id,

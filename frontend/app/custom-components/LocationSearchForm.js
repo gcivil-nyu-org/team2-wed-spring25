@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNotification } from '@/app/custom-components/ToastComponent/NotificationContext'; // Update path as needed
 
-const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
+const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDepartureCoords, initialDestinationCoords }) => {
     const { showError, showWarning, showSuccess } = useNotification();
     const [departure, setDeparture] = useState('');
     const [destination, setDestination] = useState('');
@@ -20,6 +20,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
     const [useCurrentLocation, setUseCurrentLocation] = useState(false);
     const [isGettingLocation, setIsGettingLocation] = useState(false);
     const [formError, setFormError] = useState(null);
+    const [initializedWithCoords, setInitializedWithCoords] = useState(false);
 
     // NYC bounds for validation
     const nycBounds = {
@@ -40,6 +41,28 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Format coordinates as a string
+    const formatCoordinates = (coordinates) => {
+        if (!coordinates || !Array.isArray(coordinates) || coordinates.length < 2) return '';
+        const [lat, lng] = coordinates;
+        return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    };
+
+    // Initialize form with coordinates from URL if provided
+    useEffect(() => {
+        if (initialDepartureCoords && initialDestinationCoords && !initializedWithCoords) {
+            // Set the coordinates
+            setDepartureCoordinates(initialDepartureCoords);
+            setDestinationCoordinates(initialDestinationCoords);
+            
+            // Just display the raw coordinates without reverse geocoding
+            setDeparture(formatCoordinates(initialDepartureCoords));
+            setDestination(formatCoordinates(initialDestinationCoords));
+            
+            setInitializedWithCoords(true);
+        }
+    }, [initialDepartureCoords, initialDestinationCoords, initializedWithCoords]);
 
     // Clear form error when inputs change
     useEffect(() => {
@@ -172,12 +195,6 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
 
             // Check if within NYC
             if (isWithinNYC([lat, lng])) {
-                // Location is within NYC - we can use it
-                showSuccess(
-                    'Using your current location',
-                    'Successfully obtained your location.',
-                    'using_current_location'
-                );
                 // Keep checkbox checked
                 setUseCurrentLocation(true);
                 // Clear departure field since we're using current location
@@ -370,17 +387,17 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
             departure: useCurrentLocation ? "Current Location" : departure,
             departureCoordinates: departureCoordinates,
             destination: destination,
-            destinationCoordinates: destinationCoordinates
+            destinationCoordinates: destinationCoordinates,
+            useCurrentLocation: useCurrentLocation // Make sure this is explicitly passed
         });
     
-        // For current location, we don't need to pass coordinates - the map will get them
         // Send the search data to the parent component
         onSearch({
             departure: useCurrentLocation ? "Current Location" : departure,
             departureCoordinates: departureCoordinates, // Keep sending this even if null
             destination,
             destinationCoordinates,
-            useCurrentLocation
+            useCurrentLocation: useCurrentLocation // Fixed: Explicitly pass the useCurrentLocation state
         });
     
         showSuccess(
@@ -546,7 +563,8 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken }) => {
                         <div className="w-4 h-4 mr-2 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
                         Calculating Route...
                     </span>
-                    : 'Get Directions'}
+                    : destinationCoordinates && (!useCurrentLocation && departureCoordinates || useCurrentLocation) ? 
+                      'Get Directions' : 'Enter Route Details'}
             </Button>
 
             {/* Add note about NYC-only policy */}

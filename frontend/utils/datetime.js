@@ -1,3 +1,7 @@
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
 export default function formatDateAgo(dateString) {
   const date = new Date(dateString);
   const now = new Date();
@@ -33,3 +37,18 @@ export default function formatDateAgo(dateString) {
       return years === 1 ? "1 year ago" : `${years} years ago`;
   }
 }
+
+const formatDate = (dateString) => {
+    const date = dayjs(dateString);
+    const now = dayjs();
+    const diffInDays = now.diff(date, 'day');
+    
+    if (diffInDays > 6) {
+      return date.format('MMM D, YYYY'); // e.g., "Jan 15, 2023"
+    } else {
+      // Otherwise use the relative time
+      return date.fromNow();
+    }
+  };
+
+export { formatDate };
