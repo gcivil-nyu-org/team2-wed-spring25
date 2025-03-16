@@ -11,8 +11,10 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { getSession } from "next-auth/react"
 import { apiPost } from "@/utils/fetch/fetch";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 
 export default function RegisterPage() {
+    const {showSuccess } = useNotification();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
@@ -84,16 +86,13 @@ export default function RegisterPage() {
             });
 
             if (response.access && response.refresh) {
-                // Store tokens in localStorage
-                localStorage.setItem('djangoAccessToken', response.access);
-                localStorage.setItem('djangoRefreshToken', response.refresh);
-                
-                if (response.user) {
-                    localStorage.setItem('djangoUser', JSON.stringify(response.user));
-                }
-                
                 // Redirect to user home
-                router.push('/users/home');
+                showSuccess(
+                    "You have successfully created your account!", // Message
+                    null, // Details (optional)
+                    "signup" // Type (login, signup, profile, etc.)
+                  );
+                router.push('/users/login');
             } else {
                 setError('Invalid response from server');
                 setLoading(false);

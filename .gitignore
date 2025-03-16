@@ -37,9 +37,9 @@ certs/
 
 # Docker
 .docker/
+
 .coverage
 coverage.xml
-
 # Local Netlify folder
 .netlify
 

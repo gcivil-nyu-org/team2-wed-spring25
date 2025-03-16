@@ -1,0 +1,59 @@
+/* map_styles.css - Replace or add this to your file */
+
+.map-container {
+  height: 500px;
+  width: 100%;
+}
+
+/* The key issue is that your ::after pseudo-element animation 
+   needs to be properly visible and sized */
+
+.custom-user-marker-icon {
+  background: none !important;
+  border: none !important;
+}
+
+.user-location-pulse {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+}
+
+.user-location-dot {
+  background-color: #4e46e5;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 3;
+}
+
+/* Key fix - The pseudo-element needs to be properly positioned and sized */
+.user-location-pulse::after {
+  content: '';
+  position: absolute;
+  width: 40px; /* Increased from 20px */
+  height: 40px; /* Increased from 20px */
+  background: rgba(78, 70, 229, 0.873);
+  border-radius: 50%;
+  z-index: 2;
+  left: -16%; /* Center it precisely */
+  top: -12%;  /* Center it precisely */
+  animation: pulse-ring 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.33);
+    opacity: 0.8;
+  }
+  80%, 100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}

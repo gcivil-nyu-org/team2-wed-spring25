@@ -8,13 +8,12 @@ import { MapPin, ZoomIn, ZoomOut, Loader } from "lucide-react";
 export default function ProtectedLayout({ children }) {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
-  console.log("Checking authentication:", { loading, isAuthenticated });
   // Handle redirect just once if not authenticated and not loading
   useEffect(() => {
     const accessToken = localStorage.getItem('djangoAccessToken');
 
     if (!loading && !isAuthenticated && !accessToken) {
-      console.log('Not authenticated, redirecting to login');
+
       router.replace('/users/login');
     }
   }, [isAuthenticated, loading, router]);
@@ -22,7 +21,7 @@ export default function ProtectedLayout({ children }) {
   // Show loading state while checking authentication
 
   if (loading) {
-    console.log("ProtectedLayout: Showing loading UI while auth checks complete");
+
     return (
       <div className="relative w-full h-screen">
         {/* Full-screen map skeleton */}

@@ -6,11 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from 'next/link';
 import AnimatedBackground from "../../custom-components/AnimatedBackground";
-import { signIn} from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { getSession } from "next-auth/react"
 import { apiPost } from "@/utils/fetch/fetch";
+import Image from "next/image";
 
 
 export default function LoginPage() {
@@ -20,15 +21,19 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null);
     useEffect(() => {
+        if (typeof window === 'undefined') {
+            return
+        }
         const checkAuth = async () => {
             setLoading(true);
-            
+
             // Check for session or tokens
             const session = await getSession();
-            const hasToken = localStorage.getItem('djangoAccessToken');
-            const hasUser = localStorage.getItem('user');
+            const hasToken = typeof window !== 'undefined' ? localStorage.getItem('djangoAccessToken') : null;
+            const hasUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+
             const isAuthenticated = !!(hasToken && hasUser);
-            
+
             // If authenticated by any means, redirect to home
             if ((session && hasToken) || isAuthenticated) {
                 console.log("User is authenticated, redirecting from login page");
@@ -60,7 +65,6 @@ export default function LoginPage() {
     const handleEmailLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-
         try {
             const result = await apiPost('/auth/login/', {
                 email,
@@ -97,19 +101,30 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
-            <AnimatedBackground />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
+        <AnimatedBackground />
 
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/50 to-blue-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/50 to-blue-900/80"></div>
 
-            <div className="relative z-10 w-full max-w-md p-4">
-                <Card className="w-full bg-white/10 backdrop-blur-lg border-white/20">
-                    <CardHeader className="space-y-1">
-                        <CardTitle className="text-2xl font-bold text-center text-white">Welcome Back</CardTitle>
-                        <CardDescription className="text-center text-blue-200">
-                            Sign in to your account
-                        </CardDescription>
-                    </CardHeader>
+        <div className="relative z-10 w-full max-w-md p-4">
+          <Card className="w-full bg-white/10 backdrop-blur-lg border-white/20">
+            <CardHeader className="space-y-1">
+              <div className="flex justify-center -mt-2">
+                <Image
+                  className="mx-auto lg:mx-0 mb-2"
+                  src="/owl-logo.svg"
+                  width={64}
+                  height={64}
+                  alt="Nightwalkers Logo"
+                />
+              </div>
+              <CardTitle className="text-2xl font-bold text-center text-white">
+                Welcome Back
+              </CardTitle>
+              <CardDescription className="text-center text-blue-200">
+                Sign in to your account
+              </CardDescription>
+            </CardHeader>
 
                     <CardContent className="space-y-4">
                         {/* OAuth Buttons */}
@@ -126,16 +141,16 @@ export default function LoginPage() {
                             </Button>
                         </div>
 
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <Separator className="w-full bg-white/20" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-blue-900/50 px-2 text-blue-200 backdrop-blur-sm">
-                                    Or continue with email
-                                </span>
-                            </div>
-                        </div>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full bg-white/20" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-blue-900/50 px-2 text-blue-200 backdrop-blur-sm">
+                    Or continue with email
+                  </span>
+                </div>
+              </div>
 
                         {/* Email Login Form */}
                         <form className="space-y-4" onSubmit={handleEmailLogin}>
