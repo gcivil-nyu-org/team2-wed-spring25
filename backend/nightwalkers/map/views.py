@@ -1,9 +1,11 @@
 # import geopandas as gpd
 from django.shortcuts import render
 import os
+
 # from django.conf import settings
 from django.http import JsonResponse
 from rest_framework import generics, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
@@ -199,9 +201,16 @@ class SaveRouteAPIView(generics.GenericAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class RoutesPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 50
+
+
 class RetrieveSavedRoutesListAPIView(generics.ListAPIView):
     serializer_class = SavedRouteSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = RoutesPagination
 
     def get_queryset(self):
         return SavedRoute.objects.filter(user=self.request.user).order_by(
@@ -220,6 +229,7 @@ class UpdateSavedRouteAPIView(generics.UpdateAPIView):
 
     def get_object(self):
         queryset = self.get_queryset()
+        print(self.request.data)
         obj = queryset.get(id=self.request.data["id"])
         self.check_object_permissions(self.request, obj)
         return obj
@@ -230,9 +240,3 @@ class DeleteSavedRouteAPIView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return SavedRoute.objects.filter(user=self.request.user)
-
-    def get_object(self):
-        queryset = self.get_queryset()
-        obj = queryset.get(id=self.request.data["id"])
-        self.check_object_permissions(self.request, obj)
-        return obj
