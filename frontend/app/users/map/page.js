@@ -57,6 +57,8 @@ export function MapPage() {
 }
 
 // Inner dashboard component that uses searchParams
+// Update in the DashboardContent component:
+
 function DashboardContent() {
     const searchParams = useSearchParams();
     const { user } = useAuth();
@@ -72,6 +74,7 @@ function DashboardContent() {
     const [initialDepartureCoords, setInitialDepartureCoords] = useState(null);
     const [initialDestinationCoords, setInitialDestinationCoords] = useState(null);
     const [readyToRender, setReadyToRender] = useState(false);
+    const [routeCalculated, setRouteCalculated] = useState(false); // Track if a route has been calculated
 
     // Used to force map re-renders when needed
     const [mapKey, setMapKey] = useState(1);
@@ -85,20 +88,20 @@ function DashboardContent() {
             const destLat = searchParams.get('dest_lat');
             const destLon = searchParams.get('dest_lon');
             const name = searchParams.get('name');
-
+            
             // Only set coordinates if they exist in the URL
             if (depLat && depLon && destLat && destLon) {
                 const departure = [parseFloat(depLat), parseFloat(depLon)];
                 const destination = [parseFloat(destLat), parseFloat(destLon)];
-
+                
                 setInitialDepartureCoords(departure);
                 setInitialDestinationCoords(destination);
-
+                
                 if (name) {
                     setRouteName(decodeURIComponent(name));
                 }
             }
-
+            
             setInitialLoad(false);
         }
     }, [initialLoad, searchParams]);
@@ -136,6 +139,7 @@ function DashboardContent() {
         }
 
         setIsLoading(true);
+        setRouteCalculated(false); // Reset route calculated state when starting a new search
 
         try {
             console.log('Search form submitted with values:', {
@@ -195,6 +199,7 @@ function DashboardContent() {
                 setTimeout(() => {
                     setDestinationCoords(destinationCoordinates);
                     setIsLoading(false);
+                    setRouteCalculated(true); // Mark that a route has been successfully calculated
 
                     // Update URL with the current coordinates
                     const url = new URL(window.location.href);
@@ -219,6 +224,7 @@ function DashboardContent() {
         } catch (error) {
             console.error('Search error:', error);
             setIsLoading(false);
+            setRouteCalculated(false); // Reset on error
 
             showError(
                 'Route planning failed',
@@ -227,7 +233,7 @@ function DashboardContent() {
             );
         }
     };
-
+    
     return (
         <div className="max-w-4xl mx-auto">
             {routeName && (
@@ -248,10 +254,11 @@ function DashboardContent() {
                         mapboxToken={mapboxToken}
                         initialDepartureCoords={initialDepartureCoords}
                         initialDestinationCoords={initialDestinationCoords}
+                        routeCalculated={routeCalculated} // Pass down whether a route has been calculated
                     />
                 </div>
 
-                {/* Map Container - only render when we have coordinates */}
+                {/* Map Container */}
                 {mapboxToken && readyToRender && (
                     <ClientOnlyMap
                         key={mapKey}
@@ -282,7 +289,6 @@ function DashboardContent() {
         </div>
     );
 }
-
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
     return (

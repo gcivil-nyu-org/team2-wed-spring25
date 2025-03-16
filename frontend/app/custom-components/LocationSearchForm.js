@@ -3,9 +3,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNotification } from '@/app/custom-components/ToastComponent/NotificationContext'; // Update path as needed
+import { useNotification } from '@/app/custom-components/ToastComponent/NotificationContext';
 
-const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDepartureCoords, initialDestinationCoords }) => {
+const LocationSearchForm = ({ 
+    onSearch, 
+    isLoading, 
+    mapboxToken, 
+    initialDepartureCoords, 
+    initialDestinationCoords,
+    routeCalculated = false
+}) => {
     const { showError, showWarning, showSuccess } = useNotification();
     const [departure, setDeparture] = useState('');
     const [destination, setDestination] = useState('');
@@ -21,12 +28,25 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
     const [isGettingLocation, setIsGettingLocation] = useState(false);
     const [formError, setFormError] = useState(null);
     const [initializedWithCoords, setInitializedWithCoords] = useState(false);
+    
+    // State to track if inputs have been modified since last submission
+    const [inputsModified, setInputsModified] = useState(false);
+    // State to track if we're in an error state (don't disable button in error cases)
+    const [hasError, setHasError] = useState(false);
 
     // NYC bounds for validation
     const nycBounds = {
         sw: [40.4957, -74.2557], // Southwest coordinates (Staten Island)
         ne: [40.9176, -73.7002], // Northeast coordinates (Bronx)
     };
+
+    // Reset the modified state when route is calculated
+    useEffect(() => {
+        if (routeCalculated) {
+            setInputsModified(false);
+            setHasError(false);
+        }
+    }, [routeCalculated]);
 
     // Function to check if coordinates are within NYC
     const isWithinNYC = useCallback((coords) => {
@@ -39,7 +59,6 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             lng >= nycBounds.sw[1] &&
             lng <= nycBounds.ne[1]
         );
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Format coordinates as a string
@@ -66,7 +85,10 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
 
     // Clear form error when inputs change
     useEffect(() => {
-        if (formError) setFormError(null);
+        if (formError) {
+            setFormError(null);
+            setHasError(false);
+        }
     }, [departure, destination, useCurrentLocation, formError]);
 
     // Function to fetch suggestions for departure
@@ -94,6 +116,8 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
                 console.log("No departure suggestions found");
                 setDepartureSuggestions([]);
                 setShowDepartureSuggestions(false);
+                setHasError(true);
+
                 showWarning(
                     'No locations found',
                     `No results found for "${departure}". Try a different search term.`,
@@ -104,6 +128,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             console.error('Error fetching departure suggestions:', error);
             setDepartureSuggestions([]);
             setFormError("Failed to fetch location suggestions");
+            setHasError(true);
 
             showError(
                 'Location search failed',
@@ -140,6 +165,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
                 console.log("No destination suggestions found");
                 setDestinationSuggestions([]);
                 setShowDestinationSuggestions(false);
+                setHasError(true);
 
                 showWarning(
                     'No locations found',
@@ -151,6 +177,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             console.error('Error fetching destination suggestions:', error);
             setDestinationSuggestions([]);
             setFormError("Failed to fetch location suggestions");
+            setHasError(true);
 
             showError(
                 'Location search failed',
@@ -171,6 +198,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
                 'location_not_supported'
             );
             setUseCurrentLocation(false);
+            setHasError(true);
             return;
         }
 
@@ -195,11 +223,19 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
 
             // Check if within NYC
             if (isWithinNYC([lat, lng])) {
+                // Location is within NYC - we can use it
+                showSuccess(
+                    'Using your current location',
+                    'Successfully obtained your location.',
+                    'using_current_location'
+                );
                 // Keep checkbox checked
                 setUseCurrentLocation(true);
                 // Clear departure field since we're using current location
                 setDeparture('');
                 setDepartureCoordinates(null);
+                // Mark inputs as modified
+                setInputsModified(true);
             } else {
                 // Outside NYC - warn and uncheck
                 showWarning(
@@ -208,9 +244,11 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
                     'location_outside_nyc'
                 );
                 setUseCurrentLocation(false);
+                setHasError(true);
             }
         } catch (error) {
             console.error("Error getting location:", error);
+            setHasError(true);
 
             if (error.code === 1) {
                 // Permission denied
@@ -247,12 +285,14 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             setDepartureCoordinates([lat, lng]);
             setShowDepartureSuggestions(false);
             setUseCurrentLocation(false);
-
+            // Mark inputs as modified
+            setInputsModified(true);
         } else {
             // Clear the input if outside NYC
             setDeparture('');
             setDepartureCoordinates(null);
             setShowDepartureSuggestions(false);
+            setHasError(true);
 
             showWarning(
                 'Location outside NYC',
@@ -274,12 +314,14 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             setDestination(suggestion.place_name);
             setDestinationCoordinates([lat, lng]);
             setShowDestinationSuggestions(false);
-
+            // Mark inputs as modified
+            setInputsModified(true);
         } else {
             // Clear the input if outside NYC
             setDestination('');
             setDestinationCoordinates(null);
             setShowDestinationSuggestions(false);
+            setHasError(true);
 
             showWarning(
                 'Location outside NYC',
@@ -292,6 +334,9 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
     // Toggle current location usage
     const toggleUseCurrentLocation = () => {
         const newValue = !useCurrentLocation;
+        
+        // Mark inputs as modified when toggling current location
+        setInputsModified(true);
 
         if (newValue) {
             // User is trying to enable current location
@@ -300,6 +345,26 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             // User is disabling current location
             setUseCurrentLocation(false);
         }
+    };
+
+    // Handle departure input change
+    const handleDepartureChange = (e) => {
+        const newValue = e.target.value;
+        setDeparture(newValue);
+        
+        // Always clear coordinates when input changes
+        setDepartureCoordinates(null);
+        setInputsModified(true);
+    };
+
+    // Handle destination input change
+    const handleDestinationChange = (e) => {
+        const newValue = e.target.value;
+        setDestination(newValue);
+        
+        // Always clear coordinates when input changes
+        setDestinationCoordinates(null);
+        setInputsModified(true);
     };
 
     // Handle Enter key press for departure input
@@ -332,10 +397,12 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
     const handleSubmit = (e) => {
         e.preventDefault();
         setFormError(null);
+        setHasError(false);
     
         // Validation
         if (!useCurrentLocation && !departureCoordinates) {
             setFormError('Please select a departure location from the suggestions');
+            setHasError(true);
     
             showWarning(
                 'Departure location missing',
@@ -347,6 +414,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
     
         if (!destinationCoordinates) {
             setFormError('Please select a destination from the suggestions');
+            setHasError(true);
     
             showWarning(
                 'Destination location missing',
@@ -361,6 +429,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             setFormError('Departure location must be within New York City');
             setDeparture('');
             setDepartureCoordinates(null);
+            setHasError(true);
     
             showWarning(
                 'Departure outside NYC',
@@ -374,6 +443,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             setFormError('Destination must be within New York City');
             setDestination('');
             setDestinationCoordinates(null);
+            setHasError(true);
     
             showWarning(
                 'Destination outside NYC',
@@ -388,16 +458,16 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             departureCoordinates: departureCoordinates,
             destination: destination,
             destinationCoordinates: destinationCoordinates,
-            useCurrentLocation: useCurrentLocation // Make sure this is explicitly passed
+            useCurrentLocation: useCurrentLocation
         });
     
         // Send the search data to the parent component
         onSearch({
             departure: useCurrentLocation ? "Current Location" : departure,
-            departureCoordinates: departureCoordinates, // Keep sending this even if null
+            departureCoordinates: departureCoordinates,
             destination,
             destinationCoordinates,
-            useCurrentLocation: useCurrentLocation // Fixed: Explicitly pass the useCurrentLocation state
+            useCurrentLocation: useCurrentLocation
         });
     
         showSuccess(
@@ -419,6 +489,14 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
             document.removeEventListener('click', handleClickOutside);
         };
     }, []);
+
+    // Determine if the button should be disabled
+    const isButtonDisabled = 
+        isLoading || 
+        isGettingLocation || 
+        (!useCurrentLocation && !departureCoordinates) || 
+        !destinationCoordinates ||
+        (routeCalculated && !inputsModified && !hasError); // Don't disable in error states
 
     return (
         <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-lg shadow-md space-y-4">
@@ -458,7 +536,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
                             id="departure"
                             placeholder={useCurrentLocation ? "Using current location" : "Enter departure location"}
                             value={departure}
-                            onChange={(e) => setDeparture(e.target.value)}
+                            onChange={handleDepartureChange}
                             onKeyDown={handleDepartureKeyDown}
                             onFocus={() => { }}
                             onClick={(e) => e.stopPropagation()}
@@ -511,7 +589,7 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
                             id="destination"
                             placeholder="Enter destination"
                             value={destination}
-                            onChange={(e) => setDestination(e.target.value)}
+                            onChange={handleDestinationChange}
                             onKeyDown={handleDestinationKeyDown}
                             onFocus={() => { }}
                             onClick={(e) => e.stopPropagation()}
@@ -555,17 +633,28 @@ const LocationSearchForm = ({ onSearch, isLoading, mapboxToken, initialDeparture
 
             <Button
                 type="submit"
-                disabled={isLoading || isGettingLocation || (!useCurrentLocation && !departureCoordinates) || !destinationCoordinates}
+                disabled={isButtonDisabled}
                 className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700"
             >
-                {isLoading ?
+                {isLoading ? (
                     <span className="flex items-center">
                         <div className="w-4 h-4 mr-2 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
                         Calculating Route...
                     </span>
-                    : destinationCoordinates && (!useCurrentLocation && departureCoordinates || useCurrentLocation) ? 
-                      'Get Directions' : 'Enter Route Details'}
+                ) : routeCalculated && !inputsModified && !hasError ? (
+                    "Route Already Calculated"
+                ) : destinationCoordinates && (!useCurrentLocation && departureCoordinates || useCurrentLocation) ? (
+                    "Get Directions"
+                ) : (
+                    "Enter Route Details"
+                )}
             </Button>
+
+            {routeCalculated && !inputsModified && !hasError && (
+                <div className="text-xs text-blue-600 text-center mt-1">
+                    Change departure or destination to calculate a new route
+                </div>
+            )}
 
             {/* Add note about NYC-only policy */}
             <div className="text-xs text-gray-500 mt-2 text-center">
