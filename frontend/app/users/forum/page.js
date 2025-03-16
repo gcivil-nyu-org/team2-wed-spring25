@@ -24,7 +24,7 @@ export default function ForumsPage(){
                 {
                     isOpen && <PostDialog onClick={handleClick}/>
                 }
-                <div className="felx flex-col rounded-md bg-white mb-4">
+                <div className="felx flex-col rounded-lg bg-white mb-4 border-[1px]">
                     <div className="flex flex-row pl-4 py-3">
                         <UserImage imageUrl={user.avatar} width={50} height={50} />
                         <div onClick={handleClick} className="group flex flex-row items-center w-full border-gray-400 border-[1px] mx-3 rounded-3xl hover:bg-gray-100 hover:cursor-pointer">

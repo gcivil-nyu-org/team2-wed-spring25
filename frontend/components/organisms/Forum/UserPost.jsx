@@ -10,10 +10,11 @@ export default function UserPost(
 
 ){
     return (
-    <div className="flex flex-col rounded-md w-full font-sans mb-4 bg-white">
+    <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-white border-[1px]">
         <UserPostHeader user_avatar={post.user_avatar} user_fullname={post.user_fullname} date_created={post.date_created}/>
         <UserPostBody image_urls={post.image_urls} content={post.content}/>
         <UserPostBottom user_avatar={post.user_avatar} comments_count={post.comments_count} likes_count={post.likes_count} />
+        
     </div>
     );
 }

@@ -1,6 +1,6 @@
 import IconText from '@/components/molecules/IconText/IconText';
 import LikeIconTextWithTooltip from '@/components/molecules/LikeIconTextWithTooltip/LikeIconTextWithTooltip';
-const PostFooterIconList = () => {
+const PostFooterIconList = ({handleClickOnComment}) => {
     const iconsData = [
         {
             src: "/icons/like.svg",
@@ -40,16 +40,17 @@ const PostFooterIconList = () => {
                 {/* like option list */}
                 <LikeIconTextWithTooltip iconData={iconsData[0]} />
             </div>
-            <div className='flex-1'>
+            <div className='flex-1' onClick={handleClickOnComment}>
                 <IconText
                     src={iconsData[1].src}
                     width={iconsData[1].width}
                     height={iconsData[1].height}
                     alt={iconsData[1].alt}
                     text={iconsData[1].text}
+                    
                 />
             </div>
-            <div className='flex-1'>
+            <div className='flex-1' onClick={handleClickOnComment}>
                 <IconText
                     src={iconsData[2].src}
                     width={iconsData[2].width}
@@ -58,7 +59,7 @@ const PostFooterIconList = () => {
                     text={iconsData[2].text}
                 />
             </div>
-            <div className='flex-1'>
+            <div className='flex-1' onClick={handleClickOnComment}>
                 <IconText
                     src={iconsData[3].src}
                     width={iconsData[3].width}

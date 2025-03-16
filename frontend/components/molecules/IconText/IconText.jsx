@@ -13,7 +13,7 @@ export default function IconText({ src, width, height, alt, text }) {
                     className="object-fill "
                 />
             </div>
-            <p className="text-slate-600 text-sm font-bold group-hover:text-slate-900">
+            <p className="text-slate-600 text-sm font-semibold group-hover:text-slate-900">
                 {text}
             </p>
         </div>

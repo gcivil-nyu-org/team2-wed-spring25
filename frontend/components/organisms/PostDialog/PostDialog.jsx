@@ -59,7 +59,7 @@ export default function PostDialog({
     //     }
     // }, []);
     return (
-        <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0">
+        <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0 z-50">
             <div className="w-1/2 h-4/5 bg-white rounded-lg flex flex-col">
                 <div className="flex justify-between mb-2 p-4">
                     <div className="flex items-center p-3 rounded-2xl hover:bg-gray-200">
@@ -84,7 +84,7 @@ export default function PostDialog({
                 </div>
                 <div className="mb-4 flex-1 flex flex-col justify-between relative">
                     <div className="flex flex-col flex-1 justify-between overflow-y-auto h-full">
-                        <textarea sd
+                        <textarea
                             type="text" 
                             className="pl-7 text-xl flex-1 resize-none outline-none placeholder-slate-600 " 
                             placeholder="Share Your Thoughts..."      

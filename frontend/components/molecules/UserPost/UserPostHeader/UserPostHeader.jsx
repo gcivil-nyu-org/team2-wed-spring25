@@ -10,7 +10,7 @@ export default function UserPostHeader({ user_avatar, user_fullname, date_create
                 width={50} 
                 height={50}    
             />
-            <div className="flex-1 flex-col justify-start items-start pl-2">
+            <div className="flex-1 flex-col justify-start items-start pl-3">
                 <p className="text-lg font-medium leading-none">
                     {user_fullname}
                 </p>

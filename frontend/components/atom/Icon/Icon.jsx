@@ -30,7 +30,6 @@ export default function Icon({ onClick = null, src, width, height, alt, size, ke
         <div 
             onClick={onClick} 
             className={data}
-            key={key}
             onMouseEnter={() => {
                 setIsHovered(true);
                 if (onMouseEnter) {
