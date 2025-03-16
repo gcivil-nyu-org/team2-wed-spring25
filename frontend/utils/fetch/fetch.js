@@ -118,5 +118,37 @@ export const authAPI = {
                 ...this.getAuthHeaders()
             }
         });
+    },
+    authenticatedPatch(url, data, options = {}) {
+        return enhancedFetch(url, {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+            ...options,
+            headers: {
+                ...options.headers,
+                ...this.getAuthHeaders()
+            }
+        });
+    },
+    authenticatedPut(url, data, options = {}) {
+        return enhancedFetch(url, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+            ...options,
+            headers: {
+                ...options.headers,
+                ...this.getAuthHeaders()
+            }
+        });
+    },
+    authenticatedDelete(url, options = {}) {
+        return enhancedFetch(url, {
+            method: 'DELETE',
+            ...options,
+            headers: {
+                ...options.headers,
+                ...this.getAuthHeaders()
+            }
+        });
     }
 };
