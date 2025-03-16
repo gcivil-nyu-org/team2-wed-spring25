@@ -59,6 +59,7 @@ const LocationSearchForm = ({
             lng >= nycBounds.sw[1] &&
             lng <= nycBounds.ne[1]
         );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Format coordinates as a string

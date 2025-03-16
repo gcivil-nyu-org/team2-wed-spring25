@@ -239,7 +239,7 @@ function DashboardContent() {
             {routeName && (
                 <div className="bg-white/20 rounded-lg p-4 mb-6 text-center">
                     <h2 className="text-xl font-semibold">{routeName}</h2>
-                    <p className="text-sm mt-2">Click "Get Directions" to calculate the route</p>
+                    <p className="text-sm mt-2">Click &quot;Get Directions&quot; to calculate the route</p>
                 </div>
             )}
 

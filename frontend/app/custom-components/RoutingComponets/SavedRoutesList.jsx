@@ -146,6 +146,7 @@ const SavedRoutesList = () => {
 
     useEffect(() => {
         fetchRoutes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Calculate total pages
@@ -225,7 +226,7 @@ const SavedRoutesList = () => {
                         <div className="text-center py-8">
                             <MapPin className="mx-auto h-12 w-12 text-gray-400" />
                             <h3 className="mt-2 text-lg font-medium text-gray-900">No saved routes</h3>
-                            <p className="mt-1 text-sm text-gray-500">You haven't saved any routes yet.</p>
+                            <p className="mt-1 text-sm text-gray-500">You haven&apos;t saved any routes yet.</p>
                         </div>
                     ) : (
                         <>
