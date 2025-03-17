@@ -20,6 +20,7 @@ class SavedRoute(models.Model):
     destination_lat = models.FloatField()
     destination_lon = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
+    favorite = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} by {self.user.first_name}"

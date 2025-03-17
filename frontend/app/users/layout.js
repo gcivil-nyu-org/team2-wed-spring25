@@ -13,7 +13,7 @@ export default function AuthLayout({ children }) {
       <NotificationProvider>
         <AuthProvider>
           <ToastNotifications />
-          {children}
+        {children}
           <Toaster 
             position="top-right"
             toastOptions={{
@@ -24,5 +24,5 @@ export default function AuthLayout({ children }) {
         </AuthProvider>
       </NotificationProvider>
     </SessionProvider>
-  )
+  );
 }

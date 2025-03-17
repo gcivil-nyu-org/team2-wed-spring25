@@ -17,7 +17,7 @@ export default function useForum() {
     useEffect(() => {
         const fetchPosts = async () => {
             try{
-                const response = await apiGet("/api/forum/posts");
+                const response = await apiGet("/forum/posts");
                 console.log(response);
                 
                 if (response) {
