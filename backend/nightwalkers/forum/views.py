@@ -20,10 +20,8 @@ def parse_json_request(request):
 @csrf_exempt
 def create_post(request):
     if request.method == "POST":
-        try:
-            # Parse JSON data from the request body
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
+        data = parse_json_request(request)
+        if not data:
             return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
         user_id = data.get("user_id")
@@ -120,49 +118,111 @@ def get_post(request, post_id):
 
 # Create a comment on a post
 @csrf_exempt
-def create_comment(request, post_id):
+def comments(request, post_id):
     if request.method == "POST":
         data = parse_json_request(request)
         if not data:
             return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
-        user = request.user
+        user_id = data.get("user_id")
         content = data.get("content")
+        parent_comment_id = data.get("parent_comment_id")  # Optional field for nested comments
 
-        if not content:
-            return JsonResponse({"error": "Content is required"}, status=400)
+        if not user_id or not content:
+            return JsonResponse(
+                {"error": "user_id and content are required"}, status=400
+            )
 
         post = get_object_or_404(Post, id=post_id)
-        comment = Comment.objects.create(user=user, post=post, content=content)
+
+        try:
+            # Fetch the user by ID
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+
+        # Check if this is a nested comment (reply to another comment)
+        parent_comment = None
+        if parent_comment_id:
+            try:
+                parent_comment = Comment.objects.get(id=parent_comment_id, post=post)
+            except Comment.DoesNotExist:
+                return JsonResponse({"error": "Parent comment not found"}, status=404)
+
+        # Create the comment
+        comment = Comment.objects.create(
+            user=user,
+            post=post,
+            content=content,
+            parent_comment=parent_comment,  # Set to None if not a nested comment
+        )
+
         return JsonResponse(
             {
                 "id": comment.id,
                 "content": comment.content,
                 "date_created": comment.date_created,
                 "user": comment.user.get_full_name(),
+                "parent_comment_id": comment.parent_comment.id if comment.parent_comment else None,
             },
             status=201,
         )
+    elif request.method == "GET":
+        try:
+            # Select related user details along with comments
+            comments = Comment.objects.select_related("user").filter(post_id=post_id)
 
+            # Serialize the comments along with user details
+            comments_data = [
+                {
+                    "id": comment.id,
+                    "post_id": comment.post_id,
+                    "content": comment.content,
+                    "date_created": comment.date_created,
+                    "user": {
+                        "id": comment.user.id,
+                        "avatar_url": comment.user.avatar_url,
+                        "email": comment.user.email,  # Only include if necessary
+                        "first_name": comment.user.first_name,
+                        "last_name": comment.user.last_name,
+                    },
+                }
+                for comment in comments
+            ]
+
+            return JsonResponse({"comments": comments_data}, safe=False, status=200)
+
+        except Exception as e:
+            print("Error fetching comments:", str(e))  # Logs for debugging
+            return JsonResponse({"error": "Internal server error"}, status=500)
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
 
 
 # Like a post
 @csrf_exempt
 def like_post(request, post_id):
     if request.method == "POST":
-        user = request.user
+        data = parse_json_request(request)
+        if not data:
+            return JsonResponse({"error": "Invalid JSON data"}, status=400)
+        print(data)
+        user_id = data.get('user_id')
+        is_liked = data.get('is_liked')
+        print(user_id)
+        user = User.objects.get(id=user_id)
         post = get_object_or_404(Post, id=post_id)
-
+        print(user_id, is_liked, post)
         # Check if the user has already liked the post
         if Like.objects.filter(user=user, post=post).exists():
             return JsonResponse(
                 {"error": "You have already liked this post"}, status=400
             )
+        
 
         Like.objects.create(user=user, post=post)
         return JsonResponse(
-            {"message": "Post liked successfully", "likes_count": post.likes.count()},
+            {"message": "Post liked successfully", "likes_count": post.likes.count(), "status":201},
             status=201,
         )
 

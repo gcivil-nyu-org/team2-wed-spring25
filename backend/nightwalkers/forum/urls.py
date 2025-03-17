@@ -8,9 +8,9 @@ urlpatterns = [
     path("posts/<int:post_id>/", views.get_post, name="get_post"),
     # Comment endpoints
     path(
-        "posts/<int:post_id>/comments/create/",
-        views.create_comment,
-        name="create_comment",
+        "posts/<int:post_id>/comments/",
+        views.comments,
+        name="comments",
     ),
     # Like endpoints
     path("posts/<int:post_id>/like/", views.like_post, name="like_post"),
