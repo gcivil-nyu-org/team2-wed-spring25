@@ -17,7 +17,6 @@ export default function LikeIconTextWithTooltip({ iconData, post_id }) {
       className="flex-1 relative group"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={handleOnLike}
     >
       {/* IconText Component */}
       <IconText
@@ -26,6 +25,7 @@ export default function LikeIconTextWithTooltip({ iconData, post_id }) {
         height={iconData.height}
         alt={iconData.alt}
         text={iconData.text}
+        onClick={handleOnLike} // Handle like action
       />
 
       {/* Tooltip Div */}
