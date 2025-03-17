@@ -63,6 +63,7 @@ export default function Dashboard() {
     const [useCurrentLocation, setUseCurrentLocation] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { showError, showWarning, showSuccess } = useNotification();
+    const [successfulRoute, setSuccessfulRoute] = useState(false);
 
     // Used to force map re-renders when needed
     const [mapKey, setMapKey] = useState(1);
@@ -145,6 +146,13 @@ export default function Dashboard() {
 
                 if (departureCoordinates) {
                     setDepartureCoords(departureCoordinates);
+                }
+                if (!useCurrentLocationValue && departureCoordinates) {
+                    setDepartureCoords(departureCoordinates);
+                } else if (useCurrentLocationValue) {
+                    // If using current location, we still need to pass null for departureCoords
+                    // The map component will use geolocation API instead
+                    setDepartureCoords(null);
                 }
 
                 // Set endpoint with a slight delay to ensure start point is registered first
