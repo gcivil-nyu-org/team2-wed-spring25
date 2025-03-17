@@ -1,14 +1,10 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.conf import settings
 from rest_framework.test import APIClient
 from rest_framework import status
-import json
-import os
 from unittest.mock import patch, MagicMock
 import requests
-from django.core.exceptions import ImproperlyConfigured
 
 from .models import SavedRoute
 
@@ -175,10 +171,6 @@ class SavedRouteAPITestCase(BaseTestCase):
     def test_update_route_of_another_user(self):
         """Test that a user cannot update another user's route"""
         self.api_client.force_authenticate(user=self.user1)
-
-        # Looking at the error, it seems the view tries to find the route in the user's own routes
-        # This means the route won't be found (DoesNotExist) rather than returning a 404
-        # We need to catch this exception and make sure the route is unchanged
 
         data = {
             "id": self.route3.id,  # This belongs to user2
@@ -362,6 +354,3 @@ class RouteViewAPITests(BaseTestCase):
         response = self.api_client.post(self.url, self.valid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertIn("error", response.data)
-
-
-

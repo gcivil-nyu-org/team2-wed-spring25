@@ -15,7 +15,7 @@ export async function enhancedFetch(url, options = {}) {
     const urlPath = url.startsWith('/') ? url : `/${url}`;
     const fullUrl = `${BASE_URL}${urlPath}`;
     console.log('Fetching:', fullUrl);
-    const { timeoutMs = 5000, ...fetchOptions } = options;
+    const { timeoutMs = 8000, ...fetchOptions } = options;
 
     // Setup abort controller for timeout
     const controller = new AbortController();
@@ -34,20 +34,24 @@ export async function enhancedFetch(url, options = {}) {
 
         // Clear timeout since request completed
         clearTimeout(timeoutId);
-        console.log('Response:', response);
-        
-        const data = await response.json();
 
-        if (!response.ok) {
-            const errorMessage = getDjangoErrorMessage(data);
-            throw new Error(errorMessage);
-        }   
+        if (response.status !== 204) {
+            const data = await response.json();
 
-        return data;
+            if (!response.ok) {
+                const errorMessage = getDjangoErrorMessage(data);
+                throw new Error(errorMessage);
+            }
+
+            return data;
+        } else {
+            // For 204 No Content, just return success with no data
+            return { success: true };
+        }
     } catch (error) {
         clearTimeout(timeoutId);
         console.log(error);
-    
+
         // Handle different types of errors
         if (error instanceof Error) {
             if (error.name === 'AbortError') {

@@ -1,6 +1,8 @@
-import React from "react";
+'use client'
+import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import SavedRoutesList from "@/app/custom-components/RoutingComponets/SavedRoutesList";
 
 const RoutesContent = () => {
   return (
@@ -12,19 +14,7 @@ const RoutesContent = () => {
         </h1>
       </div>
       <Separator orientation="horizontal" />
-      <div className="p-6">
-        <h2>Routes</h2>
-        <form className="space-y-4">
-          <div>
-            <label>Name</label>
-            <input type="text" className="border rounded p-2" />
-          </div>
-          <div>
-            <label>Email</label>
-            <input type="email" className="border rounded p-2" />
-          </div>
-        </form>
-      </div>
+      <SavedRoutesList />
     </div>
   );
 };
