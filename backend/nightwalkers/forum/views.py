@@ -58,6 +58,7 @@ def create_post(request):
                     "first_name": user.first_name,
                     "last_name": user.last_name,
                 },
+                "status": 201
             },
             status=201,
         )
@@ -101,7 +102,7 @@ def get_posts(request):
             }
             posts_data.append(post_data)
 
-        return JsonResponse(posts_data, safe=False)
+        return JsonResponse(posts_data, safe=False, status=201)
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
