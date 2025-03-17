@@ -1,27 +1,32 @@
 import IconText from "@/components/molecules/IconText/IconText";
 import LikeIconTextWithTooltip from "@/components/molecules/LikeIconTextWithTooltip/LikeIconTextWithTooltip";
-const PostFooterIconList = ({ handleClickOnComment, post_id }) => {
+const PostFooterIconList = ({
+  handleClickOnComment,
+  post_id,
+  user_has_liked,
+  like_type,
+}) => {
   const iconsData = [
     {
       src: "/icons/like.svg",
       width: 12,
       height: 12,
-      alt: "Likes",
-      text: "Likes",
+      alt: "Like",
+      text: "Like",
     },
     {
       src: "/icons/comment.svg",
       width: 20,
       height: 20,
-      alt: "Comments",
-      text: "Comments",
+      alt: "Comment",
+      text: "Comment",
     },
     {
       src: "/icons/repost.svg",
       width: 15,
       height: 15,
-      alt: "Reposts",
-      text: "Reposts",
+      alt: "Repost",
+      text: "Repost",
     },
     {
       src: "/icons/send.svg",
@@ -36,7 +41,12 @@ const PostFooterIconList = ({ handleClickOnComment, post_id }) => {
     <div className="flex flex-1 relative">
       <div className="flex-1 group">
         {/* like option list */}
-        <LikeIconTextWithTooltip iconData={iconsData[0]} post_id={post_id} />
+        <LikeIconTextWithTooltip
+          iconData={iconsData[0]}
+          post_id={post_id}
+          user_has_liked={user_has_liked}
+          like_type={like_type}
+        />
       </div>
       <div className="flex-1" onClick={handleClickOnComment}>
         <IconText

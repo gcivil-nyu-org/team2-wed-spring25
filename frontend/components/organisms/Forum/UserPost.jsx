@@ -18,6 +18,8 @@ export default function UserPost({ post }) {
         comments_count={post.comments_count}
         likes_count={post.likes_count}
         post_id={post.id}
+        user_has_liked={post.user_has_liked}
+        like_type={post.like_type}
       />
     </div>
   );

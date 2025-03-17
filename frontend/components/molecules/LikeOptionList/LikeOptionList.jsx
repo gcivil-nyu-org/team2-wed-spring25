@@ -1,7 +1,7 @@
 import Icon from "@/components/atom/Icon/Icon";
 import useLikeOptionList from "./useLikeOptionList";
 
-export default function LikeOptionList() {
+export default function LikeOptionList({ onClick }) {
   const { hoveredIcon, setHoveredIcon, icons } = useLikeOptionList(); // Custom hook to manage state and icons
 
   return (
@@ -22,6 +22,7 @@ export default function LikeOptionList() {
           onMouseEnter={() => setHoveredIcon(index)} // Set hovered icon
           onMouseLeave={() => setHoveredIcon(null)} // Reset hovered icon
           tooltipText={icon.alt} // Tooltip text
+          onClick={onClick}
         />
       ))}
     </div>

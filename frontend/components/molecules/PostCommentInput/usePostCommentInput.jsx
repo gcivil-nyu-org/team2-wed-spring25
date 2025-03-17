@@ -8,33 +8,42 @@ export default function usePostCommentInput(post_id) {
     handleClickOnEmojiPicker,
     handleOnEmojiClick,
   } = useEmojiPicker();
+
   const [commentContent, setCommentContent] = useState("");
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
+  const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
+
   const handleCommentSubmit = async () => {
-    if (commentContent.trim() === "" && !selectedImage) {
+    // Input validation
+    if (commentContent.trim() === "") {
       alert("Please enter a comment, cannot be empty.");
       return;
     }
-    // Check if the comment content exceeds the character limit
+
     if (commentContent.length > 400) {
       alert("Comment content exceeds the character limit of 400 characters.");
       return;
     }
+
     try {
-      const userString = localStorage.getItem("user"); // Retrieve the string
+      setIsButtonDisabled(true); // Disable the button
+      setIsLoading(true); // Show loading spinner
+
+      const userString = localStorage.getItem("user"); // Retrieve the user from localStorage
       let user = null;
       if (userString) {
-        user = JSON.parse(userString); // Parse the string into a JSON object
-        console.log(user); // Use the JSON object
+        user = JSON.parse(userString); // Parse the user object
       } else {
         console.log("No user data found in localStorage");
       }
 
       if (!user) {
-        alert("Please login to comment. or user not found.");
+        alert("Please login to comment. User not found.");
         return;
       }
 
-      await apiPost(
+      // Make the API call
+      const response = await apiPost(
         `/api/forum/posts/${post_id}/comments/`,
         {
           content: commentContent,
@@ -46,14 +55,23 @@ export default function usePostCommentInput(post_id) {
           },
         }
       );
+      console.log();
+
+      if (response.status !== 201) {
+        throw new Error(response.message || "Failed to submit comment.");
+      }
+
+      // Reset the comment input
+      setCommentContent("");
     } catch (error) {
       console.error("Error submitting comment:", error);
+      alert("Failed to submit comment. Please try again.");
     } finally {
-      setCommentContent("");
+      setIsButtonDisabled(false); // Re-enable the button
+      setIsLoading(false); // Hide loading spinner
     }
-
-    // Reset states
   };
+
   return {
     handleCommentSubmit,
     commentContent,
@@ -62,5 +80,7 @@ export default function usePostCommentInput(post_id) {
     showEmojiPicker,
     handleClickOnEmojiPicker,
     handleOnEmojiClick,
+    isButtonDisabled, // Expose the button disabled state
+    isLoading, //
   };
 }

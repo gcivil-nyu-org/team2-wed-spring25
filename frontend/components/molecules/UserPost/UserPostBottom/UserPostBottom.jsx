@@ -2,52 +2,22 @@ import UserImage from "@/components/atom/UserImage/UserImage";
 import PostFooterIconList from "@/components/molecules/PostFooterIconList/PostFooterIconList";
 import LikedIconList from "@/components/molecules/LikedIconList/LikedIconList";
 import UserPostCommentSection from "@/components/molecules/UserPost/UserPostBottom/UserPostCommentSection/UserPostCommentSection";
-import { useState } from "react";
+import useUserPostBottom from "./useUserPostBottom";
 
 export default function UserPostBottom({
   user_avatar,
   comments_count,
   likes_count,
   post_id,
+  user_has_liked,
+  like_type,
 }) {
-  const [showCommentSection, setShowCommentSection] = useState(false);
-  const getCommentsCount = (comments_count) => {
-    if (comments_count === 0) {
-      return <p className="text-slate-500 text-sm font-normal">No comments</p>;
-    } else if (comments_count === 1) {
-      return (
-        <p className="text-slate-500 text-sm font-normal">
-          {comments_count} comment
-        </p>
-      );
-    } else {
-      return (
-        <p className="text-slate-500 text-sm font-normal">
-          {comments_count} comments
-        </p>
-      );
-    }
-  };
-  const getLikesCount = (likes_count) => {
-    if (likes_count === 0) {
-      return <p className="text-slate-500 text-sm font-normal">No likes</p>;
-    } else if (likes_count === 1) {
-      return (
-        <p className="text-slate-500 text-sm font-normal">{likes_count} like</p>
-      );
-    } else {
-      return (
-        <p className="text-slate-500 text-sm font-normal">
-          {likes_count} likes
-        </p>
-      );
-    }
-  };
-
-  const handleClickOnComment = () => {
-    setShowCommentSection(true);
-  };
-
+  const {
+    getCommentsCount,
+    getLikesCount,
+    handleClickOnComment,
+    showCommentSection,
+  } = useUserPostBottom(post_id);
   return (
     <div className="mx-3">
       <div>
@@ -66,6 +36,8 @@ export default function UserPostBottom({
           <PostFooterIconList
             handleClickOnComment={handleClickOnComment}
             post_id={post_id}
+            user_has_liked={user_has_liked}
+            like_type={like_type}
           />
         </div>
       </div>

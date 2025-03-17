@@ -40,7 +40,9 @@ export default function Icon({
 
   return (
     <div
-      onClick={onClick}
+      onClick={() => {
+        onClick(alt); // Call the onClick function with the alt text
+      }}
       className={data}
       onMouseEnter={() => {
         setIsHovered(true);

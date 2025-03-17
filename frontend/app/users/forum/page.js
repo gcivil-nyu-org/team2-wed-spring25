@@ -6,7 +6,6 @@ import useForum from "./useForum";
 import Loader from "@/components/molecules/Loader/Loader";
 export default function ForumsPage() {
   const { isLoading, isOpen, userPosts, handleClick, user } = useForum();
-  console.log(user);
   if (isLoading) {
     return (
       <div className="h-screen w-screen flex justify-center items-center">

@@ -51,6 +51,7 @@ class Like(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="likes"
     )
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
+    like_type = models.CharField(max_length=10, null=True, default="Like")
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

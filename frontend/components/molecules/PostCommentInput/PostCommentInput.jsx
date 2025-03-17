@@ -13,6 +13,8 @@ export default function PostCommentInput({ post_id }) {
     showEmojiPicker,
     handleClickOnEmojiPicker,
     handleOnEmojiClick,
+    isButtonDisabled,
+    isLoading,
   } = usePostCommentInput(post_id);
   return (
     <div
@@ -48,7 +50,13 @@ export default function PostCommentInput({ post_id }) {
         />
         {commentContent !== "" && (
           <div>
-            <CommentButton onClick={handleCommentSubmit}>Comment</CommentButton>
+            <CommentButton
+              onClick={handleCommentSubmit}
+              disabled={isButtonDisabled || isLoading} // Disable during API call or loading
+              aria-disabled={isButtonDisabled || isLoading} // Accessibility
+            >
+              {isLoading ? "Submitting..." : "Comment"}
+            </CommentButton>
           </div>
         )}
       </div>

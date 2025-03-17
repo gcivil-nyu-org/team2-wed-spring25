@@ -6,8 +6,8 @@ export default function LikedIconList() {
       <div>
         <Icon
           src="/icons/likeli.svg"
-          width={18}
-          height={18}
+          width={16}
+          height={16}
           alt="like"
           size="sm"
         />
@@ -16,8 +16,8 @@ export default function LikedIconList() {
       <div className="-ml-2 z-1">
         <Icon
           src="/icons/heart.svg"
-          width={18}
-          height={18}
+          width={16}
+          height={16}
           alt="heart"
           size="sm"
         />
@@ -26,8 +26,8 @@ export default function LikedIconList() {
       <div className="-ml-2 z-2">
         <Icon
           src="/icons/laugh.svg"
-          width={18}
-          height={18}
+          width={16}
+          height={16}
           alt="laugh"
           size="sm"
         />

@@ -1,3 +1,4 @@
+import debounce from "@/utils/debounce";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useState, useEffect, useRef } from "react";
 
@@ -21,7 +22,7 @@ export default function useLikeIconTextWithTooltip(post_id) {
     }, 100); // 500ms = 0.5 seconds
   };
 
-  const handleOnLike = () => {
+  const debouncedHandleOnLike = debounce(async (like_type) => {
     try {
       const userString = localStorage.getItem("user"); // Retrieve the string
       let user = null;
@@ -33,35 +34,37 @@ export default function useLikeIconTextWithTooltip(post_id) {
       }
 
       if (!user) {
-        alert("Please login to comment. or user not found.");
+        alert("Please login to like the post. User not found.");
         return;
       }
-      const postLike = async () => {
-        const response = await apiPost(
-          `/api/forum/posts/${post_id}/like/`,
-          {
-            post_id: post_id,
-            is_liked: !isLiked,
-            user_id: user.id,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log(response);
 
-        if (response.status !== 201) {
-          throw new Error(response.message || "Failed to like the post");
+      const response = await apiPost(
+        `/api/forum/posts/${post_id}/like/`,
+        {
+          post_id: post_id,
+          is_liked: !isLiked,
+          user_id: user.id,
+          like_type: like_type,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      };
-      postLike();
-      setIsLiked(!isLiked);
+      );
+      console.log(response);
+
+      if (response.status !== 201) {
+        throw new Error(response.message || "Failed to like the post");
+      }
+
+      setIsLiked(!isLiked); // Update the like state
+      setTooltipVisible(false); // Hide the tooltip after liking
     } catch (error) {
+      alert("Error: Check console for details.");
       console.error("Error liking the post:", error);
     }
-  };
+  }, 2000); // Debounce for 2 seconds
 
   // Cleanup the timeout when the component unmounts
   useEffect(() => {
@@ -74,9 +77,10 @@ export default function useLikeIconTextWithTooltip(post_id) {
   return {
     isLiked,
     setIsLiked,
+    setTooltipVisible,
     isTooltipVisible,
     handleMouseEnter,
     handleMouseLeave,
-    handleOnLike,
+    debouncedHandleOnLike,
   };
 }
