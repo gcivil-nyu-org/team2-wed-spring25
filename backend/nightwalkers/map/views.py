@@ -19,6 +19,50 @@ import requests
 from django.db import connection  # Import the connection object
 
 
+def top_10_points(request):
+    try:
+        # TO DO: Replace with the linestring that's passed from the routing API
+        line_string = "LINESTRING(40.83966017062337 -73.90546599999998, 40.73443349380265 -73.980293499999992)" 
+        # SQL query to calculate the distance between points and the LineString
+        query = """
+            SELECT ST_Y(wkb_geometry) AS latitude,
+                   ST_X(wkb_geometry) AS longitude,
+                   CMPLNT_NUM,
+                   ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) AS distance
+            FROM filtered_grouped_data_centroid
+            WHERE CMPLNT_NUM > 10
+            ORDER BY distance
+            LIMIT 10;
+        """
+
+        # Execute the query
+        with connection.cursor() as cursor:
+            cursor.execute(query, [line_string])
+
+            heatmap_points = []
+            for row in cursor.fetchall():
+                latitude, longitude, complaints, distance = row
+                try:
+                    complaints = float(complaints) if complaints is not None else 0.0
+                except (ValueError, TypeError):
+                    complaints = 0.0
+
+                heatmap_points.append(
+                    {
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "intensity": complaints,
+                        "distance": distance,
+                    }
+                )
+
+        return JsonResponse(heatmap_points, safe=False)
+
+    except Exception as error:
+        print("Error while fetching data from PostgreSQL", error)
+        return JsonResponse([], safe=False)
+
+
 def road_view(request):
     try:
         with connection.cursor() as cursor:
