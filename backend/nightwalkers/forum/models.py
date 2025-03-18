@@ -21,7 +21,7 @@ class Post(models.Model):
     date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Post: {self.title} by {self.user.get_full_name()}"
+        return f"Post: {self.content} by {self.user.get_full_name()}"
 
     class Meta:
         ordering = ["-date_created"]  # Orders posts by most recent first
@@ -32,12 +32,15 @@ class Comment(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
     )
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    parent_comment = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
+    )
     content = models.TextField(blank=False, null=False)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Comment by {self.user.get_full_name()} on {self.post.title}"
+        return f"Comment by {self.user.get_full_name()} on {self.post.content}"
 
     class Meta:
         ordering = ["date_created"]  # Orders comments by oldest first
@@ -48,6 +51,7 @@ class Like(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="likes"
     )
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
+    like_type = models.CharField(max_length=10, null=True, default="Like")
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -55,3 +59,17 @@ class Like(models.Model):
 
     class Meta:
         unique_together = ("user", "post")  # Ensures a user can like a post only once
+
+
+class CommentLike(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comment_likes"
+    )
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="likes")
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Like by {self.user.get_full_name()} on comment {self.comment.id}"
+
+    class Meta:
+        unique_together = ("user", "comment")  # Ensures a user can like a comment only once
