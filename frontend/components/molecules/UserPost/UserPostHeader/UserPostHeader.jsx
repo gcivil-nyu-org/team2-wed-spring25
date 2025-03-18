@@ -2,6 +2,7 @@ import Button from "@/components/atom/Button/Button";
 import Icon from "@/components/atom/Icon/Icon";
 import UserImage from "@/components/atom/UserImage/UserImage";
 import formatDateAgo from "@/utils/datetime";
+import { getUserFullName } from "@/utils/string";
 import Image from "next/image";
 
 export default function UserPostHeader({
@@ -13,7 +14,9 @@ export default function UserPostHeader({
     <div className="flex flex-row px-4 pt-4">
       <UserImage imageUrl={user_avatar} width={48} height={48} />
       <div className="flex-1 flex-col justify-start pl-3 leading-none">
-        <p className="text-md font-medium ">{user_fullname}</p>
+        <p className="text-md font-medium ">
+          {getUserFullName(user_fullname, "")}
+        </p>
         <p className="text-xs font-normal text-gray-500 ">Kingslayer</p>
         <p className="text-xs font-normal text-gray-500 leading-none">
           {formatDateAgo(date_created)}

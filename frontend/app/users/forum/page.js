@@ -4,6 +4,7 @@ import UserImage from "@/components/atom/UserImage/UserImage";
 import PostDialog from "@/components/organisms/PostDialog/PostDialog";
 import useForum from "./useForum";
 import Loader from "@/components/molecules/Loader/Loader";
+import { fallbackUserProfileImage } from "@/constants/imageUrls";
 export default function ForumsPage() {
   const { isLoading, isOpen, userPosts, handleClick, user } = useForum();
   if (isLoading) {
@@ -22,7 +23,11 @@ export default function ForumsPage() {
         {isOpen && <PostDialog onClick={handleClick} />}
         <div className="felx flex-col rounded-lg bg-white mb-4 border-[1px]">
           <div className="flex flex-row pl-4 py-3">
-            <UserImage imageUrl={user.avatar} width={48} height={48} />
+            <UserImage
+              imageUrl={user.avatar ?? fallbackUserProfileImage}
+              width={48}
+              height={48}
+            />
             <div
               onClick={handleClick}
               className="group flex flex-row items-center w-full border-gray-400 border-[1px] mx-3 rounded-3xl hover:bg-gray-100 hover:cursor-pointer"

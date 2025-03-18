@@ -190,7 +190,7 @@ def comments(request, post_id):
     elif request.method == "GET":
         try:
             # Select related user details along with comments
-            comments = Comment.objects.select_related("user").filter(post_id=post_id)
+            comments = Comment.objects.select_related("user").filter(post_id=post_id).order_by("-date_created")
 
             # Serialize the comments along with user details
             comments_data = [
