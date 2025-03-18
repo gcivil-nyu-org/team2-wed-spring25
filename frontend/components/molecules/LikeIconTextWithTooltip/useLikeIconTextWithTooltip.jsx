@@ -1,10 +1,17 @@
-import debounce from "@/utils/debounce";
 import { apiPost } from "@/utils/fetch/fetch";
+import throttle from "@/utils/throttle";
 import { useState, useEffect, useRef } from "react";
 
-export default function useLikeIconTextWithTooltip(post_id) {
+export default function useLikeIconTextWithTooltip(
+  post_id,
+  userHasLiked,
+  likeType,
+  setUserHasLiked,
+  setLikeType,
+  setLikesCount
+) {
   const [isTooltipVisible, setTooltipVisible] = useState(false);
-  const [isLiked, setIsLiked] = useState(false); // State to track if the post is liked
+  // State to track if the post is liked
   const hoverTimeoutRef = useRef(null); // Ref to store the timeout ID
 
   const handleMouseEnter = () => {
@@ -22,8 +29,39 @@ export default function useLikeIconTextWithTooltip(post_id) {
     }, 100); // 500ms = 0.5 seconds
   };
 
-  const debouncedHandleOnLike = debounce(async (like_type) => {
+  const throttledHandleOnLike = throttle(async (like_type) => {
     try {
+      console.log("like_type", like_type);
+      console.log("userHasLiked", userHasLiked);
+      console.log("likeType", likeType);
+      // return;
+      let userHasLiked2 = null;
+      if (
+        !userHasLiked &&
+        ["Like", "Clap", "Support", "Heart", "Bulb", "Laugh"].includes(
+          like_type
+        )
+      ) {
+        setLikesCount((prevCount) => prevCount + 1);
+        setUserHasLiked(true);
+        userHasLiked2 = true;
+        setLikeType(like_type);
+      } else if (
+        userHasLiked &&
+        ["Like", "Clap", "Support", "Heart", "Bulb", "Laugh"].includes(
+          like_type
+        ) &&
+        likeType !== like_type
+      ) {
+        setLikeType(like_type);
+        userHasLiked2 = true;
+      } else if (userHasLiked && likeType === like_type) {
+        setLikesCount((prevCount) => prevCount - 1);
+        setUserHasLiked(false);
+        userHasLiked2 = false;
+      }
+      setTooltipVisible(false);
+
       const userString = localStorage.getItem("user"); // Retrieve the string
       let user = null;
       if (userString) {
@@ -42,7 +80,7 @@ export default function useLikeIconTextWithTooltip(post_id) {
         `/api/forum/posts/${post_id}/like/`,
         {
           post_id: post_id,
-          is_liked: !isLiked,
+          is_liked: userHasLiked2,
           user_id: user.id,
           like_type: like_type,
         },
@@ -52,14 +90,11 @@ export default function useLikeIconTextWithTooltip(post_id) {
           },
         }
       );
-      console.log(response);
 
       if (response.status !== 201) {
         throw new Error(response.message || "Failed to like the post");
       }
-
-      setIsLiked(!isLiked); // Update the like state
-      setTooltipVisible(false); // Hide the tooltip after liking
+      // Hide the tooltip after liking
     } catch (error) {
       alert("Error: Check console for details.");
       console.error("Error liking the post:", error);
@@ -75,12 +110,12 @@ export default function useLikeIconTextWithTooltip(post_id) {
     };
   }, []);
   return {
-    isLiked,
-    setIsLiked,
+    userHasLiked,
+    setUserHasLiked,
     setTooltipVisible,
     isTooltipVisible,
     handleMouseEnter,
     handleMouseLeave,
-    debouncedHandleOnLike,
+    throttledHandleOnLike,
   };
 }

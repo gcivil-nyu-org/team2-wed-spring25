@@ -232,13 +232,22 @@ def like_post(request, post_id):
         user = User.objects.get(id=user_id)
         post = get_object_or_404(Post, id=post_id)
         # Check if the user has already liked the post
+        print(user_id, is_liked, like_type, post_id)
+        # if like_type in ["Like", "Clap", "Support", "Heart", "Bulb", "Laugh"] and Like.objects.filter(user=user, post=post, like_type=like_type).exists():
         if Like.objects.filter(user=user, post=post).exists():
-            return JsonResponse(
-                {"error": "You have already liked this post"}, status=400
-            )
-        
-
-        Like.objects.create(user=user, post=post, like_type=like_type)
+            print('exists')
+            if not is_liked:
+                #remove
+                print('remove')
+                Like.objects.filter(user=user, post=post).delete()
+            else:
+                #update
+                print('update')
+                Like.objects.filter(user=user, post=post).update(like_type=like_type)
+        else:
+            # Create a new like
+            print('create')
+            Like.objects.create(user=user, post=post, like_type=like_type)
         return JsonResponse(
             {"message": "Post liked successfully", "likes_count": post.likes.count(), "status":201},
             status=201,

@@ -2,8 +2,8 @@ import Loader from "@/components/molecules/Loader/Loader";
 import PostComment from "@/components/molecules/PostComments/PostComment/PostComment";
 import usePostComments from "@/components/molecules/PostComments/usePostComments";
 
-export default function PostComments({ post_id }) {
-  const { isLoading, comments } = usePostComments(post_id);
+export default function PostComments({ post_id, comments, setComments }) {
+  const { isLoading } = usePostComments(post_id, comments, setComments);
   return (
     <div className="flex flex-col mx-1 mt-4 mb-2">
       {isLoading && <Loader />}

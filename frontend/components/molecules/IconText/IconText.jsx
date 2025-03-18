@@ -11,6 +11,9 @@ export default function IconText({
   like_type = null,
 }) {
   const getLikeTypeColor = () => {
+    if (!user_has_liked) {
+      return "text-slate-600";
+    }
     switch (like_type) {
       case "Like":
         return "text-blue-600";
@@ -37,6 +40,9 @@ export default function IconText({
   };
 
   const getGroupHoverTextColor = () => {
+    if (!user_has_liked) {
+      return "text-slate-900";
+    }
     switch (like_type) {
       case "Like":
         return "text-blue-900";

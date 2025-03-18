@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "@/utils/fetch/fetch";
 
-export default function usePostComments(post_id) {
+export default function usePostComments(post_id, comments, setComments) {
   const [isLoading, setIsLoading] = useState(true);
-  const [comments, setComments] = useState([]);
 
   useEffect(() => {
     const fetchPostComments = async () => {

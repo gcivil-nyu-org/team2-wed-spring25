@@ -5,17 +5,25 @@ import useLikeIconTextWithTooltip from "./useLikeIconTextWithTooltip";
 export default function LikeIconTextWithTooltip({
   iconData,
   post_id,
-  user_has_liked,
-  like_type,
+  userHasLiked,
+  setUserHasLiked,
+  likeType,
+  setLikeType,
+  setLikesCount,
 }) {
   const {
     isTooltipVisible,
     handleMouseEnter,
     handleMouseLeave,
-    isLiked,
-    setIsLiked,
-    debouncedHandleOnLike,
-  } = useLikeIconTextWithTooltip(post_id, user_has_liked, like_type);
+    throttledHandleOnLike,
+  } = useLikeIconTextWithTooltip(
+    post_id,
+    userHasLiked,
+    likeType,
+    setUserHasLiked,
+    setLikeType,
+    setLikesCount
+  );
 
   return (
     <div
@@ -30,10 +38,10 @@ export default function LikeIconTextWithTooltip({
         height={iconData.height}
         alt={iconData.alt}
         text={iconData.text}
-        user_has_liked={user_has_liked} // Pass the liked state to IconText
-        like_type={like_type} // Pass the like type to IconText
+        user_has_liked={userHasLiked} // Pass the liked state to IconText
+        like_type={likeType} // Pass the like type to IconText
         onClick={() => {
-          debouncedHandleOnLike("Like"); // Handle like action
+          throttledHandleOnLike("Like"); // Handle like action
         }} // Handle like action
       />
 
@@ -44,7 +52,7 @@ export default function LikeIconTextWithTooltip({
           onMouseEnter={handleMouseEnter} // Keep tooltip visible when hovering over it
           onMouseLeave={handleMouseLeave} // Hide tooltip after 0.5 seconds when leaving
         >
-          <LikeOptionList onClick={debouncedHandleOnLike} />
+          <LikeOptionList onClick={throttledHandleOnLike} />
         </div>
       )}
     </div>

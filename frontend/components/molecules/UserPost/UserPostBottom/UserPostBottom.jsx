@@ -6,8 +6,10 @@ import useUserPostBottom from "./useUserPostBottom";
 
 export default function UserPostBottom({
   user_avatar,
-  comments_count,
-  likes_count,
+  likesCount,
+  commentsCount,
+  setLikesCount,
+  setCommentsCount,
   post_id,
   user_has_liked,
   like_type,
@@ -24,9 +26,9 @@ export default function UserPostBottom({
         <div className="flex justify-between pr-2 py-2 border-b">
           <div className="flex gap-2">
             <LikedIconList />
-            {getLikesCount(likes_count)}
+            {getLikesCount(likesCount)}
           </div>
-          {getCommentsCount(comments_count)}
+          {getCommentsCount(commentsCount)}
         </div>
         <div className="flex justify-between ">
           <div className="flex flex-row justify-center items-center px-4 rounded-md hover:bg-slate-100 my-2">
@@ -38,12 +40,16 @@ export default function UserPostBottom({
             post_id={post_id}
             user_has_liked={user_has_liked}
             like_type={like_type}
+            setLikesCount={setLikesCount}
           />
         </div>
       </div>
       {showCommentSection && (
         <div>
-          <UserPostCommentSection post_id={post_id} />
+          <UserPostCommentSection
+            post_id={post_id}
+            setCommentsCount={setCommentsCount}
+          />
         </div>
       )}
     </div>

@@ -1,10 +1,12 @@
 import IconText from "@/components/molecules/IconText/IconText";
 import LikeIconTextWithTooltip from "@/components/molecules/LikeIconTextWithTooltip/LikeIconTextWithTooltip";
+import { useState } from "react";
 const PostFooterIconList = ({
   handleClickOnComment,
   post_id,
   user_has_liked,
   like_type,
+  setLikesCount,
 }) => {
   const iconsData = [
     {
@@ -37,6 +39,9 @@ const PostFooterIconList = ({
     },
   ];
 
+  const [userHasLiked, setUserHasLiked] = useState(user_has_liked);
+  const [likeType, setLikeType] = useState(like_type);
+
   return (
     <div className="flex flex-1 relative">
       <div className="flex-1 group">
@@ -44,8 +49,11 @@ const PostFooterIconList = ({
         <LikeIconTextWithTooltip
           iconData={iconsData[0]}
           post_id={post_id}
-          user_has_liked={user_has_liked}
-          like_type={like_type}
+          userHasLiked={userHasLiked}
+          setUserHasLiked={setUserHasLiked}
+          likeType={likeType}
+          setLikeType={setLikeType}
+          setLikesCount={setLikesCount}
         />
       </div>
       <div className="flex-1" onClick={handleClickOnComment}>

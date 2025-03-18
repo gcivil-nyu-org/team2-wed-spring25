@@ -4,7 +4,11 @@ import Icon from "@/components/atom/Icon/Icon";
 import usePostCommentInput from "@/components/molecules/PostCommentInput/usePostCommentInput";
 import EmojiPicker from "emoji-picker-react";
 
-export default function PostCommentInput({ post_id }) {
+export default function PostCommentInput({
+  post_id,
+  setCommentsCount,
+  setComments,
+}) {
   const {
     handleCommentSubmit,
     commentContent,
@@ -15,7 +19,7 @@ export default function PostCommentInput({ post_id }) {
     handleOnEmojiClick,
     isButtonDisabled,
     isLoading,
-  } = usePostCommentInput(post_id);
+  } = usePostCommentInput(post_id, setCommentsCount, setComments);
   return (
     <div
       className={`flex justify-between text-sm ${
