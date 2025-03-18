@@ -72,3 +72,21 @@ export function formatDateAgoShort(dateString) {
     return `${years}yr`;
   }
 }
+
+const formatDate = (dateString) => {
+  const date = dayjs(dateString);
+
+  const now = dayjs();
+
+  const diffInDays = now.diff(date, "day");
+
+  if (diffInDays > 6) {
+    return date.format("MMM D, YYYY"); // e.g., "Jan 15, 2023"
+  } else {
+    // Otherwise use the relative time
+
+    return date.fromNow();
+  }
+};
+
+export { formatDate };
