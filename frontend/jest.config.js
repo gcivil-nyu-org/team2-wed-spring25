@@ -21,7 +21,7 @@ const config = {
   collectCoverage: true,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  // collectCoverageFrom: undefined,
+  collectCoverageFrom: undefined,
 
   // The directory where Jest should output its coverage files
   coverageDirectory: "coverage",
@@ -43,7 +43,14 @@ const config = {
   // ],
 
   // An object that configures minimum threshold enforcement for coverage results
-  // coverageThreshold: undefined,
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
 
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
@@ -146,7 +153,9 @@ const config = {
   testEnvironment: "jsdom",
 
   // Options that will be passed to the testEnvironment
-  // testEnvironmentOptions: {},
+  testEnvironmentOptions: {
+    suppressDeprecationWarnings: true,
+  },
 
   // Adds a location field to test results
   // testLocationInResults: false,
@@ -191,14 +200,16 @@ const config = {
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,
 
-  // Indicates whether each individual test should be reported during the run
-  // verbose: undefined,
-
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],
 
   // Whether to use watchman for file crawling
   // watchman: true,
+
+  // Indicates whether each individual test should be reported during the run
+  verbose: true,
+  // default behavior that shows console log statements. Setting to true in Travis for cleaner logs.
+  silent: false,
 };
 
 module.exports = config;

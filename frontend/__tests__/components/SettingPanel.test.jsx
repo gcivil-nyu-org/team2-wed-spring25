@@ -1,78 +1,60 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import SettingPanel from "@/app/custom-components/SettingPanel";
-import SettingsSidebar from "@/app/custom-components/SettingsSidebar";
 
-// jest.mock("@/components/ui/sidebar", () => ({
-//   SidebarProvider: ({ children }) => (
-//     <div data-testid="sidebar-provider">{children}</div>
-//   ),
-//   Sidebar: ({ children }) => <div role="complementary">{children}</div>,
-//   SidebarContent: ({ children }) => <div>{children}</div>,
-//   useSidebar: () => ({
-//     open: false,
-//     toggleSidebar: jest.fn(),
-//   }),
-// }));
+// Mock SidebarProvider
+jest.mock("@/components/ui/sidebar", () => ({
+  SidebarProvider: ({ children, open, onOpenChange }) => (
+    <div
+      data-testid="sidebar-provider"
+      data-open={open}
+      onClick={() => onOpenChange(!open)}
+    >
+      {children}
+    </div>
+  ),
+  SidebarTrigger: () => <button data-testid="sidebar-trigger">Toggle</button>,
+}));
 
-// // Mock the next/link component
-// jest.mock("next/link", () => {
-//   return ({ children, href }) => {
-//     return <a href={href}>{children}</a>;
-//   };
-// });
+// Mock SettingsSidebar
+jest.mock("@/app/custom-components/SettingsSidebar", () => {
+  return function MockSettingsSidebar() {
+    return <div data-testid="settings-sidebar">Sidebar Content</div>;
+  };
+});
 
-// describe("SettingPanel", () => {
-//   it("renders without crashing", () => {
-//     render(<SettingPanel />);
-//     expect(screen.getByRole("complementary")).toBeInTheDocument();
-//   });
+describe("SettingPanel", () => {
+  it("renders all required components", () => {
+    render(<SettingPanel />);
 
-//   it("toggles sidebar visibility when trigger is clicked", () => {
-//     render(<SettingPanel />);
-//     const trigger = screen.getByRole("button");
-//     fireEvent.click(trigger);
-//     // Check if sidebar is visible
-//     expect(screen.getByRole("complementary")).toBeInTheDocument();
-//   });
-// });
+    expect(screen.getByTestId("sidebar-provider")).toBeInTheDocument();
+    expect(screen.getByTestId("sidebar-trigger")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-sidebar")).toBeInTheDocument();
+  });
 
-// describe("SettingsSidebar", () => {
-//   it("renders user avatar and username", () => {
-//     render(<SettingsSidebar />);
-//     expect(screen.getByText("Username")).toBeInTheDocument();
-//   });
+  it("starts with sidebar closed", () => {
+    render(<SettingPanel />);
 
-//   it("renders all navigation items", () => {
-//     render(<SettingsSidebar />);
-//     const navigationItems = [
-//       "Profile",
-//       "Routes",
-//       "Report",
-//       "Resources",
-//       "Settings",
-//       "Sign Out",
-//     ];
+    expect(screen.getByTestId("sidebar-provider")).toHaveAttribute(
+      "data-open",
+      "false"
+    );
+  });
 
-//     navigationItems.forEach((item) => {
-//       expect(screen.getByText(item)).toBeInTheDocument();
-//     });
-//   });
+  it("toggles sidebar state when trigger is clicked", () => {
+    render(<SettingPanel />);
 
-//   it("renders correct navigation links", () => {
-//     render(<SettingsSidebar />);
-//     expect(screen.getByRole("link", { name: /profile/i })).toHaveAttribute(
-//       "href",
-//       "/users/settings/profile"
-//     );
-//     expect(screen.getByRole("link", { name: /routes/i })).toHaveAttribute(
-//       "href",
-//       "/users/settings/routes"
-//     );
-//     expect(screen.getByRole("link", { name: /report/i })).toHaveAttribute(
-//       "href",
-//       "/users/settings/report"
-//     );
-//   });
-// });
+    const trigger = screen.getByTestId("sidebar-trigger");
+    fireEvent.click(trigger);
+
+    expect(screen.getByTestId("sidebar-provider")).toHaveAttribute(
+      "data-open",
+      "true"
+    );
+  });
+
+  it("matches snapshot", () => {
+    const { container } = render(<SettingPanel />);
+    expect(container).toMatchSnapshot();
+  });
+});
