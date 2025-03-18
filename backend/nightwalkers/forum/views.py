@@ -3,7 +3,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from .models import Post, Comment, Like
-from django.db.models import Count, Q
+from accounts.models import Follow
+from django.db.models import Count
 import json
 
 User = get_user_model()
@@ -77,6 +78,12 @@ def get_posts(request):
         # Convert user_likes into a dictionary for quick lookup
         user_likes_dict = {post_id: like_type for post_id, like_type in user_likes}
 
+        # Fetch all follow relationships for the current user
+        current_user_following = Follow.objects.filter(main_user_id=user_id).values_list("following_user_id", flat=True)
+
+        # Convert current_user_following into a set for quick lookup
+        current_user_following_set = set(current_user_following)
+
         # Annotate posts with distinct likes_count and comments_count
         posts = Post.objects.annotate(
             likes_count=Count("likes", distinct=True),  # Distinct count for likes
@@ -99,10 +106,11 @@ def get_posts(request):
                 "likes_count": post.likes_count,
                 "user_has_liked": post.id in user_likes_dict,  # Check if the user has liked the post
                 "like_type": user_likes_dict.get(post.id),  # Get the like_type if the user has liked the post
+                "is_following_author": post.user.id in current_user_following_set,  # Check if the current user is following the post author
             }
             posts_data.append(post_data)
 
-        return JsonResponse(posts_data, safe=False, status=201)
+        return JsonResponse(posts_data, safe=False, status=200)
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
@@ -274,3 +282,45 @@ def unlike_post(request, post_id):
         )
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+@csrf_exempt
+def follow_unfollow_user(request, user_id):
+    """
+    View to handle follow/unfollow actions.
+    - POST: Follow a user.
+    - DELETE: Unfollow a user.
+    """
+    
+    try:
+        data = parse_json_request(request)
+        follow = data.get("follow")
+        main_user_id = data.get("user_id")
+        post_user_id = user_id
+
+        # Get the main user and post user
+        main_user = User.objects.get(id=main_user_id)
+        post_user = User.objects.get(id=post_user_id)
+
+        if follow:
+            # Check if the main user is already following the post user
+            if main_user.following.filter(id=post_user_id).exists():
+                return JsonResponse({"error": "You are already following this user"}, status=400)
+            
+            # Create a new follow relationship
+            Follow.objects.create(main_user=main_user, following_user=post_user)
+            return JsonResponse({"message": "User followed successfully"}, status=201)
+
+        else:
+            # Check if the main user is following the post user
+            follow_relationship = Follow.objects.filter(main_user=main_user, following_user=post_user)
+            if not follow_relationship.exists():
+                return JsonResponse({"error": "You are not following this user"}, status=400)
+            
+            # Delete the follow relationship
+            follow_relationship.delete()
+            return JsonResponse({"message": "User unfollowed successfully"}, status=200)
+
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

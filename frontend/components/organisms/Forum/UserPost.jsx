@@ -14,6 +14,8 @@ export default function UserPost({ post }) {
         user_avatar={post.user_avatar}
         user_fullname={post.user_fullname}
         date_created={post.date_created}
+        post_user_id={post.user_id}
+        is_following_author={post.is_following_author}
       />
       <UserPostBody image_urls={post.image_urls} content={post.content} />
       <UserPostBottom

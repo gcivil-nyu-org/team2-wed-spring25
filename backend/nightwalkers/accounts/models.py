@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-
+from django.conf import settings
 
 class CustomUserManager(BaseUserManager):
 
@@ -33,7 +33,7 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
     username = None
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, db_index=True)
     first_name = models.CharField(max_length=150, blank=False, null=False)
     last_name = models.CharField(max_length=150, blank=False, null=False)
     email_verified = models.BooleanField(default=False)
@@ -46,6 +46,14 @@ class User(AbstractUser):
     provider_id = models.CharField(max_length=100, blank=True)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     avatar_url = models.URLField(blank=True, null=True, max_length=1024)
+
+    # Many-to-Many relationship for followers/following
+    following = models.ManyToManyField(
+        'self',  # Reference to the same model
+        through='Follow',  # Use the Follow model as the intermediary
+        symmetrical=False,  # Relationships are not symmetrical (A follows B ≠ B follows A)
+        related_name='followers'  # Reverse accessor for followers
+    )
 
     objects = CustomUserManager()
     USERNAME_FIELD = "email"
@@ -84,3 +92,48 @@ class User(AbstractUser):
         elif self.avatar_url:
             return self.avatar_url
         return None
+    
+    def get_followers_count(self):
+        return self.followers.count()
+
+    def get_following_count(self):
+        return self.following.count()
+
+    def is_following(self, user):
+        """Check if the current user is following the given user."""
+        return self.following.filter(id=user.id).exists()
+
+    def is_followed_by(self, user):
+        """Check if the current user is followed by the given user."""
+        return self.followers.filter(id=user.id).exists()
+
+    def is_mutual_follow(self, user):
+        """Check if both users follow each other."""
+        return self.is_following(user) and self.is_followed_by(user)
+
+class Follow(models.Model):
+    # Main user (the one who is following)
+    main_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='main_user_following',
+        db_index=True  # Add index
+    )
+    # User being followed
+    following_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following_user_followers',
+        db_index=True  # Add index
+    )
+    # Timestamp for when the follow relationship was created
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Ensure unique follow relationships
+        unique_together = ('main_user', 'following_user')
+        # Order by creation time
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.main_user} follows {self.following_user}"
