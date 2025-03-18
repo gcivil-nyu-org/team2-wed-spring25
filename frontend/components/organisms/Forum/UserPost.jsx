@@ -5,7 +5,7 @@ import UserPostHeader from "@/components/molecules/UserPost/UserPostHeader/UserP
 import UserPostBody from "@/components/molecules/UserPost/UserPostBody/UserPostBody";
 import useUserPost from "./useUserPost";
 
-export default function UserPost({ post }) {
+export default function UserPost({ post, setPosts }) {
   const { commentsCount, setCommentsCount, likesCount, setLikesCount } =
     useUserPost(post.likes_count, post.comments_count);
   return (
@@ -16,6 +16,7 @@ export default function UserPost({ post }) {
         date_created={post.date_created}
         post_user_id={post.user_id}
         is_following_author={post.is_following_author}
+        setPosts={setPosts}
       />
       <UserPostBody image_urls={post.image_urls} content={post.content} />
       <UserPostBottom

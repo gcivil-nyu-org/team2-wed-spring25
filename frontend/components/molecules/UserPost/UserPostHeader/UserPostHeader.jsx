@@ -11,18 +11,27 @@ export default function UserPostHeader({
   date_created,
   post_user_id,
   is_following_author,
+  setPosts,
 }) {
-  const [isFollowingAuthor, setIsFollowingAuthor] =
-    useState(is_following_author);
   const [isFollowButtonDisabled, setIsFollowButtonDisabled] = useState(false);
 
   const throttledHandleOnFollow = throttle(async (val) => {
     try {
       setIsFollowButtonDisabled(true);
-      setIsFollowingAuthor(val);
-      //set timer to 2 seconds
+      setPosts((prev) => {
+        return prev.map((post) => {
+          console.log(
+            "post.user_id === post_user_id",
+            post.user_id === post_user_id
+          );
+          console.log("val", val);
+          if (post.user_id === post_user_id) {
+            return { ...post, is_following_author: val };
+          }
+          return post;
+        });
+      });
       const user = JSON.parse(localStorage.getItem("user"));
-      console.log("user", user);
 
       const response = await apiPost(
         `/api/forum/posts/follow/${post_user_id}/`,
@@ -34,6 +43,7 @@ export default function UserPostHeader({
     } catch (e) {
       console.log(e);
     } finally {
+      setIsFollowButtonDisabled(false);
     }
   }, 2000);
 
@@ -53,14 +63,14 @@ export default function UserPostHeader({
         <div className="">
           <div
             className={`flex items-start text-blue-500 font-semibold hover:bg-blue-100 ${
-              !isFollowingAuthor ? "pt-2" : "py-2"
+              !is_following_author ? "pt-2" : "py-2"
             } px-2 rounded-md hover:cursor-pointer hover:text-blue-800 relative -top-2`}
             onClick={() => {
               if (isFollowButtonDisabled) return;
-              throttledHandleOnFollow(!isFollowingAuthor);
+              throttledHandleOnFollow(!is_following_author);
             }}
           >
-            {!isFollowingAuthor ? (
+            {!is_following_author ? (
               <>
                 <p className="leading-none text-2xl font-bold relative -top-[5px]">
                   +

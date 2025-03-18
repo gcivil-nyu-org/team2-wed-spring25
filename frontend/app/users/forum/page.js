@@ -6,7 +6,8 @@ import useForum from "./useForum";
 import Loader from "@/components/molecules/Loader/Loader";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 export default function ForumsPage() {
-  const { isLoading, isOpen, userPosts, handleClick, user } = useForum();
+  const { isLoading, isOpen, userPosts, handleClick, user, setUserPosts } =
+    useForum();
   if (isLoading) {
     return (
       <div className="h-screen w-screen flex justify-center items-center">
@@ -40,7 +41,7 @@ export default function ForumsPage() {
         </div>
         <>
           {userPosts.map((post) => (
-            <UserPost key={post.id} post={post} />
+            <UserPost key={post.id} post={post} setPosts={setUserPosts} />
           ))}
         </>
       </div>
