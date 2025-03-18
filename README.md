@@ -5,3 +5,4 @@ Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file k
 TODO:
 for post, get the location coordinate
 default image for user login with username
+user without google logi, image check, default,

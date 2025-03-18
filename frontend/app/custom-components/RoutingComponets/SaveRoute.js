@@ -34,7 +34,6 @@ import { useNotification } from "../ToastComponent/NotificationContext";
 
 export default function SaveRouteComponent({ departure, destination }) {
   const [routeName, setRouteName] = useState('');
-  const [description, setDescription] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -52,15 +51,17 @@ export default function SaveRouteComponent({ departure, destination }) {
   const onSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+    const requestData = {
+      name: routeName,
+      departure_lat: departure[0],
+      departure_lon: departure[1],
+      destination_lat: destination[0],
+      destination_lon: destination[1],
+      favorite: isFavorite
+    };
+    console.log('Saving route:', requestData);
     try {
-      const response = await authAPI.authenticatedPost('/save-route/', {
-        name: routeName,
-        description: description || 'No description provided',
-        departure: departure,
-        destination: destination,
-        is_favorite: isFavorite
-      });
+      const response = await authAPI.authenticatedPost('/save-route/', requestData);
 
       showSuccess(
         'Route saved successfully',
@@ -71,7 +72,6 @@ export default function SaveRouteComponent({ departure, destination }) {
       // Close popover and reset form
       setOpen(false);
       setRouteName('');
-      setDescription('');
       setIsFavorite(false);
     } catch (error) {
       console.error('Error saving route:', error);
@@ -117,21 +117,11 @@ export default function SaveRouteComponent({ departure, destination }) {
                   onChange={(e) => setRouteName(e.target.value)}
                   required 
                   placeholder="Name this route"
+                  maxLength={50}
                   className="w-full"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="description">Description (optional)</Label>
-                <Input 
-                  id="description"
-                  type="text" 
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Add a short description"
-                  className="w-full"
-                />
-              </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center">

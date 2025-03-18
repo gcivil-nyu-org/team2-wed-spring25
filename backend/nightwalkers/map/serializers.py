@@ -6,6 +6,17 @@ class SavedRouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = SavedRoute
         fields = "__all__"
+        read_only_fields = ["id", "user", "created_at"]
+
+    def validate_name(self, value):
+        user = self.context["user"]
+        if SavedRoute.objects.filter(user=user, name=value).exists():
+            raise serializers.ValidationError("Route with name already exists")
+        return value
+
+    def create(self, validated_data):
+        user = self.context["user"]
+        return SavedRoute.objects.create(user=user, **validated_data)
 
 
 class RouteInputSerializer(serializers.Serializer):
@@ -36,6 +47,12 @@ class RouteInputSerializer(serializers.Serializer):
         if data.get("saved_route") and not data.get("route_name"):
             raise serializers.ValidationError("No route name was passed")
         return data
+
+
+class SavedRouteUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavedRoute
+        fields = ["id", "favorite"]
 
 
 class RouteResponseSerializer(serializers.ModelSerializer):
