@@ -4,22 +4,8 @@ import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { useAuth } from '@/app/custom-components/AuthHook';
 import { useNotification } from '@/app/custom-components/ToastComponent/NotificationContext';
+import SettingPanel from '@/app/custom-components/SettingPanel';
 
-
-
-export function LogoutButton() {
-  const { logout } = useAuth();
-
-  return (
-    <Button
-      onClick={logout}
-      variant="outline"
-      className="bg-white/10 hover:bg-white/20 border-white/20 text-white"
-    >
-      Logout
-    </Button>
-  );
-}
 
 // Dashboard header component
 export function DashboardHeader() {
@@ -34,19 +20,25 @@ export function DashboardHeader() {
 
   }
   return (
-    <div className="flex justify-between items-center mb-8">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      <div className="flex items-center gap-4">
-        {user && (
-          <span className="text-sm text-white/80">
-            Logged in as: {user.email}
-          </span>
-        )}
-        <Button asChild><Link href={`home/`}>Home</Link></Button>
-        <Button asChild><Link href={`map/`}>Map Route</Link></Button>
-        <LogoutButton />
+    <>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div className="flex items-center gap-4">
+          {user && (
+            <span className="text-sm text-white/80">
+              Logged in as: {user.email}
+            </span>
+          )}
+          <Button asChild>
+            <Link href={`home/`}>Home</Link>
+          </Button>
+          <Button asChild>
+            <Link href={`map/`}>Map Route</Link>
+          </Button>
+          <SettingPanel />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

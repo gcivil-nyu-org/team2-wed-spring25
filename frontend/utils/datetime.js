@@ -1,3 +1,7 @@
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
 export default function formatDateAgo(dateString) {
   const date = new Date(dateString);
   const now = new Date();
