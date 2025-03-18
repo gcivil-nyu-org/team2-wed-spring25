@@ -9,25 +9,29 @@ env:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libgdal-dev gdal-bin
+  - sudo apt-get install -y gdal-bin
   
-# cache:
-#   directories:
-#     - ~/.cache/pip  # Cache pip downloads
-#     - frontend/node_modules  # Cache frontend dependencies
-#     - frontend/build  # Cache frontend build artifacts
-#     - frontend/.next/cache
+cache:
+  directories:
+    - ~/.cache/pip
+    - ~/.npm  # Cache global npm packages
+    - ~/.cache/npm  # Cache npm cache
+    - frontend/node_modules  # Cache project dependencies
+    - frontend/build
+    - frontend/.next/cache
+  npm: true # Add explicit npm caching
+  pip: true # Add explicit pip caching
 
 # Install dependencies
 install:
 # Install GDAL via pip (ensure it matches the system-installed version)
-  - pip install GDAL==$(gdal-config --version) --no-cache-dir
+  # - pip install GDAL==3.4.0 --no-cache-dir  # Specify a newer version of GDAL
   - pip install -r backend/nightwalkers/requirements.txt
   - pip install black flake8 coverage coveralls
 
 # Install Node.js and frontend dependencies
-  - nvm install 22  # Install Node.js 22 (or the version your Next.js app requires)
-  - npm install -g npm@latest  # Update npm to the latest version
+  - nvm install 22.9  # Install Node.js 22 (or the version your Next.js app requires)
+  - npm install -g npm@10.8  # Update npm to the latest version
   - cd $FRONTEND_PATH && npm install && cd ..  # Install frontend dependencies
 
 # Make the script executable
@@ -36,6 +40,7 @@ before_script:
   - chmod +x deploy-to-production.sh
   - chmod +x deploy-to-develop.sh
   - chmod +x deploy-to-netlify.sh
+  # - psql -U postgres -c "DROP DATABASE IF EXISTS test_[secure];"  # For PostgreSQL
 
 # Run checks and tests
 script:
@@ -44,7 +49,7 @@ script:
   - black --check backend/nightwalkers/
   - flake8 backend/nightwalkers/
 
-  - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH
+  - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH --keepdb
   - coverage report  # Print coverage report
   - coverage xml  # Generate coverage XML for coveralls
 
