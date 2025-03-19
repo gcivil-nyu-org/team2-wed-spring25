@@ -1,3 +1,4 @@
+import { fallbackUserProfileImage } from "@/constants/imageUrls";
 import Image from "next/image";
 
 export default function UserImage({ imageUrl, width, height }) {
@@ -7,7 +8,7 @@ export default function UserImage({ imageUrl, width, height }) {
       style={{ width: `${width}px`, height: `${height}px` }}
     >
       <Image
-        src={imageUrl}
+        src={imageUrl ?? fallbackUserProfileImage}
         alt="avatar"
         width={width}
         height={height}
