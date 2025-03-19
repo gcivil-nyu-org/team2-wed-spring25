@@ -5,4 +5,3 @@ Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file k
 TODO:
 for post, get the location coordinate
 user without google logi, image check, default,
-on repost, successfull message, and add it to the top of list, scroll top

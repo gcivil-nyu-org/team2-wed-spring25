@@ -1,5 +1,4 @@
 import Image from "next/image";
-import icons from "@/constants/icons";
 import useIconText from "./useIconText";
 export default function IconText({
   src,
