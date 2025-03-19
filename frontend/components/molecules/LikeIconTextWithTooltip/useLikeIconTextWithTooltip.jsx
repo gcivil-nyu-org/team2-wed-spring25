@@ -1,3 +1,4 @@
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
 import throttle from "@/utils/throttle";
 import { useState, useEffect, useRef } from "react";
@@ -33,9 +34,7 @@ export default function useLikeIconTextWithTooltip(
 
   const throttledHandleOnLike = throttle(async (like_type) => {
     try {
-      console.log("like_type", like_type);
-      console.log("userHasLiked", userHasLiked);
-      console.log("likeType", likeType);
+      const { showError } = useNotification();
       // return;
       let userHasLiked2 = null;
       if (
@@ -74,7 +73,7 @@ export default function useLikeIconTextWithTooltip(
       }
 
       if (!user) {
-        alert("Please login to like the post. User not found.");
+        showError("Please login to like the post. User not found.");
         return;
       }
 
@@ -98,7 +97,7 @@ export default function useLikeIconTextWithTooltip(
       }
       // Hide the tooltip after liking
     } catch (error) {
-      alert("Error: Check console for details.");
+      showError("Error: Check console for details.");
       console.error("Error liking the post:", error);
     }
   }, 2000); // Debounce for 2 seconds

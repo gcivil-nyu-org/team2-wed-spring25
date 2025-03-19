@@ -21,7 +21,13 @@ export default function ForumsPage() {
         <h1>User Data</h1>
       </div>
       <div className="w-2/5 flex flex-col mx-4 h-screen">
-        {isOpen && <PostDialog onClick={handleClick} />}
+        {isOpen && (
+          <PostDialog
+            onClick={handleClick}
+            setPosts={setUserPosts}
+            posts_count={userPosts.length}
+          />
+        )}
         <div className="felx flex-col rounded-lg bg-white mb-4 border-[1px]">
           <div className="flex flex-row pl-4 py-3">
             <UserImage

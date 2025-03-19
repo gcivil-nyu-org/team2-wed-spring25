@@ -62,6 +62,9 @@ def create_post(request):
                     "email": user.email,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
+                    "avatar_url": user.get_avatar_url(),
+                    "karma": user.karma,
+                    
                 },
                 "status": 201
             },

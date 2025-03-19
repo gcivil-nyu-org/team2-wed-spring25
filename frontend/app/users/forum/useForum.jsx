@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { apiGet } from "@/utils/fetch/fetch";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 
 export default function useForum() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +10,7 @@ export default function useForum() {
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
+  const { showError } = useNotification();
   let userData = null;
   if (typeof window !== "undefined") {
     userData = localStorage.getItem("user");
@@ -24,6 +26,7 @@ export default function useForum() {
           setUserPosts(response);
         }
       } catch (error) {
+        // showError("Error fetching posts");
         console.error("Error fetching posts:", error);
       } finally {
         setIsLoading(false);
