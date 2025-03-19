@@ -32,9 +32,6 @@ export default function useForum() {
     fetchPosts();
   }, []);
 
-  useEffect(() => {
-    console.log("userPosts changed", userPosts);
-  }, [userPosts]);
   return {
     isLoading,
     isOpen,

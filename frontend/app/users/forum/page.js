@@ -11,7 +11,7 @@ export default function ForumsPage() {
   if (isLoading) {
     return (
       <div className="h-screen w-screen flex justify-center items-center">
-        <Loader></Loader>
+        <Loader />
       </div>
     );
   }
