@@ -47,17 +47,10 @@ export default function UserPost({ post, setPosts }) {
         content={post.content}
       />
       <UserPostBottom
-        user_avatar={post.user_avatar ?? fallbackUserProfileImage}
         commentsCount={commentsCount}
         likesCount={likesCount}
         setCommentsCount={setCommentsCount}
         setLikesCount={setLikesCount}
-        post_id={post.id}
-        user_has_liked={post.user_has_liked}
-        like_type={post.like_type}
-        post_user_id={post.user_id}
-        is_repost={post.is_repost}
-        original_post_id={post.is_repost ? post.original_post_id : null}
         setPosts={setPosts}
         post={post}
       />
