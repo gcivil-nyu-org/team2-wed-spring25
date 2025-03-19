@@ -16,6 +16,8 @@ export default function UserPostBottom({
   post_user_id,
   is_repost,
   original_post_id,
+  setPosts,
+  post,
 }) {
   const {
     getCommentsCount,
@@ -48,6 +50,8 @@ export default function UserPostBottom({
             post_user_id={post_user_id}
             is_repost={is_repost}
             original_post_id={original_post_id}
+            setPosts={setPosts}
+            post={post}
           />
         </div>
       </div>

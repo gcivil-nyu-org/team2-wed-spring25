@@ -28,7 +28,7 @@ export function DashboardHeader() {
             </span>
           )}
           <Button asChild>
-            <Link href={`home/`}>Home</Link>
+            <Link href={`forum/`}>Forum</Link>
           </Button>
           <Button asChild>
             <Link href={`map/`}>Map Route</Link>

@@ -16,7 +16,6 @@ export default function UserPostHeader({
     post_user_id,
     setPosts
   );
-  console.log("user_avatar from UserPostHeader.jsx: ", user_avatar);
   return (
     <div className="flex flex-row px-4 pt-3">
       <UserImage imageUrl={user_avatar} width={48} height={48} />
