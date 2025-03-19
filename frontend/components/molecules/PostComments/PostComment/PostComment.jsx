@@ -3,8 +3,25 @@ import UserImage from "@/components/atom/UserImage/UserImage";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 import { formatDateAgoShort } from "@/utils/datetime";
 import { getUserFullName } from "@/utils/string";
-
+import LikeOptionList from "@/components/molecules/LikeOptionList/LikeOptionList";
+import icons from "@/constants/icons";
+import usePostComment from "./usePostComment";
+import {
+  getIconSource,
+  getLikeTypeColor,
+  getGroupHoverTextColor,
+} from "@/utils/icons";
 export default function PostComment({ comment }) {
+  const {
+    isTooltipVisible,
+    handleMouseEnter,
+    handleMouseLeave,
+    throttledHandleOnLikeComment,
+    likesCount,
+    userHasLiked,
+    likeType,
+  } = usePostComment(comment);
+
   return (
     <div className="flex mb-5">
       <div className="flex flex-col justify-start ">
@@ -24,17 +41,58 @@ export default function PostComment({ comment }) {
           </p>
         </div>
         <p className="leading-none text-xs text-slate-500 font-normal">
-          {"Kingslayer"}
+          Kingslayer • <span>⚡{comment.user.user_karma} •</span>
         </p>
         <p className="mt-2 mb-1">{comment.content}</p>
         <div className="flex items-center text-xs text-gray-500 font-semibold relative -left-1">
-          <p className="p-1 hover:bg-gray-100 rounded-sm hover:cursor-pointer">
-            Like
-          </p>
+          <div className="relative flex items-center">
+            {isTooltipVisible && (
+              <div
+                className="absolute -top-[4.9rem] bg-white p-1 rounded-full shadow-md pointer-events-auto"
+                onMouseEnter={handleMouseEnter} // Keep tooltip visible when hovering over it
+                onMouseLeave={handleMouseLeave} // Hide tooltip after 0.5 seconds when leaving
+              >
+                <LikeOptionList onClick={throttledHandleOnLikeComment} />
+              </div>
+            )}
+            <p
+              className={`p-1 hover:bg-gray-100 rounded-sm hover:cursor-pointer ${getLikeTypeColor(
+                userHasLiked,
+                likeType
+              )} font-semibold group-hover:${getGroupHoverTextColor(
+                userHasLiked,
+                likeType
+              )}`}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => {
+                throttledHandleOnLikeComment("Like");
+              }}
+            >
+              Like
+            </p>
+            {likesCount > 0 && <span className="text-xs">•</span>}
+            {likesCount > 0 && (
+              <Icon
+                src={getIconSource(
+                  icons[Math.floor(Math.random() * 6)].src,
+                  userHasLiked,
+                  likeType
+                )}
+                size={"md"}
+                width={16}
+                height={16}
+                alt={"Like"}
+              />
+            )}
+            {likesCount > 0 && <p className="pr-1">{likesCount}</p>}
+          </div>
           <p className="mx-1 font-thin">|</p>
-          <p className="p-1 hover:bg-gray-100 rounded-sm hover:cursor-pointer">
-            Reply
-          </p>
+          <div>
+            <p className="p-1 hover:bg-gray-100 rounded-sm hover:cursor-pointer">
+              Reply
+            </p>
+          </div>
         </div>
       </div>
       <div className="flex flex-col justify-start items-center relative bottom-1">

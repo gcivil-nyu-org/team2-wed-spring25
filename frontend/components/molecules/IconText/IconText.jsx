@@ -1,5 +1,10 @@
 import Image from "next/image";
 import useIconText from "./useIconText";
+import {
+  getLikeTypeColor,
+  getIconSource,
+  getGroupHoverTextColor,
+} from "@/utils/icons";
 export default function IconText({
   src,
   width,
@@ -10,17 +15,7 @@ export default function IconText({
   user_has_liked = false,
   like_type = null,
 }) {
-  const { getLikeTypeColor, getIconSource, getGroupHoverTextColor, data } =
-    useIconText(
-      src,
-      width,
-      height,
-      alt,
-      text,
-      onClick,
-      user_has_liked,
-      like_type
-    );
+  const { data } = useIconText();
   return (
     <div
       className="flex flex-1 p-2 my-3 mx-1 space-x-1 justify-center items-center rounded-md hover:bg-slate-100 hover:cursor-pointer"

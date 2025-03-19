@@ -63,7 +63,7 @@ export default function ForumsPage() {
             {/* Always render the loader div, but hide it if there are no more posts */}
             <div
               ref={loaderRef}
-              className={`flex justify-center items-center h-[100vh] ${
+              className={`flex justify-center items-center h-[25vh] ${
                 hasMore ? "visible" : "hidden"
               }`}
             >

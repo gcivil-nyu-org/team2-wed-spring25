@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 export default function Icon({
-  onClick = null,
+  onClick = () => {},
   src,
   width,
   height,

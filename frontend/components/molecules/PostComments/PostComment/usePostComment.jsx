@@ -1,39 +1,32 @@
+import { useRef, useState, useEffect } from "react";
+import throttle from "@/utils/throttle";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
-import throttle from "@/utils/throttle";
-import { useState, useEffect, useRef } from "react";
-
-export default function useLikeIconTextWithTooltip(
-  post_id,
-  userHasLiked,
-  likeType,
-  setUserHasLiked,
-  setLikeType,
-  setLikesCount,
-  is_repost,
-  original_post_id
-) {
+import icons from "@/constants/icons";
+export default function usePostComment(comment) {
   const [isTooltipVisible, setTooltipVisible] = useState(false);
+  const hoverTimeoutRef2 = useRef(null);
+  const [userHasLiked, setUserHasLiked] = useState(comment.user_has_liked);
+  const [likeType, setLikeType] = useState(comment.like_type);
+  const [likesCount, setLikesCount] = useState(comment.likes_count);
   const { showError } = useNotification(); // Notification context to show error messages
-  // State to track if the post is liked
-  const hoverTimeoutRef = useRef(null); // Ref to store the timeout ID
-
+  // const
   const handleMouseEnter = () => {
     // Clear any existing timeout to avoid hiding the tooltip prematurely
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
+    if (hoverTimeoutRef2.current) {
+      clearTimeout(hoverTimeoutRef2.current);
     }
     setTooltipVisible(true);
   };
 
   const handleMouseLeave = () => {
     // Set a timeout to hide the tooltip after 0.5 seconds
-    hoverTimeoutRef.current = setTimeout(() => {
+    hoverTimeoutRef2.current = setTimeout(() => {
       setTooltipVisible(false);
     }, 100); // 500ms = 0.5 seconds
   };
-
-  const throttledHandleOnLike = throttle(async (like_type) => {
+  console.log("comment", comment);
+  const throttledHandleOnLikeComment = throttle(async (like_type) => {
     try {
       // return;
       let userHasLiked2 = null;
@@ -79,9 +72,8 @@ export default function useLikeIconTextWithTooltip(
       }
 
       const response = await apiPost(
-        `/api/forum/posts/${is_repost ? original_post_id : post_id}/like/`,
+        `/api/forum/posts/comments/${comment.id}/like/`,
         {
-          post_id: is_repost ? original_post_id : post_id,
           is_liked: userHasLiked2,
           user_id: user.id,
           like_type: like_type,
@@ -106,18 +98,19 @@ export default function useLikeIconTextWithTooltip(
   // Cleanup the timeout when the component unmounts
   useEffect(() => {
     return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
+      if (hoverTimeoutRef2.current) {
+        clearTimeout(hoverTimeoutRef2.current);
       }
     };
   }, []);
+
   return {
-    userHasLiked,
-    setUserHasLiked,
-    setTooltipVisible,
     isTooltipVisible,
     handleMouseEnter,
     handleMouseLeave,
-    throttledHandleOnLike,
+    throttledHandleOnLikeComment,
+    likesCount,
+    userHasLiked,
+    likeType,
   };
 }

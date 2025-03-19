@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
-from .models import Post, Comment, Like
+from .models import Post, Comment, Like, CommentLike
 from accounts.models import Follow
 from django.db.models import Count
 import json
@@ -384,14 +384,30 @@ def comments(request, post_id):
         )
     elif request.method == "GET":
         try:
-            # Select related user details along with comments
+            user_id = request.GET.get("user_id")  # Get the current user ID from query parameters
+
+            # Fetch all likes by the current user for comments in this post from the CommentLike table
+            user_likes = CommentLike.objects.filter(
+                user_id=user_id,
+                comment__post_id=post_id,  # Filter likes for comments in this post
+            ).values("comment_id", "like_type")
+
+            # Convert user_likes into a dictionary for quick lookup
+            user_likes_dict = {
+                like["comment_id"]: like["like_type"] for like in user_likes
+            }
+
+            # Annotate comments with the total number of likes from the CommentLike table
             comments = (
-                Comment.objects.select_related("user")
-                .filter(post_id=post_id)
+                Comment.objects.filter(post_id=post_id)
+                .select_related("user")
+                .annotate(
+                    likes_count=Count("comment_likes", distinct=True)  # Count total likes for each comment from CommentLike
+                )
                 .order_by("-date_created")
             )
 
-            # Serialize the comments along with user details
+            # Serialize the comments along with user details and like information
             comments_data = [
                 {
                     "id": comment.id,
@@ -404,17 +420,23 @@ def comments(request, post_id):
                         "email": comment.user.email,  # Only include if necessary
                         "first_name": comment.user.first_name,
                         "last_name": comment.user.last_name,
+                        "user_karma": comment.user.karma,
                     },
+                    "likes_count": comment.likes_count,  # Total likes on the comment
+                    "user_has_liked": comment.id in user_likes_dict,  # Check if the current user has liked the comment
+                    "like_type": user_likes_dict.get(comment.id),  # Get the like_type if the user has liked the comment
                 }
                 for comment in comments
             ]
 
-            return JsonResponse({"comments": comments_data}, safe=False, status=200)
+            return JsonResponse({"comments": comments_data, "status": 200}, safe=False, status=200)
 
         except Exception as e:
             print("Error fetching comments:", str(e))  # Logs for debugging
-            return JsonResponse({"error": "Internal server error"}, status=500)
-    return JsonResponse({"error": "Method not allowed"}, status=405)
+            return JsonResponse({"error": "Internal server error", "status": 500}, status=500)
+
+    return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)
+
 
 
 # Like a post
@@ -535,3 +557,59 @@ def follow_unfollow_user(request, user_id):
         return JsonResponse({"error": "User not found"}, status=404)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+
+
+@csrf_exempt
+def like_comment(request, comment_id):
+    if request.method == "POST":
+        data = parse_json_request(request)
+        if not data:
+            return JsonResponse({"error": "Invalid JSON data", "status": 400}, status=400)
+
+        user_id = data.get("user_id")
+        is_liked = data.get("is_liked", False)  # Default to False if not provided
+        like_type = data.get("like_type", "like")  # Default to "like" if not provided
+
+        # Check if the user exists
+        user = get_object_or_404(User, id=user_id)
+
+        # Check if the comment exists
+        comment = get_object_or_404(Comment, id=comment_id)
+
+        # Check if the user has already liked the comment
+        comment_like = CommentLike.objects.filter(user=user, comment=comment).first()
+
+        if is_liked:
+            # If the user wants to like the comment
+            if comment_like:
+                # Update the like type if the user has already liked the comment
+                comment_like.like_type = like_type
+                comment_like.save()
+                message = "Comment like updated successfully"
+            else:
+                # Create a new like
+                CommentLike.objects.create(user=user, comment=comment, like_type=like_type)
+                message = "Comment liked successfully"
+        else:
+            # If the user wants to unlike the comment
+            if comment_like:
+                comment_like.delete()
+                message = "Comment unliked successfully"
+            else:
+                return JsonResponse(
+                    {"error": "You have not liked this comment", "status": 400}, status=400
+                )
+        print(message)
+        # Return the updated likes count and success message
+        return JsonResponse(
+            {
+                "message": message,
+                "likes_count": comment.comment_likes.count(),  # Use the related_name
+                "status": 201,
+            },
+            status=201,
+        )
+
+    return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)
