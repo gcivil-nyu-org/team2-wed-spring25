@@ -58,7 +58,7 @@ def create_post(request):
                     "first_name": user.first_name,
                     "last_name": user.last_name,
                 },
-                "status": 201
+                "status": 201,
             },
             status=201,
         )
@@ -72,7 +72,9 @@ def get_posts(request):
         user_id = request.GET.get("user_id")  # Get the user ID from query parameters
 
         # Fetch all likes by the current user in a single query
-        user_likes = Like.objects.filter(user_id=user_id).values_list("post_id", "like_type")
+        user_likes = Like.objects.filter(user_id=user_id).values_list(
+            "post_id", "like_type"
+        )
 
         # Convert user_likes into a dictionary for quick lookup
         user_likes_dict = {post_id: like_type for post_id, like_type in user_likes}
@@ -80,7 +82,9 @@ def get_posts(request):
         # Annotate posts with distinct likes_count and comments_count
         posts = Post.objects.annotate(
             likes_count=Count("likes", distinct=True),  # Distinct count for likes
-            comments_count=Count("comments", distinct=True),  # Distinct count for comments
+            comments_count=Count(
+                "comments", distinct=True
+            ),  # Distinct count for comments
         ).order_by("-date_created")
 
         # Prepare the response data
@@ -97,15 +101,17 @@ def get_posts(request):
                 "user_avatar": post.user.get_avatar_url(),
                 "comments_count": post.comments_count,
                 "likes_count": post.likes_count,
-                "user_has_liked": post.id in user_likes_dict,  # Check if the user has liked the post
-                "like_type": user_likes_dict.get(post.id),  # Get the like_type if the user has liked the post
+                "user_has_liked": post.id
+                in user_likes_dict,  # Check if the user has liked the post
+                "like_type": user_likes_dict.get(
+                    post.id
+                ),  # Get the like_type if the user has liked the post
             }
             posts_data.append(post_data)
 
         return JsonResponse(posts_data, safe=False, status=201)
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
-
 
 
 # Get a single post by ID
@@ -145,7 +151,9 @@ def comments(request, post_id):
 
         user_id = data.get("user_id")
         content = data.get("content")
-        parent_comment_id = data.get("parent_comment_id")  # Optional field for nested comments
+        parent_comment_id = data.get(
+            "parent_comment_id"
+        )  # Optional field for nested comments
 
         if not user_id or not content:
             return JsonResponse(
@@ -182,8 +190,10 @@ def comments(request, post_id):
                 "content": comment.content,
                 "date_created": comment.date_created,
                 "user": comment.user.get_full_name(),
-                "parent_comment_id": comment.parent_comment.id if comment.parent_comment else None,
-                "status": 201
+                "parent_comment_id": (
+                    comment.parent_comment.id if comment.parent_comment else None
+                ),
+                "status": 201,
             },
             status=201,
         )
@@ -218,7 +228,6 @@ def comments(request, post_id):
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
-
 # Like a post
 @csrf_exempt
 def like_post(request, post_id):
@@ -226,30 +235,34 @@ def like_post(request, post_id):
         data = parse_json_request(request)
         if not data:
             return JsonResponse({"error": "Invalid JSON data"}, status=400)
-        user_id = data.get('user_id')
-        is_liked = data.get('is_liked')
-        like_type = data.get('like_type')
+        user_id = data.get("user_id")
+        is_liked = data.get("is_liked")
+        like_type = data.get("like_type")
         user = User.objects.get(id=user_id)
         post = get_object_or_404(Post, id=post_id)
         # Check if the user has already liked the post
         print(user_id, is_liked, like_type, post_id)
         # if like_type in ["Like", "Clap", "Support", "Heart", "Bulb", "Laugh"] and Like.objects.filter(user=user, post=post, like_type=like_type).exists():
         if Like.objects.filter(user=user, post=post).exists():
-            print('exists')
+            print("exists")
             if not is_liked:
-                #remove
-                print('remove')
+                # remove
+                print("remove")
                 Like.objects.filter(user=user, post=post).delete()
             else:
-                #update
-                print('update')
+                # update
+                print("update")
                 Like.objects.filter(user=user, post=post).update(like_type=like_type)
         else:
             # Create a new like
-            print('create')
+            print("create")
             Like.objects.create(user=user, post=post, like_type=like_type)
         return JsonResponse(
-            {"message": "Post liked successfully", "likes_count": post.likes.count(), "status":201},
+            {
+                "message": "Post liked successfully",
+                "likes_count": post.likes.count(),
+                "status": 201,
+            },
             status=201,
         )
 

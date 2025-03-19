@@ -72,4 +72,7 @@ class CommentLike(models.Model):
         return f"Like by {self.user.get_full_name()} on comment {self.comment.id}"
 
     class Meta:
-        unique_together = ("user", "comment")  # Ensures a user can like a comment only once
+        unique_together = (
+            "user",
+            "comment",
+        )  # Ensures a user can like a comment only once
