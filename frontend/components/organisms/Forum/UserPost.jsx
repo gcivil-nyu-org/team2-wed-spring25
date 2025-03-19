@@ -6,17 +6,20 @@ import UserPostBody from "@/components/molecules/UserPost/UserPostBody/UserPostB
 import useUserPost from "./useUserPost";
 import UserImage from "@/components/atom/UserImage/UserImage";
 import { getUserFullName } from "@/utils/string";
+import { fallbackUserProfileImage } from "@/constants/imageUrls";
 
 export default function UserPost({ post, setPosts }) {
   const { commentsCount, setCommentsCount, likesCount, setLikesCount } =
     useUserPost(post.likes_count, post.comments_count);
+  console.log(post);
+
   return (
     <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-white border-[1px]">
       {post.is_repost && (
         <div>
           <div className="flex text-xs items-center mx-4 py-2">
             <UserImage
-              imageUrl={post.reposted_by.avatar_url}
+              imageUrl={post.reposted_by.avatar_url ?? fallbackUserProfileImage}
               width={24}
               height={24}
             />
@@ -32,7 +35,7 @@ export default function UserPost({ post, setPosts }) {
         </div>
       )}
       <UserPostHeader
-        user_avatar={post.user_avatar}
+        user_avatar={post.user_avatar ?? fallbackUserProfileImage}
         user_fullname={post.user_fullname}
         date_created={post.date_created}
         post_user_id={post.user_id}
@@ -40,9 +43,12 @@ export default function UserPost({ post, setPosts }) {
         setPosts={setPosts}
         user_karma={post.user_karma}
       />
-      <UserPostBody image_urls={post.image_urls} content={post.content} />
+      <UserPostBody
+        image_urls={post.image_urls ?? [fallbackUserProfileImage]}
+        content={post.content}
+      />
       <UserPostBottom
-        user_avatar={post.user_avatar}
+        user_avatar={post.user_avatar ?? fallbackUserProfileImage}
         commentsCount={commentsCount}
         likesCount={likesCount}
         setCommentsCount={setCommentsCount}
