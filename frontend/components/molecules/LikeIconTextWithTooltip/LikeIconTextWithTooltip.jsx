@@ -10,6 +10,8 @@ export default function LikeIconTextWithTooltip({
   likeType,
   setLikeType,
   setLikesCount,
+  is_repost,
+  original_post_id,
 }) {
   const {
     isTooltipVisible,
@@ -22,7 +24,9 @@ export default function LikeIconTextWithTooltip({
     likeType,
     setUserHasLiked,
     setLikeType,
-    setLikesCount
+    setLikesCount,
+    is_repost,
+    original_post_id
   );
 
   return (

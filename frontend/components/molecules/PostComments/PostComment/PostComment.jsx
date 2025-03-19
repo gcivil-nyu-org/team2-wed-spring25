@@ -1,17 +1,23 @@
 import Icon from "@/components/atom/Icon/Icon";
 import UserImage from "@/components/atom/UserImage/UserImage";
+import { fallbackUserProfileImage } from "@/constants/imageUrls";
 import { formatDateAgoShort } from "@/utils/datetime";
+import { getUserFullName } from "@/utils/string";
 
 export default function PostComment({ comment }) {
   return (
     <div className="flex mb-5">
       <div className="flex flex-col justify-start ">
-        <UserImage imageUrl={comment.user.avatar_url} width={32} height={32} />
+        <UserImage
+          imageUrl={comment.user.avatar_url ?? fallbackUserProfileImage}
+          width={32}
+          height={32}
+        />
       </div>
       <div className="flex-1 flex-col justify-start items-start mx-2">
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-sm leading-none">
-            {comment.user.first_name} {comment.user.last_name}
+            {getUserFullName(comment.user.first_name, comment.user.last_name)}
           </h3>
           <p className="leading-none mt-1 text-xs text-slate-500 font-normal">
             {formatDateAgoShort(comment.date_created)}

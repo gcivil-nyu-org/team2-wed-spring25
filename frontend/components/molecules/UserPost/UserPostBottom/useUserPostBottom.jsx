@@ -1,5 +1,5 @@
 import { useState } from "react";
-export default function useUserPostBottom(post_id) {
+export default function useUserPostBottom() {
   const [showCommentSection, setShowCommentSection] = useState(false);
   const getCommentsCount = (comments_count) => {
     if (comments_count === 0) {

@@ -1,10 +1,13 @@
 import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useState } from "react";
 import { apiPost } from "@/utils/fetch/fetch";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 export default function usePostCommentInput(
   post_id,
   setCommentsCount,
-  setComments
+  setComments,
+  is_repost,
+  original_post_id
 ) {
   const {
     emojiPickerRef,
@@ -16,16 +19,18 @@ export default function usePostCommentInput(
   const [commentContent, setCommentContent] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
-
+  const { showError } = useNotification();
   const handleCommentSubmit = async () => {
     // Input validation
     if (commentContent.trim() === "") {
-      alert("Please enter a comment, cannot be empty.");
+      showError("Please enter a comment, cannot be empty.");
       return;
     }
 
     if (commentContent.length > 400) {
-      alert("Comment content exceeds the character limit of 400 characters.");
+      showError(
+        "Comment content exceeds the character limit of 400 characters."
+      );
       return;
     }
 
@@ -42,7 +47,7 @@ export default function usePostCommentInput(
       }
 
       if (!user) {
-        alert("Please login to comment. User not found.");
+        showError("Please login to comment. User not found.");
         return;
       }
       const curUser = JSON.parse(localStorage.getItem("user"));
@@ -61,7 +66,7 @@ export default function usePostCommentInput(
       };
       // Make the API call
       const response = await apiPost(
-        `/api/forum/posts/${post_id}/comments/`,
+        `/api/forum/posts/${is_repost ? original_post_id : post_id}/comments/`,
         {
           content: commentContent,
           user_id: user.id,
@@ -82,7 +87,7 @@ export default function usePostCommentInput(
       setComments((prev) => [newComment, ...prev]);
     } catch (error) {
       console.error("Error submitting comment:", error);
-      alert("Failed to submit comment. Please try again.");
+      showError("Failed to submit comment. Please try again.");
     } finally {
       setIsButtonDisabled(false); // Re-enable the button
       setIsLoading(false); // Hide loading spinner

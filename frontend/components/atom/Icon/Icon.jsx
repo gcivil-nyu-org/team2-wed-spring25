@@ -17,6 +17,7 @@ export default function Icon({
   const [isHovered, setIsHovered] = useState(false); // State to manage hover
   let data =
     "flex justify-center items-center rounded-full hover:cursor-pointer transition-all duration-200 inline-block";
+
   if (selected == null) {
     data = "hover:bg-gray-200 " + data;
     if (size === "sm") {

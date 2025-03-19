@@ -22,7 +22,8 @@ from django.db import connection  # Import the connection object
 def top_10_points(request):
     try:
         # TO DO: Replace with the linestring that's passed from the routing API
-        line_string = "LINESTRING(40.83966017062337 -73.90546599999998, 40.73443349380265 -73.980293499999992)" 
+        line_string = "LINESTRING(40.83966017062337 -73.90546599999998, \
+            40.73443349380265 -73.980293499999992)"
         # SQL query to calculate the distance between points and the LineString
         query = """
             SELECT ST_Y(wkb_geometry) AS latitude,

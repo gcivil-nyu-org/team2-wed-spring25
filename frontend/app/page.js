@@ -20,13 +20,13 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             {/* Left side - Hero Text */}
             <div className="text-center lg:text-left lg:w-1/2 space-y-6">
-                <Image
-                  className="mx-auto lg:mx-0 h-auto"
-                  src="/owl-logo.svg"
-                  width={64}
-                  height={64}
-                  alt="Nightwalkers Logo"
-                />
+              <Image
+                className="mx-auto lg:mx-0 h-auto"
+                src="/owl-logo.svg"
+                width={64}
+                height={64}
+                alt="Nightwalkers Logo"
+              />
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-400/20 rounded-full text-blue-200 backdrop-blur-sm animate-float">
                 <Shield className="w-4 h-4" />
                 <span className="text-sm font-medium">

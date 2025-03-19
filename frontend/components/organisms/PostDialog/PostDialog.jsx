@@ -5,7 +5,7 @@ import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import EmojiPicker from "emoji-picker-react";
 import { usePostContent } from "./usePostContent";
-export default function PostDialog({ onClick }) {
+export default function PostDialog({ onClick, setPosts, posts_count }) {
   const {
     emojiPickerRef,
     showEmojiPicker,
@@ -28,7 +28,9 @@ export default function PostDialog({ onClick }) {
     handleSubmit,
     isButtonDisabled,
     isLoading,
-  } = usePostContent();
+  } = usePostContent(setPosts, posts_count);
+
+  const user = JSON.parse(localStorage.getItem("user"));
 
   // const contentEditableRef = useRef(null);
 
@@ -61,7 +63,7 @@ export default function PostDialog({ onClick }) {
       <div className="w-1/2 h-4/5 bg-white rounded-lg flex flex-col">
         <div className="flex justify-between mb-2 p-4">
           <div className="flex items-center p-3 rounded-2xl hover:bg-gray-200">
-            <UserImage imageUrl={"/images/user6.jpg"} width={50} height={50} />
+            <UserImage imageUrl={user.avatar} width={50} height={50} />
             <div className="ml-4">
               <h1 className="text-xl font-bold leading-none">
                 Shreyash Dhamane
@@ -82,7 +84,7 @@ export default function PostDialog({ onClick }) {
           <div className="flex flex-col flex-1 justify-between overflow-y-auto h-full">
             <textarea
               type="text"
-              className="pl-7 text-xl flex-1 resize-none outline-none placeholder-slate-600 "
+              className="pl-7 pr-5 text-xl flex-1 resize-none outline-none placeholder-slate-600 "
               placeholder="Share Your Thoughts..."
               value={postContent}
               onChange={(e) => setPostContent(e.target.value)}

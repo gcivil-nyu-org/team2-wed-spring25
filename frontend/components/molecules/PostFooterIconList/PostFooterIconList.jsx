@@ -1,5 +1,7 @@
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import IconText from "@/components/molecules/IconText/IconText";
 import LikeIconTextWithTooltip from "@/components/molecules/LikeIconTextWithTooltip/LikeIconTextWithTooltip";
+import { apiPost } from "@/utils/fetch/fetch";
 import { useState } from "react";
 const PostFooterIconList = ({
   handleClickOnComment,
@@ -7,6 +9,9 @@ const PostFooterIconList = ({
   user_has_liked,
   like_type,
   setLikesCount,
+  post_user_id,
+  is_repost,
+  original_post_id,
 }) => {
   const iconsData = [
     {
@@ -41,7 +46,31 @@ const PostFooterIconList = ({
 
   const [userHasLiked, setUserHasLiked] = useState(user_has_liked);
   const [likeType, setLikeType] = useState(like_type);
+  const { showError, showWarning, showSuccess } = useNotification();
+  const handleRepost = async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user.id === post_user_id) {
+      //show toast
+      showWarning("You can't repost your own post");
+      return;
+    }
+    // repost
+    try {
+      // const response
+      const user = JSON.parse(localStorage.getItem("user"));
+      const response = await apiPost("/api/forum/posts/repost/", {
+        user_id: user.id,
+        original_post_id: is_repost ? original_post_id : post_id,
+      });
 
+      if (response.status === 201) {
+        showSuccess("Post reposted successfully");
+      }
+    } catch (error) {
+      showError(error.message);
+      console.error("Error reposting post", error);
+    }
+  };
   return (
     <div className="flex flex-1 relative">
       <div className="flex-1 group">
@@ -54,6 +83,8 @@ const PostFooterIconList = ({
           likeType={likeType}
           setLikeType={setLikeType}
           setLikesCount={setLikesCount}
+          is_repost={is_repost}
+          original_post_id={original_post_id}
         />
       </div>
       <div className="flex-1" onClick={handleClickOnComment}>
@@ -65,7 +96,7 @@ const PostFooterIconList = ({
           text={iconsData[1].text}
         />
       </div>
-      <div className="flex-1" onClick={handleClickOnComment}>
+      <div className="flex-1" onClick={handleRepost}>
         <IconText
           src={iconsData[2].src}
           width={iconsData[2].width}

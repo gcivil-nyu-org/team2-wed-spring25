@@ -2,7 +2,12 @@ import PostCommentInput from "@/components/molecules/PostCommentInput/PostCommen
 import PostComments from "@/components/molecules/PostComments/PostComments";
 import useUserPostCommentSection from "@/components/molecules/UserPost/UserPostBottom/UserPostCommentSection/useUserPostCommentSection";
 
-export default function UserPostCommentSection({ post_id, setCommentsCount }) {
+export default function UserPostCommentSection({
+  post_id,
+  setCommentsCount,
+  is_repost,
+  original_post_id,
+}) {
   const { comments, setComments } = useUserPostCommentSection();
 
   return (
@@ -12,11 +17,15 @@ export default function UserPostCommentSection({ post_id, setCommentsCount }) {
           post_id={post_id}
           setCommentsCount={setCommentsCount}
           setComments={setComments}
+          is_repost={is_repost}
+          original_post_id={original_post_id}
         />
         <PostComments
           post_id={post_id}
           comments={comments}
           setComments={setComments}
+          is_repost={is_repost}
+          original_post_id={original_post_id}
         />
       </div>
     </div>

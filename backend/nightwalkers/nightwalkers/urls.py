@@ -41,6 +41,16 @@ urlpatterns = [
     path("api/", include("map.urls")),
     path("", include("map.urls")),
 ]
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("api/", include("accounts.urls")),
+    path("", include("accounts.urls")),
+    path("api/forum/", include("forum.urls")),
+    path("forum/", include("forum.urls")),
+    path("api/", include("map.urls")),
+    path("", include("map.urls")),
+]
+# test
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()  # Add this
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
