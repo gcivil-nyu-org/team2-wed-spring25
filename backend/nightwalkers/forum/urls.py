@@ -16,5 +16,9 @@ urlpatterns = [
     # Like endpoints
     path("posts/<int:post_id>/like/", views.like_post, name="like_post"),
     path("posts/<int:post_id>/unlike/", views.unlike_post, name="unlike_post"),
-    path('posts/follow/<int:user_id>/', views.follow_unfollow_user, name='follow_unfollow_user'),
+    path(
+        "posts/follow/<int:user_id>/",
+        views.follow_unfollow_user,
+        name="follow_unfollow_user",
+    ),
 ]

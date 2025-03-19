@@ -41,7 +41,8 @@ class Post(models.Model):
 
     def __str__(self):
         if self.is_repost:
-            return f"Repost by {self.reposted_by.get_full_name()} (Original: {self.original_post})"
+            return f"Repost by {self.reposted_by.get_full_name()} \
+                (Original: {self.original_post})"
         return f"Post: {self.content} by {self.user.get_full_name()}"
 
     class Meta:
@@ -50,11 +51,14 @@ class Post(models.Model):
 
 class Comment(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name="comments"
     )
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE,
+                             related_name="comments")
     parent_comment = models.ForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
+        "self", on_delete=models.CASCADE, null=True, blank=True,
+        related_name="replies"
     )
     content = models.TextField(blank=False, null=False)
     date_created = models.DateTimeField(auto_now_add=True)
@@ -93,4 +97,7 @@ class CommentLike(models.Model):
         return f"Like by {self.user.get_full_name()} on comment {self.comment.id}"
 
     class Meta:
-        unique_together = ("user", "comment")  # Ensures a user can like a comment only once
+        unique_together = (
+            "user",
+            "comment",
+        )  # Ensures a user can like a comment only once
