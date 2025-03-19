@@ -487,7 +487,7 @@ def unlike_post(request, post_id):
 @csrf_exempt
 def follow_unfollow_user(request, user_id):
     """
-    View to handle follow/unfollow actions.
+    View to handle follow/unfollow actions..
     - POST: Follow a user.
     - DELETE: Unfollow a user.
     """
