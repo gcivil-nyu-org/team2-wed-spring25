@@ -8,6 +8,8 @@ export default function PostCommentInput({
   post_id,
   setCommentsCount,
   setComments,
+  is_repost,
+  original_post_id,
 }) {
   const {
     handleCommentSubmit,
@@ -19,7 +21,13 @@ export default function PostCommentInput({
     handleOnEmojiClick,
     isButtonDisabled,
     isLoading,
-  } = usePostCommentInput(post_id, setCommentsCount, setComments);
+  } = usePostCommentInput(
+    post_id,
+    setCommentsCount,
+    setComments,
+    is_repost,
+    original_post_id
+  );
   return (
     <div
       className={`flex justify-between text-sm ${

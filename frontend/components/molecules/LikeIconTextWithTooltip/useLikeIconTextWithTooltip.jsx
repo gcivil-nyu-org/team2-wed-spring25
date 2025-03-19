@@ -8,7 +8,9 @@ export default function useLikeIconTextWithTooltip(
   likeType,
   setUserHasLiked,
   setLikeType,
-  setLikesCount
+  setLikesCount,
+  is_repost,
+  original_post_id
 ) {
   const [isTooltipVisible, setTooltipVisible] = useState(false);
   // State to track if the post is liked
@@ -77,9 +79,9 @@ export default function useLikeIconTextWithTooltip(
       }
 
       const response = await apiPost(
-        `/api/forum/posts/${post_id}/like/`,
+        `/api/forum/posts/${is_repost ? original_post_id : post_id}/like/`,
         {
-          post_id: post_id,
+          post_id: is_repost ? original_post_id : post_id,
           is_liked: userHasLiked2,
           user_id: user.id,
           like_type: like_type,

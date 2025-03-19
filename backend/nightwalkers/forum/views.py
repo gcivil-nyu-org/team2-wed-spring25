@@ -66,6 +66,86 @@ def create_post(request):
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
+@csrf_exempt
+def create_repost(request):
+    if request.method == "POST":
+        data = parse_json_request(request)
+        if not data:
+            return JsonResponse({"error": "Invalid JSON data", "status": 400}, status=400)
+
+        user_id = data.get("user_id")
+        original_post_id = data.get("original_post_id")
+        print(user_id, original_post_id)
+        if not user_id or not original_post_id:
+            return JsonResponse(
+                {"error": "user_id and original_post_id are required", "status": 400}, status=400
+            )
+
+        try:
+            # Fetch the user by ID
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found", "status": 404}, status=404)
+
+        print(user)
+
+        try:
+            # Fetch the original post by ID
+            original_post = Post.objects.get(id=original_post_id)
+        except Post.DoesNotExist:
+            return JsonResponse({"error": "Original post not found", "status": 404}, status=404)
+
+        print(original_post)        
+
+        # Check if the user already reposted the same post
+        if Post.objects.filter(user=user, original_post=original_post).exists():
+            return JsonResponse(
+                {"error": "You have already reposted this post", "status": 400}, status=400
+            )
+
+        # Create the repost
+        repost = Post.objects.create(
+            user=user,  # The user creating the repost
+            is_repost=True,
+            original_post=original_post,
+            reposted_by=user,
+            title="",  # Optional: You can add a title if needed
+            content=original_post.content,  # Copy the original post's content
+            image_urls=original_post.image_urls,  # Copy the original post's image URLs
+        )
+
+        print(repost)
+
+        # Include repost details in the response
+        return JsonResponse(
+            {
+                "id": repost.id,
+                "is_repost": repost.is_repost,
+                "original_post": {
+                    "id": original_post.id,
+                    "content": original_post.content,
+                    "user": {
+                        "id": original_post.user.id,
+                        "username": original_post.user.username,
+                        "email": original_post.user.email,
+                        "first_name": original_post.user.first_name,
+                        "last_name": original_post.user.last_name,
+                    },
+                },
+                "reposted_by": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                },
+                "date_created": repost.date_created,
+                "status": 201,
+            },
+            status=201,
+        )
+
+    return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)
 
 # Get all posts
 def get_posts(request):
@@ -93,6 +173,39 @@ def get_posts(request):
         # Prepare the response data
         posts_data = []
         for post in posts:
+            if post.is_repost:
+                # If the post is a repost, fetch the original post details
+                original_post = post.original_post
+                 # Calculate likes and comments for the original post
+                original_likes_count = Like.objects.filter(post=original_post).count()
+                original_comments_count = Comment.objects.filter(post=original_post).count()
+                post_data = {
+                    "id": post.id,
+                    "original_post_id": original_post.id,
+                    "title": original_post.title,
+                    "content": original_post.content,
+                    "image_urls": original_post.image_urls,
+                    "date_created": original_post.date_created,
+                    "user_id": original_post.user.id,
+                    "user_fullname": original_post.user.get_full_name(),
+                    "user_avatar": original_post.user.get_avatar_url(),
+                    "comments_count": original_comments_count,
+                    "likes_count": original_likes_count,
+                    "user_has_liked": original_post.id in user_likes_dict,  # Check if the user has liked the post
+                    "like_type": user_likes_dict.get(original_post.id),  # Get the like_type if the user has liked the post
+                    "is_following_author": original_post.user.id in current_user_following_set,  # Check if the current user is following the post author
+                    "is_repost": post.is_repost,
+                    "reposted_by": {
+                        "id": post.reposted_by.id,
+                        "username": post.reposted_by.username,
+                        "email": post.reposted_by.email,
+                        "first_name": post.reposted_by.first_name,
+                        "last_name": post.reposted_by.last_name,
+                        "avatar_url": post.reposted_by.get_avatar_url(),
+                    },
+                }
+                posts_data.append(post_data)
+                continue
             post_data = {
                 "id": post.id,
                 "title": post.title,

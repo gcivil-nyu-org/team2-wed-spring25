@@ -20,7 +20,28 @@ class Post(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
+    # Repost fields
+    is_repost = models.BooleanField(default=False)  # Indicates if this is a repost
+    original_post = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reposts",
+        help_text="The original post that this post is reposting",
+    )
+    reposted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reposted_posts",
+        help_text="The user who reposted this post",
+    )
+
     def __str__(self):
+        if self.is_repost:
+            return f"Repost by {self.reposted_by.get_full_name()} (Original: {self.original_post})"
         return f"Post: {self.content} by {self.user.get_full_name()}"
 
     class Meta:

@@ -1,6 +1,6 @@
 import UserImage from "@/components/atom/UserImage/UserImage";
 import formatDateAgo from "@/utils/datetime";
-import { apiDelete, apiPost } from "@/utils/fetch/fetch";
+import { apiPost } from "@/utils/fetch/fetch";
 import { getUserFullName } from "@/utils/string";
 import throttle from "@/utils/throttle";
 import { useState } from "react";
@@ -48,7 +48,7 @@ export default function UserPostHeader({
   }, 2000);
 
   return (
-    <div className="flex flex-row px-4 pt-4">
+    <div className="flex flex-row px-4 pt-3">
       <UserImage imageUrl={user_avatar} width={48} height={48} />
       <div className="flex-1 flex-col justify-start pl-3 leading-none">
         <p className="text-md font-medium ">

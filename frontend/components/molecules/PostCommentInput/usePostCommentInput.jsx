@@ -4,7 +4,9 @@ import { apiPost } from "@/utils/fetch/fetch";
 export default function usePostCommentInput(
   post_id,
   setCommentsCount,
-  setComments
+  setComments,
+  is_repost,
+  original_post_id
 ) {
   const {
     emojiPickerRef,
@@ -61,7 +63,7 @@ export default function usePostCommentInput(
       };
       // Make the API call
       const response = await apiPost(
-        `/api/forum/posts/${post_id}/comments/`,
+        `/api/forum/posts/${is_repost ? original_post_id : post_id}/comments/`,
         {
           content: commentContent,
           user_id: user.id,
