@@ -51,14 +51,11 @@ class Post(models.Model):
 
 class Comment(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name="comments"
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
     )
-    post = models.ForeignKey(Post, on_delete=models.CASCADE,
-                             related_name="comments")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     parent_comment = models.ForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True,
-        related_name="replies"
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
     )
     content = models.TextField(blank=False, null=False)
     date_created = models.DateTimeField(auto_now_add=True)

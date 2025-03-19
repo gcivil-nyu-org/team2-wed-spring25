@@ -275,8 +275,7 @@ def get_posts(request):
                 "like_type": user_likes_dict.get(
                     post.id
                 ),  # Get the like_type if the user has liked the post
-                "is_following_author": post.user.id
-                in current_user_following_set,
+                "is_following_author": post.user.id in current_user_following_set,
                 # Check if the current user is following the post author
             }
             posts_data.append(post_data)
@@ -285,8 +284,7 @@ def get_posts(request):
         return JsonResponse(
             {
                 "posts": posts_data,
-                "has_more": len(posts)
-                > (offset + limit),
+                "has_more": len(posts) > (offset + limit),
                 # Indicate if there are more posts to fetch
             },
             safe=False,
