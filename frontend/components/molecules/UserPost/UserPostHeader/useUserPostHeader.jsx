@@ -6,6 +6,8 @@ import { useState } from "react";
 export default function useUserPostHeader(post_user_id, setPosts) {
   const [isFollowButtonDisabled, setIsFollowButtonDisabled] = useState(false);
   const { showError } = useNotification();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const user_id = user.id;
   const throttledHandleOnFollow = throttle(async (val) => {
     try {
       setIsFollowButtonDisabled(true);
@@ -33,5 +35,6 @@ export default function useUserPostHeader(post_user_id, setPosts) {
   return {
     isFollowButtonDisabled,
     throttledHandleOnFollow,
+    user_id,
   };
 }

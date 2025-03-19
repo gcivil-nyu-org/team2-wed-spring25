@@ -12,10 +12,8 @@ export default function UserPostHeader({
   user_karma,
   setPosts,
 }) {
-  const { isFollowButtonDisabled, throttledHandleOnFollow } = useUserPostHeader(
-    post_user_id,
-    setPosts
-  );
+  const { isFollowButtonDisabled, throttledHandleOnFollow, user_id } =
+    useUserPostHeader(post_user_id, setPosts);
   return (
     <div className="flex flex-row px-4 pt-3">
       <UserImage imageUrl={user_avatar} width={48} height={48} />
@@ -41,18 +39,19 @@ export default function UserPostHeader({
               throttledHandleOnFollow(!is_following_author);
             }}
           >
-            {!is_following_author ? (
-              <>
-                <p className="leading-none text-2xl font-bold relative -top-[5px]">
-                  +
-                </p>
-                <p className="leading-none">Follow</p>
-              </>
-            ) : (
-              <>
-                <p className="leading-none">Following</p>
-              </>
-            )}
+            {user_id !== post_user_id &&
+              (!is_following_author ? (
+                <>
+                  <p className="leading-none text-2xl font-bold relative -top-[5px]">
+                    +
+                  </p>
+                  <p className="leading-none">Follow</p>
+                </>
+              ) : (
+                <>
+                  <p className="leading-none">Following</p>
+                </>
+              ))}
           </div>
         </div>
       </div>
