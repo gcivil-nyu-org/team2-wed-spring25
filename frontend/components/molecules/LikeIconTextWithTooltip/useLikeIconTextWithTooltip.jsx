@@ -14,6 +14,7 @@ export default function useLikeIconTextWithTooltip(
   original_post_id
 ) {
   const [isTooltipVisible, setTooltipVisible] = useState(false);
+  const { showError } = useNotification(); // Notification context to show error messages
   // State to track if the post is liked
   const hoverTimeoutRef = useRef(null); // Ref to store the timeout ID
 
@@ -34,7 +35,6 @@ export default function useLikeIconTextWithTooltip(
 
   const throttledHandleOnLike = throttle(async (like_type) => {
     try {
-      const { showError } = useNotification();
       // return;
       let userHasLiked2 = null;
       if (
