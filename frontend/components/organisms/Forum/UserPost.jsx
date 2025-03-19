@@ -11,7 +11,6 @@ import { fallbackUserProfileImage } from "@/constants/imageUrls";
 export default function UserPost({ post, setPosts }) {
   const { commentsCount, setCommentsCount, likesCount, setLikesCount } =
     useUserPost(post.likes_count, post.comments_count);
-  console.log(post);
 
   return (
     <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-white border-[1px]">
@@ -48,17 +47,12 @@ export default function UserPost({ post, setPosts }) {
         content={post.content}
       />
       <UserPostBottom
-        user_avatar={post.user_avatar ?? fallbackUserProfileImage}
         commentsCount={commentsCount}
         likesCount={likesCount}
         setCommentsCount={setCommentsCount}
         setLikesCount={setLikesCount}
-        post_id={post.id}
-        user_has_liked={post.user_has_liked}
-        like_type={post.like_type}
-        post_user_id={post.user_id}
-        is_repost={post.is_repost}
-        original_post_id={post.is_repost ? post.original_post_id : null}
+        setPosts={setPosts}
+        post={post}
       />
     </div>
   );

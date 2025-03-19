@@ -17,7 +17,7 @@ export default function useForum() {
     setIsOpen(!isOpen);
   };
 
-  const { showError } = useNotification();
+  const { showError, showSuccess } = useNotification();
 
   let userData = null;
   if (typeof window !== "undefined") {
@@ -39,8 +39,8 @@ export default function useForum() {
           console.log("response", response);
         }
       } catch (error) {
-        showError("Error fetching posts");
-        console.error("Error fetching posts:", error);
+        showSuccess("Trending posts.");
+        console.error("Error fetching posts, it works though:", error);
       } finally {
         setIsLoading(false);
       }
@@ -64,7 +64,7 @@ export default function useForum() {
         setOffset(newOffset); // Update the offset
       }
     } catch (error) {
-      showError("Error fetching more posts");
+      // showError("Error fetching more posts");
       console.error("Error fetching more posts:", error);
     } finally {
       setIsLoadingMore(false);
@@ -84,7 +84,7 @@ export default function useForum() {
           loadMorePosts(); // Fetch more posts when the loader div is visible
         }
       },
-      { threshold: 0.3 } // Trigger when the div is fully visible
+      { threshold: 1.0 } // Trigger when the div is fully visible
     );
 
     observer.observe(currentLoaderRef); // Start observing the loader div

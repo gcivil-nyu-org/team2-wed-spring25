@@ -1,90 +1,30 @@
-import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import IconText from "@/components/molecules/IconText/IconText";
 import LikeIconTextWithTooltip from "@/components/molecules/LikeIconTextWithTooltip/LikeIconTextWithTooltip";
-import { apiPost } from "@/utils/fetch/fetch";
-import { useState } from "react";
+import { iconsData } from "@/constants/icons";
+import usePostFooterIconList from "./usePostFooterIconList";
 const PostFooterIconList = ({
   handleClickOnComment,
-  post_id,
-  user_has_liked,
-  like_type,
   setLikesCount,
-  post_user_id,
-  is_repost,
-  original_post_id,
+  setPosts,
+  post,
 }) => {
-  const iconsData = [
-    {
-      src: "/icons/like.svg",
-      width: 12,
-      height: 12,
-      alt: "Like",
-      text: "Like",
-    },
-    {
-      src: "/icons/comment.svg",
-      width: 20,
-      height: 20,
-      alt: "Comment",
-      text: "Comment",
-    },
-    {
-      src: "/icons/repost.svg",
-      width: 15,
-      height: 15,
-      alt: "Repost",
-      text: "Repost",
-    },
-    {
-      src: "/icons/send.svg",
-      width: 12,
-      height: 12,
-      alt: "Send",
-      text: "Send",
-    },
-  ];
+  const { userHasLiked, setUserHasLiked, likeType, setLikeType, handleRepost } =
+    usePostFooterIconList(post, setPosts);
 
-  const [userHasLiked, setUserHasLiked] = useState(user_has_liked);
-  const [likeType, setLikeType] = useState(like_type);
-  const { showError, showWarning, showSuccess } = useNotification();
-  const handleRepost = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user.id === post_user_id) {
-      //show toast
-      showWarning("You can't repost your own post");
-      return;
-    }
-    // repost
-    try {
-      // const response
-      const user = JSON.parse(localStorage.getItem("user"));
-      const response = await apiPost("/api/forum/posts/repost/", {
-        user_id: user.id,
-        original_post_id: is_repost ? original_post_id : post_id,
-      });
-
-      if (response.status === 201) {
-        showSuccess("Post reposted successfully");
-      }
-    } catch (error) {
-      showError(error.message);
-      console.error("Error reposting post", error);
-    }
-  };
   return (
     <div className="flex flex-1 relative">
       <div className="flex-1 group">
         {/* like option list */}
         <LikeIconTextWithTooltip
           iconData={iconsData[0]}
-          post_id={post_id}
+          post_id={post.id}
           userHasLiked={userHasLiked}
           setUserHasLiked={setUserHasLiked}
           likeType={likeType}
           setLikeType={setLikeType}
           setLikesCount={setLikesCount}
-          is_repost={is_repost}
-          original_post_id={original_post_id}
+          is_repost={post.is_repost}
+          original_post_id={post.original_post_id}
         />
       </div>
       <div className="flex-1" onClick={handleClickOnComment}>
