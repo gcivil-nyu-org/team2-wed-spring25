@@ -54,12 +54,16 @@ class LikeAdmin(admin.ModelAdmin):
 admin.site.register(Like, LikeAdmin)
 
 
-#register CommentLike
+# register CommentLike
+
 
 class CommentLikeAdmin(admin.ModelAdmin):
     list_display = ("user", "comment", "date_created")
     list_filter = ("date_created", "user")
-    search_fields = ("user__email", "comment__content")  # Search by user email or comment content
+    search_fields = (
+        "user__email",
+        "comment__content",
+    )  # Search by user email or comment content
 
 
 admin.site.register(CommentLike, CommentLikeAdmin)

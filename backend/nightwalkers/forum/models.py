@@ -85,12 +85,19 @@ class Like(models.Model):
 
 class CommentLike(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    comment = models.ForeignKey("Comment", on_delete=models.CASCADE, related_name="comment_likes")
-    like_type = models.CharField(max_length=50, blank=True, null=True)  # e.g., "like", "love", etc.
+    comment = models.ForeignKey(
+        "Comment", on_delete=models.CASCADE, related_name="comment_likes"
+    )
+    like_type = models.CharField(
+        max_length=50, blank=True, null=True
+    )  # e.g., "like", "love", etc.
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.get_full_name()} liked comment {self.comment.id}"
 
     class Meta:
-        unique_together = ("user", "comment")  # Ensure a user can like a comment only once
+        unique_together = (
+            "user",
+            "comment",
+        )  # Ensure a user can like a comment only once
