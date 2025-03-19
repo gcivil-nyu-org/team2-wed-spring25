@@ -38,6 +38,7 @@ export default function UserPost({ post, setPosts }) {
         post_user_id={post.user_id}
         is_following_author={post.is_following_author}
         setPosts={setPosts}
+        user_karma={post.user_karma}
       />
       <UserPostBody image_urls={post.image_urls} content={post.content} />
       <UserPostBottom

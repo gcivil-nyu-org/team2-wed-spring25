@@ -86,6 +86,9 @@ class User(AbstractUser):
 
     def get_user_id(self):
         return self.id if self.id else None
+    
+    def get_karma(self):
+        return self.karma if self.karma else 0
 
     def get_karma(self):
         return self.karma if self.karma else 0
