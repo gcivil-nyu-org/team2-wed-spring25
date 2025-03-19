@@ -5,7 +5,6 @@ import PostDialog from "@/components/organisms/PostDialog/PostDialog";
 import useForum from "./useForum";
 import Loader from "@/components/molecules/Loader/Loader";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
-import { useRef } from "react";
 export default function ForumsPage() {
   const {
     isLoading,
@@ -57,39 +56,27 @@ export default function ForumsPage() {
           </div>
         </div>
         <div>
-          {isLoading ? (
-            <Loader />
-          ) : (
-            <div>
-              {userPosts.map((post) => (
-                <UserPost key={post.id} post={post} setPosts={setUserPosts} />
-              ))}
+          <div>
+            {userPosts.map((post) => (
+              <UserPost key={post.id} post={post} setPosts={setUserPosts} />
+            ))}
 
-              {/* Always render the loader div, but hide it if there are no more posts */}
-              <div
-                ref={loaderRef}
-                style={{
-                  height: "20px",
-                  margin: "10px 0",
-                  visibility: hasMore ? "visible" : "hidden",
-                }}
-              >
-                {isLoadingMore && <Loader />}
-              </div>
+            {/* Always render the loader div, but hide it if there are no more posts */}
+            <div
+              ref={loaderRef}
+              className={`flex justify-center items-center h-[100vh] ${
+                hasMore ? "visible" : "hidden"
+              }`}
+            >
+              {isLoadingMore && <Loader />}
             </div>
-          )}
+            {!hasMore && (
+              <p className="text-center text-gray-500 text-lg mt-8 mb-10">
+                No more posts to show
+              </p>
+            )}
+          </div>
         </div>
-        {/* <>
-          {userPosts.map((post) => (
-            
-          ))}
-          {hasMore && (
-            <div ref={loaderRef} style={{ height: "20px", margin: "10px 0" }}>
-              <Loader />
-              <p>fetching</p>
-            </div>
-          )}
-        </> */}
       </div>
       <div className="w-1/6 flex flex-col justify-center items-center bg-white rounded-sm h-1/2">
         <h1>Useful Links</h1>
