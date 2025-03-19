@@ -46,6 +46,7 @@ class User(AbstractUser):
     provider_id = models.CharField(max_length=100, blank=True)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     avatar_url = models.URLField(blank=True, null=True, max_length=1024)
+    karma = models.IntegerField(default=0)
 
     # Many-to-Many relationship for followers/following
     following = models.ManyToManyField(
@@ -79,6 +80,9 @@ class User(AbstractUser):
 
     def get_user_id(self):
         return self.id if self.id else None
+    
+    def get_karma(self):
+        return self.karma if self.karma else 0
 
     @property
     def get_avatar(self):

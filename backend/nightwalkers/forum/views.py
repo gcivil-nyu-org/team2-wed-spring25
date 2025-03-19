@@ -44,6 +44,10 @@ def create_post(request):
             user=user, title="", content=content, image_urls=image_urls
         )
 
+        #increase user profile karma by 10
+        user.karma += 10
+        user.save()
+
         # Include user details in the response
         return JsonResponse(
             {
@@ -75,7 +79,6 @@ def create_repost(request):
 
         user_id = data.get("user_id")
         original_post_id = data.get("original_post_id")
-        print(user_id, original_post_id)
         if not user_id or not original_post_id:
             return JsonResponse(
                 {"error": "user_id and original_post_id are required", "status": 400}, status=400
@@ -87,7 +90,7 @@ def create_repost(request):
         except User.DoesNotExist:
             return JsonResponse({"error": "User not found", "status": 404}, status=404)
 
-        print(user)
+        
 
         try:
             # Fetch the original post by ID
@@ -95,7 +98,7 @@ def create_repost(request):
         except Post.DoesNotExist:
             return JsonResponse({"error": "Original post not found", "status": 404}, status=404)
 
-        print(original_post)        
+        
 
         # Check if the user already reposted the same post
         if Post.objects.filter(user=user, original_post=original_post).exists():
@@ -114,7 +117,9 @@ def create_repost(request):
             image_urls=original_post.image_urls,  # Copy the original post's image URLs
         )
 
-        print(repost)
+        #increase karma by 5
+        user.karma += 5
+        user.save()
 
         # Include repost details in the response
         return JsonResponse(
@@ -172,10 +177,17 @@ def get_posts(request):
 
         # Prepare the response data
         posts_data = []
+        all_posts_so_far = set()
         for post in posts:
             if post.is_repost:
                 # If the post is a repost, fetch the original post details
                 original_post = post.original_post
+
+                #if the post is repost, then only show it to the current user if the current user is not following the original author
+                if original_post.user.id in current_user_following_set or original_post.id in all_posts_so_far:
+                    continue
+                all_posts_so_far.add(original_post.id)
+
                  # Calculate likes and comments for the original post
                 original_likes_count = Like.objects.filter(post=original_post).count()
                 original_comments_count = Comment.objects.filter(post=original_post).count()
@@ -189,6 +201,7 @@ def get_posts(request):
                     "user_id": original_post.user.id,
                     "user_fullname": original_post.user.get_full_name(),
                     "user_avatar": original_post.user.get_avatar_url(),
+                    "user_karma": original_post.user.get_karma(),
                     "comments_count": original_comments_count,
                     "likes_count": original_likes_count,
                     "user_has_liked": original_post.id in user_likes_dict,  # Check if the user has liked the post
@@ -202,9 +215,12 @@ def get_posts(request):
                         "first_name": post.reposted_by.first_name,
                         "last_name": post.reposted_by.last_name,
                         "avatar_url": post.reposted_by.get_avatar_url(),
+                        
                     },
                 }
                 posts_data.append(post_data)
+                continue
+            if post.id in all_posts_so_far:
                 continue
             post_data = {
                 "id": post.id,
@@ -216,6 +232,7 @@ def get_posts(request):
                 "user_fullname": post.user.get_full_name(),
                 "user_avatar": post.user.get_avatar_url(),
                 "comments_count": post.comments_count,
+                "user_karma": post.user.get_karma(),
                 "likes_count": post.likes_count,
                 "user_has_liked": post.id in user_likes_dict,  # Check if the user has liked the post
                 "like_type": user_likes_dict.get(post.id),  # Get the like_type if the user has liked the post
@@ -289,6 +306,11 @@ def comments(request, post_id):
             except Comment.DoesNotExist:
                 return JsonResponse({"error": "Parent comment not found"}, status=404)
 
+        #increase karma by 2 for the owner of the post
+        post_user = post.user
+        post_user.karma += 2
+        post_user.save()
+
         # Create the comment
         comment = Comment.objects.create(
             user=user,
@@ -353,22 +375,25 @@ def like_post(request, post_id):
         user = User.objects.get(id=user_id)
         post = get_object_or_404(Post, id=post_id)
         # Check if the user has already liked the post
-        print(user_id, is_liked, like_type, post_id)
         # if like_type in ["Like", "Clap", "Support", "Heart", "Bulb", "Laugh"] and Like.objects.filter(user=user, post=post, like_type=like_type).exists():
         if Like.objects.filter(user=user, post=post).exists():
-            print('exists')
             if not is_liked:
                 #remove
-                print('remove')
                 Like.objects.filter(user=user, post=post).delete()
+                #reducer karma by 1 for the owner of the post
+                post_user = post.user
+                post_user.karma -= 1
+                post_user.save()
             else:
                 #update
-                print('update')
                 Like.objects.filter(user=user, post=post).update(like_type=like_type)
         else:
             # Create a new like
-            print('create')
             Like.objects.create(user=user, post=post, like_type=like_type)
+            #increase karma by 1 for the owner of the post
+            post_user = post.user
+            post_user.karma += 1
+            post_user.save()
         return JsonResponse(
             {"message": "Post liked successfully", "likes_count": post.likes.count(), "status":201},
             status=201,
@@ -421,6 +446,9 @@ def follow_unfollow_user(request, user_id):
             
             # Create a new follow relationship
             Follow.objects.create(main_user=main_user, following_user=post_user)
+            #increase karma by 3 if someone follows you
+            post_user.karma += 3
+            post_user.save()
             return JsonResponse({"message": "User followed successfully"}, status=201)
 
         else:
@@ -431,6 +459,9 @@ def follow_unfollow_user(request, user_id):
             
             # Delete the follow relationship
             follow_relationship.delete()
+            #reduce karma by 3 if someone unfollows you
+            post_user.karma -= 3
+            post_user.save()
             return JsonResponse({"message": "User unfollowed successfully"}, status=200)
 
     except User.DoesNotExist:

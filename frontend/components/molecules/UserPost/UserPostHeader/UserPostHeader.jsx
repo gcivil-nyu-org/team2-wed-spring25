@@ -1,9 +1,7 @@
 import UserImage from "@/components/atom/UserImage/UserImage";
 import formatDateAgo from "@/utils/datetime";
-import { apiPost } from "@/utils/fetch/fetch";
 import { getUserFullName } from "@/utils/string";
-import throttle from "@/utils/throttle";
-import { useState } from "react";
+import useUserPostHeader from "@/components/molecules/UserPost/UserPostHeader/useUserPostHeader";
 
 export default function UserPostHeader({
   user_avatar,
@@ -11,41 +9,13 @@ export default function UserPostHeader({
   date_created,
   post_user_id,
   is_following_author,
+  user_karma,
   setPosts,
 }) {
-  const [isFollowButtonDisabled, setIsFollowButtonDisabled] = useState(false);
-
-  const throttledHandleOnFollow = throttle(async (val) => {
-    try {
-      setIsFollowButtonDisabled(true);
-      setPosts((prev) => {
-        return prev.map((post) => {
-          console.log(
-            "post.user_id === post_user_id",
-            post.user_id === post_user_id
-          );
-          console.log("val", val);
-          if (post.user_id === post_user_id) {
-            return { ...post, is_following_author: val };
-          }
-          return post;
-        });
-      });
-      const user = JSON.parse(localStorage.getItem("user"));
-
-      const response = await apiPost(
-        `/api/forum/posts/follow/${post_user_id}/`,
-        {
-          user_id: user.id,
-          follow: val,
-        }
-      );
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setIsFollowButtonDisabled(false);
-    }
-  }, 2000);
+  const { isFollowButtonDisabled, throttledHandleOnFollow } = useUserPostHeader(
+    post_user_id,
+    setPosts
+  );
 
   return (
     <div className="flex flex-row px-4 pt-3">
@@ -54,7 +24,9 @@ export default function UserPostHeader({
         <p className="text-md font-medium ">
           {getUserFullName(user_fullname, "")}
         </p>
-        <p className="text-xs font-normal text-gray-500 ">Kingslayer</p>
+        <p className="text-xs font-normal text-gray-500 ">
+          Kingslayer • <span>⚡{user_karma} •</span>
+        </p>
         <p className="text-xs font-normal text-gray-500 leading-none">
           {formatDateAgo(date_created)}
         </p>
