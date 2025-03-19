@@ -156,9 +156,12 @@ def create_repost(request):
     return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)
 
 # Get all posts
+
 def get_posts(request):
     if request.method == "GET":
         user_id = request.GET.get("user_id")  # Get the user ID from query parameters
+        offset = int(request.GET.get("offset", 0))  # Get the offset (default: 0)
+        limit = int(request.GET.get("limit", 5))  # Get the limit (default: 5)
 
         # Fetch all likes by the current user in a single query
         user_likes = Like.objects.filter(user_id=user_id).values_list("post_id", "like_type")
@@ -181,19 +184,25 @@ def get_posts(request):
         # Prepare the response data
         posts_data = []
         all_posts_so_far = set()
-        for post in posts:
+        post_count = 0
+
+        for post in posts[offset:]:  # Apply offset to skip already fetched posts
+            if post_count >= limit:  # Stop after fetching the required number of posts
+                break
+
             if post.is_repost:
                 # If the post is a repost, fetch the original post details
                 original_post = post.original_post
 
-                #if the post is repost, then only show it to the current user if the current user is not following the original author
+                # If the post is a repost, only show it to the current user if the current user is not following the original author
                 if original_post.user.id in current_user_following_set or original_post.id in all_posts_so_far:
                     continue
                 all_posts_so_far.add(original_post.id)
 
-                 # Calculate likes and comments for the original post
+                # Calculate likes and comments for the original post
                 original_likes_count = Like.objects.filter(post=original_post).count()
                 original_comments_count = Comment.objects.filter(post=original_post).count()
+
                 post_data = {
                     "id": post.id,
                     "original_post_id": original_post.id,
@@ -218,13 +227,15 @@ def get_posts(request):
                         "first_name": post.reposted_by.first_name,
                         "last_name": post.reposted_by.last_name,
                         "avatar_url": post.reposted_by.get_avatar_url(),
-                        
                     },
                 }
                 posts_data.append(post_data)
+                post_count += 1
                 continue
+
             if post.id in all_posts_so_far:
                 continue
+
             post_data = {
                 "id": post.id,
                 "title": post.title,
@@ -242,10 +253,109 @@ def get_posts(request):
                 "is_following_author": post.user.id in current_user_following_set,  # Check if the current user is following the post author
             }
             posts_data.append(post_data)
+            post_count += 1
 
-        return JsonResponse(posts_data, safe=False, status=200)
+        return JsonResponse(
+            {
+                "posts": posts_data,
+                "has_more": len(posts) > (offset + limit),  # Indicate if there are more posts to fetch
+            },
+            safe=False,
+            status=200,
+        )
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+# def get_posts(request):
+#     if request.method == "GET":
+#         user_id = request.GET.get("user_id")  # Get the user ID from query parameters
+
+#         # Fetch all likes by the current user in a single query
+#         user_likes = Like.objects.filter(user_id=user_id).values_list("post_id", "like_type")
+
+#         # Convert user_likes into a dictionary for quick lookup
+#         user_likes_dict = {post_id: like_type for post_id, like_type in user_likes}
+
+#         # Fetch all follow relationships for the current user
+#         current_user_following = Follow.objects.filter(main_user_id=user_id).values_list("following_user_id", flat=True)
+
+#         # Convert current_user_following into a set for quick lookup
+#         current_user_following_set = set(current_user_following)
+
+#         # Annotate posts with distinct likes_count and comments_count
+#         posts = Post.objects.annotate(
+#             likes_count=Count("likes", distinct=True),  # Distinct count for likes
+#             comments_count=Count("comments", distinct=True),  # Distinct count for comments
+#         ).order_by("-date_created")
+
+#         # Prepare the response data
+#         posts_data = []
+#         all_posts_so_far = set()
+#         for post in posts:
+#             if post.is_repost:
+#                 # If the post is a repost, fetch the original post details
+#                 original_post = post.original_post
+
+#                 #if the post is repost, then only show it to the current user if the current user is not following the original author
+#                 if original_post.user.id in current_user_following_set or original_post.id in all_posts_so_far:
+#                     continue
+#                 all_posts_so_far.add(original_post.id)
+
+#                  # Calculate likes and comments for the original post
+#                 original_likes_count = Like.objects.filter(post=original_post).count()
+#                 original_comments_count = Comment.objects.filter(post=original_post).count()
+#                 post_data = {
+#                     "id": post.id,
+#                     "original_post_id": original_post.id,
+#                     "title": original_post.title,
+#                     "content": original_post.content,
+#                     "image_urls": original_post.image_urls,
+#                     "date_created": original_post.date_created,
+#                     "user_id": original_post.user.id,
+#                     "user_fullname": original_post.user.get_full_name(),
+#                     "user_avatar": original_post.user.get_avatar_url(),
+#                     "user_karma": original_post.user.get_karma(),
+#                     "comments_count": original_comments_count,
+#                     "likes_count": original_likes_count,
+#                     "user_has_liked": original_post.id in user_likes_dict,  # Check if the user has liked the post
+#                     "like_type": user_likes_dict.get(original_post.id),  # Get the like_type if the user has liked the post
+#                     "is_following_author": original_post.user.id in current_user_following_set,  # Check if the current user is following the post author
+#                     "is_repost": post.is_repost,
+#                     "reposted_by": {
+#                         "id": post.reposted_by.id,
+#                         "username": post.reposted_by.username,
+#                         "email": post.reposted_by.email,
+#                         "first_name": post.reposted_by.first_name,
+#                         "last_name": post.reposted_by.last_name,
+#                         "avatar_url": post.reposted_by.get_avatar_url(),
+                        
+#                     },
+#                 }
+#                 posts_data.append(post_data)
+#                 continue
+#             if post.id in all_posts_so_far:
+#                 continue
+#             post_data = {
+#                 "id": post.id,
+#                 "title": post.title,
+#                 "content": post.content,
+#                 "image_urls": post.image_urls,
+#                 "date_created": post.date_created,
+#                 "user_id": post.user.id,
+#                 "user_fullname": post.user.get_full_name(),
+#                 "user_avatar": post.user.get_avatar_url(),
+#                 "comments_count": post.comments_count,
+#                 "user_karma": post.user.get_karma(),
+#                 "likes_count": post.likes_count,
+#                 "user_has_liked": post.id in user_likes_dict,  # Check if the user has liked the post
+#                 "like_type": user_likes_dict.get(post.id),  # Get the like_type if the user has liked the post
+#                 "is_following_author": post.user.id in current_user_following_set,  # Check if the current user is following the post author
+#             }
+#             posts_data.append(post_data)
+
+#         return JsonResponse(posts_data, safe=False, status=200)
+
+#     return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
 

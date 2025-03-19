@@ -5,9 +5,20 @@ import PostDialog from "@/components/organisms/PostDialog/PostDialog";
 import useForum from "./useForum";
 import Loader from "@/components/molecules/Loader/Loader";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
+import { useRef } from "react";
 export default function ForumsPage() {
-  const { isLoading, isOpen, userPosts, handleClick, user, setUserPosts } =
-    useForum();
+  const {
+    isLoading,
+    isLoadingMore,
+    isOpen,
+    userPosts,
+    handleClick,
+    user,
+    setUserPosts,
+    hasMore,
+    loaderRef,
+  } = useForum();
+
   if (isLoading) {
     return (
       <div className="h-screen w-screen flex justify-center items-center">
@@ -45,11 +56,40 @@ export default function ForumsPage() {
             </div>
           </div>
         </div>
-        <>
+        <div>
+          {isLoading ? (
+            <Loader />
+          ) : (
+            <div>
+              {userPosts.map((post) => (
+                <UserPost key={post.id} post={post} setPosts={setUserPosts} />
+              ))}
+
+              {/* Always render the loader div, but hide it if there are no more posts */}
+              <div
+                ref={loaderRef}
+                style={{
+                  height: "20px",
+                  margin: "10px 0",
+                  visibility: hasMore ? "visible" : "hidden",
+                }}
+              >
+                {isLoadingMore && <Loader />}
+              </div>
+            </div>
+          )}
+        </div>
+        {/* <>
           {userPosts.map((post) => (
-            <UserPost key={post.id} post={post} setPosts={setUserPosts} />
+            
           ))}
-        </>
+          {hasMore && (
+            <div ref={loaderRef} style={{ height: "20px", margin: "10px 0" }}>
+              <Loader />
+              <p>fetching</p>
+            </div>
+          )}
+        </> */}
       </div>
       <div className="w-1/6 flex flex-col justify-center items-center bg-white rounded-sm h-1/2">
         <h1>Useful Links</h1>
