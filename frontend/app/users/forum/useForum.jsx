@@ -36,6 +36,7 @@ export default function useForum() {
         if (response) {
           setUserPosts(response.posts);
           setHasMore(response.has_more); // Update hasMore based on the response
+          console.log("response", response);
         }
       } catch (error) {
         showError("Error fetching posts");
