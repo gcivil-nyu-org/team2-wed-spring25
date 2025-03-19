@@ -28,7 +28,7 @@ def create_post(request):
         user_id = data.get("user_id")
         content = data.get("content")
         image_urls = data.get("image_urls", [])
-        if not user_id or (not content and not image_urls):
+        if not user_id or not content:
             return JsonResponse(
                 {"error": "user_id and content are required"}, status=400
             )
