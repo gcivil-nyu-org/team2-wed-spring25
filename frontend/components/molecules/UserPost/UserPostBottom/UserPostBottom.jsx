@@ -21,11 +21,12 @@ export default function UserPostBottom({
     showReportUserDialog,
     setShowReportUserDialog,
     handleReportPost,
+    handleClickOnComment,
   } = useUserPostBottom(post, setPosts);
   return (
     <div className="mx-3">
       {showReportUserDialog && (
-        <div className="flex absolute top-0 left-0 h-screen w-screen justify-center items-center bg-black bg-opacity-50 z-10">
+        <div className="flex fixed top-0 left-0 h-full w-full bg-black bg-opacity-5 justify-center items-center z-10">
           <div className="flex flex-col bg-white p-4 rounded-xl">
             <p>Are you sure you want to report this post?</p>
             <div className="flex mt-2 justify-end gap-2">
@@ -62,9 +63,8 @@ export default function UserPostBottom({
           </div>
 
           <PostFooterIconList
-            handleClickOnComment={() => {
-              showCommentSection(true);
-            }}
+            handleClickOnComment={handleClickOnComment}
+            setShowReportUserDialog={setShowReportUserDialog}
             setLikesCount={setLikesCount}
             setPosts={setPosts}
             post={post}

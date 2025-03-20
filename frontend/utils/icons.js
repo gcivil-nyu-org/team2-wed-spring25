@@ -8,7 +8,10 @@ const getIconSource = (src, user_has_liked, like_type) => {
   return src;
 };
 
-const getGroupHoverTextColor = (user_has_liked, like_type) => {
+const getGroupHoverTextColor = (user_has_liked, like_type, theme = null) => {
+  if (theme && theme === "red") {
+    return "text-red-900";
+  }
   if (!user_has_liked) {
     return "text-slate-900";
   }
@@ -30,8 +33,10 @@ const getGroupHoverTextColor = (user_has_liked, like_type) => {
   }
 };
 
-const getLikeTypeColor = (user_has_liked, like_type) => {
-  //log before each return
+const getLikeTypeColor = (user_has_liked, like_type, theme = null) => {
+  if (theme && theme === "red") {
+    return "text-red-600";
+  }
   if (!user_has_liked) {
     return "text-slate-600";
   }

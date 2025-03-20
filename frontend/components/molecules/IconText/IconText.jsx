@@ -14,6 +14,7 @@ export default function IconText({
   onClick = null,
   user_has_liked = false,
   like_type = null,
+  theme = null,
 }) {
   const { data } = useIconText();
   return (
@@ -27,11 +28,19 @@ export default function IconText({
           width={user_has_liked ? 16 : width}
           height={user_has_liked ? 16 : height}
           alt={alt}
-          className="object-fill "
+          className="object-fill"
         />
       </div>
       <p
-        className={`${getLikeTypeColor()} text-sm font-semibold group-hover:${getGroupHoverTextColor()}`}
+        className={`${getLikeTypeColor(
+          user_has_liked,
+          like_type,
+          theme
+        )} text-sm font-semibold group-hover:${getGroupHoverTextColor(
+          user_has_liked,
+          like_type,
+          theme
+        )}`}
       >
         {user_has_liked ? like_type : text}
       </p>

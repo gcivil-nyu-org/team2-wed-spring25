@@ -5,7 +5,7 @@ import { useState } from "react";
 export default function useUserPostBottom(post, setPosts) {
   const [showCommentSection, setShowCommentSection] = useState(false);
   const [showReportUserDialog, setShowReportUserDialog] = useState(false);
-  const { showError } = useNotification();
+  const { showError, showSuccess } = useNotification();
   const getCommentsCount = (comments_count) => {
     if (comments_count === 0) {
       return <p className="text-slate-500 text-sm font-normal">No comments</p>;
@@ -72,6 +72,7 @@ export default function useUserPostBottom(post, setPosts) {
           repost_user_id: post.is_repost ? post.reposted_by.id : null,
         }
       );
+      showSuccess("Post reported successfully");
     } catch (error) {
       showError("Error reporting post");
       console.error(error);

@@ -2,15 +2,17 @@ import IconText from "@/components/molecules/IconText/IconText";
 import LikeIconTextWithTooltip from "@/components/molecules/LikeIconTextWithTooltip/LikeIconTextWithTooltip";
 import { iconsData } from "@/constants/icons";
 import usePostFooterIconList from "./usePostFooterIconList";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 const PostFooterIconList = ({
   handleClickOnComment,
+  setShowReportUserDialog,
   setLikesCount,
   setPosts,
   post,
 }) => {
   const { userHasLiked, setUserHasLiked, likeType, setLikeType, handleRepost } =
     usePostFooterIconList(post, setPosts);
-
+  const { showError } = useNotification();
   return (
     <div className="flex flex-1 relative">
       <div className="flex-1 group">
@@ -45,13 +47,23 @@ const PostFooterIconList = ({
           text={iconsData[2].text}
         />
       </div>
-      <div className="flex-1" onClick={handleClickOnComment}>
+      <div
+        className="flex-1"
+        onClick={() => {
+          if (post.is_reported) {
+            showError("You have already reported this post");
+            return;
+          }
+          setShowReportUserDialog(true);
+        }}
+      >
         <IconText
           src={iconsData[3].src}
           width={iconsData[3].width}
           height={iconsData[3].height}
           alt={iconsData[3].alt}
-          text={iconsData[3].text}
+          text={post.is_reported ? "Reported" : iconsData[3].text}
+          theme={post.is_reported ? "red" : null}
         />
       </div>
     </div>

@@ -159,8 +159,6 @@ def create_repost(request):
 
 
 # Get all posts
-
-
 def get_posts(request):
     if request.method == "GET":
         user_id = request.GET.get("user_id")  # Get the user ID from query parameters
@@ -179,6 +177,14 @@ def get_posts(request):
         current_user_following = Follow.objects.filter(
             main_user_id=user_id
         ).values_list("following_user_id", flat=True)
+        
+
+        #get all the posts that the user has reported
+        reported_posts = ReportPost.objects.filter(
+            reporting_user_id=user_id
+        ).values_list("post_id", flat=True)
+        #create set for quick lookup
+        reported_posts = set(reported_posts)
 
         # Convert current_user_following into a set for quick lookup
         current_user_following_set = set(current_user_following)
@@ -222,6 +228,7 @@ def get_posts(request):
 
                 post_data = {
                     "id": post.id,
+                    "is_reported": original_post.id in reported_posts,
                     "original_post_id": original_post.id,
                     "title": original_post.title,
                     "content": original_post.content,
@@ -260,6 +267,7 @@ def get_posts(request):
 
             post_data = {
                 "id": post.id,
+                "is_reported": post.id in reported_posts,
                 "title": post.title,
                 "content": post.content,
                 "image_urls": post.image_urls,
@@ -635,58 +643,80 @@ def report_post(request, post_id):
         data = parse_json_request(request)
         if not data:
             return JsonResponse(
-                {"error": "Invalid JSON data", "status": 400}, status=400
+                {"error": "Invalid JSON data"}, status=400
             )
 
-        reporting_user_id = data.get("user_id")
+        reporting_user_id = data.get("reporting_user_id")
         post_owner_id = data.get("post_owner_id")
         repost_user_id = data.get("repost_user_id")
-        # Check if the user exists
-        user = get_object_or_404(User, id=reporting_user_id)
-        # Check if the post owner exists
-        post_owner = get_object_or_404(User, id=post_owner_id)
-        # Check if the repost user exists
-        repost_user =   get_object_or_404(User, id=repost_user_id) if repost_user_id else None
-        # Check if the post exists
-        post = get_object_or_404(Post, id=post_id)
 
-        # Check if the user has already reported the post
-        report = ReportPost.objects.filter(
-            reporting_user_id=user, post_id=post, post_owner_id=post_owner
-        ).first()
-        report2 = ReportPost.objects.filter(
-            reporting_user_id=user, post_id=post, post_owner_id=repost_user
-        ).first() if repost_user else None
-
-        if report and report2:
+        # Check if the reporting user exists
+        try:
+            reporting_user = User.objects.get(id=reporting_user_id)
+        except User.DoesNotExist:
             return JsonResponse(
-                {"error": "You have already reported this post", "status": 400},
-                status=400,
-            )
-        
-        if not report:
-            # Create a new report
-            ReportPost.objects.create(
-                reporting_user_id=user, post_id=post, post_owner_id=post_owner
+                {"error": "Reporting user not found"}, status=404
             )
 
-            #reduce karma by 20 if someone reports your post
-            post_owner.karma -= 10
-            post_owner.save()
-        
-        if not report2:
-            # Create a new report
-            ReportPost.objects.create(
-                reporting_user_id=user, post_id=post, post_owner_id=repost_user
+        # Check if the post owner exists
+        try:
+            post_owner = User.objects.get(id=post_owner_id)
+        except User.DoesNotExist:
+            return JsonResponse(
+                {"error": "Post owner not found"}, status=404
             )
 
-            #reduce karma by 20 if someone reports your post
+        # Check if the repost user exists (if provided)
+        repost_user = None
+        if repost_user_id:
+            try:
+                repost_user = User.objects.get(id=repost_user_id)
+            except User.DoesNotExist:
+                return JsonResponse(
+                    {"error": "Repost user not found"}, status=404
+                )
+
+        # Check if the post exists
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return JsonResponse(
+                {"error": "Post not found"}, status=404
+            )
+
+        # Check if the user has already reported this post
+        existing_report = ReportPost.objects.filter(
+            post=post,
+            reporting_user=reporting_user,
+            post_owner=post_owner,
+        ).exists()
+
+        if existing_report:
+            return JsonResponse(
+                {"error": "You have already reported this post"}, status=400
+            )
+
+        # Create a new report
+        ReportPost.objects.create(
+            post=post,
+            reporting_user=reporting_user,
+            post_owner=post_owner,
+            is_repost=bool(repost_user),  # Set is_repost based on repost_user
+        )
+
+        # Deduct karma from the post owner
+        post_owner.karma -= 10
+        post_owner.save()
+
+        # Deduct karma from the repost user (if applicable)
+        if repost_user:
             repost_user.karma -= 10
             repost_user.save()
 
         return JsonResponse(
-            {"message": "Post reported successfully", "status": 201},
-            status=201,
+            {"message": "Post reported successfully"}, status=201
         )
-        
-    return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)
+
+    return JsonResponse(
+        {"error": "Method not allowed"}, status=405
+    )
