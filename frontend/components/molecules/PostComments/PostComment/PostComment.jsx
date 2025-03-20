@@ -69,7 +69,7 @@ export default function PostComment({ comment }) {
                 throttledHandleOnLikeComment("Like");
               }}
             >
-              Like
+              {likeType ?? "Like"}
             </p>
             {likesCount > 0 && <span className="text-xs">•</span>}
             {likesCount > 0 && (

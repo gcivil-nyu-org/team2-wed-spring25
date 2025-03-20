@@ -31,23 +31,33 @@ const getGroupHoverTextColor = (user_has_liked, like_type) => {
 };
 
 const getLikeTypeColor = (user_has_liked, like_type) => {
+  //log before each return
   if (!user_has_liked) {
+    console.log("text-slate-600");
+
     return "text-slate-600";
   }
   switch (like_type) {
     case "Like":
+      console.log("text-blue-600");
       return "text-blue-600";
     case "Clap":
+      console.log("text-green-600");
       return "text-green-600";
     case "Support":
+      console.log("text-purple-600");
       return "text-purple-600";
     case "Heart":
+      console.log("text-red-600");
       return "text-red-600";
     case "Bulb":
+      console.log("text-yellow-600");
       return "text-yellow-600";
     case "Laugh":
+      console.log("text-sky-600");
       return "text-sky-600";
     default:
+      console.log("text-slate-600");
       return "text-slate-600";
   }
 };
