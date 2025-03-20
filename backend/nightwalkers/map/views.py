@@ -5,13 +5,63 @@ import os
 # from django.conf import settings
 from django.http import JsonResponse
 from rest_framework import generics, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from .models import SavedRoute
-from .serializers import RouteInputSerializer
+from .serializers import (
+    RouteInputSerializer,
+    SavedRouteSerializer,
+    SavedRouteUpdateSerializer,
+)
 import requests
 from django.db import connection  # Import the connection object
+
+
+def top_10_points(request):
+    try:
+        # TO DO: Replace with the linestring that's passed from the routing API
+        line_string = "LINESTRING(40.83966017062337 -73.90546599999998, \
+            40.73443349380265 -73.980293499999992)"
+        # SQL query to calculate the distance between points and the LineString
+        query = """
+            SELECT ST_Y(wkb_geometry) AS latitude,
+                   ST_X(wkb_geometry) AS longitude,
+                   CMPLNT_NUM,
+                   ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) AS distance
+            FROM filtered_grouped_data_centroid
+            WHERE CMPLNT_NUM > 10
+            ORDER BY distance
+            LIMIT 10;
+        """
+
+        # Execute the query
+        with connection.cursor() as cursor:
+            cursor.execute(query, [line_string])
+
+            heatmap_points = []
+            for row in cursor.fetchall():
+                latitude, longitude, complaints, distance = row
+                try:
+                    complaints = float(complaints) if complaints is not None else 0.0
+                except (ValueError, TypeError):
+                    complaints = 0.0
+
+                heatmap_points.append(
+                    {
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "intensity": complaints,
+                        "distance": distance,
+                    }
+                )
+
+        return JsonResponse(heatmap_points, safe=False)
+
+    except Exception as error:
+        print("Error while fetching data from PostgreSQL", error)
+        return JsonResponse([], safe=False)
 
 
 def road_view(request):
@@ -180,3 +230,58 @@ class RouteViewAPI(generics.GenericAPIView):
             return {"error": f"Error processing route request: {str(e)}"}
         except Exception as e:
             return {"error": f"Error processing route request: {str(e)}"}
+
+
+class SaveRouteAPIView(generics.GenericAPIView):
+    serializer_class = SavedRouteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        print(request.data)
+        serializer = self.get_serializer(
+            data=request.data, context={"user": request.user}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class RoutesPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 50
+
+
+class RetrieveSavedRoutesListAPIView(generics.ListAPIView):
+    serializer_class = SavedRouteSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = RoutesPagination
+
+    def get_queryset(self):
+        return SavedRoute.objects.filter(user=self.request.user).order_by(
+            "-favorite", "-created_at"
+        )
+
+    # No get function needed, leveraging all the return to DRF functions
+
+
+class UpdateSavedRouteAPIView(generics.UpdateAPIView):
+    serializer_class = SavedRouteUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SavedRoute.objects.filter(user=self.request.user)
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        print(self.request.data)
+        obj = queryset.get(id=self.request.data["id"])
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+
+class DeleteSavedRouteAPIView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SavedRoute.objects.filter(user=self.request.user)
