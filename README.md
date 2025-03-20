@@ -3,5 +3,12 @@
 
 Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
 TODO:
+report post author
+add tests for frontend and backend.
+post commment other thank like text color, and text
 for post, get the location coordinate
 user without google logi, image check, default,
+responsive design.
+user must be login to access forum realted apis on frotned and backend.
+github actions setup.
+throttle not working.

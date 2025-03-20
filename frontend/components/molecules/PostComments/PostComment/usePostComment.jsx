@@ -25,7 +25,6 @@ export default function usePostComment(comment) {
       setTooltipVisible(false);
     }, 100); // 500ms = 0.5 seconds
   };
-  console.log("comment", comment);
   const throttledHandleOnLikeComment = throttle(async (like_type) => {
     try {
       // return;

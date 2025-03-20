@@ -33,8 +33,8 @@ const iconsData = [
     src: "/icons/send.svg",
     width: 12,
     height: 12,
-    alt: "Send",
-    text: "Send",
+    alt: "Report",
+    text: "Report",
   },
 ];
 
