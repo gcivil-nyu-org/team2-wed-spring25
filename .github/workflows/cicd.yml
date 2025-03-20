@@ -50,6 +50,7 @@ jobs:
         with:
           node-version: "22.9" # Replace with the version your Next.js app requires
           cache: "npm" # Cache npm dependencies
+          cache-dependency-path: "frontend/package-lock.json"
 
       - name: Install npm dependencies
         run: |
