@@ -11,6 +11,7 @@ import { fallbackUserProfileImage } from "@/constants/imageUrls";
 export default function UserPost({ post, setPosts }) {
   const { commentsCount, setCommentsCount, likesCount, setLikesCount } =
     useUserPost(post.likes_count, post.comments_count);
+  console.log(post);
 
   return (
     <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-white border-[1px] relative">
