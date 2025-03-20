@@ -15,7 +15,6 @@ export default function usePostComments(
     const fetchPostComments = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
-        console.log("user", user);
 
         if (!user) {
           showError("Please login to view comments. User not found.");

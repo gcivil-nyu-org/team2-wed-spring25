@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
-from .models import Post, Comment, Like, CommentLike
+from .models import Post, Comment, Like, CommentLike, ReportPost
 from accounts.models import Follow
 from django.db.models import Count
 import json
@@ -627,4 +627,66 @@ def like_comment(request, comment_id):
             status=201,
         )
 
+    return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)
+
+@csrf_exempt
+def report_post(request, post_id):
+    if request.method == "POST":
+        data = parse_json_request(request)
+        if not data:
+            return JsonResponse(
+                {"error": "Invalid JSON data", "status": 400}, status=400
+            )
+
+        reporting_user_id = data.get("user_id")
+        post_owner_id = data.get("post_owner_id")
+        repost_user_id = data.get("repost_user_id")
+        # Check if the user exists
+        user = get_object_or_404(User, id=reporting_user_id)
+        # Check if the post owner exists
+        post_owner = get_object_or_404(User, id=post_owner_id)
+        # Check if the repost user exists
+        repost_user =   get_object_or_404(User, id=repost_user_id) if repost_user_id else None
+        # Check if the post exists
+        post = get_object_or_404(Post, id=post_id)
+
+        # Check if the user has already reported the post
+        report = ReportPost.objects.filter(
+            reporting_user_id=user, post_id=post, post_owner_id=post_owner
+        ).first()
+        report2 = ReportPost.objects.filter(
+            reporting_user_id=user, post_id=post, post_owner_id=repost_user
+        ).first() if repost_user else None
+
+        if report and report2:
+            return JsonResponse(
+                {"error": "You have already reported this post", "status": 400},
+                status=400,
+            )
+        
+        if not report:
+            # Create a new report
+            ReportPost.objects.create(
+                reporting_user_id=user, post_id=post, post_owner_id=post_owner
+            )
+
+            #reduce karma by 20 if someone reports your post
+            post_owner.karma -= 10
+            post_owner.save()
+        
+        if not report2:
+            # Create a new report
+            ReportPost.objects.create(
+                reporting_user_id=user, post_id=post, post_owner_id=repost_user
+            )
+
+            #reduce karma by 20 if someone reports your post
+            repost_user.karma -= 10
+            repost_user.save()
+
+        return JsonResponse(
+            {"message": "Post reported successfully", "status": 201},
+            status=201,
+        )
+        
     return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)

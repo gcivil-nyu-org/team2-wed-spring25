@@ -41,8 +41,6 @@ export const usePostContent = (setPosts, posts_count) => {
         return;
       }
 
-      console.log("user", user);
-
       // Upload the image if selected
       const imageUrl = selectedImage ? await uploadImage(selectedImage) : null;
       const newPost = {
@@ -82,8 +80,6 @@ export const usePostContent = (setPosts, posts_count) => {
       if (response.status !== 201) {
         throw new Error(response.message || "Failed to create post.");
       }
-
-      console.log("response", response);
 
       // Reset the form
       setPostContent("");

@@ -43,7 +43,7 @@ export default function usePostCommentInput(
       if (userString) {
         user = JSON.parse(userString); // Parse the user object
       } else {
-        console.log("No user data found in localStorage");
+        showError("Please login to comment. User not found.");
       }
 
       if (!user) {

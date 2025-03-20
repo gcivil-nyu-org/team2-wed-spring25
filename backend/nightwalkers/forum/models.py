@@ -101,3 +101,40 @@ class CommentLike(models.Model):
             "user",
             "comment",
         )  # Ensure a user can like a comment only once
+
+
+class ReportPost(models.Model):
+    # The ID of the post being reported
+    post_id = models.ForeignKey(
+        "Post",
+        on_delete=models.CASCADE,
+        related_name="reports",
+        help_text="The post that is being reported",
+    )
+
+    # The ID of the user reporting the post
+    reporting_user_id = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reported_posts",
+        help_text="The user who is reporting the post",
+    )
+
+    # The ID of the owner of the post being reported
+    post_owner_id = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reports_against_posts",
+        help_text="The owner of the post being reported",
+    )
+
+    is_repost = models.BooleanField(
+        default=False
+    )  # Indicates if the reported post is a repost
+
+    def __str__(self):
+        return f"Report by User ID {self.reporting_user_id} on Post ID {self.post_id}"
+
+    class Meta:
+        ordering = ["-post_id"]  # Orders reports by post ID (or any other field)
+        unique_together = ["post_id", "reporting_user_id"]  # Prevents duplicate reports

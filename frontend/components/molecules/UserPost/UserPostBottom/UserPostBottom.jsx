@@ -4,6 +4,7 @@ import LikedIconList from "@/components/molecules/LikedIconList/LikedIconList";
 import UserPostCommentSection from "@/components/molecules/UserPost/UserPostBottom/UserPostCommentSection/UserPostCommentSection";
 import useUserPostBottom from "./useUserPostBottom";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
+import CustomButton from "@/components/atom/CustomButton/CustomButton";
 
 export default function UserPostBottom({
   likesCount,
@@ -16,11 +17,32 @@ export default function UserPostBottom({
   const {
     getCommentsCount,
     getLikesCount,
-    handleClickOnComment,
     showCommentSection,
-  } = useUserPostBottom();
+    showReportUserDialog,
+    setShowReportUserDialog,
+    handleReportPost,
+  } = useUserPostBottom(post, setPosts);
   return (
     <div className="mx-3">
+      {showReportUserDialog && (
+        <div className="flex absolute top-0 left-0 h-screen w-screen justify-center items-center bg-black bg-opacity-50 z-10">
+          <div className="flex flex-col bg-white p-4 rounded-xl">
+            <p>Are you sure you want to report this post?</p>
+            <div className="flex mt-2 justify-end gap-2">
+              <CustomButton
+                onClick={() => {
+                  setShowReportUserDialog(false);
+                }}
+              >
+                No
+              </CustomButton>
+              <CustomButton theme="red" onClick={handleReportPost}>
+                Yes
+              </CustomButton>
+            </div>
+          </div>
+        </div>
+      )}
       <div>
         <div className="flex justify-between mr-1 py-2">
           <div className="flex gap-2">
@@ -40,7 +62,9 @@ export default function UserPostBottom({
           </div>
 
           <PostFooterIconList
-            handleClickOnComment={handleClickOnComment}
+            handleClickOnComment={() => {
+              showCommentSection(true);
+            }}
             setLikesCount={setLikesCount}
             setPosts={setPosts}
             post={post}
