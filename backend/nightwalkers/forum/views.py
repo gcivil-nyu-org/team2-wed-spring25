@@ -177,13 +177,12 @@ def get_posts(request):
         current_user_following = Follow.objects.filter(
             main_user_id=user_id
         ).values_list("following_user_id", flat=True)
-        
 
-        #get all the posts that the user has reported
+        # get all the posts that the user has reported
         reported_posts = ReportPost.objects.filter(
             reporting_user_id=user_id
         ).values_list("post_id", flat=True)
-        #create set for quick lookup
+        # create set for quick lookup
         reported_posts = set(reported_posts)
 
         # Convert current_user_following into a set for quick lookup
@@ -637,14 +636,13 @@ def like_comment(request, comment_id):
 
     return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)
 
+
 @csrf_exempt
 def report_post(request, post_id):
     if request.method == "POST":
         data = parse_json_request(request)
         if not data:
-            return JsonResponse(
-                {"error": "Invalid JSON data"}, status=400
-            )
+            return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
         reporting_user_id = data.get("reporting_user_id")
         post_owner_id = data.get("post_owner_id")
@@ -654,17 +652,13 @@ def report_post(request, post_id):
         try:
             reporting_user = User.objects.get(id=reporting_user_id)
         except User.DoesNotExist:
-            return JsonResponse(
-                {"error": "Reporting user not found"}, status=404
-            )
+            return JsonResponse({"error": "Reporting user not found"}, status=404)
 
         # Check if the post owner exists
         try:
             post_owner = User.objects.get(id=post_owner_id)
         except User.DoesNotExist:
-            return JsonResponse(
-                {"error": "Post owner not found"}, status=404
-            )
+            return JsonResponse({"error": "Post owner not found"}, status=404)
 
         # Check if the repost user exists (if provided)
         repost_user = None
@@ -672,17 +666,13 @@ def report_post(request, post_id):
             try:
                 repost_user = User.objects.get(id=repost_user_id)
             except User.DoesNotExist:
-                return JsonResponse(
-                    {"error": "Repost user not found"}, status=404
-                )
+                return JsonResponse({"error": "Repost user not found"}, status=404)
 
         # Check if the post exists
         try:
             post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:
-            return JsonResponse(
-                {"error": "Post not found"}, status=404
-            )
+            return JsonResponse({"error": "Post not found"}, status=404)
 
         # Check if the user has already reported this post
         existing_report = ReportPost.objects.filter(
@@ -713,10 +703,6 @@ def report_post(request, post_id):
             repost_user.karma -= 10
             repost_user.save()
 
-        return JsonResponse(
-            {"message": "Post reported successfully"}, status=201
-        )
+        return JsonResponse({"message": "Post reported successfully"}, status=201)
 
-    return JsonResponse(
-        {"error": "Method not allowed"}, status=405
-    )
+    return JsonResponse({"error": "Method not allowed"}, status=405)
