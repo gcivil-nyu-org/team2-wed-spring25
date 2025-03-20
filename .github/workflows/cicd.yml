@@ -1,0 +1,122 @@
+name: CI/CD test, and deploy on render and netlify
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04 # Equivalent to Travis's `dist: focal`
+
+    env:
+      BASE_PATH: backend/nightwalkers
+      FRONTEND_PATH: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gdal-bin
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r $BASE_PATH/requirements.txt
+          pip install black flake8 coverage coveralls
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22.9" # Replace with the version your Next.js app requires
+          cache: "npm" # Cache npm dependencies
+          cache-dependency-path: "frontend/package-lock.json"
+
+      - name: Install npm dependencies
+        run: |
+          npm install -g npm@10.8
+          cd $FRONTEND_PATH && npm install && cd ..
+
+      - name: Make scripts executable
+        run: |
+          chmod +x deploy.sh
+          chmod +x deploy-to-production.sh
+          chmod +x deploy-to-develop.sh
+          chmod +x deploy-to-netlify.sh
+
+      - name: Set branch-specific environment variables
+        env:
+          NEXTAUTH_URL_TEST: ${{ secrets.NEXTAUTH_URL_TEST }}
+          NEXTAUTH_URL_PROD: ${{ secrets.NEXTAUTH_URL_PROD }}
+          NEXT_PUBLIC_DJANGO_API_URL_TEST: ${{ secrets.NEXT_PUBLIC_DJANGO_API_URL_TEST }}
+          NEXT_PUBLIC_DJANGO_API_URL_PROD: ${{ secrets.NEXT_PUBLIC_DJANGO_API_URL_PROD }}
+          NODE_ENV_TEST: ${{ secrets.NODE_ENV_TEST }}
+          NODE_ENV_PROD: ${{ secrets.NODE_ENV_PROD }}
+          DEBUG_TEST: ${{ secrets.DEBUG_TEST }}
+          DEBUG_PROD: ${{ secrets.DEBUG_PROD }}
+        run: |
+          if [ "$GITHUB_REF" == "refs/heads/develop" ]; then
+            echo "NEXTAUTH_URL=$NEXTAUTH_URL_TEST" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_DJANGO_API_URL=$NEXT_PUBLIC_DJANGO_API_URL_TEST" >> $GITHUB_ENV
+            echo "NODE_ENV=$NODE_ENV_TEST" >> $GITHUB_ENV
+            echo "DEBUG=$DEBUG_TEST" >> $GITHUB_ENV
+          elif [ "$GITHUB_REF" == "refs/heads/main" ]; then
+            echo "NEXTAUTH_URL=$NEXTAUTH_URL_PROD" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_DJANGO_API_URL=$NEXT_PUBLIC_DJANGO_API_URL_PROD" >> $GITHUB_ENV
+            echo "NODE_ENV=$NODE_ENV_PROD" >> $GITHUB_ENV
+            echo "DEBUG=$DEBUG_PROD" >> $GITHUB_ENV
+          fi
+
+      - name: Print environment variables
+        run: |
+          echo "NEXTAUTH_URL: $NEXTAUTH_URL"
+          echo "NEXT_PUBLIC_DJANGO_API_URL: $NEXT_PUBLIC_DJANGO_API_URL"
+          echo "NODE_ENV: $NODE_ENV"
+          echo "DEBUG: $DEBUG"
+
+      - name: Run Black and Flake8 checks
+        run: |
+          black --check $BASE_PATH/
+          flake8 $BASE_PATH/
+
+      - name: Run Python tests with coverage
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }} # Use the SECRET_KEY secret
+          DATABASE_URL: ${{ secrets.DATABASE_URL }} # Use the DATABASE_URL secret
+        run: |
+          coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH --keepdb
+          coverage report
+          coverage xml
+
+      - name: Build frontend
+        run: |
+          cd $FRONTEND_PATH && npm run build && cd ..
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to Render and Netlify
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: ./deploy.sh
