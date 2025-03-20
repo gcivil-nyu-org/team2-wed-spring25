@@ -1,3 +1,4 @@
+"use client";
 import Button from "@/components/atom/Button/Button";
 import Icon from "@/components/atom/Icon/Icon";
 import UserImage from "@/components/atom/UserImage/UserImage";
@@ -5,6 +6,7 @@ import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import EmojiPicker from "emoji-picker-react";
 import { usePostContent } from "./usePostContent";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 export default function PostDialog({ onClick, setPosts, posts_count }) {
   const {
     emojiPickerRef,
@@ -29,8 +31,15 @@ export default function PostDialog({ onClick, setPosts, posts_count }) {
     isButtonDisabled,
     isLoading,
   } = usePostContent(setPosts, posts_count);
-
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { showError } = useNotification();
+  let user = null;
+  if (typeof window !== "undefined") {
+    user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
+  }
+  if (!user) {
+    showError("Please login to post. User not found.");
+    return null; // or handle the case when user is not found
+  }
 
   // const contentEditableRef = useRef(null);
 

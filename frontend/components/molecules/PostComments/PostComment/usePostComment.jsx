@@ -1,8 +1,9 @@
+"use client";
+
 import { useRef, useState, useEffect } from "react";
 import throttle from "@/utils/throttle";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
-import icons from "@/constants/icons";
 export default function usePostComment(comment) {
   const [isTooltipVisible, setTooltipVisible] = useState(false);
   const hoverTimeoutRef2 = useRef(null);
@@ -54,8 +55,11 @@ export default function usePostComment(comment) {
         userHasLiked2 = false;
       }
       setTooltipVisible(false);
+      let userString = null;
+      if (typeof window !== "undefined") {
+        userString = localStorage.getItem("user"); // Retrieve the string
+      }
 
-      const userString = localStorage.getItem("user"); // Retrieve the string
       let user = null;
       if (userString) {
         user = JSON.parse(userString); // Parse the string into a JSON object

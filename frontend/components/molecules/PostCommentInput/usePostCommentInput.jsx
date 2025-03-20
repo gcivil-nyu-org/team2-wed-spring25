@@ -1,3 +1,4 @@
+"use client";
 import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useState } from "react";
 import { apiPost } from "@/utils/fetch/fetch";
@@ -38,7 +39,10 @@ export default function usePostCommentInput(
       setIsButtonDisabled(true); // Disable the button
       setIsLoading(true); // Show loading spinner
       setCommentsCount((prev) => prev + 1); // Increment the comments count
-      const userString = localStorage.getItem("user"); // Retrieve the user from localStorage
+      let userString = null;
+      if (typeof window !== "undefined") {
+        userString = localStorage.getItem("user"); // Retrieve the user from localStorage
+      }
       let user = null;
       if (userString) {
         user = JSON.parse(userString); // Parse the user object
@@ -50,7 +54,14 @@ export default function usePostCommentInput(
         showError("Please login to comment. User not found.");
         return;
       }
-      const curUser = JSON.parse(localStorage.getItem("user"));
+      let curUser = null;
+      if (typeof window !== "undefined") {
+        curUser = JSON.parse(localStorage.getItem("user"));
+      }
+      if (!curUser) {
+        showError("Please login to comment. User not found.");
+        return;
+      }
       const newComment = {
         content: commentContent,
         date_created: new Date().toISOString(),

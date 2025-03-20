@@ -1,3 +1,5 @@
+"use client";
+
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useState } from "react";
@@ -49,7 +51,14 @@ export default function useUserPostBottom(post, setPosts) {
         showError("Post is already reported by you.");
         return;
       }
-      const user = JSON.parse(localStorage.getItem("user"));
+      let user = null;
+      if (typeof window !== "undefined") {
+        user = JSON.parse(localStorage.getItem("user"));
+      }
+      if (!user) {
+        showError("Please login to report a post. User not found.");
+        return;
+      }
       console.log(post);
       if (user.id === post.user_id) {
         //show toast

@@ -1,3 +1,4 @@
+"use client";
 // utils/api.js
 import { getDjangoErrorMessage } from "../django-error-handler";
 

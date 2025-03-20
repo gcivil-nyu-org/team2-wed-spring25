@@ -1,10 +1,21 @@
-'use client'
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
-import { apiGet } from '../../utils/fetch/fetch';
-import { isTokenExpired, setupTokenRefresh, refreshDjangoToken as refreshToken } from '@/utils/token-utils';
-import { useNotification } from './ToastComponent/NotificationContext';
+"use client";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
+import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import { apiGet } from "../../utils/fetch/fetch";
+import {
+  isTokenExpired,
+  setupTokenRefresh,
+  refreshDjangoToken as refreshToken,
+} from "@/utils/token-utils";
+import { useNotification } from "./ToastComponent/NotificationContext";
 
 // Create auth context
 const AuthContext = createContext(null);
@@ -13,7 +24,7 @@ const AuthContext = createContext(null);
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
@@ -41,7 +52,7 @@ export function AuthProvider({ children }) {
       return newToken;
     } catch (error) {
       // If refresh fails, clear all tokens and redirect to login
-      showError('Token refresh failed', error, 'token');
+      showError("Token refresh failed", error, "token");
       handleLogout();
       throw error;
     }
@@ -49,50 +60,54 @@ export function AuthProvider({ children }) {
   }, [showError]);
 
   // Fetch user data from Django
-  const fetchUserData = useCallback(async (accessToken) => {
-    try {
-      const token = accessToken || localStorage.getItem('djangoAccessToken');
+  const fetchUserData = useCallback(
+    async (accessToken) => {
+      try {
+        const token = accessToken || localStorage.getItem("djangoAccessToken");
 
-      if (!token) {
-        throw new Error('No access token available');
-      }
-
-      // Use our apiGet helper with auth headers
-      const userData = await apiGet('/users/me/', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        if (!token) {
+          throw new Error("No access token available");
         }
-      });
 
-      if (!userData) {
-        throw new Error('Failed to fetch user data');
+        // Use our apiGet helper with auth headers
+        const userData = await apiGet("/users/me/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!userData) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        return userData;
+      } catch (error) {
+        showError("Error fetching user data", error, "api");
+        throw error;
       }
-
-      return userData;
-    } catch (error) {
-      showError('Error fetching user data', error, 'api');
-      throw error;
-    }
-  }, [showError]);
+    },
+    [showError]
+  );
 
   // Handle logout
   const handleLogout = useCallback(async () => {
     try {
       // Sign out from NextAuth
       await signOut({ redirect: false });
-
-      // Clear Django tokens from localStorage
-      localStorage.removeItem('djangoAccessToken');
-      localStorage.removeItem('djangoRefreshToken');
-      localStorage.removeItem('user');
+      if (typeof window !== "undefined") {
+        // Clear local storage
+        localStorage.removeItem("djangoAccessToken");
+        localStorage.removeItem("djangoRefreshToken");
+        localStorage.removeItem("user");
+      }
 
       // Reset state
       setUser(null);
 
       // Redirect to login page
-      router.push('/users/login');
+      router.push("/users/login");
     } catch (error) {
-      showError('Error during logout', error);
+      showError("Error during logout", error);
     }
   }, [router, showError]);
 
@@ -100,14 +115,14 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const handleAuthUpdate = (event) => {
       // console.log("Auth update event received");
-      const storedUser = localStorage.getItem('user');
+      const storedUser = localStorage.getItem("user");
 
       if (storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
           // console.log("Setting user from auth update event", parsedUser);
           setUser(parsedUser);
-          showSuccess("You've been successfully authenticated", null, 'login');
+          showSuccess("You've been successfully authenticated", null, "login");
         } catch (e) {
           showError("Error parsing user data", e);
         }
@@ -115,10 +130,10 @@ export function AuthProvider({ children }) {
     };
 
     // Custom event for internal communication
-    window.addEventListener('auth-updated', handleAuthUpdate);
+    window.addEventListener("auth-updated", handleAuthUpdate);
 
     return () => {
-      window.removeEventListener('auth-updated', handleAuthUpdate);
+      window.removeEventListener("auth-updated", handleAuthUpdate);
     };
   }, [showError, showSuccess]);
 
@@ -127,15 +142,15 @@ export function AuthProvider({ children }) {
     const checkAuth = async () => {
       try {
         // Skip if we're still loading NextAuth session
-        if (status === 'loading') {
+        if (status === "loading") {
           return;
         }
 
         // console.log("Checking authentication state...");
 
-        const accessToken = localStorage.getItem('djangoAccessToken');
-        const refreshTokenValue = localStorage.getItem('djangoRefreshToken');
-        const storedUser = localStorage.getItem('user');
+        const accessToken = localStorage.getItem("djangoAccessToken");
+        const refreshTokenValue = localStorage.getItem("djangoRefreshToken");
+        const storedUser = localStorage.getItem("user");
 
         // Check if token is expired
         if (accessToken && isTokenExpired(accessToken)) {
@@ -150,7 +165,7 @@ export function AuthProvider({ children }) {
               // If we don't have user data, fetch it
               if (!storedUser) {
                 const userData = await fetchUserData(newToken);
-                localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem("user", JSON.stringify(userData));
                 setUser(userData);
               } else {
                 try {
@@ -159,39 +174,49 @@ export function AuthProvider({ children }) {
                   showError("Error parsing stored user data", e);
                   // Try to fetch fresh data if parse fails
                   const userData = await fetchUserData(newToken);
-                  localStorage.setItem('user', JSON.stringify(userData));
+                  localStorage.setItem("user", JSON.stringify(userData));
                   setUser(userData);
                 }
               }
             } catch (error) {
-              showError("Failed to refresh token", error, 'token');
+              showError("Failed to refresh token", error, "token");
               // Clear auth state on refresh failure
               handleLogout();
               return;
             }
           } else {
-            showError("No refresh token available", null, 'token');
+            showError("No refresh token available", null, "token");
             handleLogout();
             return;
           }
         }
         // If NextAuth session exists but no Django token, try to get it from session
-        else if (status === 'authenticated' && session?.djangoTokens && !accessToken) {
+        else if (
+          status === "authenticated" &&
+          session?.djangoTokens &&
+          !accessToken
+        ) {
           // console.log("Found NextAuth session with Django tokens");
-          localStorage.setItem('djangoAccessToken', session.djangoTokens.access);
-          localStorage.setItem('djangoRefreshToken', session.djangoTokens.refresh);
+          localStorage.setItem(
+            "djangoAccessToken",
+            session.djangoTokens.access
+          );
+          localStorage.setItem(
+            "djangoRefreshToken",
+            session.djangoTokens.refresh
+          );
 
           if (session.djangoUser) {
-            localStorage.setItem('user', JSON.stringify(session.djangoUser));
+            localStorage.setItem("user", JSON.stringify(session.djangoUser));
             setUser(session.djangoUser);
           } else {
             // Fetch user data if not provided in session
             try {
               const userData = await fetchUserData(session.djangoTokens.access);
-              localStorage.setItem('user', JSON.stringify(userData));
+              localStorage.setItem("user", JSON.stringify(userData));
               setUser(userData);
             } catch (error) {
-              showError("Error fetching user data from session", error, 'api');
+              showError("Error fetching user data from session", error, "api");
             }
           }
         }
@@ -209,10 +234,10 @@ export function AuthProvider({ children }) {
               // If parsing fails, try to fetch user data
               try {
                 const userData = await fetchUserData(accessToken);
-                localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem("user", JSON.stringify(userData));
                 setUser(userData);
               } catch (fetchError) {
-                showError("Error fetching user data", fetchError, 'api');
+                showError("Error fetching user data", fetchError, "api");
                 handleLogout();
               }
             }
@@ -221,10 +246,10 @@ export function AuthProvider({ children }) {
             try {
               // console.log("No stored user data, fetching from API");
               const userData = await fetchUserData(accessToken);
-              localStorage.setItem('user', JSON.stringify(userData));
+              localStorage.setItem("user", JSON.stringify(userData));
               setUser(userData);
             } catch (error) {
-              showError("Error fetching user data", error, 'api');
+              showError("Error fetching user data", error, "api");
               handleLogout();
             }
           }
@@ -239,7 +264,7 @@ export function AuthProvider({ children }) {
         initialCheckDone.current = true;
         setLoading(false);
       } catch (error) {
-        showError('Auth check error', error);
+        showError("Auth check error", error);
         setLoading(false);
       }
     };
@@ -254,13 +279,9 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!user,
     logout: handleLogout,
     refreshToken: refreshDjangoToken,
-    fetchUserData
+    fetchUserData,
   };
 
   // Provide auth context
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

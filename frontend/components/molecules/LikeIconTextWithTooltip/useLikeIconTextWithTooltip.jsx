@@ -1,3 +1,4 @@
+"use client";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
 import throttle from "@/utils/throttle";
@@ -62,8 +63,10 @@ export default function useLikeIconTextWithTooltip(
         userHasLiked2 = false;
       }
       setTooltipVisible(false);
-
-      const userString = localStorage.getItem("user"); // Retrieve the string
+      let userString = null;
+      if (typeof window !== "undefined") {
+        userString = localStorage.getItem("user"); // Retrieve the string
+      }
       let user = null;
       if (userString) {
         user = JSON.parse(userString); // Parse the string into a JSON object

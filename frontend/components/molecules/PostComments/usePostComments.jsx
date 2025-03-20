@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { apiGet } from "@/utils/fetch/fetch";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";

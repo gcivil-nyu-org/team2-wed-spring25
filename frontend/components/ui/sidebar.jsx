@@ -231,7 +231,13 @@ function Sidebar({
 
 function SidebarTrigger({ className, onClick, ...props }) {
   const { toggleSidebar } = useSidebar();
-  const user = JSON.parse(localStorage.getItem("user"));
+  let user = null;
+  if (typeof window !== "undefined") {
+    user = JSON.parse(localStorage.getItem("user"));
+  }
+  if (!user) {
+    return null; // or handle the case when user is not found
+  }
   return (
     // <Button
     //   data-sidebar="trigger"

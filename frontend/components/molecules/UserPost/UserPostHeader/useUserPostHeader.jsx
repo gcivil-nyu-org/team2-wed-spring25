@@ -1,3 +1,4 @@
+"use client";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
 import throttle from "@/utils/throttle";
@@ -6,7 +7,17 @@ import { useState } from "react";
 export default function useUserPostHeader(post_user_id, setPosts) {
   const [isFollowButtonDisabled, setIsFollowButtonDisabled] = useState(false);
   const { showError } = useNotification();
-  const user = JSON.parse(localStorage.getItem("user"));
+
+  let user = null;
+  if (typeof window !== "undefined") {
+    user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
+  }
+
+  if (!user) {
+    showError("Please login to follow a user. User not found.");
+    return;
+  }
+
   const user_id = user.id;
   const throttledHandleOnFollow = throttle(async (val) => {
     try {
@@ -19,7 +30,14 @@ export default function useUserPostHeader(post_user_id, setPosts) {
           return post;
         });
       });
-      const user = JSON.parse(localStorage.getItem("user"));
+      user = null;
+      if (typeof window !== "undefined") {
+        user = JSON.parse(localStorage.getItem("user"));
+      }
+      if (!user) {
+        showError("Please login to follow a user. User not found.");
+        return;
+      }
       await apiPost(`/api/forum/posts/follow/${post_user_id}/`, {
         user_id: user.id,
         follow: val,

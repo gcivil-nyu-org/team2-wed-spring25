@@ -27,8 +27,11 @@ export const usePostContent = (setPosts, posts_count) => {
     try {
       setIsButtonDisabled(true); // Disable the button
       setIsLoading(true); // Show loading spinner
+      let userString = null;
+      if (typeof window !== "undefined") {
+        userString = localStorage.getItem("user"); // Retrieve the user from localStorage
+      }
 
-      const userString = localStorage.getItem("user"); // Retrieve the user from localStorage
       let user = null;
       if (userString) {
         user = JSON.parse(userString); // Parse the user object
