@@ -1,8 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNotification } from "../../ToastComponent/NotificationContext";
 
-const useUserLocation = () => {
+const useUserLocation = ({
+  departureCoords,
+  mapInitializedRef,
+  mapInstanceRef,
+}) => {
   const { showWarning } = useNotification();
+  const [outsideNYC, setOutsideNYC] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [locationDenied, setLocationDenied] = useState(false);
+  // Track if location has been set by explicit coordinates
+  const [hasExplicitCoordinates, setHasExplicitCoordinates] = useState(false);
+  // Track if we've attempted to get location on initial load
+  const initialLocationAttemptRef = useRef(false);
   // NYC bounds for validation
   const nycBounds = {
     sw: [40.4957, -74.2557], // Southwest coordinates (Staten Island)
@@ -246,7 +258,114 @@ const useUserLocation = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLocation, isGettingLocation, hasExplicitCoordinates]);
 
-  return <div>useUserLocation</div>;
+  // Function to retry getting location
+  const retryLocation = () => {
+    setIsGettingLocation(true);
+    setLocationDenied(false);
+    setHasExplicitCoordinates(false); // Reset this flag to try geolocation again
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log("Got user location on retry:", position.coords);
+          const { latitude, longitude } = position.coords;
+
+          // Check if within NYC
+          if (isWithinNYC([latitude, longitude])) {
+            setUserLocation([latitude, longitude]);
+            setOutsideNYC(false);
+          } else {
+            setUserLocation([latitude, longitude]);
+            setOutsideNYC(true);
+
+            showWarning(
+              "Your location is outside NYC",
+              "Routes in SafeRouteNYC are optimized for NYC area.",
+              "location_outside_nyc"
+            );
+          }
+
+          setIsGettingLocation(false);
+
+          // Update map view
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.setView([latitude, longitude], 18);
+
+            // Update marker if it exists
+            if (mapInstanceRef.current._userMarker) {
+              mapInstanceRef.current._userMarker.setLatLng([
+                latitude,
+                longitude,
+              ]);
+            }
+          }
+
+          showSuccess(
+            "Location found",
+            "Successfully updated your location",
+            "location_found"
+          );
+        },
+        (error) => {
+          console.warn("Geolocation retry error:", error.message);
+          if (error.code === 1) {
+            // PERMISSION_DENIED
+            setLocationDenied(true);
+
+            showWarning(
+              "Location access denied",
+              "Please enable location in your browser settings to use this feature",
+              "location_permission_denied"
+            );
+          } else {
+            showError(
+              "Location error",
+              error.message || "Could not get your location",
+              "location_error"
+            );
+          }
+          setIsGettingLocation(false);
+
+          // Set to default location
+          setUserLocation(defaultLocation);
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+    } else {
+      setIsGettingLocation(false);
+      showWarning(
+        "Geolocation not supported",
+        "Your browser does not support geolocation",
+        "location_not_supported"
+      );
+
+      // Set to default location
+      setUserLocation(defaultLocation);
+    }
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+          mapInitializedRef.current = false;
+        } catch (e) {
+          console.warn("Error cleaning up map:", e);
+        }
+      }
+    };
+  }, []);
+
+  return {
+    userLocation,
+    isGettingLocation,
+    locationDenied,
+    outsideNYC,
+    retryLocation
+  };
 };
 
 export default useUserLocation;

@@ -15,6 +15,8 @@ import "@/styles/map_styles.css";
 import HeatmapLayer from "./HeatmapLayer";
 import MapCriticalErrorMsg from "./MapCriticalErrorMsg";
 import MapRenderMsg from "./MapRenderMsg";
+import useUserLocation from "./hooks/useUserLocation";
+import RouteInfo from "./RouteInfo";
 
 const RoutingMapComponent = ({
   mapboxToken,
@@ -29,20 +31,16 @@ const RoutingMapComponent = ({
   const mapInitializedRef = useRef(false);
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
-  const [outsideNYC, setOutsideNYC] = useState(false);
-  const [userLocation, setUserLocation] = useState(null);
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
-  const [locationDenied, setLocationDenied] = useState(false);
+  const { userLocation, isGettingLocation, locationDenied, retryLocation } = useUserLocation({
+    departureCoords,
+    mapInitializedRef,
+    mapInstanceRef
+  });
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
   const [routeDetails, setRouteDetails] = useState(null);
   const [activeRoute, setActiveRoute] = useState("initial"); // 'initial' or 'safer'
   const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
   const [successfulRoute, setSuccessfulRoute] = useState(false);
-
-  // Track if location has been set by explicit coordinates
-  const [hasExplicitCoordinates, setHasExplicitCoordinates] = useState(false);
-  // Track if we've attempted to get location on initial load
-  const initialLocationAttemptRef = useRef(false);
 
   // Initialize map when we have location
   useEffect(() => {
@@ -416,107 +414,6 @@ const RoutingMapComponent = ({
     map.setView(departureCoord, 18);
   };
 
-  // Function to retry getting location
-  const retryLocation = () => {
-    setIsGettingLocation(true);
-    setLocationDenied(false);
-    setHasExplicitCoordinates(false); // Reset this flag to try geolocation again
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log("Got user location on retry:", position.coords);
-          const { latitude, longitude } = position.coords;
-
-          // Check if within NYC
-          if (isWithinNYC([latitude, longitude])) {
-            setUserLocation([latitude, longitude]);
-            setOutsideNYC(false);
-          } else {
-            setUserLocation([latitude, longitude]);
-            setOutsideNYC(true);
-
-            showWarning(
-              "Your location is outside NYC",
-              "Routes in SafeRouteNYC are optimized for NYC area.",
-              "location_outside_nyc"
-            );
-          }
-
-          setIsGettingLocation(false);
-
-          // Update map view
-          if (mapInstanceRef.current) {
-            mapInstanceRef.current.setView([latitude, longitude], 18);
-
-            // Update marker if it exists
-            if (mapInstanceRef.current._userMarker) {
-              mapInstanceRef.current._userMarker.setLatLng([
-                latitude,
-                longitude,
-              ]);
-            }
-          }
-
-          showSuccess(
-            "Location found",
-            "Successfully updated your location",
-            "location_found"
-          );
-        },
-        (error) => {
-          console.warn("Geolocation retry error:", error.message);
-          if (error.code === 1) {
-            // PERMISSION_DENIED
-            setLocationDenied(true);
-
-            showWarning(
-              "Location access denied",
-              "Please enable location in your browser settings to use this feature",
-              "location_permission_denied"
-            );
-          } else {
-            showError(
-              "Location error",
-              error.message || "Could not get your location",
-              "location_error"
-            );
-          }
-          setIsGettingLocation(false);
-
-          // Set to default location
-          setUserLocation(defaultLocation);
-        },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-      );
-    } else {
-      setIsGettingLocation(false);
-      showWarning(
-        "Geolocation not supported",
-        "Your browser does not support geolocation",
-        "location_not_supported"
-      );
-
-      // Set to default location
-      setUserLocation(defaultLocation);
-    }
-  };
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (mapInstanceRef.current) {
-        try {
-          mapInstanceRef.current.remove();
-          mapInstanceRef.current = null;
-          mapInitializedRef.current = false;
-        } catch (e) {
-          console.warn("Error cleaning up map:", e);
-        }
-      }
-    };
-  }, []);
-
   // Update route styles when active route changes
   useEffect(() => {
     if (!routeLayerRef.current) return;
@@ -609,7 +506,9 @@ const RoutingMapComponent = ({
       </div>
 
       {/* Route information panel */}
-      {routeDetails && <RouteInfo {...{ routeDetails, activeRoute, setActiveRoute }} />}
+      {routeDetails && (
+        <RouteInfo {...{ routeDetails, activeRoute, setActiveRoute }} />
+      )}
     </div>
   );
 };

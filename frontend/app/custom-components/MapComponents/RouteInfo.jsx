@@ -9,7 +9,7 @@ import {
   CornerDownRight,
 } from "lucide-react";
 
-const RouteInfo = ({ routeDetails }) => {
+const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
   const [showInstructions, setShowInstructions] = useState(false);
   // Function to format duration from seconds to minutes/hours
   const formatDuration = (seconds) => {
