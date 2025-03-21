@@ -1,28 +1,20 @@
 "use client";
-import { apiGet } from "../../utils/fetch/fetch";
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
-import * as Switch from "@radix-ui/react-switch";
 import { apiPost, authAPI } from "@/utils/fetch/fetch";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  ChevronDown,
-  ChevronUp,
-  Navigation,
-  Clock,
-  CornerDownRight,
-} from "lucide-react";
-import { useNotification } from "./ToastComponent/NotificationContext";
+import { useNotification } from "../ToastComponent/NotificationContext";
 import {
   extractCoordinates,
   extractRouteSummary,
   enhanceTurnInstructions,
-} from "./RoutingComponets/RouteHandler";
-import SaveRouteComponent from "./RoutingComponets/SaveRoute";
+} from "../RoutingComponets/RouteHandler";
+import SaveRouteComponent from "../RoutingComponets/SaveRoute";
 import "@/styles/map_styles.css";
+import HeatmapLayer from "./HeatmapLayer";
+import MapCriticalErrorMsg from "./MapCriticalErrorMsg";
+import MapRenderMsg from "./MapRenderMsg";
 
 const RoutingMapComponent = ({
   mapboxToken,
@@ -32,301 +24,25 @@ const RoutingMapComponent = ({
 }) => {
   const { showError, showWarning, showSuccess } = useNotification();
   const mapContainerRef = useRef(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const mapInstanceRef = useRef(null);
   const mapInitializedRef = useRef(false);
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
   const [outsideNYC, setOutsideNYC] = useState(false);
-  const [mapLoaded, setMapLoaded] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [locationDenied, setLocationDenied] = useState(false);
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
-  const [showHeatmap, setShowHeatmap] = useState(false);
-  const heatLayerRef = useRef(null);
   const [routeDetails, setRouteDetails] = useState(null);
-  const [showInstructions, setShowInstructions] = useState(false);
   const [activeRoute, setActiveRoute] = useState("initial"); // 'initial' or 'safer'
   const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
-  const [heatmapPoints, setHeatmapPoints] = useState([]); // Use state for heatmap data
-  const [heatmapDataLoaded, setHeatmapDataLoaded] = useState(false);
   const [successfulRoute, setSuccessfulRoute] = useState(false);
 
   // Track if location has been set by explicit coordinates
   const [hasExplicitCoordinates, setHasExplicitCoordinates] = useState(false);
   // Track if we've attempted to get location on initial load
   const initialLocationAttemptRef = useRef(false);
-
-  // NYC bounds for validation
-  const nycBounds = {
-    sw: [40.4957, -74.2557], // Southwest coordinates (Staten Island)
-    ne: [40.9176, -73.7002], // Northeast coordinates (Bronx)
-  };
-
-  // Default location (Washington Square Park)
-  const defaultLocation = [40.7308, -73.9974];
-
-  // Add heatmap data
-  useEffect(() => {
-    console.log("useEffect for heatmap data is running"); // Add this line
-    const fetchHeatmapData = async () => {
-      try {
-        const data = await apiGet("map/heatmap-data/"); // Use apiGet
-        const formattedData = data.map((item) => [
-          item.latitude,
-          item.longitude,
-          item.intensity,
-        ]);
-        console.log("Formatted Heatmap Data (before set):", formattedData);
-        setHeatmapPoints(formattedData);
-        console.log(formattedData);
-        console.log(heatmapPoints);
-        setHeatmapDataLoaded(true); // Set to true when data is loaded
-      } catch (err) {
-        console.error("Error fetching heatmap data:", err);
-        // setError("Failed to load heatmap data. Please try again.");
-        showError("Failed to load heatmap data. Please try again. check logs");
-        console.error(err);
-      }
-    };
-
-    fetchHeatmapData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Function to check if coordinates are within NYC
-  const isWithinNYC = (coords) => {
-    if (!coords || !Array.isArray(coords) || coords.length < 2) return false;
-
-    const [lat, lng] = coords;
-    return (
-      lat >= nycBounds.sw[0] &&
-      lat <= nycBounds.ne[0] &&
-      lng >= nycBounds.sw[1] &&
-      lng <= nycBounds.ne[1]
-    );
-  };
-
-  // Handle explicit departure coordinates when provided
-  useEffect(() => {
-    if (
-      departureCoords &&
-      Array.isArray(departureCoords) &&
-      !hasExplicitCoordinates
-    ) {
-      console.log("Setting explicit departure coordinates:", departureCoords);
-
-      // Check if coordinates are within NYC
-      if (isWithinNYC(departureCoords)) {
-        setUserLocation(departureCoords);
-        setHasExplicitCoordinates(true);
-        setOutsideNYC(false);
-      } else {
-        showWarning(
-          "Location outside NYC",
-          "The selected departure location is outside NYC. Routes are limited to NYC area.",
-          "location_outside_nyc"
-        );
-        // Still use the coordinates even if outside NYC
-        setUserLocation(departureCoords);
-        setHasExplicitCoordinates(true);
-        setOutsideNYC(true);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [departureCoords, hasExplicitCoordinates, showWarning]);
-
-  // Get user location on initial load
-  useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      userLocation ||
-      mapInitializedRef.current ||
-      initialLocationAttemptRef.current ||
-      hasExplicitCoordinates
-    ) {
-      return;
-    }
-
-    initialLocationAttemptRef.current = true;
-
-    const getUserLocationOnLoad = async () => {
-      setIsGettingLocation(true);
-      console.log("Getting user location on initial load...");
-
-      try {
-        if (!navigator.geolocation) {
-          throw new Error("Geolocation not available");
-        }
-
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
-          });
-
-          // Also set a timeout
-          setTimeout(() => {
-            reject(new Error("Geolocation timeout"));
-          }, 5000);
-        });
-
-        console.log("Got user location on initial load:", position.coords);
-
-        // Check if location is within NYC bounds
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        if (isWithinNYC([lat, lng])) {
-          // Location is within NYC
-          setUserLocation([lat, lng]);
-          setOutsideNYC(false);
-        } else {
-          // Outside NYC - default to Washington Square Park
-          console.log(
-            "Location outside NYC, defaulting to Washington Square Park"
-          );
-          setUserLocation(defaultLocation);
-          setOutsideNYC(true);
-
-          showWarning(
-            "Your location is outside NYC",
-            "Using Washington Square Park as default. SafeRouteNYC only supports navigation within New York City.",
-            "location_outside_nyc"
-          );
-        }
-      } catch (error) {
-        console.warn("Geolocation error on initial load:", error);
-
-        if (error.code === 1) {
-          // PERMISSION_DENIED
-          setLocationDenied(true);
-
-          showWarning(
-            "Location access denied",
-            "Using Washington Square Park as default location. To use your current location, please enable location services.",
-            "location_permission_denied"
-          );
-        } else {
-          showWarning(
-            "Could not determine your location",
-            error.message || "Unknown error getting location",
-            "location_error"
-          );
-        }
-
-        // Use Washington Square Park as default location
-        setUserLocation(defaultLocation);
-      } finally {
-        setIsGettingLocation(false);
-      }
-    };
-
-    getUserLocationOnLoad();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasExplicitCoordinates, showWarning]); // Only run on initial mount and if no explicit coordinates
-
-  // Get user location when explicitly requested through useCurrentLocation
-  useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      !useCurrentLocation ||
-      hasExplicitCoordinates
-    ) {
-      return;
-    }
-
-    const getUserLocation = async () => {
-      setIsGettingLocation(true);
-      console.log("Getting user location due to useCurrentLocation flag...");
-
-      try {
-        if (!navigator.geolocation) {
-          throw new Error("Geolocation not available");
-        }
-
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
-          });
-
-          // Also set a timeout
-          setTimeout(() => {
-            reject(new Error("Geolocation timeout"));
-          }, 5000);
-        });
-
-        console.log("Got user location:", position.coords);
-
-        // Check if location is within NYC bounds
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        if (isWithinNYC([lat, lng])) {
-          // Location is within NYC
-          setUserLocation([lat, lng]);
-          setOutsideNYC(false);
-        } else {
-          // Outside NYC - default to Washington Square Park
-          console.log(
-            "Location outside NYC, defaulting to Washington Square Park"
-          );
-          setUserLocation(defaultLocation);
-          setOutsideNYC(true);
-
-          showWarning(
-            "Your location is outside NYC",
-            "Using Washington Square Park as default. SafeRouteNYC only supports navigation within New York City.",
-            "location_outside_nyc"
-          );
-        }
-      } catch (error) {
-        console.warn("Geolocation error:", error);
-
-        if (error.code === 1) {
-          // PERMISSION_DENIED
-          setLocationDenied(true);
-
-          showWarning(
-            "Location access denied",
-            "Using Washington Square Park as default location. To use your current location, please enable location services.",
-            "location_permission_denied"
-          );
-        } else {
-          showWarning(
-            "Could not determine your location",
-            error.message || "Unknown error getting location",
-            "location_error"
-          );
-        }
-
-        // Use Washington Square Park as default location
-        setUserLocation(defaultLocation);
-      } finally {
-        setIsGettingLocation(false);
-      }
-    };
-
-    getUserLocation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useCurrentLocation, hasExplicitCoordinates, showWarning]);
-
-  // If we don't have a location yet and no explicit coordinates, use default
-  useEffect(() => {
-    if (
-      !userLocation &&
-      !isGettingLocation &&
-      !hasExplicitCoordinates &&
-      initialLocationAttemptRef.current
-    ) {
-      console.log("No location set, using default location");
-      setUserLocation(defaultLocation);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLocation, isGettingLocation, hasExplicitCoordinates]);
 
   // Initialize map when we have location
   useEffect(() => {
@@ -452,37 +168,6 @@ const RoutingMapComponent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLocation, mapboxToken, showError]);
 
-  // Heatmap layer
-  useEffect(() => {
-    if (!mapInstanceRef.current || !mapLoaded || !heatmapDataLoaded) return;
-
-    const map = mapInstanceRef.current;
-
-    if (!heatLayerRef.current) {
-      heatLayerRef.current = L.heatLayer(heatmapPoints, {
-        radius: 10,
-        blur: 10,
-        maxZoom: 20,
-        max: 1,
-        minOpacity: 0.6,
-        gradient: {
-          0.2: "#1e3a8a",
-          0.4: "#1d4ed8",
-          0.6: "#dc2626",
-          0.8: "#991b1b",
-          1.0: "#7f1d1d",
-        },
-      });
-    }
-
-    if (showHeatmap) {
-      heatLayerRef.current.addTo(map);
-    } else {
-      map.removeLayer(heatLayerRef.current);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapLoaded, showHeatmap]);
-
   // Fetch route when coordinates change
   useEffect(() => {
     if (mapLoaded && destinationCoords) {
@@ -513,21 +198,6 @@ const RoutingMapComponent = ({
     userLocation,
     useCurrentLocation,
   ]);
-
-  // Function to format duration from seconds to minutes/hours
-  const formatDuration = (seconds) => {
-    if (seconds < 60) return `${seconds} sec`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)} min`;
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours} hr ${minutes} min`;
-  };
-
-  // Function to format distance
-  const formatDistance = (meters) => {
-    if (meters < 1000) return `${Math.round(meters)} m`;
-    return `${(meters / 1000).toFixed(1)} km`;
-  };
 
   // Function to fetch route data from your Django API
   const fetchRouteData = async (departure, destination) => {
@@ -909,97 +579,20 @@ const RoutingMapComponent = ({
         />
       )}
       <div className="relative w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
-        {/* Heatmap Toggle */}
-        <div className="absolute bottom-4 left-4 z-[499] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
-          <label
-            className="text-sm font-medium text-gray-700"
-            htmlFor="heatmap-switch"
-          >
-            Crime Heatmap
-          </label>
-          <Switch.Root
-            id="heatmap-switch"
-            checked={showHeatmap}
-            onCheckedChange={setShowHeatmap}
-            className={`${
-              showHeatmap ? "bg-indigo-600" : "bg-gray-200"
-            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
-          >
-            <Switch.Thumb
-              className={`${
-                showHeatmap ? "translate-x-6" : "translate-x-1"
-              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-            />
-          </Switch.Root>
-        </div>
-
+        <HeatmapLayer {...{ mapLoaded, mapInstanceRef }} />
         {/* Display critical error in the UI if map can't load */}
-        {mapCriticalError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md text-center">
-              <div className="text-red-500 mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-12 w-12 mx-auto"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Map Error
-              </h3>
-              <p className="text-gray-600 mb-4">{mapCriticalError}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors"
-              >
-                Refresh Page
-              </button>
-            </div>
-          </div>
-        )}
+        {mapCriticalError && <MapCriticalErrorMsg />}
 
         <div ref={mapContainerRef} className="w-full h-full" />
 
-        {isGettingLocation && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-80 z-40">
-            <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mb-2"></div>
-              <div className="text-lg font-semibold text-gray-700">
-                Getting your location...
-              </div>
-            </div>
-          </div>
-        )}
-
-        {isLoadingRoute && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-80 z-40">
-            <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mb-2"></div>
-              <div className="text-lg font-semibold text-gray-700">
-                Calculating safe route...
-              </div>
-            </div>
-          </div>
-        )}
-
+        {/* Map loading states */}
+        {/* loading location */}
+        {isGettingLocation && <MapRenderMsg text="Getting your location..." />}
+        {/* loading route */}
+        {isLoadingRoute && <MapRenderMsg text="Calculating Safe Route..." />}
+        {/* catch all */}
         {!isGettingLocation && !mapLoaded && !mapCriticalError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-80 z-40">
-            <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mb-2"></div>
-              <div className="text-lg font-semibold text-gray-700">
-                Loading map...
-              </div>
-            </div>
-          </div>
+          <MapRenderMsg text="Loading map..." />
         )}
 
         {/* Optional: Location retry button for when permission is denied */}
@@ -1016,108 +609,7 @@ const RoutingMapComponent = ({
       </div>
 
       {/* Route information panel */}
-      {routeDetails && (
-        <Card className="w-full">
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-lg">Route Information</CardTitle>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant={activeRoute === "initial" ? "default" : "outline"}
-                  className="h-8 px-3 py-1"
-                  onClick={() => setActiveRoute("initial")}
-                  disabled={!routeDetails.initial}
-                >
-                  Standard Route
-                </Button>
-                <Button
-                  variant={activeRoute === "safer" ? "default" : "outline"}
-                  className="h-8 px-3 py-1"
-                  onClick={() => setActiveRoute("safer")}
-                  disabled={!routeDetails.safer}
-                >
-                  Safer Route
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Route summary */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-3 rounded-md">
-                  <div className="flex items-center mb-1">
-                    <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                    <span className="text-sm font-medium">Duration</span>
-                  </div>
-                  <div className="text-lg font-semibold">
-                    {routeDetails[activeRoute]
-                      ? formatDuration(routeDetails[activeRoute].duration)
-                      : "--"}
-                  </div>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-md">
-                  <div className="flex items-center mb-1">
-                    <Navigation className="h-4 w-4 mr-2 text-gray-500" />
-                    <span className="text-sm font-medium">Distance</span>
-                  </div>
-                  <div className="text-lg font-semibold">
-                    {routeDetails[activeRoute]
-                      ? formatDistance(routeDetails[activeRoute].distance)
-                      : "--"}
-                  </div>
-                </div>
-              </div>
-
-              {/* Turn-by-turn instructions */}
-              <div>
-                <button
-                  onClick={() => setShowInstructions(!showInstructions)}
-                  className="flex w-full items-center justify-between p-2 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-                >
-                  <span className="font-medium">Turn-by-turn directions</span>
-                  {showInstructions ? (
-                    <ChevronUp className="h-5 w-5" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5" />
-                  )}
-                </button>
-
-                {showInstructions &&
-                  routeDetails[activeRoute]?.instructions && (
-                    <div className="mt-2 border rounded-md divide-y max-h-80 overflow-y-auto">
-                      {routeDetails[activeRoute].instructions.map(
-                        (step, index) => (
-                          <div
-                            key={index}
-                            className="p-3 flex items-start hover:bg-gray-50"
-                          >
-                            <CornerDownRight className="h-4 w-4 mr-2 mt-1 flex-shrink-0 text-gray-500" />
-                            <div className="flex-1">
-                              <div className="text-sm">{step.instruction}</div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {formatDistance(step.distance)} ·{" "}
-                                {formatDuration(step.duration)}
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  )}
-
-                {showInstructions &&
-                  (!routeDetails[activeRoute]?.instructions ||
-                    routeDetails[activeRoute].instructions.length === 0) && (
-                    <div className="mt-2 p-4 bg-gray-50 rounded-md text-center text-gray-500">
-                      No turn-by-turn directions available for this route.
-                    </div>
-                  )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {routeDetails && <RouteInfo {...{ routeDetails, activeRoute, setActiveRoute }} />}
     </div>
   );
 };
