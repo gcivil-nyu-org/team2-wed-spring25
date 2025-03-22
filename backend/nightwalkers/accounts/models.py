@@ -62,6 +62,9 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.get_full_name()} ({self.email})"
+    
+    def get_user_karma(self):
+        return self.karma
 
     def get_user_karma(self):
         return self.karma

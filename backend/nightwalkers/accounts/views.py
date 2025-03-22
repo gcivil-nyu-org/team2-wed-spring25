@@ -70,6 +70,7 @@ class GoogleAuthView(APIView):
                 },
             )
 
+
             if not created:
                 # Update existing user's Google info
                 user.provider = "google"
@@ -85,6 +86,8 @@ class GoogleAuthView(APIView):
 
             # Generate tokens
             tokens = get_tokens_for_user(user)
+
+            
 
             return Response(
                 {**tokens, "user": UserSerializer(user).data}, status=status.HTTP_200_OK
