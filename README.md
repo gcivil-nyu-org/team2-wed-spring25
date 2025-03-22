@@ -7,12 +7,23 @@ Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file k
 
 TODO:
 add tests for frontend and backend.
-Xresponsive design.
 user must be login to access forum realted apis on frotned and backend.
-github actions setup.
 throttle not working.
 create comment and immediately like it error as we are faking the comment id
+direct post add and comment add has issues.
+
+responsive comments,
+
+after point no nesting,
+
+pagination.
+
+throttle use memo,
 
 Done:
 fixed color change basec on incon for comment and like
 report post
+
+reply add directly first before setting
+
+Xresponsive design.

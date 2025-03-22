@@ -7,6 +7,7 @@ import { useFileUpload } from "@/hooks/useFileUpload";
 import EmojiPicker from "emoji-picker-react";
 import { usePostContent } from "./usePostContent";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { getUserFullName } from "@/utils/string";
 export default function PostDialog({ onClick, setPosts, posts_count }) {
   const {
     emojiPickerRef,
@@ -41,41 +42,15 @@ export default function PostDialog({ onClick, setPosts, posts_count }) {
     return null; // or handle the case when user is not found
   }
 
-  // const contentEditableRef = useRef(null);
-
-  // Handle keydown events
-
-  // Handle input changes
-  // const handleInput = (e) => {
-  //     const text = e.target.textContent;
-  //     if (postContent === "Share Your Thoughts...") {
-  //         setPostContent(text);
-  //         return;
-  //     }else{
-  //         setPostContent(text);
-  //     }
-  // };
-
-  // useEffect(() => {
-  //     if (contentEditableRef.current) {
-  //         contentEditableRef.current.textContent = postContent;
-  //     }
-  // }
-  // , [postContent]);
-  // useEffect(() => {
-  //     if (contentEditableRef.current) {
-  //         contentEditableRef.current.focus();
-  //     }
-  // }, []);
   return (
-    <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0 z-50">
-      <div className="w-1/2 h-4/5 bg-white rounded-lg flex flex-col">
+    <div className="w-full h-full flex justify-center items-start pt-10 fixed bg-black bg-opacity-50 left-0 top-0 z-50">
+      <div className="w-full h-full md:h-4/5 md:w-[744px] max-w-[744px] max-h-[592px] bg-white rounded-lg flex flex-col">
         <div className="flex justify-between mb-2 p-4">
           <div className="flex items-center p-3 rounded-2xl hover:bg-gray-200">
             <UserImage imageUrl={user.avatar} width={50} height={50} />
             <div className="ml-4">
               <h1 className="text-xl font-bold leading-none">
-                Shreyash Dhamane
+                {getUserFullName(user.first_name, user.last_name)}
               </h1>
               <p className="font-extralight text-sm">Post to Anyone</p>
             </div>

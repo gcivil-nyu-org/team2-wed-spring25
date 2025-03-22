@@ -3,13 +3,22 @@
 import { useRef, useState, useEffect } from "react";
 import throttle from "@/utils/throttle";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
-import { apiPost } from "@/utils/fetch/fetch";
-export default function usePostComment(comment) {
+import { apiGet, apiPost } from "@/utils/fetch/fetch";
+export default function usePostComment(
+  comment,
+  post_id,
+  original_post_id,
+  is_repost
+) {
   const [isTooltipVisible, setTooltipVisible] = useState(false);
   const hoverTimeoutRef2 = useRef(null);
   const [userHasLiked, setUserHasLiked] = useState(comment.user_has_liked);
   const [likeType, setLikeType] = useState(comment.like_type);
   const [likesCount, setLikesCount] = useState(comment.likes_count);
+  const [showCommentReply, setShowCommentReply] = useState(false);
+  const [showCommentReplyInput, setShowCommentReplyInput] = useState(false);
+  const [repliesCount, setRepliesCount] = useState(comment.replies_count);
+  const [replies, setReplies] = useState([]);
   const { showError } = useNotification(); // Notification context to show error messages
   // const
   const handleMouseEnter = () => {
@@ -115,5 +124,12 @@ export default function usePostComment(comment) {
     likesCount,
     userHasLiked,
     likeType,
+    repliesCount,
+    showCommentReply,
+    setShowCommentReply,
+    replies,
+    setReplies,
+    showCommentReplyInput,
+    setShowCommentReplyInput,
   };
 }

@@ -10,6 +10,8 @@ export default function PostCommentInput({
   setComments,
   is_repost,
   original_post_id,
+  is_reply = true,
+  parent_comment_id = null,
 }) {
   const {
     handleCommentSubmit,
@@ -26,7 +28,9 @@ export default function PostCommentInput({
     setCommentsCount,
     setComments,
     is_repost,
-    original_post_id
+    original_post_id,
+    is_reply,
+    parent_comment_id
   );
   return (
     <div

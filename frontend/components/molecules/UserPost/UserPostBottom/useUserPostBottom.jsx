@@ -59,7 +59,6 @@ export default function useUserPostBottom(post, setPosts) {
         showError("Please login to report a post. User not found.");
         return;
       }
-      console.log(post);
       if (user.id === post.user_id) {
         //show toast
         showError("You can't report your own post");

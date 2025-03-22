@@ -29,7 +29,10 @@ const PostFooterIconList = ({
           original_post_id={post.original_post_id}
         />
       </div>
-      <div className="flex-1" onClick={handleClickOnComment}>
+      <div
+        className="flex-1 flex justify-center items-center"
+        onClick={handleClickOnComment}
+      >
         <IconText
           src={iconsData[1].src}
           width={iconsData[1].width}

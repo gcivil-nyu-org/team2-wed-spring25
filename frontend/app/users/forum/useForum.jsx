@@ -2,17 +2,21 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { apiGet } from "@/utils/fetch/fetch";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import userHeadings from "@/constants/headers";
 
 export default function useForum() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false); // For loading more posts
+  const [isUserDataCardLoading, setIsUserDataCardLoading] = useState(true);
+  const [userSideCardData, setUserSideCardData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const [offset, setOffset] = useState(0); // Track the current offset
   const [hasMore, setHasMore] = useState(true); // Track if there are more posts to fetch
   const loaderRef = useRef(null);
   const limit = 10; // Number of posts to fetch per request
-
+  let userHeading =
+    userHeadings[Math.floor(Math.random() * userHeadings.length)];
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
@@ -94,6 +98,23 @@ export default function useForum() {
     };
   }, [hasMore, loadMorePosts, loaderRef.current]); // Re-run effect when loaderRef changes
 
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const data = await apiGet(`/api/forum/user_data?user_id=${user?.id}`);
+        setUserSideCardData(data);
+      } catch (error) {
+        showError("Error fetching user data");
+        console.error("Error fetching user data:", error);
+      } finally {
+        // Any additional logic after fetching user data
+        console.log("User data fetch attempt completed.");
+        setIsUserDataCardLoading(false); // Set loading to false after fetching user data
+      }
+    };
+    getUserData();
+  }, []);
+
   return {
     isLoading,
     isLoadingMore,
@@ -105,5 +126,8 @@ export default function useForum() {
     loadMorePosts,
     hasMore,
     loaderRef,
+    userHeading,
+    isUserDataCardLoading,
+    userSideCardData,
   };
 }

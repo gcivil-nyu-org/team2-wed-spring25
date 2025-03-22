@@ -8,6 +8,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        xsm: "820px",
+        xlg: "1060px",
+      },
       colors: {
         bglinkedin: "#f4f2ee",
         background: "hsl(var(--background))",

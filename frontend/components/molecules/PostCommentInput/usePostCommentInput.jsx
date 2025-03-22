@@ -8,7 +8,9 @@ export default function usePostCommentInput(
   setCommentsCount,
   setComments,
   is_repost,
-  original_post_id
+  original_post_id,
+  is_reply = false,
+  parent_comment_id = null
 ) {
   const {
     emojiPickerRef,
@@ -21,8 +23,10 @@ export default function usePostCommentInput(
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
   const { showError } = useNotification();
+
   const handleCommentSubmit = async () => {
     // Input validation
+
     if (commentContent.trim() === "") {
       showError("Please enter a comment, cannot be empty.");
       return;
@@ -67,6 +71,8 @@ export default function usePostCommentInput(
         date_created: new Date().toISOString(),
         id: 0,
         post_id: post_id,
+        is_reply: is_reply,
+        parent_comment_id: parent_comment_id,
         user: {
           avatar_url: curUser.avatar,
           email: curUser.email,
@@ -81,6 +87,7 @@ export default function usePostCommentInput(
         {
           content: commentContent,
           user_id: user.id,
+          parent_comment_id: parent_comment_id,
         },
         {
           headers: {

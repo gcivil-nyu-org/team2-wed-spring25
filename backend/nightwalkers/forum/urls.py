@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     # Post endpoints
+    path("user_data/", views.get_user_data, name="get_user_data"),
     path("posts/", views.get_posts, name="get_posts"),
     path("posts/create/", views.create_post, name="create_post"),
     path("posts/repost/", views.create_repost, name="create_repost"),
