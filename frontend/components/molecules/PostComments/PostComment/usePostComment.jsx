@@ -19,6 +19,7 @@ export default function usePostComment(
   const [showCommentReplyInput, setShowCommentReplyInput] = useState(false);
   const [repliesCount, setRepliesCount] = useState(comment.replies_count);
   const [replies, setReplies] = useState([]);
+  const [isDisabled, setIsDisabled] = useState(false);
   const { showError } = useNotification(); // Notification context to show error messages
   // const
   const handleMouseEnter = () => {
@@ -35,8 +36,15 @@ export default function usePostComment(
       setTooltipVisible(false);
     }, 100); // 500ms = 0.5 seconds
   };
-  const throttledHandleOnLikeComment = throttle(async (like_type) => {
+  const throttledHandleOnLikeComment = async (like_type) => {
     try {
+      // Check if the button is disabled
+      if (isDisabled) {
+        showError("Please wait before liking again.");
+        return;
+      }
+      // Disable the button for 2 seconds
+      setIsDisabled(true);
       // return;
       let userHasLiked2 = null;
       if (
@@ -104,8 +112,13 @@ export default function usePostComment(
     } catch (error) {
       showError("Error: Check console for details.");
       console.error("Error liking the post:", error);
+    } finally {
+      // Re-enable the button after 2 seconds
+      setTimeout(() => {
+        setIsDisabled(false);
+      }, 2000);
     }
-  }, 2000); // Debounce for 2 seconds
+  }; // Debounce for 2 seconds
 
   // Cleanup the timeout when the component unmounts
   useEffect(() => {

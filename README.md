@@ -5,9 +5,6 @@ Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file k
 
 TODO:
 user must be login to access forum realted apis on frotned and backend.
-throttle not working.
-create comment and immediately like it error as we are faking the comment id
-direct post add and comment add has issues.
 delete post, delte comment, edit comment, edit post.
 =====
 Done:
@@ -19,3 +16,6 @@ Xresponsive design.
 pagination.
 after point no nesting,
 responsive comments,
+create comment and immediately like it error as we are faking the comment id
+direct post add and comment add has issues.
+throttle not working.

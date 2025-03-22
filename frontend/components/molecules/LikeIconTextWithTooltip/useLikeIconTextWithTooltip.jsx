@@ -18,6 +18,7 @@ export default function useLikeIconTextWithTooltip(
   const { showError } = useNotification(); // Notification context to show error messages
   // State to track if the post is liked
   const hoverTimeoutRef = useRef(null); // Ref to store the timeout ID
+  const [isDisabled, setIsDisabled] = useState(false); // State to track if the button is disabled
 
   const handleMouseEnter = () => {
     // Clear any existing timeout to avoid hiding the tooltip prematurely
@@ -34,7 +35,14 @@ export default function useLikeIconTextWithTooltip(
     }, 100); // 500ms = 0.5 seconds
   };
 
-  const throttledHandleOnLike = throttle(async (like_type) => {
+  const throttledHandleOnLike = async (like_type) => {
+    // Check if the button is disabled
+    if (isDisabled) {
+      showError("Please wait before liking again.");
+      return;
+    }
+    // Disable the button for 2 seconds
+    setIsDisabled(true);
     try {
       // return;
       let userHasLiked2 = null;
@@ -103,8 +111,13 @@ export default function useLikeIconTextWithTooltip(
     } catch (error) {
       showError("Error: Check console for details.");
       console.error("Error liking the post:", error);
+    } finally {
+      // Re-enable the button after 2 seconds
+      setTimeout(() => {
+        setIsDisabled(false);
+      }, 2000);
     }
-  }, 2000); // Debounce for 2 seconds
+  }; // Thorttle for 2 seconds
 
   // Cleanup the timeout when the component unmounts
   useEffect(() => {
