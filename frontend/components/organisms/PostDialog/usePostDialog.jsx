@@ -5,7 +5,7 @@ import { getUserFullName } from "@/utils/string";
 import uploadImage from "@/utils/uploadImage";
 import { useState } from "react";
 
-export const usePostContent = (setPosts, posts_count) => {
+export const usePostDialog = (setPosts, posts_count) => {
   const [postContent, setPostContent] = useState("");
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
@@ -46,24 +46,6 @@ export const usePostContent = (setPosts, posts_count) => {
 
       // Upload the image if selected
       const imageUrl = selectedImage ? await uploadImage(selectedImage) : null;
-      const newPost = {
-        comments_count: 0,
-        content: postContent,
-        date_created: new Date().toISOString(),
-        id: posts_count + 1,
-        image_urls: imageUrl ? [imageUrl] : [],
-        is_following_author: false,
-        like_type: null,
-        likes_count: 0,
-        title: "",
-        user_avatar: user.avatar,
-        user_fullname: getUserFullName(user.first_name, user.last_name),
-        user_has_liked: false,
-        user_id: user.id,
-        user_karma: user.karma,
-      };
-
-      setPosts((prev) => [newPost, ...prev]);
 
       // Make the API call
       const response = await apiPost(
@@ -79,6 +61,25 @@ export const usePostContent = (setPosts, posts_count) => {
           },
         }
       );
+
+      const newPost = {
+        comments_count: 0,
+        content: postContent,
+        date_created: new Date().toISOString(),
+        id: response.id,
+        image_urls: imageUrl ? [imageUrl] : [],
+        is_following_author: false,
+        like_type: null,
+        likes_count: 0,
+        title: "",
+        user_avatar: user.avatar,
+        user_fullname: getUserFullName(user.first_name, user.last_name),
+        user_has_liked: false,
+        user_id: user.id,
+        user_karma: response.user.karma,
+      };
+
+      setPosts((prev) => [newPost, ...prev]);
 
       if (response.status !== 201) {
         throw new Error(response.message || "Failed to create post.");

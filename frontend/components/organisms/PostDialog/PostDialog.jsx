@@ -5,7 +5,7 @@ import UserImage from "@/components/atom/UserImage/UserImage";
 import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import EmojiPicker from "emoji-picker-react";
-import { usePostContent } from "./usePostContent";
+import { usePostDialog } from "./usePostDialog";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { getUserFullName } from "@/utils/string";
 export default function PostDialog({ onClick, setPosts, posts_count }) {
@@ -31,7 +31,7 @@ export default function PostDialog({ onClick, setPosts, posts_count }) {
     handleSubmit,
     isButtonDisabled,
     isLoading,
-  } = usePostContent(setPosts, posts_count);
+  } = usePostDialog(setPosts, posts_count);
   const { showError } = useNotification();
   let user = null;
   if (typeof window !== "undefined") {

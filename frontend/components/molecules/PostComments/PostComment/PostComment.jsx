@@ -5,15 +5,15 @@ import { formatDateAgoShort } from "@/utils/datetime";
 import { getUserFullName } from "@/utils/string";
 import LikeOptionList from "@/components/molecules/LikeOptionList/LikeOptionList";
 import icons from "@/constants/icons";
-import usePostComment from "./usePostComment";
-
+import usePostComment from "@/components/molecules/PostComments/PostComment/usePostComment";
 import {
   getIconSource,
   getLikeTypeColor,
   getGroupHoverTextColor,
 } from "@/utils/icons";
-import PostCommentInput from "../../PostCommentInput/PostCommentInput";
-import PostComments from "../PostComments";
+import PostCommentInput from "@/components/molecules/PostCommentInput/PostCommentInput";
+import PostComments from "@/components/molecules/PostComments/PostComments";
+
 export default function PostComment({
   parentComment,
   post_id,

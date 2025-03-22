@@ -66,21 +66,7 @@ export default function usePostCommentInput(
         showError("Please login to comment. User not found.");
         return;
       }
-      const newComment = {
-        content: commentContent,
-        date_created: new Date().toISOString(),
-        id: 0,
-        post_id: post_id,
-        is_reply: is_reply,
-        parent_comment_id: parent_comment_id,
-        user: {
-          avatar_url: curUser.avatar,
-          email: curUser.email,
-          first_name: curUser.first_name,
-          id: curUser.id,
-          last_name: curUser.last_name,
-        },
-      };
+
       // Make the API call
       const response = await apiPost(
         `/api/forum/posts/${is_repost ? original_post_id : post_id}/comments/`,
@@ -99,6 +85,22 @@ export default function usePostCommentInput(
       if (response.status !== 201) {
         throw new Error(response.message || "Failed to submit comment.");
       }
+
+      const newComment = {
+        content: commentContent,
+        date_created: new Date().toISOString(),
+        id: response.id,
+        post_id: post_id,
+        is_reply: is_reply,
+        parent_comment_id: parent_comment_id,
+        user: {
+          avatar_url: curUser.avatar,
+          email: curUser.email,
+          first_name: curUser.first_name,
+          id: curUser.id,
+          last_name: curUser.last_name,
+        },
+      };
 
       // Reset the comment input
       setCommentContent("");
