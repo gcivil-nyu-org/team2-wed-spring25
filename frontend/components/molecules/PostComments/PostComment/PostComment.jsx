@@ -19,6 +19,7 @@ export default function PostComment({
   post_id,
   original_post_id,
   is_repost,
+  level = 1,
 }) {
   const {
     isTooltipVisible,
@@ -36,9 +37,12 @@ export default function PostComment({
     replies,
     setReplies,
   } = usePostComment(parentComment, post_id, original_post_id, is_repost);
-
+  const userFullName = getUserFullName(
+    parentComment.user.first_name,
+    parentComment.user.last_name
+  );
   return (
-    <div className="flex mb-5 flex-col">
+    <div className={`flex mb-0 flex-col`}>
       <div className="flex flex-1">
         <div className="flex flex-col justify-start ">
           <UserImage
@@ -50,10 +54,9 @@ export default function PostComment({
         <div className="flex-1 flex-col justify-start items-start mx-2">
           <div className="flex justify-between items-start">
             <h3 className="font-semibold text-sm leading-none">
-              {getUserFullName(
-                parentComment.user.first_name,
-                parentComment.user.last_name
-              )}
+              {userFullName.length > 16
+                ? userFullName.slice(0, 16) + "..."
+                : userFullName}
             </h3>
             <p className="leading-none mt-1 text-xs text-slate-500 font-normal">
               {formatDateAgoShort(parentComment.date_created)}
@@ -138,7 +141,7 @@ export default function PostComment({
           />
         </div>
       </div>
-      <div className="ml-8 mt-2">
+      <div className={`ml-${level >= 3 ? 0 : 8} mt-2`}>
         {showCommentReplyInput && (
           <PostCommentInput
             post_id={post_id}
@@ -161,6 +164,7 @@ export default function PostComment({
             comments={replies}
             setComments={setReplies}
             is_repost={is_repost}
+            level={level + 1}
           />
         )}
       </div>

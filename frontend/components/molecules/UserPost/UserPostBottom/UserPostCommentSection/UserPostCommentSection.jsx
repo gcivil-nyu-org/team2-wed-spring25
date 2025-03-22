@@ -26,6 +26,7 @@ export default function UserPostCommentSection({
           setComments={setComments}
           is_repost={is_repost}
           original_post_id={original_post_id}
+          level={1}
         />
       </div>
     </div>

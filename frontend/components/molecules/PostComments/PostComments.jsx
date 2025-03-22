@@ -10,6 +10,7 @@ export default function PostComments({
   original_post_id,
   is_reply = false,
   parent_comment_id = null,
+  level = 1,
 }) {
   const { isLoading, hasMore, loadMoreComments } = usePostComments(
     post_id,
@@ -22,7 +23,7 @@ export default function PostComments({
   );
 
   return (
-    <div className="flex flex-col mx-1 mt-4 mb-2">
+    <div className="flex flex-col mx-1 mt-4 mb-2 ">
       {(!isLoading || comments.length > 0) &&
         comments.map((comment) => {
           return (
@@ -32,6 +33,7 @@ export default function PostComments({
               post_id={post_id}
               original_post_id={original_post_id}
               is_repost={is_repost}
+              level={level}
             />
           );
         })}
