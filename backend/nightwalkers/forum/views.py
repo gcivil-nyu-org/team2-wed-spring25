@@ -722,7 +722,7 @@ def like_post(request, post_id):
         post = get_object_or_404(Post, id=post_id)
         # Check if the user has already liked the post
         # if like_type in ["Like", "Clap", "Support", "Heart", "Bulb", "Laugh"]
-        # and Like.objects.filter(user=user, post=post, like_type=like_type).exists():
+        # and Like.objects.filter(user=user, post=post, like_type=like_type).exists()::
         if Like.objects.filter(user=user, post=post).exists():
             if not is_liked:
                 # remove
