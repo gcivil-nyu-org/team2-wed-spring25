@@ -41,6 +41,7 @@ export default function UserPost({ post, setPosts }) {
         is_following_author={post.is_following_author}
         setPosts={setPosts}
         user_karma={post.user_karma}
+        post_id={post.id}
       />
       <UserPostBody
         image_urls={post.image_urls ?? [fallbackUserProfileImage]}
