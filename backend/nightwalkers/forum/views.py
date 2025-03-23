@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 
 from map.models import SavedRoute
-from .models import Post, Comment, Like, CommentLike, ReportPost
+from .models import Post, Comment, Like, CommentLike, ReportPost, ReportComment
 from accounts.models import Follow
 from django.db.models import Count, OuterRef, Subquery, IntegerField
 import json
@@ -852,3 +852,107 @@ def report_post(request, post_id):
         return JsonResponse({"message": "Post reported successfully"}, status=201)
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+@csrf_exempt
+def report_comment(request):
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "Only POST requests are allowed."},
+            status=405,
+        )
+
+    try:
+        # Parse the JSON data from the request body
+        data = parse_json_request(request)
+        if not data:
+            return JsonResponse(
+                {"error": "Invalid JSON data."},
+                status=400,
+            )
+        comment_id = data.get("comment_id")
+        reporting_user_id = data.get("user_id")
+        reason = data.get("reason")  # Optional reason field
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {"error": "Invalid JSON data."},
+            status=400,
+        )
+
+    if not comment_id or not reporting_user_id:
+        return JsonResponse(
+            {"error": "Both comment_id and user_id are required."},
+            status=400,
+        )
+
+    # Fetch the comment and reporting user
+    comment = get_object_or_404(Comment, id=comment_id)
+    reporting_user = get_object_or_404(get_user_model(), id=reporting_user_id)
+
+    # Check if the user has already reported this comment
+    if ReportComment.objects.filter(comment=comment, reporting_user=reporting_user).exists():
+        return JsonResponse(
+            {"error": "User Already Reported This Comment."},
+            status=400,
+        )
+
+    # Create the report with the reason (if provided)
+    ReportComment.objects.create(
+        comment=comment,
+        reporting_user=reporting_user,
+        reason=reason,  # Optional reason field
+    )
+
+    # Decrease the karma of the user who created the comment by 5
+    comment_user = comment.user
+    comment_user.karma -= 5
+    comment_user.save()
+
+    return JsonResponse(
+        {"message": "Comment reported successfully. Karma decreased by 5."},
+        status=201,
+    )
+
+@csrf_exempt
+def delete_comment(request, post_id, comment_id):
+    if request.method != "DELETE":
+        return JsonResponse(
+            {"error": "Only DELETE requests are allowed."},
+            status=405,
+        )
+    
+    try:
+        # Fetch the post and comment
+        post = get_object_or_404(Post, id=post_id)
+        comment = get_object_or_404(Comment, id=comment_id, post=post)
+
+        # Count the number of comments before deletion
+        comments_before = Comment.objects.filter(post=post).count()
+
+        # Delete the comment (this will cascade to delete all replies)
+        comment.delete()
+
+        # Count the number of comments after deletion
+        comments_after = Comment.objects.filter(post=post).count()
+
+        # Calculate the number of comments deleted
+        total_deleted = comments_before - comments_after
+
+        return JsonResponse(
+            {
+                "message": "Comment deleted successfully.",
+                "total_deleted": total_deleted,
+                "status": 200,
+            },
+            status=200,
+        )
+    except Comment.DoesNotExist:
+        return JsonResponse(
+            {"error": "Comment not found."},
+            status=404,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": str(e)},
+            status=500,
+        )

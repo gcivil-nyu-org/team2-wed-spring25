@@ -4,8 +4,12 @@
 Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
 
 TODO:
+delete post, edit comment, edit post.
+setCommentsCount, internal reply, reply to comment
+flake and black before commit.
+refactor code,
+karma issue, current user = 0
 user must be login to access forum realted apis on frotned and backend.
-delete post, delte comment, edit comment, edit post.
 =====
 Done:
 =====
@@ -16,6 +20,12 @@ Xresponsive design.
 pagination.
 after point no nesting,
 responsive comments,
+
 create comment and immediately like it error as we are faking the comment id
 direct post add and comment add has issues.
 throttle not working.
+report comment.
+delte comment
+newlty created commnet cant be replied,
+setRepliesCount is not a function
+setCommentsCount is not a function

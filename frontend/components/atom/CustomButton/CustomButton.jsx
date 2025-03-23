@@ -1,4 +1,11 @@
-export default function CustomButton({ children, theme = "blue", ...props }) {
+export default function CustomButton({
+  children,
+  theme = "blue",
+  disabled = false,
+  ...props
+}) {
+  // Define theme classes
+
   const themeClasses = {
     blue: {
       bg: "bg-blue-500",
@@ -22,6 +29,7 @@ export default function CustomButton({ children, theme = "blue", ...props }) {
     <button
       className={`px-4 py-2 rounded-full ${selectedTheme.bg} text-white font-semibold text-md ${selectedTheme.hover} focus:outline-none focus:ring-2 ${selectedTheme.focusRing} ${selectedTheme.active}`}
       {...props}
+      disabled={disabled}
     >
       {children}
     </button>

@@ -30,9 +30,9 @@ const iconsData = [
     text: "Repost",
   },
   {
-    src: "/icons/send.svg",
-    width: 14,
-    height: 14,
+    src: "/icons/report.png",
+    width: 13,
+    height: 13,
     alt: "Report",
     text: "Report",
   },

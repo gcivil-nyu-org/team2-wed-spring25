@@ -10,7 +10,8 @@ export default function usePostCommentInput(
   is_repost,
   original_post_id,
   is_reply = false,
-  parent_comment_id = null
+  parent_comment_id = null,
+  setRepliesCount = null
 ) {
   const {
     emojiPickerRef,
@@ -22,7 +23,7 @@ export default function usePostCommentInput(
   const [commentContent, setCommentContent] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
-  const { showError } = useNotification();
+  const { showError, showSuccess } = useNotification();
 
   const handleCommentSubmit = async () => {
     // Input validation
@@ -42,6 +43,8 @@ export default function usePostCommentInput(
     try {
       setIsButtonDisabled(true); // Disable the button
       setIsLoading(true); // Show loading spinner
+      console.log("commentsCount");
+
       setCommentsCount((prev) => prev + 1); // Increment the comments count
       let userString = null;
       if (typeof window !== "undefined") {
@@ -55,14 +58,6 @@ export default function usePostCommentInput(
       }
 
       if (!user) {
-        showError("Please login to comment. User not found.");
-        return;
-      }
-      let curUser = null;
-      if (typeof window !== "undefined") {
-        curUser = JSON.parse(localStorage.getItem("user"));
-      }
-      if (!curUser) {
         showError("Please login to comment. User not found.");
         return;
       }
@@ -85,6 +80,7 @@ export default function usePostCommentInput(
       if (response.status !== 201) {
         throw new Error(response.message || "Failed to submit comment.");
       }
+      //type of setRepliesCount check
 
       const newComment = {
         content: commentContent,
@@ -94,17 +90,20 @@ export default function usePostCommentInput(
         is_reply: is_reply,
         parent_comment_id: parent_comment_id,
         user: {
-          avatar_url: curUser.avatar,
-          email: curUser.email,
-          first_name: curUser.first_name,
-          id: curUser.id,
-          last_name: curUser.last_name,
+          avatar_url: user.avatar,
+          email: user.email,
+          first_name: user.first_name,
+          id: user.id,
+          last_name: user.last_name,
         },
       };
-
+      showSuccess("Comment submitted successfully");
       // Reset the comment input
       setCommentContent("");
       setComments((prev) => [newComment, ...prev]);
+      if (is_reply && typeof setRepliesCount === "function") {
+        setRepliesCount((prev) => prev + 1); // Increment the replies count if it's a reply
+      }
     } catch (error) {
       console.error("Error submitting comment:", error);
       showError("Failed to submit comment. Please try again.");

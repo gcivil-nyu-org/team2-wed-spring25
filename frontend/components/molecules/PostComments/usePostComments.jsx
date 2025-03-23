@@ -6,6 +6,7 @@ export default function usePostComments(
   post_id,
   comments,
   setComments,
+  setCommentsCount,
   is_repost,
   original_post_id,
   is_reply,

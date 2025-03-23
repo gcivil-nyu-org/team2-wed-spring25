@@ -2,12 +2,16 @@
 
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function useUserPostBottom(post, setPosts) {
   const [showCommentSection, setShowCommentSection] = useState(false);
   const [showReportUserDialog, setShowReportUserDialog] = useState(false);
+  const [disableYesButton, setDisableYesButton] = useState(false);
+  const [isReported, setIsReported] = useState(false);
   const { showError, showSuccess } = useNotification();
+  const handleShowReportUserDialogRef = useRef(null);
+
   const getCommentsCount = (comments_count) => {
     if (comments_count === 0) {
       return <p className="text-slate-500 text-sm font-normal">No comments</p>;
@@ -47,6 +51,8 @@ export default function useUserPostBottom(post, setPosts) {
 
   const handleReportPost = async () => {
     try {
+      if (disableYesButton) return; // Prevent multiple clicks if button is already disabled
+      setDisableYesButton(true);
       if (post.is_reported) {
         showError("Post is already reported by you.");
         return;
@@ -80,14 +86,41 @@ export default function useUserPostBottom(post, setPosts) {
           repost_user_id: post.is_repost ? post.reposted_by.id : null,
         }
       );
+      setIsReported(true);
       showSuccess("Post reported successfully");
     } catch (error) {
+      if (error.message === "Error: You have already reported this post") {
+        setIsReported(true);
+        showError("You have already reported this post.");
+        return;
+      }
       showError("Error reporting post");
       console.error(error);
     } finally {
       setShowReportUserDialog(false);
+      setDisableYesButton(false);
     }
   };
+
+  // Function to close the dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        handleShowReportUserDialogRef.current &&
+        !handleShowReportUserDialogRef.current.contains(event.target)
+      ) {
+        setShowReportUserDialog(false);
+      }
+    };
+
+    // Add event listener when the component mounts
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return {
     getCommentsCount,
@@ -97,5 +130,10 @@ export default function useUserPostBottom(post, setPosts) {
     showReportUserDialog,
     setShowReportUserDialog,
     handleReportPost,
+    handleShowReportUserDialogRef,
+    disableYesButton,
+    setDisableYesButton,
+    isReported,
+    setIsReported,
   };
 }

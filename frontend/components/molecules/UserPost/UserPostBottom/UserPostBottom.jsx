@@ -4,7 +4,7 @@ import LikedIconList from "@/components/molecules/LikedIconList/LikedIconList";
 import UserPostCommentSection from "@/components/molecules/UserPost/UserPostBottom/UserPostCommentSection/UserPostCommentSection";
 import useUserPostBottom from "./useUserPostBottom";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
-import CustomButton from "@/components/atom/CustomButton/CustomButton";
+import CustomDialogBox from "@/components/organisms/CustomDialogBox/CustomDialogBox";
 
 export default function UserPostBottom({
   likesCount,
@@ -13,6 +13,7 @@ export default function UserPostBottom({
   setCommentsCount,
   setPosts,
   post,
+  disableYesButton,
 }) {
   const {
     getCommentsCount,
@@ -22,28 +23,25 @@ export default function UserPostBottom({
     setShowReportUserDialog,
     handleReportPost,
     handleClickOnComment,
+    handleShowReportUserDialogRef,
+    isReported,
+    setIsReported,
   } = useUserPostBottom(post, setPosts);
   return (
     <div className="mx-3">
-      {showReportUserDialog && (
-        <div className="flex fixed top-0 left-0 h-full w-full bg-black bg-opacity-5 justify-center items-center z-10">
-          <div className="flex flex-col bg-white p-4 rounded-xl">
-            <p>Are you sure you want to report this post?</p>
-            <div className="flex mt-2 justify-end gap-2">
-              <CustomButton
-                onClick={() => {
-                  setShowReportUserDialog(false);
-                }}
-              >
-                No
-              </CustomButton>
-              <CustomButton theme="red" onClick={handleReportPost}>
-                Yes
-              </CustomButton>
-            </div>
-          </div>
-        </div>
-      )}
+      <CustomDialogBox
+        showDialog={showReportUserDialog}
+        dialogRef={handleShowReportUserDialogRef}
+        onClickNo={() => {
+          setShowReportUserDialog(false);
+        }}
+        onClickYes={handleReportPost}
+        title={"Report User"}
+        description={
+          "Are you sure you want to report this user?. This action cannot be undone"
+        }
+        disableYesButton={disableYesButton}
+      />
       <div>
         <div className="flex justify-between mr-1 py-2">
           <div className="flex gap-2">
@@ -68,6 +66,8 @@ export default function UserPostBottom({
             setLikesCount={setLikesCount}
             setPosts={setPosts}
             post={post}
+            isReported={isReported}
+            setIsReported={setIsReported}
           />
         </div>
       </div>

@@ -26,4 +26,6 @@ urlpatterns = [
         name="follow_unfollow_user",
     ),
     path("posts/<int:post_id>/report/", views.report_post, name="report_post"),
+    path("posts/comment/report/", views.report_comment, name="report_post"),
+    path("posts/<int:post_id>/comments/<int:comment_id>/delete/", views.delete_comment, name="report_post"),
 ]

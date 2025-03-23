@@ -6,6 +6,7 @@ export default function PostComments({
   post_id,
   comments,
   setComments,
+  setCommentsCount,
   is_repost,
   original_post_id,
   is_reply = false,
@@ -16,6 +17,7 @@ export default function PostComments({
     post_id,
     comments,
     setComments,
+    setCommentsCount,
     is_repost,
     original_post_id,
     is_reply,
@@ -34,6 +36,8 @@ export default function PostComments({
               original_post_id={original_post_id}
               is_repost={is_repost}
               level={level}
+              setComments={setComments}
+              setCommentsCount={setCommentsCount}
             />
           );
         })}

@@ -17,6 +17,7 @@ export default function useForum() {
   const limit = 10; // Number of posts to fetch per request
   let userHeading =
     userHeadings[Math.floor(Math.random() * userHeadings.length)];
+
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
@@ -87,7 +88,7 @@ export default function useForum() {
           loadMorePosts(); // Fetch more posts when the loader div is visible
         }
       },
-      { threshold: 1.0 } // Trigger when the div is fully visible
+      { threshold: 0.5 } // Trigger when the div is half visible
     );
 
     observer.observe(currentLoaderRef); // Start observing the loader div

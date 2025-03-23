@@ -31,7 +31,8 @@ export default function PostDialog({ onClick, setPosts, posts_count }) {
     handleSubmit,
     isButtonDisabled,
     isLoading,
-  } = usePostDialog(setPosts, posts_count);
+    postDialogRef,
+  } = usePostDialog(setPosts, posts_count, onClick);
   const { showError } = useNotification();
   let user = null;
   if (typeof window !== "undefined") {
@@ -44,7 +45,10 @@ export default function PostDialog({ onClick, setPosts, posts_count }) {
 
   return (
     <div className="w-full h-full flex justify-center items-start pt-10 fixed bg-black bg-opacity-50 left-0 top-0 z-50">
-      <div className="w-full h-full md:h-4/5 md:w-[744px] max-w-[744px] max-h-[592px] bg-white rounded-lg flex flex-col">
+      <div
+        ref={postDialogRef}
+        className="w-full h-full md:h-4/5 md:w-[744px] max-w-[744px] max-h-[592px] bg-white rounded-lg flex flex-col"
+      >
         <div className="flex justify-between mb-2 p-4">
           <div className="flex items-center p-3 rounded-2xl hover:bg-gray-200">
             <UserImage imageUrl={user.avatar} width={50} height={50} />

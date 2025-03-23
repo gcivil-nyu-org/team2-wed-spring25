@@ -3,6 +3,7 @@ import LikeIconTextWithTooltip from "@/components/molecules/LikeIconTextWithTool
 import { iconsData } from "@/constants/icons";
 import usePostFooterIconList from "./usePostFooterIconList";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useEffect } from "react";
 
 const PostFooterIconList = ({
   handleClickOnComment,
@@ -10,10 +11,15 @@ const PostFooterIconList = ({
   setLikesCount,
   setPosts,
   post,
+  isReported,
+  setIsReported,
 }) => {
   const { userHasLiked, setUserHasLiked, likeType, setLikeType, handleRepost } =
     usePostFooterIconList(post, setPosts);
   const { showError } = useNotification();
+  useEffect(() => {
+    setIsReported(post.is_reported);
+  }, [post.is_reported, setIsReported]);
   return (
     <div className="flex flex-1 relative">
       <div className="flex-1 group">
@@ -66,8 +72,8 @@ const PostFooterIconList = ({
           width={iconsData[3].width}
           height={iconsData[3].height}
           alt={iconsData[3].alt}
-          text={post.is_reported ? "Reported" : iconsData[3].text}
-          theme={post.is_reported ? "red" : null}
+          text={isReported ? "Reported" : iconsData[3].text}
+          theme={isReported ? "red" : null}
         />
       </div>
     </div>

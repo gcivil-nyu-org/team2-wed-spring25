@@ -3,14 +3,15 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import { apiPost } from "@/utils/fetch/fetch";
 import { getUserFullName } from "@/utils/string";
 import uploadImage from "@/utils/uploadImage";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export const usePostDialog = (setPosts, posts_count) => {
+export const usePostDialog = (setPosts, posts_count, onClick) => {
   const [postContent, setPostContent] = useState("");
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
   const { showError } = useNotification();
+  const postDialogRef = useRef(null); // Ref for the post dialog container
   const handleSubmit = async (selectedImage, onClick) => {
     // Input validation
     if (postContent.trim() === "" && !selectedImage) {
@@ -96,11 +97,33 @@ export const usePostDialog = (setPosts, posts_count) => {
       setIsLoading(false); // Hide loading spinner
     }
   };
+
+  // Function to close the dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        postDialogRef.current &&
+        !postDialogRef.current.contains(event.target)
+      ) {
+        onClick(); // Close the dialog
+      }
+    };
+
+    // Add event listener when the component mounts
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return {
     handleSubmit,
     postContent,
     setPostContent,
     isButtonDisabled,
     isLoading,
+    postDialogRef,
   };
 };
