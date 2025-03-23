@@ -44,6 +44,8 @@ export default function PostComment({
     reportCategoryDialogRef,
     handleReportComment,
     isReportedCommentLoading,
+    isEditCommentVisible,
+    setIsEditCommentVisible,
   } = usePostComment(parentComment, post_id, original_post_id, is_repost);
 
   const userFullName = getUserFullName(
@@ -54,7 +56,6 @@ export default function PostComment({
     "border-gray-300 text-gray-600 hover:border-transparent hover:shadow-[0_0_0_2px_rgba(156,163,175,1)] hover:bg-gray-100";
   const reportedCategorySelected =
     "border-green-700 text-white bg-green-700 hover:bg-green-900";
-
   return (
     <div className={`flex mb-0 flex-col`}>
       {showReportCategoryDialog && (
@@ -87,6 +88,10 @@ export default function PostComment({
           showCommentReplyInput={showCommentReplyInput}
           setShowCommentReply={setShowCommentReply}
           showCommentReply={showCommentReply}
+          isEditCommentVisible={isEditCommentVisible}
+          setIsEditCommentVisible={setIsEditCommentVisible}
+          setComments={setComments}
+          setCommentsCount={setCommentsCount}
         />
         <PostCommentOptionList
           isCommentOptionListVisible={isCommentOptionListVisible}
@@ -96,14 +101,15 @@ export default function PostComment({
           parentComment={parentComment}
           setComments={setComments}
           setCommentsCount={setCommentsCount}
+          setIsEditCommentVisible={setIsEditCommentVisible}
         />
       </div>
       <div className={`ml-${level >= 3 ? 0 : 8} mt-2`}>
         {showCommentReplyInput && (
           <PostCommentInput
             post_id={post_id}
-            setCommentsCount={() => {}}
-            setComments={() => {}}
+            setCommentsCount={setCommentsCount}
+            setComments={setComments}
             is_repost={parentComment.is_repost}
             original_post_id={original_post_id}
             is_reply={true}

@@ -19,6 +19,7 @@ export default function usePostComment(
   const [repliesCount, setRepliesCount] = useState(comment.replies_count || 0);
   const [replies, setReplies] = useState([]);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [isEditCommentVisible, setIsEditCommentVisible] = useState(false);
   const [isCommentOptionListVisible, setIsCommentOptionListVisible] =
     useState(false);
   const [showReportCategoryDialog, setShowReportCategoryDialog] =
@@ -246,5 +247,7 @@ export default function usePostComment(
     reportCategoryDialogRef,
     handleReportComment,
     isReportedCommentLoading,
+    isEditCommentVisible,
+    setIsEditCommentVisible,
   };
 }

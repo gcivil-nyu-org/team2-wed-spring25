@@ -4,7 +4,7 @@
 Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
 
 TODO:
-delete post, edit comment, edit post.
+edit comment.
 setCommentsCount, internal reply, reply to comment
 flake and black before commit.
 refactor code,
@@ -29,3 +29,5 @@ delte comment
 newlty created commnet cant be replied,
 setRepliesCount is not a function
 setCommentsCount is not a function
+delete post.
+edit post.

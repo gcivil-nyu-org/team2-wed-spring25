@@ -13,7 +13,12 @@ export default function PostCommentInput({
   is_reply = true,
   parent_comment_id = null,
   setRepliesCount = null,
+  initialContent = "",
+  isEdit = false,
+  setIsInputVisible = null,
 }) {
+  console.log("setComments from PostCommentInput", setComments);
+
   const {
     handleCommentSubmit,
     commentContent,
@@ -32,7 +37,10 @@ export default function PostCommentInput({
     original_post_id,
     is_reply,
     parent_comment_id,
-    setRepliesCount
+    setRepliesCount,
+    initialContent,
+    isEdit,
+    setIsInputVisible
   );
   return (
     <div
@@ -73,8 +81,21 @@ export default function PostCommentInput({
               disabled={isButtonDisabled || isLoading} // Disable during API call or loading
               aria-disabled={isButtonDisabled || isLoading} // Accessibility
             >
-              {isLoading ? "Submitting..." : "Comment"}
+              {isEdit && isLoading ? "Editing..." : ""}
+              {isEdit && !isLoading ? "Edit" : ""}
+              {!isEdit ? (isLoading ? "Submitting..." : "Comment") : ""}
             </CommentButton>
+            {isEdit && (
+              <CommentButton
+                theme={"red"}
+                onClick={() => {
+                  setIsInputVisible(false);
+                  setCommentContent("");
+                }}
+              >
+                Cancel
+              </CommentButton>
+            )}
           </div>
         )}
       </div>

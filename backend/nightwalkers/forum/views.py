@@ -375,6 +375,36 @@ def comments(request, post_id):
         parent_comment_id = data.get(
             "parent_comment_id"
         )  # Optional field for nested comments
+        is_edit = data.get("is_edit", False)  # Optional field to indicate if it's an edit
+        
+        if is_edit:
+            #parent comment id is the comment id of the comment that is being edited
+            if not parent_comment_id:
+                return JsonResponse(
+                    {"error": "comment_id is required for editing"}, status=400
+                )
+            try:
+                print("Editing comment with ID:", parent_comment_id)
+                print("content:", content)
+                comment = Comment.objects.get(id=parent_comment_id, user_id=user_id)
+                comment.content = content
+                comment.save()
+                return JsonResponse(
+                    {
+                        "id": comment.id,
+                        "content": comment.content,
+                        "date_created": comment.date_created,
+                        "user": comment.user.get_full_name(),
+                        "parent_comment_id": (
+                            comment.parent_comment.id if comment.parent_comment else None
+                        ),
+                        "status": 200,
+                    },
+                    status=200,
+                )
+            except Comment.DoesNotExist:
+                return JsonResponse({"error": "Comment not found"}, status=404)
+            
         if not user_id or not content:
             return JsonResponse(
                 {"error": "user_id and content are required"}, status=400

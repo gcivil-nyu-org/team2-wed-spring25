@@ -11,7 +11,10 @@ export default function usePostCommentInput(
   original_post_id,
   is_reply = false,
   parent_comment_id = null,
-  setRepliesCount = null
+  setRepliesCount = null,
+  initialContent = "",
+  isEdit = false,
+  setisInputVisible = null
 ) {
   const {
     emojiPickerRef,
@@ -20,7 +23,7 @@ export default function usePostCommentInput(
     handleOnEmojiClick,
   } = useEmojiPicker();
 
-  const [commentContent, setCommentContent] = useState("");
+  const [commentContent, setCommentContent] = useState(initialContent); // State for comment content
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
   const { showError, showSuccess } = useNotification();
@@ -43,9 +46,7 @@ export default function usePostCommentInput(
     try {
       setIsButtonDisabled(true); // Disable the button
       setIsLoading(true); // Show loading spinner
-      console.log("commentsCount");
-
-      setCommentsCount((prev) => prev + 1); // Increment the comments count
+      if (!isEdit) setCommentsCount((prev) => prev + 1); // Increment the comments count
       let userString = null;
       if (typeof window !== "undefined") {
         userString = localStorage.getItem("user"); // Retrieve the user from localStorage
@@ -69,6 +70,7 @@ export default function usePostCommentInput(
           content: commentContent,
           user_id: user.id,
           parent_comment_id: parent_comment_id,
+          is_edit: isEdit,
         },
         {
           headers: {
@@ -77,15 +79,12 @@ export default function usePostCommentInput(
         }
       );
 
-      if (response.status !== 201) {
-        throw new Error(response.message || "Failed to submit comment.");
-      }
       //type of setRepliesCount check
 
       const newComment = {
         content: commentContent,
         date_created: new Date().toISOString(),
-        id: response.id,
+        id: isEdit ? parent_comment_id : response.id,
         post_id: post_id,
         is_reply: is_reply,
         parent_comment_id: parent_comment_id,
@@ -97,19 +96,34 @@ export default function usePostCommentInput(
           last_name: user.last_name,
         },
       };
-      showSuccess("Comment submitted successfully");
+      showSuccess(`Comment ${isEdit ? "edited" : "submitted"} successfully`);
       // Reset the comment input
+
+      if (!isEdit) {
+        setComments((prev) => [newComment, ...prev]);
+      } else {
+        setComments((prev) =>
+          prev.map((comment) =>
+            comment.id === parent_comment_id
+              ? { ...comment, content: commentContent }
+              : comment
+          )
+        );
+      }
+
       setCommentContent("");
-      setComments((prev) => [newComment, ...prev]);
       if (is_reply && typeof setRepliesCount === "function") {
         setRepliesCount((prev) => prev + 1); // Increment the replies count if it's a reply
       }
     } catch (error) {
-      console.error("Error submitting comment:", error);
+      console.log("Error submitting comment:", error);
       showError("Failed to submit comment. Please try again.");
     } finally {
       setIsButtonDisabled(false); // Re-enable the button
       setIsLoading(false); // Hide loading spinner
+      if (isEdit) {
+        setisInputVisible(false); // Hide the input after editing
+      }
     }
   };
 

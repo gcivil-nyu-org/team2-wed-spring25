@@ -10,6 +10,7 @@ export default function PostCommentOptionList({
   parentComment,
   setComments,
   setCommentsCount,
+  setIsEditCommentVisible,
 }) {
   const {
     showDeleteCommentDialog,
@@ -78,7 +79,8 @@ export default function PostCommentOptionList({
               <li
                 className="hover:bg-gray-100 flex gap-2 pl-4 pr-5 py-1 hover:cursor-pointer"
                 onClick={() => {
-                  setShowDeleteCommentDialog(true);
+                  console.log(parentComment.id, "parentComment.id");
+                  setIsEditCommentVisible(true);
                   setIsCommentOptionListVisible(false);
                 }}
               >
