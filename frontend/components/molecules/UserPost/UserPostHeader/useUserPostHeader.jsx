@@ -1,12 +1,16 @@
 "use client";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
-import { apiPost } from "@/utils/fetch/fetch";
+import { apiDelete, apiPost } from "@/utils/fetch/fetch";
 import throttle from "@/utils/throttle";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function useUserPostHeader(post_user_id, setPosts) {
+export default function useUserPostHeader(post_user_id, setPosts, post_id) {
   const [isFollowButtonDisabled, setIsFollowButtonDisabled] = useState(false);
-  const { showError } = useNotification();
+  const [isPostOptionListVisible, setIsPostOptionListVisible] = useState(false);
+  const [deletePostConfirmation, setDeletePostConfirmation] = useState(false);
+  const [isDeleteInProgress, setIsDeleteInProgress] = useState(false);
+  const postOptionListRef = useRef(null);
+  const { showError, showSuccess } = useNotification();
 
   let user = null;
   if (typeof window !== "undefined") {
@@ -50,9 +54,52 @@ export default function useUserPostHeader(post_user_id, setPosts) {
     }
   }, 2000);
 
+  const handleDeletePost = async () => {
+    try {
+      if (isDeleteInProgress) {
+        showError("Delete in progress. Please wait.");
+        return;
+      }
+      setIsDeleteInProgress(true);
+      await apiDelete(`/api/forum/posts/${post_id}/delete/`);
+      setPosts((prev) => prev.filter((post) => post.id !== post_id));
+      showSuccess("Post deleted successfully");
+    } catch (e) {
+      showError("Error deleting post");
+      console.log(e);
+    } finally {
+      setIsDeleteInProgress(false);
+      setDeletePostConfirmation(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        postOptionListRef.current &&
+        !postOptionListRef.current.contains(event.target)
+      ) {
+        setIsPostOptionListVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return {
     isFollowButtonDisabled,
     throttledHandleOnFollow,
     user_id,
+    isPostOptionListVisible,
+    setIsPostOptionListVisible,
+    postOptionListRef,
+    deletePostConfirmation,
+    setDeletePostConfirmation,
+    isDeleteInProgress,
+    setIsDeleteInProgress,
+    handleDeletePost,
   };
 }

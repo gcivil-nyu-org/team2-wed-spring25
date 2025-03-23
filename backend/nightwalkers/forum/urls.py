@@ -8,6 +8,7 @@ urlpatterns = [
     path("posts/create/", views.create_post, name="create_post"),
     path("posts/repost/", views.create_repost, name="create_repost"),
     path("posts/<int:post_id>/", views.get_post, name="get_post"),
+    path("posts/<int:post_id>/delete/", views.delete_post, name="get_post"),
     # Comment endpoints
     path(
         "posts/<int:post_id>/comments/",

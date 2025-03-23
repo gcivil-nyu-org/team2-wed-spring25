@@ -956,3 +956,40 @@ def delete_comment(request, post_id, comment_id):
             {"error": str(e)},
             status=500,
         )
+    
+@csrf_exempt
+def delete_post(request, post_id):
+    if request.method != "DELETE":
+        return JsonResponse(
+            {"error": "Only DELETE requests are allowed."},
+            status=405,
+        )
+
+    #first get the post, store it
+    #then delete all the posts where original_post = post
+    #then delete the post itself
+    try:
+        post = get_object_or_404(Post, id=post_id)
+        # Delete all reposts of this post
+        Post.objects.filter(original_post=post).delete()
+        # Delete the original post
+        post.delete()
+        
+        return JsonResponse(
+            {
+                "message": "Post and its reposts deleted successfully.",
+                "status": 200,
+            },
+            status=200,
+        )
+    except Post.DoesNotExist:
+        return JsonResponse(
+            {"error": "Post not found."},
+            status=404,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": str(e)},
+            status=500,
+        )
+    
