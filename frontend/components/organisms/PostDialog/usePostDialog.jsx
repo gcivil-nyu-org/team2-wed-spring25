@@ -5,13 +5,23 @@ import { getUserFullName } from "@/utils/string";
 import uploadImage from "@/utils/uploadImage";
 import { useEffect, useRef, useState } from "react";
 
-export const usePostDialog = (setPosts, posts_count, onClick) => {
-  const [postContent, setPostContent] = useState("");
+export const usePostDialog = (
+  setPosts,
+  onClick,
+  is_edit,
+  post_id,
+  content,
+  setIsPostDialogOpen,
+  is_repost,
+  original_post_id
+) => {
+  const [postContent, setPostContent] = useState(is_edit ? content : ""); // State for post content
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
   const { showError } = useNotification();
   const postDialogRef = useRef(null); // Ref for the post dialog container
+
   const handleSubmit = async (selectedImage, onClick) => {
     // Input validation
     if (postContent.trim() === "" && !selectedImage) {
@@ -45,9 +55,13 @@ export const usePostDialog = (setPosts, posts_count, onClick) => {
         return;
       }
 
-      // Upload the image if selected
-      const imageUrl = selectedImage ? await uploadImage(selectedImage) : null;
-
+      // Upload the image if selectedImage exists and selectedImage doesnt start with "https"
+      let imageUrl = null;
+      if (selectedImage && selectedImage.startsWith("https")) {
+        imageUrl = selectedImage;
+      } else if (selectedImage) {
+        imageUrl = await uploadImage(selectedImage);
+      }
       // Make the API call
       const response = await apiPost(
         "/api/forum/posts/create/",
@@ -55,6 +69,8 @@ export const usePostDialog = (setPosts, posts_count, onClick) => {
           content: postContent,
           image_urls: imageUrl ? [imageUrl] : [],
           user_id: user.id,
+          is_edit: is_edit ?? false,
+          post_id: (is_repost ? original_post_id : post_id) ?? 0,
         },
         {
           headers: {
@@ -80,10 +96,20 @@ export const usePostDialog = (setPosts, posts_count, onClick) => {
         user_karma: response.user.karma,
       };
 
-      setPosts((prev) => [newPost, ...prev]);
-
-      if (response.status !== 201) {
-        throw new Error(response.message || "Failed to create post.");
+      if (!is_edit) {
+        setPosts((prev) => [newPost, ...prev]);
+      } else {
+        setPosts((prev) =>
+          prev.map((post) =>
+            post.id === post_id
+              ? {
+                  ...post,
+                  content: postContent,
+                  image_urls: imageUrl ? [imageUrl] : [],
+                }
+              : post
+          )
+        );
       }
 
       // Reset the form
@@ -95,6 +121,9 @@ export const usePostDialog = (setPosts, posts_count, onClick) => {
     } finally {
       setIsButtonDisabled(false); // Re-enable the button
       setIsLoading(false); // Hide loading spinner
+      if (setIsPostDialogOpen) {
+        setIsPostDialogOpen(false); // Close the dialog if setIsPostDialogOpen is provided
+      }
     }
   };
 

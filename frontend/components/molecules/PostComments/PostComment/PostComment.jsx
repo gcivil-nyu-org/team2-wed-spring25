@@ -127,6 +127,7 @@ export default function PostComment({
             parent_comment_id={parentComment.id}
             comments={replies}
             setComments={setReplies}
+            setCommentsCount={setCommentsCount}
             is_repost={is_repost}
             level={level + 1}
           />

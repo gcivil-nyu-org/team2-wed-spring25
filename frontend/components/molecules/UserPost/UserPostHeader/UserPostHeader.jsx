@@ -4,6 +4,7 @@ import { getUserFullName } from "@/utils/string";
 import useUserPostHeader from "@/components/molecules/UserPost/UserPostHeader/useUserPostHeader";
 import Icon from "@/components/atom/Icon/Icon";
 import CustomDialogBox from "@/components/organisms/CustomDialogBox/CustomDialogBox";
+import PostDialog from "@/components/organisms/PostDialog/PostDialog";
 
 export default function UserPostHeader({
   user_avatar,
@@ -14,6 +15,10 @@ export default function UserPostHeader({
   user_karma,
   setPosts,
   post_id,
+  image_urls,
+  content,
+  is_repost,
+  original_post_id,
 }) {
   const {
     isFollowButtonDisabled,
@@ -26,6 +31,8 @@ export default function UserPostHeader({
     setDeletePostConfirmation,
     isDeleteInProgress,
     handleDeletePost,
+    isPostDialogOpen,
+    setIsPostDialogOpen,
   } = useUserPostHeader(post_user_id, setPosts, post_id);
   return (
     <div className="flex flex-row px-4 pt-3">
@@ -42,6 +49,20 @@ export default function UserPostHeader({
           disableYesButton={isDeleteInProgress} // Set to true or false based on your condition
         />
       }
+      {isPostDialogOpen && (
+        <PostDialog
+          onClick={() => setIsPostDialogOpen(false)}
+          is_edit={true}
+          setPosts={setPosts}
+          posts_count={0} //never used inside the component
+          post_id={post_id}
+          image_urls={image_urls}
+          content={content}
+          setIsPostDialogOpen={setIsPostDialogOpen}
+          is_repost={is_repost}
+          original_post_id={original_post_id}
+        />
+      )}
       {isPostOptionListVisible && (
         <div
           ref={postOptionListRef}
@@ -50,7 +71,10 @@ export default function UserPostHeader({
           <ul>
             <li
               className="hover:bg-gray-100 flex gap-2 pl-4 pr-5 py-1 hover:cursor-pointer"
-              onClick={() => {}}
+              onClick={() => {
+                setIsPostDialogOpen(true);
+                setIsPostOptionListVisible(false);
+              }}
             >
               <Icon
                 src={"/icons/pencil.png"}

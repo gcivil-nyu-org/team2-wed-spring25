@@ -9,6 +9,7 @@ export default function useUserPostHeader(post_user_id, setPosts, post_id) {
   const [isPostOptionListVisible, setIsPostOptionListVisible] = useState(false);
   const [deletePostConfirmation, setDeletePostConfirmation] = useState(false);
   const [isDeleteInProgress, setIsDeleteInProgress] = useState(false);
+  const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
   const postOptionListRef = useRef(null);
   const { showError, showSuccess } = useNotification();
 
@@ -101,5 +102,7 @@ export default function useUserPostHeader(post_user_id, setPosts, post_id) {
     isDeleteInProgress,
     setIsDeleteInProgress,
     handleDeletePost,
+    isPostDialogOpen,
+    setIsPostDialogOpen,
   };
 }

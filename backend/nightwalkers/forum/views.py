@@ -30,7 +30,40 @@ def create_post(request):
 
         user_id = data.get("user_id")
         content = data.get("content")
+        is_edit = data.get("is_edit", False)  # Optional field to indicate if it's an edit
+        post_id = data.get("post_id")  # Optional field for editing an existing post
         image_urls = data.get("image_urls", [])
+        if is_edit and post_id:
+            try:
+                post = Post.objects.get(id=post_id)
+                post.content = content
+                post.image_urls = image_urls
+                post.save()
+                return JsonResponse(
+                    {
+                        "id": post.id,
+                        "title": post.title,
+                        "content": post.content,
+                        "image_urls": post.image_urls,
+                        "date_created": post.date_created,
+                        "user": {
+                            "id": post.user.id,
+                            "username": post.user.username,
+                            "email": post.user.email,
+                            "first_name": post.user.first_name,
+                            "last_name": post.user.last_name,
+                            "avatar_url": post.user.get_avatar_url(),
+                            "karma": post.user.karma,
+                        },
+                        "status": 200,
+                    },
+                    status=200,
+                )
+            except Post.DoesNotExist:
+                print("Post not found for editing")
+                return JsonResponse({"error": "Post not found"}, status=404)
+
+
         if not user_id or (not content and not image_urls):
             return JsonResponse(
                 {"error": "user_id and content are required"}, status=400

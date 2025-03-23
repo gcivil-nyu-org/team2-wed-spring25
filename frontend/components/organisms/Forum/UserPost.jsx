@@ -42,6 +42,10 @@ export default function UserPost({ post, setPosts }) {
         setPosts={setPosts}
         user_karma={post.user_karma}
         post_id={post.id}
+        image_urls={post.image_urls}
+        content={post.content}
+        is_repost={post.is_repost}
+        original_post_id={post.original_post_id}
       />
       <UserPostBody
         image_urls={post.image_urls ?? [fallbackUserProfileImage]}

@@ -8,7 +8,19 @@ import EmojiPicker from "emoji-picker-react";
 import { usePostDialog } from "./usePostDialog";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { getUserFullName } from "@/utils/string";
-export default function PostDialog({ onClick, setPosts, posts_count }) {
+
+export default function PostDialog({
+  onClick,
+  setPosts,
+  posts_count,
+  is_edit = false,
+  post_id = 0,
+  image_urls = null,
+  content = "",
+  setIsPostDialogOpen = null,
+  is_repost = false,
+  original_post_id = 0,
+}) {
   const {
     emojiPickerRef,
     showEmojiPicker,
@@ -23,7 +35,7 @@ export default function PostDialog({ onClick, setPosts, posts_count }) {
     handleOpenImageSelector,
     handleRemoveImage,
     handleFileChange,
-  } = useFileUpload();
+  } = useFileUpload(is_edit, image_urls);
 
   const {
     postContent,
@@ -32,9 +44,19 @@ export default function PostDialog({ onClick, setPosts, posts_count }) {
     isButtonDisabled,
     isLoading,
     postDialogRef,
-  } = usePostDialog(setPosts, posts_count, onClick);
+  } = usePostDialog(
+    setPosts,
+    onClick,
+    is_edit,
+    post_id,
+    content,
+    setIsPostDialogOpen,
+    is_repost,
+    original_post_id
+  );
   const { showError } = useNotification();
   let user = null;
+
   if (typeof window !== "undefined") {
     user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
   }

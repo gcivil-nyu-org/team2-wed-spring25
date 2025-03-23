@@ -4,12 +4,13 @@
 Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
 
 TODO:
-edit comment.
-setCommentsCount, internal reply, reply to comment
+show all posts in settings page. edit delete option.
 flake and black before commit.
 refactor code,
 karma issue, current user = 0
+image visibility issue post dialog
 user must be login to access forum realted apis on frotned and backend.
+repost delete option.
 =====
 Done:
 =====
@@ -30,4 +31,6 @@ newlty created commnet cant be replied,
 setRepliesCount is not a function
 setCommentsCount is not a function
 delete post.
+edit comment.
+setCommentsCount, internal reply, reply to comment
 edit post.

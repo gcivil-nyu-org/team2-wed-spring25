@@ -46,7 +46,6 @@ export default function usePostCommentInput(
     try {
       setIsButtonDisabled(true); // Disable the button
       setIsLoading(true); // Show loading spinner
-      if (!isEdit) setCommentsCount((prev) => prev + 1); // Increment the comments count
       let userString = null;
       if (typeof window !== "undefined") {
         userString = localStorage.getItem("user"); // Retrieve the user from localStorage
@@ -98,6 +97,7 @@ export default function usePostCommentInput(
       };
       showSuccess(`Comment ${isEdit ? "edited" : "submitted"} successfully`);
       // Reset the comment input
+      if (!isEdit) setCommentsCount((prev) => prev + 1); // Increment the comments count
 
       if (!isEdit) {
         setComments((prev) => [newComment, ...prev]);
