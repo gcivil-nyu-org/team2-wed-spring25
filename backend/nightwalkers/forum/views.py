@@ -30,7 +30,9 @@ def create_post(request):
 
         user_id = data.get("user_id")
         content = data.get("content")
-        is_edit = data.get("is_edit", False)  # Optional field to indicate if it's an edit
+        is_edit = data.get(
+            "is_edit", False
+        )  # Optional field to indicate if it's an edit
         post_id = data.get("post_id")  # Optional field for editing an existing post
         image_urls = data.get("image_urls", [])
         if is_edit and post_id:
@@ -62,7 +64,6 @@ def create_post(request):
             except Post.DoesNotExist:
                 print("Post not found for editing")
                 return JsonResponse({"error": "Post not found"}, status=404)
-
 
         if not user_id or (not content and not image_urls):
             return JsonResponse(
@@ -193,12 +194,17 @@ def create_repost(request):
 
     return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)
 
+
 def get_user_data(request):
     """
-    get total user followers count, by find total rows in Follow table where following_user = cureent user
+    get total user followers count,
+    by find total rows in Follow table
+    where following_user = cureent user
     get user karma, its in User table
-    get user saved routes counts, by finding total rows with user= current user in SavedRoute table
-    get user total posts count, by finding total rows with user= current user in Post table
+    get user saved routes counts, by
+    finding total rows with user= current user in SavedRoute table
+    get user total posts count,
+    by finding total rows with user= current user in Post table
     """
     if request.method == "GET":
         user_id = request.GET.get("user_id")
@@ -212,17 +218,21 @@ def get_user_data(request):
         total_followers = Follow.objects.filter(following_user=user).count()
         user_karma = user.karma
         total_posts = Post.objects.filter(user=user).count()
-        #get Total Saved Routers count by current user using SavedRoute model
+        # get Total Saved Routers count by current user using SavedRoute model
         total_saved_routes = SavedRoute.objects.filter(user=user).count()
-        return JsonResponse({
-            "total_followers": total_followers,
-            "user_karma": user_karma,
-            "total_posts": total_posts,
-            "total_saved_routes": total_saved_routes,
-            "status": 200
-        }, status=200)
-        
+        return JsonResponse(
+            {
+                "total_followers": total_followers,
+                "user_karma": user_karma,
+                "total_posts": total_posts,
+                "total_saved_routes": total_saved_routes,
+                "status": 200,
+            },
+            status=200,
+        )
+
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
 
 # Get all posts
 def get_posts(request):
@@ -289,7 +299,6 @@ def get_posts(request):
                 original_likes_count = Like.objects.filter(post=original_post).count()
                 original_comments_count = Comment.objects.filter(
                     post=original_post,
-                    
                 ).count()
 
                 post_data = {
@@ -408,10 +417,12 @@ def comments(request, post_id):
         parent_comment_id = data.get(
             "parent_comment_id"
         )  # Optional field for nested comments
-        is_edit = data.get("is_edit", False)  # Optional field to indicate if it's an edit
-        
+        is_edit = data.get(
+            "is_edit", False
+        )  # Optional field to indicate if it's an edit
+
         if is_edit:
-            #parent comment id is the comment id of the comment that is being edited
+            # parent comment id is the comment id of the comment that is being edited
             if not parent_comment_id:
                 return JsonResponse(
                     {"error": "comment_id is required for editing"}, status=400
@@ -429,7 +440,9 @@ def comments(request, post_id):
                         "date_created": comment.date_created,
                         "user": comment.user.get_full_name(),
                         "parent_comment_id": (
-                            comment.parent_comment.id if comment.parent_comment else None
+                            comment.parent_comment.id
+                            if comment.parent_comment
+                            else None
                         ),
                         "status": 200,
                     },
@@ -437,7 +450,7 @@ def comments(request, post_id):
                 )
             except Comment.DoesNotExist:
                 return JsonResponse({"error": "Comment not found"}, status=404)
-            
+
         if not user_id or not content:
             return JsonResponse(
                 {"error": "user_id and content are required"}, status=400
@@ -490,9 +503,15 @@ def comments(request, post_id):
         try:
             # Get query parameters
             user_id = request.GET.get("user_id")  # Required: Current user ID
-            parent_comment_id = request.GET.get("parent_comment_id", 0)  # Optional: Parent comment ID
-            page = int(request.GET.get("page", 1))  # Pagination: Current page (default: 1)
-            limit = int(request.GET.get("limit", 5))  # Pagination: Comments per page (default: 5)
+            parent_comment_id = request.GET.get(
+                "parent_comment_id", 0
+            )  # Optional: Parent comment ID
+            page = int(
+                request.GET.get("page", 1)
+            )  # Pagination: Current page (default: 1)
+            limit = int(
+                request.GET.get("limit", 5)
+            )  # Pagination: Comments per page (default: 5)
 
             if not user_id:
                 return JsonResponse({"error": "user_id is required"}, status=400)
@@ -501,7 +520,9 @@ def comments(request, post_id):
             parent_comment = None
             if parent_comment_id != 0:
                 try:
-                    parent_comment = Comment.objects.get(id=parent_comment_id, post_id=post_id)
+                    parent_comment = Comment.objects.get(
+                        id=parent_comment_id, post_id=post_id
+                    )
                 except Comment.DoesNotExist:
                     pass
 
@@ -512,7 +533,9 @@ def comments(request, post_id):
             ).values("comment_id", "like_type")
 
             # Convert user_likes into a dictionary for quick lookup
-            user_likes_dict = {like["comment_id"]: like["like_type"] for like in user_likes}
+            user_likes_dict = {
+                like["comment_id"]: like["like_type"] for like in user_likes
+            }
 
             # Subquery to count replies for each comment
             replies_subquery = (
@@ -524,11 +547,17 @@ def comments(request, post_id):
 
             # Annotate comments with the total number of likes and replies
             comments_query = (
-                Comment.objects.filter(post_id=post_id, parent_comment=parent_comment)  # Filter by post and parent comment
+                Comment.objects.filter(
+                    post_id=post_id, parent_comment=parent_comment
+                )  # Filter by post and parent comment
                 .select_related("user")
                 .annotate(
-                    likes_count=Count("comment_likes", distinct=True),  # Count total likes for each comment
-                    replies_count=Subquery(replies_subquery, output_field=IntegerField()),  # Count total replies for each comment
+                    likes_count=Count(
+                        "comment_likes", distinct=True
+                    ),  # Count total likes for each comment
+                    replies_count=Subquery(
+                        replies_subquery, output_field=IntegerField()
+                    ),  # Count total replies for each comment
                 )
                 .order_by("-date_created")  # Order by most recent
             )
@@ -553,9 +582,13 @@ def comments(request, post_id):
                         "user_karma": comment.user.karma,
                     },
                     "likes_count": comment.likes_count,  # Total likes on the comment
-                    "replies_count": comment.replies_count or 0,  # Total replies to the comment
-                    "user_has_liked": comment.id in user_likes_dict,  # Check if the current user has liked the comment
-                    "like_type": user_likes_dict.get(comment.id),  # Get the like_type if the user has liked the comment
+                    "replies_count": comment.replies_count
+                    or 0,  # Total replies to the comment
+                    # Check if the current user has liked the comment
+                    "user_has_liked": comment.id in user_likes_dict,
+                    "like_type": user_likes_dict.get(
+                        comment.id
+                    ),  # Get the like_type if the user has liked the comment
                 }
                 for comment in page_comments
             ]
@@ -564,7 +597,8 @@ def comments(request, post_id):
             return JsonResponse(
                 {
                     "comments": comments_data,
-                    "has_more": page_comments.has_next(),  # Indicates if there are more comments to load
+                    # Indicates if there are more comments to load
+                    "has_more": page_comments.has_next(),
                     "status": 200,
                 },
                 safe=False,
@@ -589,12 +623,13 @@ def comments(request, post_id):
         #     )  # Optional: Get the parent comment ID for nested comments
         #     if not user_id:
         #         return JsonResponse({"error": "user_id is required"}, status=400)
-            
+
         #     # fetch the parent comment if parent_comment_id is provided
         #     parent_comment = None
         #     if parent_comment_id != 0:
         #         try:
-        #             parent_comment = Comment.objects.get(id=parent_comment_id, post_id=post_id)
+        #             parent_comment = \
+        # Comment.objects.get(id=parent_comment_id, post_id=post_id)
         #         except Comment.DoesNotExist:
         #             pass
 
@@ -620,11 +655,14 @@ def comments(request, post_id):
 
         #     # Annotate comments with the total number of likes and replies
         #     comments = (
-        #         Comment.objects.filter(post_id=post_id, parent_comment=parent_comment)  # Only top-level comments
+        #         Comment.objects.filter(post_id=post_id, \
+        # parent_comment=parent_comment)  # Only top-level comments
         #         .select_related("user")
         #         .annotate(
-        #             likes_count=Count("comment_likes", distinct=True),  # Count total likes for each comment
-        #             replies_count=Subquery(replies_subquery, output_field=IntegerField()),  # Count total replies for each comment
+        #             likes_count=Count("comment_likes", \
+        # distinct=True),  # Count total likes for each comment
+        #             replies_count=Subquery(replies_subquery, \
+        # output_field=IntegerField()),  # Count total replies for each comment
         #         )
         #         .order_by("-date_created")
         #     )
@@ -644,8 +682,10 @@ def comments(request, post_id):
         #                 "last_name": comment.user.last_name,
         #                 "user_karma": comment.user.karma,
         #             },
-        #             "likes_count": comment.likes_count,  # Total likes on the comment
-        #             "replies_count": comment.replies_count or 0,  # Total replies to the comment
+        #             "likes_count": comment.likes_count,  \
+        # # Total likes on the comment
+        #             "replies_count": comment.replies_count or 0,  \
+        # # Total replies to the comment
         #             # Check if the current user has liked the comment
         #             "user_has_liked": comment.id in user_likes_dict,
         #             "like_type": user_likes_dict.get(
@@ -953,7 +993,9 @@ def report_comment(request):
     reporting_user = get_object_or_404(get_user_model(), id=reporting_user_id)
 
     # Check if the user has already reported this comment
-    if ReportComment.objects.filter(comment=comment, reporting_user=reporting_user).exists():
+    if ReportComment.objects.filter(
+        comment=comment, reporting_user=reporting_user
+    ).exists():
         return JsonResponse(
             {"error": "User Already Reported This Comment."},
             status=400,
@@ -976,6 +1018,7 @@ def report_comment(request):
         status=201,
     )
 
+
 @csrf_exempt
 def delete_comment(request, post_id, comment_id):
     if request.method != "DELETE":
@@ -983,7 +1026,7 @@ def delete_comment(request, post_id, comment_id):
             {"error": "Only DELETE requests are allowed."},
             status=405,
         )
-    
+
     try:
         # Fetch the post and comment
         post = get_object_or_404(Post, id=post_id)
@@ -1019,7 +1062,8 @@ def delete_comment(request, post_id, comment_id):
             {"error": str(e)},
             status=500,
         )
-    
+
+
 @csrf_exempt
 def delete_post(request, post_id):
     if request.method != "DELETE":
@@ -1028,16 +1072,16 @@ def delete_post(request, post_id):
             status=405,
         )
 
-    #first get the post, store it
-    #then delete all the posts where original_post = post
-    #then delete the post itself
+    # first get the post, store it
+    # then delete all the posts where original_post = post
+    # then delete the post itself
     try:
         post = get_object_or_404(Post, id=post_id)
         # Delete all reposts of this post
         Post.objects.filter(original_post=post).delete()
         # Delete the original post
         post.delete()
-        
+
         return JsonResponse(
             {
                 "message": "Post and its reposts deleted successfully.",
@@ -1055,4 +1099,3 @@ def delete_post(request, post_id):
             {"error": str(e)},
             status=500,
         )
-    
