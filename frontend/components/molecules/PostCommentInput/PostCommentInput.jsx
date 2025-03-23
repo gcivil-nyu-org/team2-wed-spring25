@@ -17,8 +17,6 @@ export default function PostCommentInput({
   isEdit = false,
   setIsInputVisible = null,
 }) {
-  console.log("setComments from PostCommentInput", setComments);
-
   const {
     handleCommentSubmit,
     commentContent,
