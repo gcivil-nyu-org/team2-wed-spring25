@@ -23,7 +23,6 @@ export default function PostComments({
     is_reply,
     parent_comment_id
   );
-  console.log("setComments from PostComments", setComments);
 
   return (
     <div className="flex flex-col mx-1 mb-2 ">
