@@ -14,6 +14,9 @@ export default function UserPostCommentSection({
   return (
     <div className="flex flex-col">
       <div className="flex flex-col">
+        {/* 
+            
+            setRepliesCount={setRepliesCount} */}
         <PostCommentInput
           post_id={post_id}
           setCommentsCount={setCommentsCount}
