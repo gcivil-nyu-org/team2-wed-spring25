@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 export default function Icon({
-  onClick = () => {},
+  onClick = () => { },
   src,
   width,
   height,
@@ -39,12 +39,10 @@ export default function Icon({
     }
   }
 
-<<<<<<< HEAD
+
   return (
     <div
-      onClick={() => {
-        onClick(alt); // Call the onClick function with the alt text
-      }}
+      onClick={onClick}
       className={data}
       onMouseEnter={() => {
         setIsHovered(true);
@@ -61,48 +59,17 @@ export default function Icon({
     >
       <Image
         src={src}
-        width={selected != null ? (selected ? 80 : 40) : width}
-        height={selected != null ? (selected ? 80 : 40) : height}
+        width={selected != null ? selected ? 80 : 40 : width}
+        height={selected != null ? selected ? 80 : 40 : height}
         alt={alt}
       />
       {/* Tooltip */}
       {isHovered && tooltipText && (
         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-sm px-2 py-1 rounded-full whitespace-nowrap">
           {tooltipText}
-=======
-
-    return (
-        <div 
-            onClick={onClick} 
-            className={data}
-            onMouseEnter={() => {
-                setIsHovered(true);
-                if (onMouseEnter) {
-                    onMouseEnter();
-                }
-            }}
-            onMouseLeave={() => {
-                setIsHovered(false);
-                if (onMouseLeave) {
-                    onMouseLeave();
-                }
-            }}
-            >
-                <Image
-                    src={src}
-                    width={selected != null ? selected ? 80 : 40 : width}
-                    height={selected != null ? selected ? 80 : 40 : height}
-                    alt={alt}
-                />
-                {/* Tooltip */}
-                {isHovered && tooltipText && (
-                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-sm px-2 py-1 rounded-full whitespace-nowrap">
-                        {tooltipText}
-                    </div>
-                )}
->>>>>>> 9dc5cd8 (Complete UI for add comment input button, user post)
         </div>
       )}
     </div>
-  );
+  )
 }
+    

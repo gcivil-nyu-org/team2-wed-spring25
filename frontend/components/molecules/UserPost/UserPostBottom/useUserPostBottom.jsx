@@ -77,7 +77,7 @@ export default function useUserPostBottom(post, setPosts) {
       }
 
       await apiPost(
-        `/api/forum/posts/${
+        `/forum/posts/${
           post.is_repost ? post.original_post_id : post.id
         }/report/`,
         {

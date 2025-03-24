@@ -49,7 +49,7 @@ export default function useUserPostHeader(post_user_id, setPosts, post_id) {
         });
       });
       
-      await apiPost(`/api/forum/posts/follow/${post_user_id}/`, {
+      await apiPost(`/forum/posts/follow/${post_user_id}/`, {
         user_id: user.id,
         follow: val,
       });
@@ -68,7 +68,7 @@ export default function useUserPostHeader(post_user_id, setPosts, post_id) {
         return;
       }
       setIsDeleteInProgress(true);
-      await apiDelete(`/api/forum/posts/${post_id}/delete/`);
+      await apiDelete(`/forum/posts/${post_id}/delete/`);
       setPosts((prev) => prev.filter((post) => post.id !== post_id));
       showSuccess("Post deleted successfully");
     } catch (e) {

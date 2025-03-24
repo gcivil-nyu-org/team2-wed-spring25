@@ -18,7 +18,7 @@ export default function usePostCommentOptionList(
       setDisableButtons(true);
       // Call the API to delete the comment
       const response = await apiDelete(
-        `/api/forum/posts/${post_id}/comments/${comment_id}/delete/`
+        `/forum/posts/${post_id}/comments/${comment_id}/delete/`
       );
       // Update the comments state in the parent component
       setComments((prevComments) =>

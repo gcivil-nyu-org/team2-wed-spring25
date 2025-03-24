@@ -113,7 +113,7 @@ export async function refreshDjangoToken() {
     if (!refreshToken) throw new Error("No refresh token available");
 
     // Use our apiPost helper instead of fetch directly
-    const response = await apiPost("/api/token/refresh/", {
+    const response = await apiPost("/token/refresh/", {
       refresh: refreshToken,
     });
 

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNotification } from "../app/custom-components/ToastComponent/NotificationContext";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 
 const useUserLocation = ({
   departureCoords,
   mapInitializedRef,
   mapInstanceRef,
+  useCurrentLocation = false // Add default value
 }) => {
-  const { showWarning } = useNotification();
+  const { showWarning, showSuccess, showError } = useNotification(); // Added missing notification functions
   const [outsideNYC, setOutsideNYC] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
@@ -71,7 +72,6 @@ const useUserLocation = ({
     if (
       typeof window === "undefined" ||
       userLocation ||
-      mapInitializedRef.current ||
       initialLocationAttemptRef.current ||
       hasExplicitCoordinates
     ) {
@@ -90,16 +90,26 @@ const useUserLocation = ({
         }
 
         const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
-          });
-
-          // Also set a timeout
-          setTimeout(() => {
+          // Create a timeout ID that we can clear if geolocation succeeds
+          const timeoutId = setTimeout(() => {
             reject(new Error("Geolocation timeout"));
-          }, 5000);
+          }, 10000); // Increase timeout to 10 seconds
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              clearTimeout(timeoutId); // Clear the timeout if we get a position
+              resolve(position);
+            },
+            (error) => {
+              clearTimeout(timeoutId); // Clear the timeout on error too
+              reject(error);
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 10000, // Increase timeout to 10 seconds
+              maximumAge: 0,
+            }
+          );
         });
 
         console.log("Got user location on initial load:", position.coords);
@@ -177,16 +187,26 @@ const useUserLocation = ({
         }
 
         const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
-          });
-
-          // Also set a timeout
-          setTimeout(() => {
+          // Create a timeout ID that we can clear if geolocation succeeds
+          const timeoutId = setTimeout(() => {
             reject(new Error("Geolocation timeout"));
-          }, 5000);
+          }, 10000); // Increase timeout to 10 seconds
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              clearTimeout(timeoutId); // Clear the timeout if we get a position
+              resolve(position);
+            },
+            (error) => {
+              clearTimeout(timeoutId); // Clear the timeout on error too
+              reject(error);
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 10000, // Increase timeout to 10 seconds
+              maximumAge: 0,
+            }
+          );
         });
 
         console.log("Got user location:", position.coords);
@@ -265,8 +285,20 @@ const useUserLocation = ({
     setHasExplicitCoordinates(false); // Reset this flag to try geolocation again
 
     if (navigator.geolocation) {
+      // Create a timeout that gets cleared on success
+      const timeoutId = setTimeout(() => {
+        setIsGettingLocation(false);
+        showWarning(
+          "Location timeout",
+          "Getting your location took too long. Please try again.",
+          "location_timeout"
+        );
+        setUserLocation(defaultLocation);
+      }, 10000);
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          clearTimeout(timeoutId); // Clear the timeout
           console.log("Got user location on retry:", position.coords);
           const { latitude, longitude } = position.coords;
 
@@ -307,6 +339,7 @@ const useUserLocation = ({
           );
         },
         (error) => {
+          clearTimeout(timeoutId); // Clear the timeout
           console.warn("Geolocation retry error:", error.message);
           if (error.code === 1) {
             // PERMISSION_DENIED
@@ -329,7 +362,7 @@ const useUserLocation = ({
           // Set to default location
           setUserLocation(defaultLocation);
         },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       setIsGettingLocation(false);
@@ -357,8 +390,7 @@ const useUserLocation = ({
         }
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [mapInstanceRef, mapInitializedRef]);
 
   return {
     userLocation,

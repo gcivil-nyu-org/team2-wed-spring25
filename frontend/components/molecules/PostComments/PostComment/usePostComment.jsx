@@ -106,7 +106,7 @@ export default function usePostComment(
       }
 
       const response = await apiPost(
-        `/api/forum/posts/comments/${comment.id}/like/`,
+        `/forum/posts/comments/${comment.id}/like/`,
         {
           is_liked: userHasLiked2,
           user_id: user.id,
@@ -148,7 +148,7 @@ export default function usePostComment(
         return;
       }
       await apiPost(
-        `/api/forum/posts/comment/report/`,
+        `/forum/posts/comment/report/`,
         {
           user_id: user.id,
           comment_id: comment.id,
