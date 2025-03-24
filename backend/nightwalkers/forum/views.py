@@ -240,7 +240,9 @@ def get_posts(request):
         user_id = request.GET.get("user_id")  # Get the user ID from query parameters
         offset = int(request.GET.get("offset", 0))  # Get the offset (default: 0)
         limit = int(request.GET.get("limit", 5))  # Get the limit (default: 5)
-        settings_type = request.GET.get("settings_type", "")  # Get the settings type (default: "")
+        settings_type = request.GET.get(
+            "settings_type", ""
+        )  # Get the settings type (default: "")
         # Fetch all likes by the current user in a single query
         user_likes = Like.objects.filter(user_id=user_id).values_list(
             "post_id", "like_type"
@@ -274,43 +276,61 @@ def get_posts(request):
                 ),  # Distinct count for comments
             ).order_by("-date_created")
         elif settings_type == "posts":
-            posts = Post.objects.filter(user=user, is_repost=False).annotate(
-                likes_count=Count("likes", distinct=True),  # Distinct count for likes
-                comments_count=Count(
-                    "comments", distinct=True
-                ),  # Distinct count for comments
-            ).order_by("-date_created")
+            posts = (
+                Post.objects.filter(user=user, is_repost=False)
+                .annotate(
+                    likes_count=Count(
+                        "likes", distinct=True
+                    ),  # Distinct count for likes
+                    comments_count=Count(
+                        "comments", distinct=True
+                    ),  # Distinct count for comments
+                )
+                .order_by("-date_created")
+            )
         elif settings_type == "reactions":
             # show all the post user has liked
-            posts = Post.objects.filter(
-                likes__user=user
-            ).annotate(
-                likes_count=Count("likes", distinct=True),  # Distinct count for likes
-                comments_count=Count(
-                    "comments", distinct=True
-                ),  # Distinct count for comments
-            ).order_by("-date_created")
+            posts = (
+                Post.objects.filter(likes__user=user)
+                .annotate(
+                    likes_count=Count(
+                        "likes", distinct=True
+                    ),  # Distinct count for likes
+                    comments_count=Count(
+                        "comments", distinct=True
+                    ),  # Distinct count for comments
+                )
+                .order_by("-date_created")
+            )
         elif settings_type == "reports":
             # show all the post user has reported
-            posts = Post.objects.filter(
-                reports__reporting_user=user
-            ).annotate(
-                likes_count=Count("likes", distinct=True),  # Distinct count for likes
-                comments_count=Count(
-                    "comments", distinct=True
-                ),  # Distinct count for comments
-            ).order_by("-date_created")
+            posts = (
+                Post.objects.filter(reports__reporting_user=user)
+                .annotate(
+                    likes_count=Count(
+                        "likes", distinct=True
+                    ),  # Distinct count for likes
+                    comments_count=Count(
+                        "comments", distinct=True
+                    ),  # Distinct count for comments
+                )
+                .order_by("-date_created")
+            )
         elif settings_type == "comments":
-            #find all the posts_id where user has commented then filter the posts and annotate and order by date and paginate amd return
-            posts = Post.objects.filter(
-                comments__user=user
-            ).annotate(
-                likes_count=Count("likes", distinct=True),  # Distinct count for likes
-                comments_count=Count(
-                    "comments", distinct=True
-                ),  # Distinct count for comments
-            ).order_by("-date_created")
-        
+            # find all the posts_id where user has commented then
+            # filter the posts and annotate and order by date and paginate amd return
+            posts = (
+                Post.objects.filter(comments__user=user)
+                .annotate(
+                    likes_count=Count(
+                        "likes", distinct=True
+                    ),  # Distinct count for likes
+                    comments_count=Count(
+                        "comments", distinct=True
+                    ),  # Distinct count for comments
+                )
+                .order_by("-date_created")
+            )
 
         # Prepare the response data
         posts_data = []

@@ -70,7 +70,7 @@ export default function usePostFooterIconList(post, setPosts) {
       // Scroll to the top of the page
       window.scrollTo({ top: 0, behavior: "smooth" });
 
-      const response = await apiPost("/api/forum/posts/repost/", {
+      const response = await apiPost("/forum/posts/repost/", {
         user_id: user.id,
         original_post_id: post.is_repost ? post.original_post_id : post.id,
       });
