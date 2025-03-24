@@ -22,9 +22,6 @@ urlpatterns = [
         "posts/comments/<int:comment_id>/like/", views.like_comment, name="like_comment"
     ),
     path(
-        "posts/comments/<int:comment_id>/like/", views.like_comment, name="like_comment"
-    ),
-    path(
         "posts/follow/<int:user_id>/",
         views.follow_unfollow_user,
         name="follow_unfollow_user",
