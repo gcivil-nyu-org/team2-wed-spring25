@@ -19,13 +19,18 @@ export default function UserPostCommentSection({
           setComments={setComments}
           is_repost={is_repost}
           original_post_id={original_post_id}
+          is_reply={false}
+          parent_comment_id={0}
+          setRepliesCount={null}
         />
         <PostComments
           post_id={post_id}
           comments={comments}
           setComments={setComments}
+          setCommentsCount={setCommentsCount}
           is_repost={is_repost}
           original_post_id={original_post_id}
+          level={1}
         />
       </div>
     </div>

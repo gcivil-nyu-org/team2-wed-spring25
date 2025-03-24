@@ -68,6 +68,35 @@ class Comment(models.Model):
         ordering = ["date_created"]  # Orders comments by oldest first
 
 
+class ReportComment(models.Model):
+    # The comment being reported
+    comment = models.ForeignKey(
+        "Comment", on_delete=models.CASCADE, related_name="reports"
+    )
+
+    # The user who is reporting the comment
+    reporting_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reported_comments",
+    )
+
+    # Timestamp of the report
+    date_reported = models.DateTimeField(auto_now_add=True)
+    # Reason for reporting (optional)
+    reason = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Report on Comment {self.comment.id} by \
+            {self.reporting_user.get_full_name()}"
+
+    class Meta:
+        ordering = ["-date_reported"]  # Orders reports by most recent first
+        unique_together = [
+            ["comment", "reporting_user"]
+        ]  # Prevents duplicate reports by the same user on the same comment
+
+
 class Like(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="likes"
@@ -101,3 +130,42 @@ class CommentLike(models.Model):
             "user",
             "comment",
         )  # Ensure a user can like a comment only once
+
+
+class ReportPost(models.Model):
+    # The post being reported
+    post = models.ForeignKey(
+        "Post",
+        on_delete=models.CASCADE,
+        related_name="reports",
+        help_text="The post that is being reported",
+    )
+
+    # The user reporting the post
+    reporting_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reported_posts",
+        help_text="The user who is reporting the post",
+    )
+
+    # The owner of the post being reported
+    post_owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reports_against_posts",
+        help_text="The owner of the post being reported",
+    )
+
+    # Indicates if the reported post is a repost
+    is_repost = models.BooleanField(
+        default=False,
+        help_text="Indicates if the reported post is a repost",
+    )
+
+    def __str__(self):
+        return f"Report by User ID {self.reporting_user.id} on Post ID {self.post.id}"
+
+    class Meta:
+        ordering = ["-post"]  # Orders reports by post (most recent first)
+        unique_together = ["post", "reporting_user"]  # Prevents duplicate reports

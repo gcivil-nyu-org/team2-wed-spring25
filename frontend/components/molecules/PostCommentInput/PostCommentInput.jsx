@@ -10,6 +10,12 @@ export default function PostCommentInput({
   setComments,
   is_repost,
   original_post_id,
+  is_reply = true,
+  parent_comment_id = null,
+  setRepliesCount = null,
+  initialContent = "",
+  isEdit = false,
+  setIsInputVisible = null,
 }) {
   const {
     handleCommentSubmit,
@@ -26,13 +32,19 @@ export default function PostCommentInput({
     setCommentsCount,
     setComments,
     is_repost,
-    original_post_id
+    original_post_id,
+    is_reply,
+    parent_comment_id,
+    setRepliesCount,
+    initialContent,
+    isEdit,
+    setIsInputVisible
   );
   return (
     <div
       className={`flex justify-between text-sm ${
         commentContent !== "" ? " flex-col rounded-3xl " : "rounded-full"
-      } border-[1px] mx-1 border-slate-300 relative`}
+      } border-[1px] mx-1 mb-4 border-slate-300 relative`}
     >
       {showEmojiPicker && (
         <div className="absolute bottom-16 right-0" ref={emojiPickerRef}>
@@ -49,6 +61,7 @@ export default function PostCommentInput({
         content={commentContent}
         setContent={setCommentContent}
         placeholder={"Add a comment..."}
+        isLoading={isLoading}
       />
 
       <div className="flex justify-between">
@@ -67,8 +80,21 @@ export default function PostCommentInput({
               disabled={isButtonDisabled || isLoading} // Disable during API call or loading
               aria-disabled={isButtonDisabled || isLoading} // Accessibility
             >
-              {isLoading ? "Submitting..." : "Comment"}
+              {isEdit && isLoading ? "Editing..." : ""}
+              {isEdit && !isLoading ? "Edit" : ""}
+              {!isEdit ? (isLoading ? "Submitting..." : "Comment") : ""}
             </CommentButton>
+            {isEdit && (
+              <CommentButton
+                theme={"red"}
+                onClick={() => {
+                  setIsInputVisible(false);
+                  setCommentContent("");
+                }}
+              >
+                Cancel
+              </CommentButton>
+            )}
           </div>
         )}
       </div>

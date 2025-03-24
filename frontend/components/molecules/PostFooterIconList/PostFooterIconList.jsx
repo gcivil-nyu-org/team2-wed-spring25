@@ -2,15 +2,24 @@ import IconText from "@/components/molecules/IconText/IconText";
 import LikeIconTextWithTooltip from "@/components/molecules/LikeIconTextWithTooltip/LikeIconTextWithTooltip";
 import { iconsData } from "@/constants/icons";
 import usePostFooterIconList from "./usePostFooterIconList";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useEffect } from "react";
+
 const PostFooterIconList = ({
   handleClickOnComment,
+  setShowReportUserDialog,
   setLikesCount,
   setPosts,
   post,
+  isReported,
+  setIsReported,
 }) => {
   const { userHasLiked, setUserHasLiked, likeType, setLikeType, handleRepost } =
     usePostFooterIconList(post, setPosts);
-
+  const { showError } = useNotification();
+  useEffect(() => {
+    setIsReported(post.is_reported);
+  }, [post.is_reported, setIsReported]);
   return (
     <div className="flex flex-1 relative">
       <div className="flex-1 group">
@@ -27,7 +36,10 @@ const PostFooterIconList = ({
           original_post_id={post.original_post_id}
         />
       </div>
-      <div className="flex-1" onClick={handleClickOnComment}>
+      <div
+        className="flex-1 flex justify-center items-center"
+        onClick={handleClickOnComment}
+      >
         <IconText
           src={iconsData[1].src}
           width={iconsData[1].width}
@@ -45,13 +57,23 @@ const PostFooterIconList = ({
           text={iconsData[2].text}
         />
       </div>
-      <div className="flex-1" onClick={handleClickOnComment}>
+      <div
+        className="flex-1"
+        onClick={() => {
+          if (post.is_reported) {
+            showError("You have already reported this post");
+            return;
+          }
+          setShowReportUserDialog(true);
+        }}
+      >
         <IconText
           src={iconsData[3].src}
           width={iconsData[3].width}
           height={iconsData[3].height}
           alt={iconsData[3].alt}
-          text={iconsData[3].text}
+          text={isReported ? "Reported" : iconsData[3].text}
+          theme={isReported ? "red" : null}
         />
       </div>
     </div>
