@@ -98,6 +98,7 @@ export default function PostDialog({
               placeholder="Share Your Thoughts..."
               value={postContent}
               onChange={(e) => setPostContent(e.target.value)}
+              readOnly={isLoading} // Disable editing when loading
             />
             {selectedImage && (
               <div className="mx-5 px-3 p-2 flex justify-between items-center border-2 border-slate-300 rounded">

@@ -61,6 +61,7 @@ export default function PostCommentInput({
         content={commentContent}
         setContent={setCommentContent}
         placeholder={"Add a comment..."}
+        isLoading={isLoading}
       />
 
       <div className="flex justify-between">

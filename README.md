@@ -4,13 +4,15 @@
 Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
 
 TODO:
-show all posts in settings page. edit delete option.
+
+refactor user post bottom,
 karma issue, current user = 0
 image visibility issue post dialog
 user must be login to access forum realted apis on frotned and backend.
 repost delete option.
 flake and black before commit.
 refactor code,
+filter for posts, by time, by likes,
 =====
 Done:
 =====
@@ -34,3 +36,10 @@ delete post.
 edit comment.
 setCommentsCount, internal reply, reply to comment
 edit post.
+settings page - reacted posts
+settings page - reported posts
+settings page - created posts
+settings page - commented posts
+on submit comment, comment cannot be changed.
+on submit post, post content cannot be changed.
+fixed: on reply comment was getting added to its parent list as well as parents reply list.

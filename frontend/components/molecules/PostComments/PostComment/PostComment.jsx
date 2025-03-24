@@ -109,7 +109,7 @@ export default function PostComment({
           <PostCommentInput
             post_id={post_id}
             setCommentsCount={setCommentsCount}
-            setComments={setComments}
+            setComments={setReplies}
             is_repost={parentComment.is_repost}
             original_post_id={original_post_id}
             is_reply={true}
