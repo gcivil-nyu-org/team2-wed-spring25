@@ -28,15 +28,16 @@ import { fallbackUserProfileImage } from "@/constants/imageUrls";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = "25rem";
+const SIDEBAR_WIDTH = "30vw";
 const SIDEBAR_WIDTH_MOBILE = "100vw";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
-const SIDEBAR_BG_COLOR = "bg-[#121212]";
-const SIDEBAR_GROUPBG_COLOR = "bg-[#292929]";
-const SIDEBAR_FONT_COLOR = "text-[#fef9f5]";
-const SIDEBAR_BORDER_COLOR = "border-[#fef9f5]";
+const SIDEBAR_BG_COLOR = "bg-stone-700";
+const SIDEBAR_GROUPBG_COLOR = "bg-stone-800";
+const SIDEBAR_FONT_COLOR = "text-gray-100";
+const SIDEBAR_BORDER_COLOR = "border-stone-500";
+const SIDEBAR_SEPARATORBG_COLOR = "bg-stone-600"
 
 const SidebarContext = React.createContext(null);
 
@@ -123,15 +124,15 @@ function SidebarProvider({
       <TooltipProvider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"
+          className={cn(
+            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex w-full",
+            className
+          )}
           style={{
             "--sidebar-width": SIDEBAR_WIDTH,
             "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
             ...style,
           }}
-          className={cn(
-            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex w-full",
-            className
-          )}
           {...props}
         >
           {children}
@@ -201,7 +202,7 @@ function Sidebar({
       {/* This is what handles the sidebar gap on desktop */}
       <div
         className={cn(
-          "relative w-[var(--sidebar-width)] bg-transparent transition-[width] duration-200 ease-linear",
+          `relative w-[var(--sidebar-width)] bg-transparent transition-[width] duration-200 ease-linear`,
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
@@ -211,7 +212,7 @@ function Sidebar({
       />
       <div
         className={cn(
-          "bg-white dark:bg-gray-950 z-[9999] fixed inset-y-0 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-200 ease-linear md:flex",
+          `${SIDEBAR_BG_COLOR} dark:bg-gray-950 z-[9999] fixed inset-y-0 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-200 ease-linear md:flex`,
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -357,7 +358,7 @@ function SidebarSeparator({ className, ...props }) {
     <Separator
       data-slot="sidebar-separator"
       data-sidebar="separator"
-      className={cn("bg-sidebar-border mx-2 w-auto", className)}
+      className={cn(`${SIDEBAR_SEPARATORBG_COLOR} mx-2 w-auto mt-1`, className)}
       {...props}
     />
   );
@@ -433,7 +434,7 @@ function SidebarGroupContent({ className, ...props }) {
       data-slot="sidebar-group-content"
       data-sidebar="group-content"
       className={cn(
-        `w-[90%] text-sm ${SIDEBAR_FONT_COLOR} border ${SIDEBAR_BORDER_COLOR} rounded-md p-4`,
+        `w-[98%] text-sm ${SIDEBAR_FONT_COLOR} border ${SIDEBAR_BORDER_COLOR} rounded-md p-2`,
         className
       )}
       {...props}
@@ -458,7 +459,7 @@ function SidebarMenuItem({ className, ...props }) {
       data-slot="sidebar-menu-item"
       data-sidebar="menu-item"
       className={cn(
-        "group/menu-item relative hover:bg-gray-100/80 rounded-md",
+        "group/menu-item relative hover:bg-stone-600/30 rounded-md p-1",
         className
       )}
       {...props}

@@ -89,7 +89,6 @@ const SettingsSidebar = () => {
             <h1 className="text-center text-xl p-4">Nightwalkers</h1>
           </div>
         </SidebarHeader>
-        <SidebarSeparator />
         {/* Banner */}
         <SidebarGroup>
           <SidebarGroupContent>
@@ -105,7 +104,6 @@ const SettingsSidebar = () => {
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarSeparator />
         {/* Links */}
         <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>
