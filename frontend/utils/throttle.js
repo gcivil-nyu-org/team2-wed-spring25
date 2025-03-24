@@ -1,14 +1,26 @@
 const throttle = (func, delay) => {
-  let lastExecuted = 0; // Tracks the last execution time
+  let shouldWait = false;
+  let waitingArgs = null;
+
+  const timeoutFunc = () => {
+    if (waitingArgs) {
+      func(...waitingArgs);
+      waitingArgs = null;
+      setTimeout(timeoutFunc, delay);
+    } else {
+      shouldWait = false;
+    }
+  };
 
   return (...args) => {
-    const now = Date.now(); // Current timestamp
-
-    // If the time since the last execution is greater than the delay, execute immediately
-    if (now - lastExecuted >= delay) {
-      func(...args); // Execute the function
-      lastExecuted = now; // Update the last execution time
+    if (shouldWait) {
+      waitingArgs = args;
+      return;
     }
+
+    func(...args);
+    shouldWait = true;
+    setTimeout(timeoutFunc, delay);
   };
 };
 

@@ -10,31 +10,31 @@ const icons = [
 const iconsData = [
   {
     src: "/icons/like.svg",
-    width: 12,
-    height: 12,
+    width: 16,
+    height: 16,
     alt: "Like",
     text: "Like",
   },
   {
-    src: "/icons/comment.svg",
-    width: 20,
-    height: 20,
+    src: "/icons/message.png",
+    width: 15,
+    height: 15,
     alt: "Comment",
     text: "Comment",
   },
   {
     src: "/icons/repost.svg",
-    width: 15,
-    height: 15,
+    width: 16,
+    height: 16,
     alt: "Repost",
     text: "Repost",
   },
   {
-    src: "/icons/send.svg",
-    width: 12,
-    height: 12,
-    alt: "Send",
-    text: "Send",
+    src: "/icons/report.png",
+    width: 13,
+    height: 13,
+    alt: "Report",
+    text: "Report",
   },
 ];
 

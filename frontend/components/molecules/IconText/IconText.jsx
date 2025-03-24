@@ -1,5 +1,4 @@
 import Image from "next/image";
-import useIconText from "./useIconText";
 import {
   getLikeTypeColor,
   getIconSource,
@@ -14,24 +13,30 @@ export default function IconText({
   onClick = null,
   user_has_liked = false,
   like_type = null,
+  theme = null,
 }) {
-  const { data } = useIconText();
   return (
     <div
-      className="flex flex-1 p-2 my-3 mx-1 space-x-1 justify-center items-center rounded-md hover:bg-slate-100 hover:cursor-pointer"
+      className="flex flex-1 p-2 my-3 mx-1 space-x-1 justify-center items-center rounded-md h-[35px] relative md:flex-col lg:flex-row  hover:bg-slate-100 hover:cursor-pointer "
       onClick={onClick}
     >
-      <div className={data}>
-        <Image
-          src={getIconSource(src, user_has_liked, like_type)}
-          width={user_has_liked ? 16 : width}
-          height={user_has_liked ? 16 : height}
-          alt={alt}
-          className="object-fill "
-        />
-      </div>
+      <Image
+        src={getIconSource(src, user_has_liked, like_type)}
+        width={user_has_liked ? 16 : width}
+        height={user_has_liked ? 16 : height}
+        alt={alt}
+        className="object-fill"
+      />
       <p
-        className={`${getLikeTypeColor()} text-sm font-semibold group-hover:${getGroupHoverTextColor()}`}
+        className={`hidden md:block ${getLikeTypeColor(
+          user_has_liked,
+          like_type,
+          theme
+        )} text-sm font-semibold group-hover:${getGroupHoverTextColor(
+          user_has_liked,
+          like_type,
+          theme
+        )} `}
       >
         {user_has_liked ? like_type : text}
       </p>

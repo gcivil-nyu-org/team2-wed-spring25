@@ -1,3 +1,5 @@
+"use client";
+
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useState } from "react";
@@ -7,7 +9,14 @@ export default function usePostFooterIconList(post, setPosts) {
   const [likeType, setLikeType] = useState(post.like_type);
   const { showError, showWarning, showSuccess } = useNotification();
   const handleRepost = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    let user = null;
+    if (typeof window !== "undefined") {
+      user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
+    }
+    if (!user) {
+      showError("Please login to repost. User not found.");
+      return;
+    }
     if (user.id === post.user_id) {
       //show toast
       showWarning("You can't repost your own post");
@@ -16,8 +25,14 @@ export default function usePostFooterIconList(post, setPosts) {
     // repost
     try {
       // const response
-      const user = JSON.parse(localStorage.getItem("user"));
-
+      user = null;
+      if (typeof window !== "undefined") {
+        user = JSON.parse(localStorage.getItem("user"));
+      }
+      if (!user) {
+        showError("Please login to repost. User not found.");
+        return;
+      }
       const newRepost = {
         id: 0,
         original_post_id: post.id,
@@ -55,7 +70,7 @@ export default function usePostFooterIconList(post, setPosts) {
       // Scroll to the top of the page
       window.scrollTo({ top: 0, behavior: "smooth" });
 
-      const response = await apiPost("/api/forum/posts/repost/", {
+      const response = await apiPost("/forum/posts/repost/", {
         user_id: user.id,
         original_post_id: post.is_repost ? post.original_post_id : post.id,
       });

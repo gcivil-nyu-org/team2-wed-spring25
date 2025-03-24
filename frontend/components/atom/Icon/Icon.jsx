@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 export default function Icon({
-  onClick = () => {},
+  onClick = () => { },
   src,
   width,
   height,
@@ -39,11 +39,10 @@ export default function Icon({
     }
   }
 
+
   return (
     <div
-      onClick={() => {
-        onClick(alt); // Call the onClick function with the alt text
-      }}
+      onClick={onClick}
       className={data}
       onMouseEnter={() => {
         setIsHovered(true);
@@ -60,8 +59,8 @@ export default function Icon({
     >
       <Image
         src={src}
-        width={selected != null ? (selected ? 80 : 40) : width}
-        height={selected != null ? (selected ? 80 : 40) : height}
+        width={selected != null ? selected ? 80 : 40 : width}
+        height={selected != null ? selected ? 80 : 40 : height}
         alt={alt}
       />
       {/* Tooltip */}
@@ -71,5 +70,6 @@ export default function Icon({
         </div>
       )}
     </div>
-  );
+  )
 }
+    

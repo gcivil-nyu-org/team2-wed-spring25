@@ -27,6 +27,12 @@ const DefaultSidebar = () => {
         >
           Routes
         </Link>
+        <Link
+          href="/users/settings/forum"
+          className="px-4 py-2 hover:bg-gray-100"
+        >
+          Forum
+        </Link>
       </nav>
     </>
   );

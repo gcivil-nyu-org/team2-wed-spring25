@@ -24,6 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { fallbackUserProfileImage } from "@/constants/imageUrls";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -236,7 +237,13 @@ function Sidebar({
 
 function SidebarTrigger({ className, onClick, ...props }) {
   const { toggleSidebar } = useSidebar();
-
+  let user = null;
+  if (typeof window !== "undefined") {
+    user = JSON.parse(localStorage.getItem("user"));
+  }
+  if (!user) {
+    return null; // or handle the case when user is not found
+  }
   return (
     // <Button
     //   data-sidebar="trigger"
@@ -261,7 +268,10 @@ function SidebarTrigger({ className, onClick, ...props }) {
         }}
         {...props}
       >
-        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+        <AvatarImage
+          src={user.avatar ?? fallbackUserProfileImage}
+          alt="user profile"
+        />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
     </>

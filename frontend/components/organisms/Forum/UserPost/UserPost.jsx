@@ -13,7 +13,7 @@ export default function UserPost({ post, setPosts }) {
     useUserPost(post.likes_count, post.comments_count);
 
   return (
-    <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-white border-[1px]">
+    <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-white border-[1px] relative">
       {post.is_repost && (
         <div>
           <div className="flex text-xs items-center mx-4 py-2">
@@ -41,6 +41,11 @@ export default function UserPost({ post, setPosts }) {
         is_following_author={post.is_following_author}
         setPosts={setPosts}
         user_karma={post.user_karma}
+        post_id={post.id}
+        image_urls={post.image_urls}
+        content={post.content}
+        is_repost={post.is_repost}
+        original_post_id={post.original_post_id}
       />
       <UserPostBody
         image_urls={post.image_urls ?? [fallbackUserProfileImage]}

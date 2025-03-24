@@ -109,7 +109,7 @@ export default function Map() {
   useEffect(() => {
     const fetchRealData = async () => {
       try {
-        const response = await fetch("/api/heatmap-data/"); // Adjust the path
+        const response = await fetch("/heatmap-data/"); // Adjust the path
         const data = await response.json();
 
         const formattedPoints = data.map((item) => [

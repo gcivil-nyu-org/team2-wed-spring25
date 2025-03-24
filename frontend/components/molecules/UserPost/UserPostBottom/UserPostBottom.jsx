@@ -4,6 +4,7 @@ import LikedIconList from "@/components/molecules/LikedIconList/LikedIconList";
 import UserPostCommentSection from "@/components/molecules/UserPost/UserPostBottom/UserPostCommentSection/UserPostCommentSection";
 import useUserPostBottom from "./useUserPostBottom";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
+import CustomDialogBox from "@/components/organisms/CustomDialogBox/CustomDialogBox";
 
 export default function UserPostBottom({
   likesCount,
@@ -12,15 +13,35 @@ export default function UserPostBottom({
   setCommentsCount,
   setPosts,
   post,
+  disableYesButton,
 }) {
   const {
     getCommentsCount,
     getLikesCount,
-    handleClickOnComment,
     showCommentSection,
-  } = useUserPostBottom();
+    showReportUserDialog,
+    setShowReportUserDialog,
+    handleReportPost,
+    handleClickOnComment,
+    handleShowReportUserDialogRef,
+    isReported,
+    setIsReported,
+  } = useUserPostBottom(post, setPosts);
   return (
     <div className="mx-3">
+      <CustomDialogBox
+        showDialog={showReportUserDialog}
+        dialogRef={handleShowReportUserDialogRef}
+        onClickNo={() => {
+          setShowReportUserDialog(false);
+        }}
+        onClickYes={handleReportPost}
+        title={"Report User"}
+        description={
+          "Are you sure you want to report this user?. This action cannot be undone"
+        }
+        disableYesButton={disableYesButton}
+      />
       <div>
         <div className="flex justify-between mr-1 py-2">
           <div className="flex gap-2">
@@ -41,9 +62,12 @@ export default function UserPostBottom({
 
           <PostFooterIconList
             handleClickOnComment={handleClickOnComment}
+            setShowReportUserDialog={setShowReportUserDialog}
             setLikesCount={setLikesCount}
             setPosts={setPosts}
             post={post}
+            isReported={isReported}
+            setIsReported={setIsReported}
           />
         </div>
       </div>

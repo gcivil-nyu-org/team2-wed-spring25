@@ -1,3 +1,3 @@
-const fallbackUserProfileImage = "/images/userProfileBackupImage.jfif";
+const fallbackUserProfileImage = "/owl-logo.svg";
 
 export { fallbackUserProfileImage };

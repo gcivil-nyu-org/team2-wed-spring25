@@ -1,3 +1,4 @@
+"use client";
 import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useState } from "react";
 import { apiPost } from "@/utils/fetch/fetch";
@@ -7,7 +8,13 @@ export default function usePostCommentInput(
   setCommentsCount,
   setComments,
   is_repost,
-  original_post_id
+  original_post_id,
+  is_reply = false,
+  parent_comment_id = null,
+  setRepliesCount = null,
+  initialContent = "",
+  isEdit = false,
+  setisInputVisible = null
 ) {
   const {
     emojiPickerRef,
@@ -16,12 +23,14 @@ export default function usePostCommentInput(
     handleOnEmojiClick,
   } = useEmojiPicker();
 
-  const [commentContent, setCommentContent] = useState("");
+  const [commentContent, setCommentContent] = useState(initialContent); // State for comment content
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
-  const { showError } = useNotification();
+  const { showError, showSuccess } = useNotification();
+
   const handleCommentSubmit = async () => {
     // Input validation
+
     if (commentContent.trim() === "") {
       showError("Please enter a comment, cannot be empty.");
       return;
@@ -37,39 +46,30 @@ export default function usePostCommentInput(
     try {
       setIsButtonDisabled(true); // Disable the button
       setIsLoading(true); // Show loading spinner
-      setCommentsCount((prev) => prev + 1); // Increment the comments count
-      const userString = localStorage.getItem("user"); // Retrieve the user from localStorage
+      let userString = null;
+      if (typeof window !== "undefined") {
+        userString = localStorage.getItem("user"); // Retrieve the user from localStorage
+      }
       let user = null;
       if (userString) {
         user = JSON.parse(userString); // Parse the user object
       } else {
-        console.log("No user data found in localStorage");
+        showError("Please login to comment. User not found.");
       }
 
       if (!user) {
         showError("Please login to comment. User not found.");
         return;
       }
-      const curUser = JSON.parse(localStorage.getItem("user"));
-      const newComment = {
-        content: commentContent,
-        date_created: new Date().toISOString(),
-        id: 0,
-        post_id: post_id,
-        user: {
-          avatar_url: curUser.avatar,
-          email: curUser.email,
-          first_name: curUser.first_name,
-          id: curUser.id,
-          last_name: curUser.last_name,
-        },
-      };
+
       // Make the API call
       const response = await apiPost(
-        `/api/forum/posts/${is_repost ? original_post_id : post_id}/comments/`,
+        `/forum/posts/${is_repost ? original_post_id : post_id}/comments/`,
         {
           content: commentContent,
           user_id: user.id,
+          parent_comment_id: parent_comment_id,
+          is_edit: isEdit,
         },
         {
           headers: {
@@ -78,19 +78,52 @@ export default function usePostCommentInput(
         }
       );
 
-      if (response.status !== 201) {
-        throw new Error(response.message || "Failed to submit comment.");
+      //type of setRepliesCount check
+
+      const newComment = {
+        content: commentContent,
+        date_created: new Date().toISOString(),
+        id: isEdit ? parent_comment_id : response.id,
+        post_id: post_id,
+        is_reply: is_reply,
+        parent_comment_id: parent_comment_id,
+        user: {
+          avatar_url: user.avatar,
+          email: user.email,
+          first_name: user.first_name,
+          id: user.id,
+          last_name: user.last_name,
+        },
+      };
+      showSuccess(`Comment ${isEdit ? "edited" : "submitted"} successfully`);
+      // Reset the comment input
+      if (!isEdit) setCommentsCount((prev) => prev + 1); // Increment the comments count
+
+      if (!isEdit) {
+        setComments((prev) => [newComment, ...prev]);
+      } else {
+        setComments((prev) =>
+          prev.map((comment) =>
+            comment.id === parent_comment_id
+              ? { ...comment, content: commentContent }
+              : comment
+          )
+        );
       }
 
-      // Reset the comment input
       setCommentContent("");
-      setComments((prev) => [newComment, ...prev]);
+      if (is_reply && typeof setRepliesCount === "function") {
+        setRepliesCount((prev) => prev + 1); // Increment the replies count if it's a reply
+      }
     } catch (error) {
-      console.error("Error submitting comment:", error);
+      console.log("Error submitting comment:", error);
       showError("Failed to submit comment. Please try again.");
     } finally {
       setIsButtonDisabled(false); // Re-enable the button
       setIsLoading(false); // Hide loading spinner
+      if (isEdit) {
+        setisInputVisible(false); // Hide the input after editing
+      }
     }
   };
 

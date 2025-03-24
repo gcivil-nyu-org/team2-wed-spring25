@@ -43,3 +43,5 @@ certs/
 coverage.xml
 # Local Netlify folder
 .netlify
+
+todo.txt
