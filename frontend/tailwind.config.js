@@ -100,5 +100,7 @@ module.exports = {
     "bg-red-800",
     "ring-red-300",
     "bg-red-800",
+    "items-start",
+    "items-center",
   ],
 };

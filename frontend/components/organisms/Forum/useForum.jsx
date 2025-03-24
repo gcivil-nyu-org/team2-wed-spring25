@@ -4,7 +4,7 @@ import { apiGet } from "@/utils/fetch/fetch";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import userHeadings from "@/constants/headers";
 
-export default function useForum() {
+export default function useForum(settingsType) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false); // For loading more posts
@@ -36,7 +36,7 @@ export default function useForum() {
       try {
         setIsLoading(true);
         const response = await apiGet(
-          `/api/forum/posts?user_id=${user?.id}&offset=0&limit=${limit}`
+          `/api/forum/posts?user_id=${user?.id}&offset=0&limit=${limit}&settings_type=${settingsType}`
         );
         if (response) {
           setUserPosts(response.posts);
@@ -60,7 +60,7 @@ export default function useForum() {
       setIsLoadingMore(true);
       const newOffset = offset + limit;
       const response = await apiGet(
-        `/api/forum/posts?user_id=${user?.id}&offset=${newOffset}&limit=${limit}`
+        `/api/forum/posts?user_id=${user?.id}&offset=${newOffset}&limit=${limit}&settings_type=${settingsType}` // Pass settingsType to the API
       );
       if (response) {
         setUserPosts((prevPosts) => [...prevPosts, ...response.posts]); // Append new posts

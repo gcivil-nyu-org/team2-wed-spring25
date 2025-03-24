@@ -142,18 +142,20 @@ export default function UserPostHeader({
                 </>
               ))}
           </div>
-          <div className="absolute top-0 right-0 rounded-full hover:cursor-pointer hover:bg-gray-100">
-            <Icon
-              src={"/icons/more-options.svg"}
-              size={"md"}
-              width={30}
-              height={30}
-              alt={"..."}
-              onClick={() => {
-                setIsPostOptionListVisible(!isPostOptionListVisible);
-              }}
-            />
-          </div>
+          {user_id === post_user_id && (
+            <div className="absolute top-0 right-0 rounded-full hover:cursor-pointer hover:bg-gray-100">
+              <Icon
+                src={"/icons/more-options.svg"}
+                size={"md"}
+                width={30}
+                height={30}
+                alt={"..."}
+                onClick={() => {
+                  setIsPostOptionListVisible(!isPostOptionListVisible);
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
