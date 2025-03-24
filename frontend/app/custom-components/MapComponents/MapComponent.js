@@ -15,7 +15,7 @@ import "@/styles/map_styles.css";
 import HeatmapLayer from "./HeatmapLayer";
 import MapCriticalErrorMsg from "./MapCriticalErrorMsg";
 import MapRenderMsg from "./MapRenderMsg";
-import useUserLocation from "./hooks/useUserLocation";
+import useUserLocation from "../../../hooks/useUserLocation";
 import RouteInfo from "./RouteInfo";
 
 const RoutingMapComponent = ({

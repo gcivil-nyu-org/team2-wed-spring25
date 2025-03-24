@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNotification } from "../../ToastComponent/NotificationContext";
+import { useNotification } from "../app/custom-components/ToastComponent/NotificationContext";
 
 const useUserLocation = ({
   departureCoords,
@@ -357,6 +357,7 @@ const useUserLocation = ({
         }
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

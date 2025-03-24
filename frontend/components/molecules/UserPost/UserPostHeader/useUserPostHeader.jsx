@@ -12,20 +12,33 @@ export default function useUserPostHeader(post_user_id, setPosts, post_id) {
   const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
   const postOptionListRef = useRef(null);
   const { showError, showSuccess } = useNotification();
+  
+  // Move user retrieval inside the effect or handler functions
+  // instead of at the top level with early returns
+  const [userId, setUserId] = useState(null);
+  
+  // Use an effect to load the user ID once on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
+      if (user) {
+        setUserId(user.id);
+      }
+    }
+  }, []);
 
-  let user = null;
-  if (typeof window !== "undefined") {
-    user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
-  }
-
-  if (!user) {
-    showError("Please login to follow a user. User not found.");
-    return;
-  }
-
-  const user_id = user.id;
   const throttledHandleOnFollow = throttle(async (val) => {
     try {
+      // Check for user inside the function
+      let user = null;
+      if (typeof window !== "undefined") {
+        user = JSON.parse(localStorage.getItem("user"));
+      }
+      if (!user) {
+        showError("Please login to follow a user. User not found.");
+        return;
+      }
+      
       setIsFollowButtonDisabled(true);
       setPosts((prev) => {
         return prev.map((post) => {
@@ -35,14 +48,7 @@ export default function useUserPostHeader(post_user_id, setPosts, post_id) {
           return post;
         });
       });
-      user = null;
-      if (typeof window !== "undefined") {
-        user = JSON.parse(localStorage.getItem("user"));
-      }
-      if (!user) {
-        showError("Please login to follow a user. User not found.");
-        return;
-      }
+      
       await apiPost(`/api/forum/posts/follow/${post_user_id}/`, {
         user_id: user.id,
         follow: val,
@@ -93,7 +99,7 @@ export default function useUserPostHeader(post_user_id, setPosts, post_id) {
   return {
     isFollowButtonDisabled,
     throttledHandleOnFollow,
-    user_id,
+    user_id: userId, // Return the state variable
     isPostOptionListVisible,
     setIsPostOptionListVisible,
     postOptionListRef,

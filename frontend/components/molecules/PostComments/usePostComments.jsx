@@ -27,7 +27,7 @@ export default function usePostComments(
       }
 
       const response = await apiGet(
-        `/api/forum/posts/${
+        `/forum/posts/${
           is_repost ? original_post_id : post_id
         }/comments/?user_id=${user.id}&parent_comment_id=${
           is_reply ? parent_comment_id : 0
@@ -67,6 +67,7 @@ export default function usePostComments(
 
   useEffect(() => {
     fetchPostComments(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

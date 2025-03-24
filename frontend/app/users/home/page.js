@@ -33,7 +33,7 @@ export function DashboardHeader() {
           <Button asChild>
             <Link href={`map/`}>Map Route</Link>
           </Button>
-          <SettingPanel />
+          
         </div>
       </div>
     </>

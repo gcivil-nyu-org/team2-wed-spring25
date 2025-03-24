@@ -90,7 +90,7 @@ export default function useLikeIconTextWithTooltip(
       }
 
       const response = await apiPost(
-        `/api/forum/posts/${is_repost ? original_post_id : post_id}/like/`,
+        `/forum/posts/${is_repost ? original_post_id : post_id}/like/`,
         {
           post_id: is_repost ? original_post_id : post_id,
           is_liked: userHasLiked2,
