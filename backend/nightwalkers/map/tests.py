@@ -5,8 +5,12 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from unittest.mock import patch, MagicMock
 import requests
+import json
+from shapely.geometry import Polygon, MultiPolygon
 
 from .models import SavedRoute
+from .views import heatmap_data, process_route_with_crime_data, get_crime_hotspots, create_avoid_polygons, \
+    get_safer_ors_route
 
 User = get_user_model()
 
@@ -305,14 +309,23 @@ class SavedRouteAPITestCase(BaseTestCase):
         self.assertTrue(SavedRoute.objects.filter(id=self.route1.id).exists())
 
 
-class RouteViewAPITests(BaseTestCase):
-    """
-    Test cases for the RouteViewAPI endpoint
-    """
+class RouteViewAPITestCase(BaseTestCase):
+    """Test cases for the RouteViewAPI endpoint"""
 
     def setUp(self):
         """Set up test data specific to RouteViewAPI tests"""
         super().setUp()
+
+        # Create test route
+        self.saved_route = SavedRoute.objects.create(
+            user=self.user1,
+            name="Existing Route",
+            departure_lat=40.7128,
+            departure_lon=-74.0060,
+            destination_lat=40.7580,
+            destination_lon=-73.9855,
+            favorite=True,
+        )
 
         # URL for API endpoint
         self.url = reverse("get-route")
@@ -326,6 +339,13 @@ class RouteViewAPITests(BaseTestCase):
 
         # Set up successful mock response from OpenRouteService
         self.mock_ors_response = {
+            "routes": [
+                {
+                    "geometry": "some_encoded_polyline",
+                    "legs": [],
+                    "summary": {"distance": 3941.2, "duration": 3146.6},
+                }
+            ],
             "type": "FeatureCollection",
             "features": [
                 {
@@ -333,6 +353,31 @@ class RouteViewAPITests(BaseTestCase):
                     "properties": {
                         "segments": [{"distance": 3941.2, "duration": 3146.6}],
                         "summary": {"distance": 3941.2, "duration": 3146.6},
+                    },
+                    "geometry": {
+                        "coordinates": [[-74.0060, 40.7128], [-118.2437, 34.0522]],
+                        "type": "LineString",
+                    },
+                }
+            ],
+        }
+
+        # Mock safer route response
+        self.mock_safer_route = {
+            "routes": [
+                {
+                    "geometry": "another_encoded_polyline",
+                    "legs": [],
+                    "summary": {"distance": 4100.5, "duration": 3300.2},
+                }
+            ],
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "segments": [{"distance": 4100.5, "duration": 3300.2}],
+                        "summary": {"distance": 4100.5, "duration": 3300.2},
                     },
                     "geometry": {
                         "coordinates": [[-74.0060, 40.7128], [-118.2437, 34.0522]],
@@ -382,18 +427,27 @@ class RouteViewAPITests(BaseTestCase):
         self.assertIsNone(response.data["safer_route"])
 
     @patch("requests.post")
-    def test_save_route_unauthenticated(self, mock_post):
-        """Test attempting to save a route while unauthenticated"""
-        # Data for saving a new route
-        data = {
-            "departure": [40.7128, -74.0060],
-            "destination": [34.0522, -118.2437],
-            "saved_route": True,
-            "name": "New Saved Route",
-        }
+    @patch("polyline.decode")
+    @patch("django.db.connection.cursor")
+    def test_safer_route_generation_failure(self, mock_cursor, mock_polyline_decode, mock_post):
+        """Test fallback when safer route generation fails"""
+        # Setup mock for OpenRouteService
+        mock_response = MagicMock()
+        mock_response.json.return_value = self.mock_ors_response
+        mock_post.return_value = mock_response
 
-        response = self.api_client.post(self.url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        # Mock polyline decoding to raise an exception during safer route generation
+        mock_polyline_decode.side_effect = Exception("Polyline decode error")
+
+        # Authenticate user
+        self.api_client.force_authenticate(user=self.user1)
+
+        response = self.api_client.post(self.url, self.valid_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["initial_route"], self.mock_ors_response)
+        self.assertIsNone(response.data["safer_route"])
+        self.assertIn("message", response.data)
 
     @patch("requests.post")
     def test_openrouteservice_error(self, mock_post):
@@ -407,3 +461,205 @@ class RouteViewAPITests(BaseTestCase):
         response = self.api_client.post(self.url, self.valid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertIn("error", response.data)
+
+    @patch("requests.post")
+    def test_save_route_unauthenticated(self, mock_post):
+        """Test attempting to save a route while unauthenticated"""
+        # Data for saving a new route
+        data = {
+            "departure": [40.7128, -74.0060],
+            "destination": [34.0522, -118.2437],
+            "saved_route": True,
+            "name": "New Saved Route",
+        }
+
+        response = self.api_client.post(self.url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class HeatmapDataTestCase(BaseTestCase):
+    """Test cases for the heatmap_data function"""
+
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('heatmap-data')  # URL for heatmap data endpoint
+
+        # Sample data to be returned by the cursor
+        self.mock_data = [
+            (40.7128, -74.0060, "5"),
+            (40.7580, -73.9855, "10"),
+            (40.7431, -73.9712, None),
+        ]
+
+    @patch('django.db.connection.cursor')
+    def test_heatmap_data_success(self, mock_cursor):
+        """Test successful retrieval of heatmap data"""
+        # Mock the cursor's fetchall method to return our sample data
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = self.mock_data
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 3)
+
+        # Verify the data is formatted correctly
+        self.assertEqual(data[0]['latitude'], 40.7128)
+        self.assertEqual(data[0]['longitude'], -74.0060)
+        self.assertEqual(data[0]['intensity'], 5.0)
+
+        # Verify that None is handled properly
+        self.assertEqual(data[2]['intensity'], 0.0)
+
+    @patch('django.db.connection.cursor')
+    def test_heatmap_data_db_error(self, mock_cursor):
+        """Test handling of database errors"""
+        # Mock the cursor to raise an exception
+        mock_cursor.return_value.__enter__.side_effect = Exception("Database error")
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)  # Even on error, returns 200
+        data = json.loads(response.content)
+        self.assertEqual(data, [])  # Empty list on error
+
+
+class RouteSafetyFunctionsTestCase(BaseTestCase):
+    """Test cases for the route safety processing functions"""
+
+    def setUp(self):
+        super().setUp()
+        self.linestring = "LINESTRING(-74.0060 40.7128, -118.2437 34.0522)"
+
+        self.mock_hotspots = [
+            {
+                "latitude": 40.7200,
+                "longitude": -74.0100,
+                "complaints": 15,
+                "distance": 0.01
+            },
+            {
+                "latitude": 40.7300,
+                "longitude": -74.0200,
+                "complaints": 20,
+                "distance": 0.02
+            }
+        ]
+
+        self.mock_initial_route = {
+            "routes": [
+                {
+                    "geometry": "some_encoded_polyline",
+                    "summary": {"distance": 3941.2, "duration": 3146.6},
+                }
+            ]
+        }
+
+        self.departure = [-74.0060, 40.7128]
+        self.destination = [-118.2437, 34.0522]
+
+    @patch('django.db.connection.cursor')
+    def test_get_crime_hotspots(self, mock_cursor):
+        """Test the get_crime_hotspots function"""
+        # Mock the cursor response
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = [
+            (40.7200, -74.0100, 15, 0.01),
+            (40.7300, -74.0200, 20, 0.02),
+        ]
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        result = get_crime_hotspots(self.linestring)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]["latitude"], 40.7200)
+        self.assertEqual(result[0]["longitude"], -74.0100)
+        self.assertEqual(result[0]["complaints"], 15)
+        self.assertEqual(result[0]["distance"], 0.01)
+
+    @patch('django.db.connection.cursor')
+    def test_get_crime_hotspots_db_error(self, mock_cursor):
+        """Test get_crime_hotspots handling of database errors"""
+        # Mock the cursor to raise an exception
+        mock_cursor.return_value.__enter__.side_effect = Exception("Database error")
+
+        result = get_crime_hotspots(self.linestring)
+
+        self.assertEqual(result, [])  # Should return empty list on error
+
+    def test_create_avoid_polygons(self):
+        """Test the create_avoid_polygons function"""
+        result = create_avoid_polygons(self.mock_hotspots, radius=0.1)
+
+        self.assertIsInstance(result, MultiPolygon)
+        self.assertEqual(len(result.geoms), 2)
+
+        # Each polygon should have 9 coordinates (8 points + closing point)
+        for polygon in result.geoms:
+            self.assertEqual(len(polygon.exterior.coords), 9)
+
+    def test_create_avoid_polygons_empty(self):
+        """Test create_avoid_polygons with empty hotspots"""
+        result = create_avoid_polygons([])
+
+        self.assertIsNone(result)
+
+    @patch('requests.post')
+    def test_get_safer_ors_route(self, mock_post):
+        """Test the get_safer_ors_route function"""
+        # Create a simple avoid polygon
+        avoid_polygons = MultiPolygon([
+            Polygon([(-74.02, 40.72), (-74.01, 40.72), (-74.01, 40.73), (-74.02, 40.73), (-74.02, 40.72)])
+        ])
+
+        # Mock ORS response
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"routes": [{"geometry": "safer_route_polyline"}]}
+        mock_post.return_value = mock_response
+
+        result = get_safer_ors_route(self.departure, self.destination, avoid_polygons)
+
+        self.assertEqual(result["routes"][0]["geometry"], "safer_route_polyline")
+
+        # Verify that avoid_polygons was included in the request
+        args, kwargs = mock_post.call_args
+        self.assertIn("json", kwargs)
+        self.assertIn("options", kwargs["json"])
+        self.assertIn("avoid_polygons", kwargs["json"]["options"])
+
+    @patch('requests.post')
+    def test_get_safer_ors_route_error(self, mock_post):
+        """Test get_safer_ors_route handling of API errors"""
+        # Mock ORS response to raise an exception
+        mock_post.side_effect = requests.exceptions.RequestException("API error")
+
+        result = get_safer_ors_route(self.departure, self.destination, None)
+
+        self.assertIn("error", result)
+
+    @patch('polyline.decode')
+    @patch('django.db.connection.cursor')
+    @patch('requests.post')
+    def test_process_route_with_crime_data(self, mock_post, mock_cursor, mock_polyline_decode):
+        """Test the process_route_with_crime_data function"""
+        # Mock polyline decode
+        mock_polyline_decode.return_value = [[-74.0060, 40.7128], [-118.2437, 34.0522]]
+
+        # Mock cursor for crime data
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = [
+            (40.7200, -74.0100, 15, 0.01),
+            (40.7300, -74.0200, 20, 0.02),
+        ]
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        # Mock ORS response for safer route
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"routes": [{"geometry": "safer_route_polyline"}]}
+        mock_post.return_value = mock_response
+
+        result = process_route_with_crime_data(self.mock_initial_route)
+
+        self.assertEqual(result["routes"][0]["geometry"], "safer_route_polyline")

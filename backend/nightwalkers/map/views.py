@@ -60,81 +60,32 @@ class RouteViewAPI(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
-
         route_id = validated_data.get("route_id")
-        save_route = validated_data.get("saved_route", False)
-        if save_route:
-            if not request.user.is_authenticated:
-                return Response(
-                    {"error": "No valid credentials found"},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
 
-        # if we want to save routes then this will check
-        # in the database first if not then use the coordinates
-        if route_id:
-            try:
-                saved_route = SavedRoute.objects.get(id=route_id)
-                departure_lat = saved_route.departure_lat
-                departure_lon = saved_route.departure_lon
-                destination_lat = saved_route.destination_lat
-                destination_lon = saved_route.destination_lon
-                departure = [departure_lon, departure_lat]
-                destination = [destination_lon, destination_lat]
-            except SavedRoute.DoesNotExist:
-                return Response(
-                    {"error": "The route provided does not exist"},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-        else:
-            departure_lat, departure_lon = validated_data.get("departure")
-            destination_lat, destination_lon = validated_data.get("destination")
-            departure = [departure_lon, departure_lat]
-            destination = [destination_lon, destination_lat]
+        departure_lat, departure_lon = validated_data.get("departure")
+        destination_lat, destination_lon = validated_data.get("destination")
+        departure = [departure_lon, departure_lat]
+        destination = [destination_lon, destination_lat]
 
         initial_route = self.get_initial_route(departure, destination)
         if "error" in initial_route:
             return Response(initial_route, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             safer_route = process_route_with_crime_data(initial_route)
-            saved_id = None
-            if save_route and not route_id:
-                saved_route = SavedRoute.objects.create(
-                    user=request.user,
-                    name=validated_data.get("name", "UnnamedRoute"),
-                    departure_lat=departure_lat,
-                    departure_lon=departure_lon,
-                    destination_lat=destination_lat,
-                    destination_lon=destination_lon,
-                )
-                saved_id = saved_route.id
+
             return Response(
                 {
                     "initial_route": initial_route,
                     "safer_route": safer_route,
-                    "route_id": saved_id,
                 },
                 status=status.HTTP_200_OK,
             )
         except Exception as e:
-            # if there is an error on getting the safer route fallback
-            saved_id = None
-            if save_route and request.user.is_authenticated and not route_id:
-                saved_route = SavedRoute.objects.create(
-                    user=request.user,
-                    name=validated_data.get("name", "Unnamed Route"),
-                    departure_lat=departure_lat,
-                    departure_lon=departure_lon,
-                    destination_lat=destination_lat,
-                    destination_lon=destination_lon,
-                )
-                saved_id = saved_route.id
             return Response(
                 {
                     "initial_route": initial_route,
                     "safer_route": None,  # This will be none
                     "message": f"Could not fetch a safer route: {str(e)}",
-                    "route_id": saved_id,
                 },
                 status=status.HTTP_200_OK,
             )
