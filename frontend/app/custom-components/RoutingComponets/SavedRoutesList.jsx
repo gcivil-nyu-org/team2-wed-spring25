@@ -211,12 +211,12 @@ const SavedRoutesList = () => {
                 Array(3).fill().map((_, i) => (
                     <div key={i} className="mb-4 p-4 border rounded-lg flex justify-between items-center">
                         <div>
-                            <Skeleton className="h-6 w-40 mb-2" />
-                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-6 w-40 mb-2" data-slot="skeleton" />
+                            <Skeleton className="h-4 w-24" data-slot="skeleton" />
                         </div>
                         <div className="flex space-x-2">
-                            <Skeleton className="h-8 w-8 rounded-full" />
-                            <Skeleton className="h-8 w-8 rounded-full" />
+                            <Skeleton className="h-8 w-8 rounded-full" data-slot="skeleton" />
+                            <Skeleton className="h-8 w-8 rounded-full" data-slot="skeleton" />
                         </div>
                     </div>
                 ))

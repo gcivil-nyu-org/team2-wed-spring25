@@ -11,7 +11,7 @@ import { useSearchParams } from "next/navigation";
 
 // Dynamically import the map component with SSR disabled
 const ClientOnlyMap = dynamic(
-  () => import("@/app/custom-components/MapComponents/MapComponent"),
+  () => import("@/app/custom-components/MapComponents/MapComponent.jsx"),
   {
     ssr: false,
     loading: () => (
