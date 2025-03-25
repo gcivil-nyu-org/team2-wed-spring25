@@ -2,11 +2,8 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
-
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -33,11 +30,11 @@ const SIDEBAR_WIDTH_MOBILE = "100vw";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
-const SIDEBAR_BG_COLOR = "bg-stone-700";
-const SIDEBAR_GROUPBG_COLOR = "bg-stone-800";
-const SIDEBAR_FONT_COLOR = "text-gray-100";
-const SIDEBAR_BORDER_COLOR = "border-stone-500";
-const SIDEBAR_SEPARATORBG_COLOR = "bg-stone-600"
+const SIDEBAR_BG_COLOR = "bg-sidebar-bg";
+const SIDEBAR_GROUPBG_COLOR = "bg-sidebar-group";
+const SIDEBAR_FONT_COLOR = "text-sidebar-text";
+const SIDEBAR_BORDER_COLOR = "border-sidebar-border";
+const SIDEBAR_SEPARATORBG_COLOR = "bg-sidebar-separator";
 
 const SidebarContext = React.createContext(null);
 
@@ -241,9 +238,9 @@ function SidebarTrigger({ className, onClick, ...props }) {
   if (typeof window !== "undefined") {
     user = JSON.parse(localStorage.getItem("user"));
   }
-  if (!user) {
-    return null; // or handle the case when user is not found
-  }
+  // if (!user) {
+  //   return null; // or handle the case when user is not found
+  // }
   return (
     // <Button
     //   data-sidebar="trigger"
@@ -261,7 +258,7 @@ function SidebarTrigger({ className, onClick, ...props }) {
     // </Button>
     <>
       <Avatar
-        className="fixed top-2 right-6 h-16 w-16 cursor-pointer hover:opacity-80 mt-4"
+        className="fixed top-2 right-6 cursor-pointer hover:opacity-80 mt-4"
         onClick={(event) => {
           onClick?.(event);
           toggleSidebar();
@@ -269,10 +266,10 @@ function SidebarTrigger({ className, onClick, ...props }) {
         {...props}
       >
         <AvatarImage
-          src={user.avatar ?? fallbackUserProfileImage}
+          src={user?.avatar ?? fallbackUserProfileImage}
           alt="user profile"
         />
-        <AvatarFallback>CN</AvatarFallback>
+        <AvatarFallback>IMG</AvatarFallback>
       </Avatar>
     </>
   );
