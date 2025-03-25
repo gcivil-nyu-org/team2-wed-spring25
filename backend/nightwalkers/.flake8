@@ -9,5 +9,8 @@ exclude =
     **/site-packages/**,
     ./venv/*
 ignore = E203, W503
+per-file-ignores =
+    **/urls.py:F401
+
 # E203: whitespace before ':' (Black formats differently)
 # W503: line break before binary operator (Black formats differently)

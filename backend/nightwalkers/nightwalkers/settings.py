@@ -23,7 +23,6 @@ load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
@@ -54,6 +53,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost",
     "https://localhost:3000",
+    "https://127.0.0.1:3000",
     "https://night-walkers.onrender.com",
     "https://test-night-walkers.onrender.com",
     "https://testnyuwalkers.netlify.app",
@@ -69,11 +69,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.gis",
     # "sslserver",
     "django_extensions",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "accounts",
+    "forum",
+    "map",
 ]
 # Current command to run https server:
 # python manage.py runserver_plus
@@ -96,7 +99,7 @@ ROOT_URLCONF = "nightwalkers.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],  # Add this line
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -122,17 +125,6 @@ DATABASES = {
         # Improves performance by reusing connections
     )
 }
-# Database
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.getenv("DB_NAME"),
-#         "USER": os.getenv("DB_USER"),
-#         "PASSWORD": os.getenv("DB_PASSWORD"),
-#         "HOST": os.getenv("DB_HOST"),
-#         "PORT": os.getenv("DB_PORT"),
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -158,7 +150,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "US/Eastern"
+TIME_ZONE = "America/New_York"
 
 USE_I18N = True
 
@@ -194,7 +186,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }

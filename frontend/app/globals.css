@@ -1,4 +1,6 @@
 @tailwind base;
+
+@custom-variant dark (&:is(.dark *));
 @tailwind components;
 @tailwind utilities;
 
@@ -39,6 +41,13 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    /* Sidebar Colors */
+    --sidebar-bg: rgb(68 64 60); /* stone-700 */
+    --sidebar-group-bg: rgb(41 37 36); /* stone-800 */
+    --sidebar-text: rgb(243 244 246); /* gray-100 */
+    --sidebar-border2: rgb(120 113 108); /* stone-500 */
+    --sidebar-separator: rgb(87 83 78); /* stone-600 */
   }
   .dark {
     --background: 240 10% 3.9%;
@@ -65,6 +74,13 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Sidebar Colors */
+    --sidebar-bg: rgb(68 64 60);
+    --sidebar-group-bg: rgb(41 37 36);
+    --sidebar-text: rgb(243 244 246);
+    --sidebar-border2: rgb(120 113 108);
+    --sidebar-separator: rgb(87 83 78);
   }
 }
 
@@ -86,7 +102,8 @@ body {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -102,8 +119,6 @@ body {
   animation: float 3s ease-in-out infinite;
 }
 
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -111,37 +126,158 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-
 }
 
-/* Add to your global.css file */
+/* Base toast styling */
+.my-toast[data-sonner-toast] {
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Error toast styling */
+.my-toast[data-sonner-toast][data-type="error"] {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.95),
+    rgba(220, 38, 38, 0.95)
+  ) !important; /* Red */
+  color: white;
+}
 
 /* Error type-specific styles */
-.my-toast[data-sonner-toast][data-type="error"].auth-error-toast.error-token {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(109, 40, 217, 0.95)) !important; /* Purple for token errors */
+.my-toast[data-sonner-toast][data-type="error"].error-token {
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.95),
+    rgba(109, 40, 217, 0.95)
+  ) !important; /* Purple for token errors */
 }
 
-.my-toast[data-sonner-toast][data-type="error"].auth-error-toast.error-login {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95)) !important; /* Red for login errors */
+.my-toast[data-sonner-toast][data-type="error"].error-login {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.95),
+    rgba(220, 38, 38, 0.95)
+  ) !important; /* Red for login errors */
 }
 
-.my-toast[data-sonner-toast][data-type="error"].auth-error-toast.error-api {
-  background: linear-gradient(135deg, rgba(243, 166, 33, 0.95), rgba(217, 119, 6, 0.95)) !important; /* Amber for API errors */
+.my-toast[data-sonner-toast][data-type="error"].error-api {
+  background: linear-gradient(
+    135deg,
+    rgba(243, 166, 33, 0.95),
+    rgba(217, 119, 6, 0.95)
+  ) !important; /* Amber for API errors */
 }
 
-.my-toast[data-sonner-toast][data-type="error"].auth-error-toast.error-permission {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.95), rgba(8, 145, 178, 0.95)) !important; /* Cyan for permission errors */
-}
-.my-toast[data-sonner-toast][data-type="success"].auth-success-toast.success-login {
-  background: linear-gradient(135deg, rgba(60, 213, 104, 0.95), rgba(35, 166, 75, 0.95)) !important;
-}
-
-.my-toast[data-sonner-toast][data-type="success"].auth-success-toast.success-signup {
-  background: linear-gradient(135deg, rgba(30, 183, 120, 0.95), rgba(20, 140, 90, 0.95)) !important;
+.my-toast[data-sonner-toast][data-type="error"].error-permission {
+  background: linear-gradient(
+    135deg,
+    rgba(6, 182, 212, 0.95),
+    rgba(8, 145, 178, 0.95)
+  ) !important; /* Cyan for permission errors */
 }
 
-.my-toast[data-sonner-toast][data-type="success"].auth-success-toast.success-profile {
-  background: linear-gradient(135deg, rgba(72, 231, 15, 0.95), rgba(13, 131, 46, 0.95)) !important;
+.my-toast[data-sonner-toast][data-type="error"].error-map_initialization_error {
+  background: linear-gradient(
+    135deg,
+    rgba(20, 184, 166, 0.95),
+    rgba(13, 148, 136, 0.95)
+  ) !important; /* Teal for map errors */
+}
+
+.my-toast[data-sonner-toast][data-type="error"].error-route_fetch_error {
+  background: linear-gradient(
+    135deg,
+    rgba(79, 70, 229, 0.95),
+    rgba(67, 56, 202, 0.95)
+  ) !important; /* Indigo for route errors */
+}
+
+/* Warning toast styling */
+.my-toast[data-sonner-toast][data-type="warning"] {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.95),
+    rgba(217, 119, 6, 0.95)
+  ) !important; /* Amber */
+  color: white;
+}
+
+/* Warning type-specific styles */
+.my-toast[data-sonner-toast][data-type="warning"].warning-location_outside_nyc {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.95),
+    rgba(245, 158, 11, 0.95)
+  ) !important; /* Amber for location warnings */
+}
+
+.my-toast[data-sonner-toast][data-type="warning"].warning-location_permission_denied {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.95),
+    rgba(217, 119, 6, 0.95)
+  ) !important; /* Darker amber for permission warnings */
+}
+
+.my-toast[data-sonner-toast][data-type="warning"].warning-routing_issue {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 146, 60, 0.95),
+    rgba(234, 88, 12, 0.95)
+  ) !important; /* Orange for routing warnings */
+}
+
+.my-toast[data-sonner-toast][data-type="warning"].warning-map_data {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 230, 138, 0.95),
+    rgba(251, 191, 36, 0.95)
+  ) !important; /* Yellow for data warnings */
+}
+
+/* Success toast styling */
+.my-toast[data-sonner-toast][data-type="success"] {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.95),
+    rgba(22, 163, 74, 0.95)
+  ) !important; /* Green */
+  color: white;
+}
+
+/* Success type-specific styles */
+.my-toast[data-sonner-toast][data-type="success"].success-login {
+  background: linear-gradient(
+    135deg,
+    rgba(60, 213, 104, 0.95),
+    rgba(35, 166, 75, 0.95)
+  ) !important;
+}
+
+.my-toast[data-sonner-toast][data-type="success"].success-signup {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 183, 120, 0.95),
+    rgba(20, 140, 90, 0.95)
+  ) !important;
+}
+
+.my-toast[data-sonner-toast][data-type="success"].success-profile {
+  background: linear-gradient(
+    135deg,
+    rgba(72, 231, 15, 0.95),
+    rgba(13, 131, 46, 0.95)
+  ) !important;
+}
+
+.my-toast[data-sonner-toast][data-type="success"].success-route_found {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.95),
+    rgba(5, 150, 105, 0.95)
+  ) !important;
 }
 
 /* Improved action button styles */
@@ -180,4 +316,37 @@ body {
 .leaflet-container {
   touch-action: none !important;
   -ms-touch-action: none !important;
+}
+
+:root {
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(0, 0%, 0%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }

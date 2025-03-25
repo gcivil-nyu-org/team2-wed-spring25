@@ -52,7 +52,7 @@ class GoogleAuthView(APIView):
                     {"error": "Email verification failed"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-
+            print("google login")
             # Use Google's given_name and family_name if available
             first_name = idinfo.get("given_name", first_name)
             last_name = idinfo.get("family_name", last_name)
@@ -77,8 +77,10 @@ class GoogleAuthView(APIView):
                 user.email_verified = True
                 user.first_name = first_name  # Ensure names stay updated
                 user.last_name = last_name
+                user.karma = 0
                 if "picture" in idinfo:
                     user.avatar_url = idinfo["picture"]
+
                 user.save()
 
             # Generate tokens
@@ -116,7 +118,6 @@ class LoginView(APIView):
         print("Login in ")
         email = request.data.get("email")
         password = request.data.get("password")
-        print(email, password)
         if not email or not password:
             return Response(
                 {"detail": "Email and password are required"},
@@ -125,7 +126,7 @@ class LoginView(APIView):
 
         # Authenticate with email as the USERNAME_FIELD
         user = authenticate(email=email, password=password)
-
+        print(user)
         if user is not None:
             refresh = RefreshToken.for_user(user)
 
@@ -227,3 +228,15 @@ class UserProfileView(APIView):
                 "avatar_url": user.avatar_url if hasattr(user, "avatar_url") else None,
             }
         )
+
+
+class GetUserView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
