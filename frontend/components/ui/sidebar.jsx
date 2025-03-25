@@ -2,11 +2,8 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
-
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -28,10 +25,16 @@ import { fallbackUserProfileImage } from "@/constants/imageUrls";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = "16rem";
-const SIDEBAR_WIDTH_MOBILE = "18rem";
+const SIDEBAR_WIDTH = "30vw";
+const SIDEBAR_WIDTH_MOBILE = "100vw";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
+
+const SIDEBAR_BG_COLOR = "bg-sidebar-bg";
+const SIDEBAR_GROUPBG_COLOR = "bg-sidebar-group";
+const SIDEBAR_FONT_COLOR = "text-sidebar-text";
+const SIDEBAR_BORDER_COLOR = "border-sidebar-border";
+const SIDEBAR_SEPARATORBG_COLOR = "bg-sidebar-separator";
 
 const SidebarContext = React.createContext(null);
 
@@ -118,15 +121,15 @@ function SidebarProvider({
       <TooltipProvider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"
+          className={cn(
+            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex w-full",
+            className
+          )}
           style={{
             "--sidebar-width": SIDEBAR_WIDTH,
             "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
             ...style,
           }}
-          className={cn(
-            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex w-full",
-            className
-          )}
           {...props}
         >
           {children}
@@ -168,7 +171,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-white text-sidebar-foreground z-[9999] w-[var(--sidebar-width)] p-0 [&>button]:hidden"
+          className={`${SIDEBAR_BG_COLOR} text-sidebar-foreground z-[9999] w-[var(--sidebar-width)] p-0 [&>button]:hidden`}
           style={{
             "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
           }}
@@ -196,7 +199,7 @@ function Sidebar({
       {/* This is what handles the sidebar gap on desktop */}
       <div
         className={cn(
-          "relative w-[var(--sidebar-width)] bg-transparent transition-[width] duration-200 ease-linear",
+          `relative w-[var(--sidebar-width)] bg-transparent transition-[width] duration-200 ease-linear`,
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
@@ -206,7 +209,7 @@ function Sidebar({
       />
       <div
         className={cn(
-          "bg-white dark:bg-gray-950 z-[9999] fixed inset-y-0 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-200 ease-linear md:flex",
+          `${SIDEBAR_BG_COLOR} dark:bg-gray-950 z-[9999] fixed inset-y-0 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-200 ease-linear md:flex`,
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -235,9 +238,9 @@ function SidebarTrigger({ className, onClick, ...props }) {
   if (typeof window !== "undefined") {
     user = JSON.parse(localStorage.getItem("user"));
   }
-  if (!user) {
-    return null; // or handle the case when user is not found
-  }
+  // if (!user) {
+  //   return null; // or handle the case when user is not found
+  // }
   return (
     // <Button
     //   data-sidebar="trigger"
@@ -255,7 +258,7 @@ function SidebarTrigger({ className, onClick, ...props }) {
     // </Button>
     <>
       <Avatar
-        className="fixed top-2 right-6 h-16 w-16 cursor-pointer hover:opacity-80 mt-4"
+        className="fixed top-2 right-6 cursor-pointer hover:opacity-80 mt-4"
         onClick={(event) => {
           onClick?.(event);
           toggleSidebar();
@@ -263,10 +266,10 @@ function SidebarTrigger({ className, onClick, ...props }) {
         {...props}
       >
         <AvatarImage
-          src={user.avatar ?? fallbackUserProfileImage}
+          src={user?.avatar ?? fallbackUserProfileImage}
           alt="user profile"
         />
-        <AvatarFallback>CN</AvatarFallback>
+        <AvatarFallback>IMG</AvatarFallback>
       </Avatar>
     </>
   );
@@ -327,7 +330,10 @@ function SidebarHeader({ className, ...props }) {
     <div
       data-slot="sidebar-header"
       data-sidebar="header"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn(
+        `${SIDEBAR_GROUPBG_COLOR} ${SIDEBAR_FONT_COLOR} flex flex-col gap-2 p-2`,
+        className
+      )}
       {...props}
     />
   );
@@ -349,7 +355,7 @@ function SidebarSeparator({ className, ...props }) {
     <Separator
       data-slot="sidebar-separator"
       data-sidebar="separator"
-      className={cn("bg-sidebar-border mx-2 w-auto", className)}
+      className={cn(`${SIDEBAR_SEPARATORBG_COLOR} mx-2 w-auto mt-1`, className)}
       {...props}
     />
   );
@@ -375,7 +381,7 @@ function SidebarGroup({ className, ...props }) {
       data-slot="sidebar-group"
       data-sidebar="group"
       className={cn(
-        "relative text-black flex w-full min-w-0 flex-col p-2",
+        `relative text-black flex w-full items-center min-w-0 flex-col p-2 ${SIDEBAR_GROUPBG_COLOR}`,
         className
       )}
       {...props}
@@ -391,7 +397,7 @@ function SidebarGroupLabel({ className, asChild = false, ...props }) {
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
-        "text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        `text-l ${SIDEBAR_FONT_COLOR} w-full ring-sidebar-ring flex items-start mb-2 h-8 shrink-0 items-center rounded-md px-2 font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0`,
         "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
         className
       )}
@@ -424,7 +430,10 @@ function SidebarGroupContent({ className, ...props }) {
     <div
       data-slot="sidebar-group-content"
       data-sidebar="group-content"
-      className={cn("w-full text-sm", className)}
+      className={cn(
+        `w-[98%] text-sm ${SIDEBAR_FONT_COLOR} border ${SIDEBAR_BORDER_COLOR} rounded-md p-2`,
+        className
+      )}
       {...props}
     />
   );
@@ -447,7 +456,7 @@ function SidebarMenuItem({ className, ...props }) {
       data-slot="sidebar-menu-item"
       data-sidebar="menu-item"
       className={cn(
-        "group/menu-item relative hover:bg-gray-100/80 rounded-md",
+        "group/menu-item relative hover:bg-stone-600/30 rounded-md p-1",
         className
       )}
       {...props}

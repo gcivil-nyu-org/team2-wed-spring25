@@ -6,7 +6,7 @@ const SettingsContent = () => {
   return (
     <div className="h-full w-full">
       <div className="h-[15%] flex items-center">
-        <h1 className="text-2xl text-gray-800 m-6">
+        <h1 className="text-2xl m-6">
           <Link href="/users/settings">Settings</Link> &gt;
           <span className="italic"> General</span>
         </h1>

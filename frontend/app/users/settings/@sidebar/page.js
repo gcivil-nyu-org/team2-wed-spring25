@@ -6,8 +6,8 @@ const DefaultSidebar = () => {
     <>
       {/* General Settings Navigation */}
       <nav className="flex flex-col w-full text-center">
-        <Link href="/users/settings" className="px-4 py-2 hover:bg-gray-100">
-          Location Services
+        <Link href="/users/settings#display" className="px-4 py-2 hover:bg-gray-100">
+          Display
         </Link>
         <Link
           href="/users/settings/profile"
