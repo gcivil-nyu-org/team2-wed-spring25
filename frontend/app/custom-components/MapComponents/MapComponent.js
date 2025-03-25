@@ -17,6 +17,7 @@ import MapCriticalErrorMsg from "./MapCriticalErrorMsg";
 import MapRenderMsg from "./MapRenderMsg";
 import useUserLocation from "@/hooks/useUserLocation";
 import RouteInfo from "./RouteInfo";
+import RouteRenderer from "./RouteRender";
 
 const RoutingMapComponent = ({
   mapboxToken,
@@ -29,8 +30,6 @@ const RoutingMapComponent = ({
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapInstanceRef = useRef(null);
   const mapInitializedRef = useRef(false);
-  const routeLayerRef = useRef(null);
-  const markersRef = useRef([]);
   const { userLocation, isGettingLocation, locationDenied, retryLocation } = useUserLocation({
     departureCoords,
     mapInitializedRef,
@@ -38,6 +37,7 @@ const RoutingMapComponent = ({
   });
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
   const [routeDetails, setRouteDetails] = useState(null);
+  const [routeData, setRouteData] = useState(null); // Store the raw route data
   const [activeRoute, setActiveRoute] = useState("initial"); // 'initial' or 'safer'
   const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
   const [successfulRoute, setSuccessfulRoute] = useState(false);
@@ -223,24 +223,51 @@ const RoutingMapComponent = ({
       console.log("API response:", response);
 
       // Extract route summary for display
-      const routeInfo = extractRouteSummary(response);
-
-      // Enhance turn instructions by adding missing street names
-      if (routeInfo.initial && routeInfo.initial.instructions) {
-        routeInfo.initial.instructions = enhanceTurnInstructions(
-          routeInfo.initial.instructions
-        );
+      // If extractRouteSummary isn't working correctly, let's create the routeInfo manually
+      let routeInfo = {};
+      
+      // Manual parsing of initial route data
+      if (response.initial_route && response.initial_route.routes && response.initial_route.routes.length > 0) {
+        const initialRoute = response.initial_route.routes[0];
+        routeInfo.initial = {
+          distance: initialRoute.summary?.distance || 0,
+          duration: initialRoute.summary?.duration || 0,
+          instructions: initialRoute.segments?.[0]?.steps || []
+        };
+        
+        // Enhance turn instructions
+        if (routeInfo.initial.instructions) {
+          routeInfo.initial.instructions = enhanceTurnInstructions(
+            routeInfo.initial.instructions
+          );
+        }
       }
-      if (routeInfo.safer && routeInfo.safer.instructions) {
-        routeInfo.safer.instructions = enhanceTurnInstructions(
-          routeInfo.safer.instructions
-        );
+      
+      // Manual parsing of safer route data
+      if (response.safer_route && response.safer_route.routes && response.safer_route.routes.length > 0) {
+        const saferRoute = response.safer_route.routes[0];
+        routeInfo.safer = {
+          distance: saferRoute.summary?.distance || 0,
+          duration: saferRoute.summary?.duration || 0,
+          instructions: saferRoute.segments?.[0]?.steps || []
+        };
+        
+        // Enhance turn instructions
+        if (routeInfo.safer.instructions) {
+          routeInfo.safer.instructions = enhanceTurnInstructions(
+            routeInfo.safer.instructions
+          );
+        }
       }
+      
+      // Add the original response structure for debugging
+      routeInfo.initial_route = response.initial_route;
+      routeInfo.safer_route = response.safer_route;
 
+      // Store the route information
       setRouteDetails(routeInfo);
-
-      // Display the route on the map
-      displayRoute(response);
+      // Store the raw route data for the renderer
+      setRouteData(response);
 
       // Show success notification
       showSuccess("Route calculated successfully", null, "route_found");
@@ -259,213 +286,6 @@ const RoutingMapComponent = ({
       setIsLoadingRoute(false);
     }
   };
-
-  // Function to display the route on the map
-  const displayRoute = (routeData) => {
-    if (!mapInstanceRef.current || !routeData) return;
-
-    const map = mapInstanceRef.current;
-
-    // Clear existing route and markers
-    if (routeLayerRef.current) {
-      map.removeLayer(routeLayerRef.current);
-    }
-
-    markersRef.current.forEach((marker) => {
-      if (map.hasLayer(marker)) {
-        map.removeLayer(marker);
-      }
-    });
-    markersRef.current = [];
-
-    // Get route coordinates using the imported utility function
-    const initialRouteCoords = extractCoordinates(
-      routeData.initial_route,
-      "ors"
-    );
-    const saferRouteCoords = routeData.safer_route
-      ? extractCoordinates(routeData.safer_route, "mapbox")
-      : null;
-
-    if (
-      initialRouteCoords.length === 0 &&
-      (!saferRouteCoords || saferRouteCoords.length === 0)
-    ) {
-      showError(
-        "Could not display route",
-        "No valid route coordinates found in the response",
-        "route_coordinates_error"
-      );
-      return;
-    }
-
-    // Get departure and destination coordinates from the route
-    // Use initial route if available, otherwise use safer route
-    const routeToUse =
-      initialRouteCoords.length > 0 ? initialRouteCoords : saferRouteCoords;
-    const departureCoord = routeToUse[0];
-    const destinationCoord = routeToUse[routeToUse.length - 1];
-
-    // Create custom marker icons (same as your existing code)
-    const departureIcon = L.divIcon({
-      className: "custom-departure-marker",
-      html: `
-                <div class="bg-blue-500 h-5 w-5 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  </svg>
-                </div>
-            `,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-    });
-
-    const destinationIcon = L.divIcon({
-      className: "custom-destination-marker",
-      html: `
-                <div class="bg-red-500 h-5 w-5 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                </div>
-            `,
-      iconSize: [24, 24],
-      iconAnchor: [12, 24],
-    });
-
-    // Add markers for departure and destination
-    const departureMarker = L.marker(departureCoord, {
-      icon: departureIcon,
-    }).addTo(map);
-    const destinationMarker = L.marker(destinationCoord, {
-      icon: destinationIcon,
-    }).addTo(map);
-
-    markersRef.current.push(departureMarker, destinationMarker);
-
-    // Create route layer with both routes if available
-    const routeLayers = [];
-
-    // Initial route (ORS)
-    if (initialRouteCoords.length > 0) {
-      const initialRoute = L.polyline(initialRouteCoords, {
-        color: "#3B82F6", // Blue for initial route
-        weight: 5,
-        opacity: activeRoute === "initial" ? 0.9 : 0.4,
-        dashArray: activeRoute === "initial" ? null : "5, 5",
-        lineCap: "round",
-      });
-
-      initialRoute.on("click", () => {
-        setActiveRoute("initial");
-      });
-
-      routeLayers.push(initialRoute);
-    }
-
-    // Safer route (Mapbox)
-    if (saferRouteCoords && saferRouteCoords.length > 0) {
-      const saferRoute = L.polyline(saferRouteCoords, {
-        color: "#10B981", // Green for safer route
-        weight: 5,
-        opacity: activeRoute === "safer" ? 0.9 : 0.4,
-        dashArray: activeRoute === "safer" ? null : "5, 5",
-        lineCap: "round",
-      });
-
-      saferRoute.on("click", () => {
-        setActiveRoute("safer");
-      });
-
-      routeLayers.push(saferRoute);
-    }
-
-    // Add routes to map
-    routeLayerRef.current = L.layerGroup(routeLayers).addTo(map);
-
-    // Add a legend
-    const legend = L.control({ position: "bottomright" });
-    legend.onAdd = function () {
-      const div = L.DomUtil.create("div", "bg-white shadow-md rounded-md p-2");
-      div.innerHTML = `
-                <div class="text-sm font-medium">Routes</div>
-                <div class="flex items-center mt-1">
-                  <div class="w-4 h-1 bg-blue-500 mr-2"></div>
-                  <div class="text-xs">ORS Route</div>
-                </div>
-                ${
-                  saferRouteCoords
-                    ? `
-                <div class="flex items-center mt-1">
-                  <div class="w-4 h-1 bg-green-500 mr-2"></div>
-                  <div class="text-xs">Mapbox Route</div>
-                </div>
-                `
-                    : ""
-                }
-                <div class="text-xs mt-1 text-gray-500">Click on a route to select</div>
-            `;
-      return div;
-    };
-    legend.addTo(map);
-
-    // Zoom to departure point instead of entire route
-    map.setView(departureCoord, 18);
-  };
-
-  // Update route styles when active route changes
-  useEffect(() => {
-    if (!routeLayerRef.current) return;
-
-    // Apply the updated styles to the routes
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    try {
-      // For each layer in the route layer group
-      routeLayerRef.current.eachLayer((layer) => {
-        if (layer instanceof L.Polyline) {
-          // Check if this is the initial or safer route based on color
-          const isInitialRoute = layer.options.color === "#3B82F6";
-          const isSaferRoute = layer.options.color === "#10B981";
-
-          if (isInitialRoute) {
-            layer.setStyle({
-              opacity: activeRoute === "initial" ? 0.9 : 0.4,
-              dashArray: activeRoute === "initial" ? null : "5, 5",
-            });
-          } else if (isSaferRoute) {
-            layer.setStyle({
-              opacity: activeRoute === "safer" ? 0.9 : 0.4,
-              dashArray: activeRoute === "safer" ? null : "5, 5",
-            });
-          }
-        }
-      });
-    } catch (e) {
-      console.warn("Error updating route styles:", e);
-
-      showWarning(
-        "Route display issue",
-        "Could not update route styles. The route may not display correctly.",
-        "route_style_error"
-      );
-
-      // Fallback to re-creating the routes if direct style update fails
-      if (map && routeLayerRef.current) {
-        map.removeLayer(routeLayerRef.current);
-
-        if (routeDetails) {
-          displayRoute({
-            initial_route: routeDetails.initial_route,
-            safer_route: routeDetails.safer_route,
-          });
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeRoute, showWarning]);
 
   return (
     <div className="space-y-4">
@@ -502,6 +322,17 @@ const RoutingMapComponent = ({
               Enable Location Access
             </button>
           </div>
+        )}
+
+        {/* Route Renderer Component */}
+        {mapLoaded && routeData && (
+          <RouteRenderer
+            mapInstance={mapInstanceRef.current}
+            routeData={routeData}
+            activeRoute={activeRoute}
+            setActiveRoute={setActiveRoute}
+            showWarning={showWarning}
+          />
         )}
       </div>
 
