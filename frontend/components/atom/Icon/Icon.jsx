@@ -8,7 +8,6 @@ export default function Icon({
   height,
   alt,
   size,
-  key = null,
   onMouseEnter = null,
   onMouseLeave = null,
   selected = null,
@@ -39,10 +38,20 @@ export default function Icon({
     }
   }
 
+  // Handle click safely - prevent passing the event object
+  const handleClick = (e) => {
+    e.stopPropagation(); // Prevent event bubbling if needed
+    
+    // Call onClick with the alt text instead of the event
+    // This ensures we pass a string not an event object
+    if (onClick) {
+      onClick(alt);
+    }
+  };
 
   return (
     <div
-      onClick={onClick}
+      onClick={handleClick} // Use our safe handler instead of directly passing onClick
       className={data}
       onMouseEnter={() => {
         setIsHovered(true);
@@ -72,4 +81,3 @@ export default function Icon({
     </div>
   )
 }
-    
