@@ -14,6 +14,13 @@ module.exports = {
       },
       colors: {
         bglinkedin: "#f4f2ee",
+        sidebar: {
+          bg: "var(--sidebar-bg)",
+          group: "var(--sidebar-group-bg)",
+          text: "var(--sidebar-text)",
+          border: "var(--sidebar-border2)",
+          separator: "var(--sidebar-separator)",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

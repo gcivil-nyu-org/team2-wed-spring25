@@ -1,13 +1,21 @@
 import React from "react";
 import {
   UserRound,
+  Globe,
+  GlobeLock,
   Flag,
-  MapPinCheck,
-  ShieldPlus,
   Settings,
   LogOut,
+  MapPinPlus,
+  MapPinCheck,
+  MapPinned,
   ArrowLeft,
   ChevronRight,
+  SquarePen,
+  MessageSquareDiff,
+  MessageSquareText,
+  ThumbsUp,
+  ClipboardX,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -30,28 +38,62 @@ import Image from "next/image";
 const items = [
   {
     title: "Profile",
-    url: "/users/settings/profile",
+    url: "/users/settings/profile#password",
     icon: UserRound,
   },
   {
-    title: "Saved Routes",
-    url: "/users/settings/routes",
-    icon: MapPinCheck,
+    title: "Location Settings",
+    url: "/users/settings/profile#location",
+    icon: Globe,
+  },
+  {
+    title: "Privacy",
+    url: "/users/settings/profile#privacy",
+    icon: GlobeLock,
   },
   {
     title: "Report a Bug",
     url: "/users/settings/report",
     icon: Flag,
+  }
+];
+const routeItems = [
+  {
+    title: "Saved Routes",
+    url: "/users/settings/routes#saved",
+    icon: MapPinPlus,
   },
   {
-    title: "Resources",
-    url: "/users/resources",
-    icon: ShieldPlus,
+    title: "Route Preferences",
+    url: "/users/settings/routes#preferences",
+    icon: MapPinCheck,
   },
   {
-    title: "Settings",
-    url: "/users/settings",
-    icon: Settings,
+    title: "Route History",
+    url: "/users/settings/routes#history",
+    icon: MapPinned,
+  },
+];
+const forumItems = [
+  {
+    title: "Posts",
+    url: "/users/settings/routes",
+    icon: MessageSquareDiff,
+  },
+  {
+    title: "Comments",
+    url: "/users/settings/routes",
+    icon: MessageSquareText,
+  },
+  {
+    title: "Reactions",
+    url: "/users/settings/routes",
+    icon: ThumbsUp,
+  },
+  {
+    title: "Reported Posts",
+    url: "/users/settings/routes",
+    icon: ClipboardX,
   },
 ];
 const SettingsSidebar = () => {
@@ -86,12 +128,15 @@ const SettingsSidebar = () => {
               height={24}
               alt="Nightwalkers Logo"
             />
-            <h1 className="text-center text-xl p-4">Nightwalkers</h1>
+            <h1 className="text-center text-xl p-4">User Settings</h1>
           </div>
         </SidebarHeader>
         {/* Banner */}
         <SidebarGroup>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="relative cursor-pointer">
+            <div className="absolute top-0 left-0 flex justify-center items-center rounded-md size-full z-[10] bg-stone-800 opacity-0 hover:opacity-90 transition-opacity duration-200">
+              Edit Display <SquarePen className="h-[20%] ml-2"/>
+            </div>
             <div className="flex flex-row justify-start items-center ml-3 gap-5 w-[80%]">
               <Avatar className="h-12 w-12">
                 <AvatarImage
@@ -110,6 +155,54 @@ const SettingsSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      <span className="flex items-center justify-between w-[100%]">
+                        <span className="flex items-center justify-between">
+                          <item.icon />
+                          <span className="pl-2">{item.title}</span>
+                        </span>
+                        <ChevronRight className="pr-1" />
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarSeparator />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        {/* Routes */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Route Management</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {routeItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      <span className="flex items-center justify-between w-[100%]">
+                        <span className="flex items-center justify-between">
+                          <item.icon />
+                          <span className="pl-2">{item.title}</span>
+                        </span>
+                        <ChevronRight className="pr-1" />
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarSeparator />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        {/* Forum */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Forum History </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {forumItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
