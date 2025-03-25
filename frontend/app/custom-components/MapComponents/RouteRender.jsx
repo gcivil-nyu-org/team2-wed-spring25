@@ -197,6 +197,7 @@ const RouteRenderer = ({
         "route_creation_error"
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapInstance, routeData, showError]); // Removed activeRoute from dependencies
 
   // This separate effect handles route styling when activeRoute changes
@@ -244,6 +245,7 @@ const RouteRenderer = ({
     return () => {
       clearRoutes();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeData]);
 
   return null; // Non-visual component

@@ -3,7 +3,6 @@ import math
 
 from django.shortcuts import render
 import os
-# from django.conf import settings
 from django.http import JsonResponse
 from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
@@ -18,7 +17,6 @@ from .serializers import (
 )
 import requests
 from django.db import connection  # Import the connection object
-import json
 import polyline
 from shapely import geometry
 from shapely.geometry import Polygon, MultiPolygon
@@ -165,11 +163,9 @@ class RouteViewAPI(generics.GenericAPIView):
             destination = [destination_lon, destination_lat]
 
         initial_route = self.get_initial_route(departure, destination)
-        print(initial_route)
         if "error" in initial_route:
             return Response(initial_route, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            # TODO: Call the function that will process the data
             safer_route = process_route_with_crime_data(initial_route)
             saved_id = None
             if save_route and not route_id:
@@ -303,7 +299,7 @@ def process_route_with_crime_data(initial_route):
         dict: The safer route from ORS that avoids crime hotspots
     """
     # Extract departure and destination coordinates from the initial route
-    encoded_polyline = initial_route['routes'][0]['geometry']
+    encoded_polyline = initial_route["routes"][0]["geometry"]
     decoded_coords = polyline.decode(encoded_polyline, geojson=True)
 
     # Start and end points
@@ -311,7 +307,9 @@ def process_route_with_crime_data(initial_route):
     destination = decoded_coords[-1]
 
     # Create a LineString for querying crime hotspots
-    linestring_coords = ', '.join([f"{coord[0]} {coord[1]}" for coord in decoded_coords])
+    linestring_coords = ", ".join(
+        [f"{coord[0]} {coord[1]}" for coord in decoded_coords]
+    )
     linestring = f"LINESTRING({linestring_coords})"
 
     # Get crime hotspots and create avoidance polygons
@@ -329,7 +327,7 @@ def get_crime_hotspots(linestring):
     Query the database to find the top 10 crime hotspots near the route
     """
     query = """
-        SELECT 
+        SELECT
             ST_Y(wkb_geometry) AS latitude,
             ST_X(wkb_geometry) AS longitude,
             CMPLNT_NUM,
@@ -349,12 +347,14 @@ def get_crime_hotspots(linestring):
 
                 complaints = float(complaints) if complaints is not None else 0.0
 
-                hotspots.append({
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "complaints": complaints,
-                    "distance": distance,
-                })
+                hotspots.append(
+                    {
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "complaints": complaints,
+                        "distance": distance,
+                    }
+                )
     except Exception as e:
         print(f"Error querying the database: {str(e)}")
 
@@ -376,17 +376,19 @@ def create_avoid_polygons(hotspots, radius=0.1):
 
     for hotspot in hotspots:
         # Scale radius based on complaints (crime intensity)
-        scaled_radius = radius * (1 + (hotspot['complaints'] / 100))
+        scaled_radius = radius * (1 + (hotspot["complaints"] / 100))
 
         # Create a simple circle-like polygon with 8 points
         polygon_points = []
         for i in range(8):
             angle = math.radians(i * 45)
             lat_offset = scaled_radius / 111.32  # 1 degree lat ≈ 111.32 km
-            lon_offset = scaled_radius / (111.32 * math.cos(math.radians(hotspot['latitude'])))
+            lon_offset = scaled_radius / (
+                111.32 * math.cos(math.radians(hotspot["latitude"]))
+            )
 
-            lat = hotspot['latitude'] + lat_offset * math.sin(angle)
-            lon = hotspot['longitude'] + lon_offset * math.cos(angle)
+            lat = hotspot["latitude"] + lat_offset * math.sin(angle)
+            lon = hotspot["longitude"] + lon_offset * math.cos(angle)
             polygon_points.append((lon, lat))
 
         # Close the polygon
@@ -433,9 +435,7 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
     # Add avoid_polygons if we have hotspots to avoid
     if avoid_polygons:
         # Convert MultiPolygon to GeoJSON using shapely's mapping function
-        body["options"] = {
-            "avoid_polygons": geometry.mapping(avoid_polygons)
-        }
+        body["options"] = {"avoid_polygons": geometry.mapping(avoid_polygons)}
 
     try:
         response = requests.post(map_url, json=body, headers=headers)
