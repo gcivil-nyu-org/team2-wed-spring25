@@ -3,11 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
-import { apiPost, authAPI } from "@/utils/fetch/fetch";
+import { authAPI } from "@/utils/fetch/fetch";
 import { useNotification } from "../ToastComponent/NotificationContext";
 import {
-  extractCoordinates,
-  extractRouteSummary,
   enhanceTurnInstructions,
 } from "../RoutingComponets/RouteHandler";
 import SaveRouteComponent from "../RoutingComponets/SaveRoute";
