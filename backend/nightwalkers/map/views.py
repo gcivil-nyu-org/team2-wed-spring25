@@ -60,7 +60,6 @@ class RouteViewAPI(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
-        route_id = validated_data.get("route_id")
 
         departure_lat, departure_lon = validated_data.get("departure")
         destination_lat, destination_lon = validated_data.get("destination")

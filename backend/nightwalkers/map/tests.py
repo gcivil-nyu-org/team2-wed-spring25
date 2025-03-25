@@ -9,8 +9,12 @@ import json
 from shapely.geometry import Polygon, MultiPolygon
 
 from .models import SavedRoute
-from .views import heatmap_data, process_route_with_crime_data, get_crime_hotspots, create_avoid_polygons, \
-    get_safer_ors_route
+from .views import (
+    process_route_with_crime_data,
+    get_crime_hotspots,
+    create_avoid_polygons,
+    get_safer_ors_route,
+)
 
 User = get_user_model()
 
@@ -429,7 +433,9 @@ class RouteViewAPITestCase(BaseTestCase):
     @patch("requests.post")
     @patch("polyline.decode")
     @patch("django.db.connection.cursor")
-    def test_safer_route_generation_failure(self, mock_cursor, mock_polyline_decode, mock_post):
+    def test_safer_route_generation_failure(
+        self, mock_cursor, mock_polyline_decode, mock_post
+    ):
         """Test fallback when safer route generation fails"""
         # Setup mock for OpenRouteService
         mock_response = MagicMock()
@@ -482,7 +488,7 @@ class HeatmapDataTestCase(BaseTestCase):
 
     def setUp(self):
         super().setUp()
-        self.url = reverse('heatmap-data')  # URL for heatmap data endpoint
+        self.url = reverse("heatmap-data")  # URL for heatmap data endpoint
 
         # Sample data to be returned by the cursor
         self.mock_data = [
@@ -491,7 +497,7 @@ class HeatmapDataTestCase(BaseTestCase):
             (40.7431, -73.9712, None),
         ]
 
-    @patch('django.db.connection.cursor')
+    @patch("django.db.connection.cursor")
     def test_heatmap_data_success(self, mock_cursor):
         """Test successful retrieval of heatmap data"""
         # Mock the cursor's fetchall method to return our sample data
@@ -506,14 +512,14 @@ class HeatmapDataTestCase(BaseTestCase):
         self.assertEqual(len(data), 3)
 
         # Verify the data is formatted correctly
-        self.assertEqual(data[0]['latitude'], 40.7128)
-        self.assertEqual(data[0]['longitude'], -74.0060)
-        self.assertEqual(data[0]['intensity'], 5.0)
+        self.assertEqual(data[0]["latitude"], 40.7128)
+        self.assertEqual(data[0]["longitude"], -74.0060)
+        self.assertEqual(data[0]["intensity"], 5.0)
 
         # Verify that None is handled properly
-        self.assertEqual(data[2]['intensity'], 0.0)
+        self.assertEqual(data[2]["intensity"], 0.0)
 
-    @patch('django.db.connection.cursor')
+    @patch("django.db.connection.cursor")
     def test_heatmap_data_db_error(self, mock_cursor):
         """Test handling of database errors"""
         # Mock the cursor to raise an exception
@@ -538,14 +544,14 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
                 "latitude": 40.7200,
                 "longitude": -74.0100,
                 "complaints": 15,
-                "distance": 0.01
+                "distance": 0.01,
             },
             {
                 "latitude": 40.7300,
                 "longitude": -74.0200,
                 "complaints": 20,
-                "distance": 0.02
-            }
+                "distance": 0.02,
+            },
         ]
 
         self.mock_initial_route = {
@@ -560,7 +566,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         self.departure = [-74.0060, 40.7128]
         self.destination = [-118.2437, 34.0522]
 
-    @patch('django.db.connection.cursor')
+    @patch("django.db.connection.cursor")
     def test_get_crime_hotspots(self, mock_cursor):
         """Test the get_crime_hotspots function"""
         # Mock the cursor response
@@ -579,7 +585,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         self.assertEqual(result[0]["complaints"], 15)
         self.assertEqual(result[0]["distance"], 0.01)
 
-    @patch('django.db.connection.cursor')
+    @patch("django.db.connection.cursor")
     def test_get_crime_hotspots_db_error(self, mock_cursor):
         """Test get_crime_hotspots handling of database errors"""
         # Mock the cursor to raise an exception
@@ -606,17 +612,29 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
 
         self.assertIsNone(result)
 
-    @patch('requests.post')
+    @patch("requests.post")
     def test_get_safer_ors_route(self, mock_post):
         """Test the get_safer_ors_route function"""
         # Create a simple avoid polygon
-        avoid_polygons = MultiPolygon([
-            Polygon([(-74.02, 40.72), (-74.01, 40.72), (-74.01, 40.73), (-74.02, 40.73), (-74.02, 40.72)])
-        ])
+        avoid_polygons = MultiPolygon(
+            [
+                Polygon(
+                    [
+                        (-74.02, 40.72),
+                        (-74.01, 40.72),
+                        (-74.01, 40.73),
+                        (-74.02, 40.73),
+                        (-74.02, 40.72),
+                    ]
+                )
+            ]
+        )
 
         # Mock ORS response
         mock_response = MagicMock()
-        mock_response.json.return_value = {"routes": [{"geometry": "safer_route_polyline"}]}
+        mock_response.json.return_value = {
+            "routes": [{"geometry": "safer_route_polyline"}]
+        }
         mock_post.return_value = mock_response
 
         result = get_safer_ors_route(self.departure, self.destination, avoid_polygons)
@@ -629,7 +647,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         self.assertIn("options", kwargs["json"])
         self.assertIn("avoid_polygons", kwargs["json"]["options"])
 
-    @patch('requests.post')
+    @patch("requests.post")
     def test_get_safer_ors_route_error(self, mock_post):
         """Test get_safer_ors_route handling of API errors"""
         # Mock ORS response to raise an exception
@@ -639,10 +657,12 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
 
         self.assertIn("error", result)
 
-    @patch('polyline.decode')
-    @patch('django.db.connection.cursor')
-    @patch('requests.post')
-    def test_process_route_with_crime_data(self, mock_post, mock_cursor, mock_polyline_decode):
+    @patch("polyline.decode")
+    @patch("django.db.connection.cursor")
+    @patch("requests.post")
+    def test_process_route_with_crime_data(
+        self, mock_post, mock_cursor, mock_polyline_decode
+    ):
         """Test the process_route_with_crime_data function"""
         # Mock polyline decode
         mock_polyline_decode.return_value = [[-74.0060, 40.7128], [-118.2437, 34.0522]]
@@ -657,7 +677,9 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
 
         # Mock ORS response for safer route
         mock_response = MagicMock()
-        mock_response.json.return_value = {"routes": [{"geometry": "safer_route_polyline"}]}
+        mock_response.json.return_value = {
+            "routes": [{"geometry": "safer_route_polyline"}]
+        }
         mock_post.return_value = mock_response
 
         result = process_route_with_crime_data(self.mock_initial_route)
