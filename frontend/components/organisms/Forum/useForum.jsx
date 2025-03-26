@@ -36,7 +36,7 @@ export default function useForum(settingsType) {
       try {
         setIsLoading(true);
         const response = await apiGet(
-          `/api/forum/posts?user_id=${user?.id}&offset=0&limit=${limit}&settings_type=${settingsType}`
+          `/forum/posts?user_id=${user?.id}&offset=0&limit=${limit}&settings_type=${settingsType}`
         );
         if (response) {
           setUserPosts(response.posts);
@@ -50,7 +50,7 @@ export default function useForum(settingsType) {
       }
     };
     fetchPosts();
-  }, [user?.id]);
+  }, [user?.id, showSuccess, settingsType, limit]);
 
   // Fetch more posts
   const loadMorePosts = useCallback(async () => {
@@ -60,7 +60,7 @@ export default function useForum(settingsType) {
       setIsLoadingMore(true);
       const newOffset = offset + limit;
       const response = await apiGet(
-        `/api/forum/posts?user_id=${user?.id}&offset=${newOffset}&limit=${limit}&settings_type=${settingsType}` // Pass settingsType to the API
+        `/forum/posts?user_id=${user?.id}&offset=${newOffset}&limit=${limit}&settings_type=${settingsType}` // Pass settingsType to the API
       );
       if (response) {
         setUserPosts((prevPosts) => [...prevPosts, ...response.posts]); // Append new posts
@@ -73,7 +73,7 @@ export default function useForum(settingsType) {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [hasMore, isLoadingMore, offset, user?.id]);
+  }, [hasMore, isLoadingMore, offset, user?.id, limit, settingsType]);
 
   // Set up the Intersection Observer
   useEffect(() => {
@@ -97,16 +97,20 @@ export default function useForum(settingsType) {
     return () => {
       observer.unobserve(currentLoaderRef);
     };
-  }, [hasMore, loadMorePosts, loaderRef.current]); // Re-run effect when loaderRef changes
+  }, [hasMore, loadMorePosts]); // Removed loaderRef.current dependency
 
   useEffect(() => {
     const getUserData = async () => {
       try {
+<<<<<<< HEAD
         console.log("user?.id", user?.id);
 
         const data = await apiGet(`/api/forum/user_data?user_id=${user?.id}`);
         console.log("User data fetched:", data);
 
+=======
+        const data = await apiGet(`/forum/user_data?user_id=${user?.id}`);
+>>>>>>> b78bab6383c3e8eb3cd98443398cb4658b141f07
         setUserSideCardData(data);
       } catch (error) {
         showError("Error fetching user data");
@@ -118,7 +122,7 @@ export default function useForum(settingsType) {
       }
     };
     getUserData();
-  }, []);
+  }, [user?.id, showError]); // Added missing dependencies
 
   return {
     isLoading,
