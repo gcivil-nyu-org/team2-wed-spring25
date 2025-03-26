@@ -48,6 +48,8 @@ body {
     --sidebar-text: rgb(243 244 246); /* gray-100 */
     --sidebar-border2: rgb(120 113 108); /* stone-500 */
     --sidebar-separator: rgb(87 83 78); /* stone-600 */
+    --header-mobile-height: 10%;
+    --header-height: 12%;
   }
   .dark {
     --background: 240 10% 3.9%;
@@ -81,6 +83,7 @@ body {
     --sidebar-text: rgb(243 244 246);
     --sidebar-border2: rgb(120 113 108);
     --sidebar-separator: rgb(87 83 78);
+    --header-height: 12%;
   }
 }
 
