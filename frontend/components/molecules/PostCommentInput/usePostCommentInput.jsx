@@ -64,7 +64,7 @@ export default function usePostCommentInput(
 
       // Make the API call
       const response = await apiPost(
-        `/api/forum/posts/${is_repost ? original_post_id : post_id}/comments/`,
+        `/forum/posts/${is_repost ? original_post_id : post_id}/comments/`,
         {
           content: commentContent,
           user_id: user.id,

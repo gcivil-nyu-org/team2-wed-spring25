@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SettingPanel matches snapshot 1`] = `
+<div>
+  <div
+    data-open="false"
+    data-testid="sidebar-provider"
+  >
+    <button
+      data-testid="sidebar-trigger"
+    >
+      Toggle
+    </button>
+    <div
+      data-testid="settings-sidebar"
+    >
+      Sidebar Content
+    </div>
+  </div>
+</div>
+`;

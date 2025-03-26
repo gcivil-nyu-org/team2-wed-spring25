@@ -2,13 +2,12 @@ import Image from "next/image";
 import { useState } from "react";
 
 export default function Icon({
-  onClick = () => {},
+  onClick = () => { },
   src,
   width,
   height,
   alt,
   size,
-  key = null,
   onMouseEnter = null,
   onMouseLeave = null,
   selected = null,
@@ -39,11 +38,20 @@ export default function Icon({
     }
   }
 
+  // Handle click safely - prevent passing the event object
+  const handleClick = (e) => {
+    e.stopPropagation(); // Prevent event bubbling if needed
+    
+    // Call onClick with the alt text instead of the event
+    // This ensures we pass a string not an event object
+    if (onClick) {
+      onClick(alt);
+    }
+  };
+
   return (
     <div
-      onClick={() => {
-        onClick(alt); // Call the onClick function with the alt text
-      }}
+      onClick={handleClick} // Use our safe handler instead of directly passing onClick
       className={data}
       onMouseEnter={() => {
         setIsHovered(true);
@@ -60,8 +68,8 @@ export default function Icon({
     >
       <Image
         src={src}
-        width={selected != null ? (selected ? 80 : 40) : width}
-        height={selected != null ? (selected ? 80 : 40) : height}
+        width={selected != null ? selected ? 80 : 40 : width}
+        height={selected != null ? selected ? 80 : 40 : height}
         alt={alt}
       />
       {/* Tooltip */}
@@ -71,5 +79,5 @@ export default function Icon({
         </div>
       )}
     </div>
-  );
+  )
 }

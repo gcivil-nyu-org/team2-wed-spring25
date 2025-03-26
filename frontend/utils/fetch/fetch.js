@@ -1,5 +1,4 @@
 "use client";
-// utils/api.js
 import { getDjangoErrorMessage } from "../django-error-handler";
 
 // Import your base URL from environment configuration

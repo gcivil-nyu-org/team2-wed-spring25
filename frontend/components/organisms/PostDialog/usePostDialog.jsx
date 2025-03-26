@@ -64,7 +64,7 @@ export const usePostDialog = (
       }
       // Make the API call
       const response = await apiPost(
-        "/api/forum/posts/create/",
+        "/forum/posts/create/",
         {
           content: postContent,
           image_urls: imageUrl ? [imageUrl] : [],
@@ -145,6 +145,7 @@ export const usePostDialog = (
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
