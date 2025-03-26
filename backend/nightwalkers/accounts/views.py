@@ -77,7 +77,7 @@ class GoogleAuthView(APIView):
                 user.email_verified = True
                 user.first_name = first_name  # Ensure names stay updated
                 user.last_name = last_name
-                user.karma = 0
+                
                 if "picture" in idinfo:
                     user.avatar_url = idinfo["picture"]
 
@@ -126,7 +126,7 @@ class LoginView(APIView):
 
         # Authenticate with email as the USERNAME_FIELD
         user = authenticate(email=email, password=password)
-        print(user)
+        print("user.karma", user.karma)
         if user is not None:
             refresh = RefreshToken.for_user(user)
 
@@ -139,6 +139,7 @@ class LoginView(APIView):
                         "email": user.email,
                         "first_name": user.first_name,
                         "last_name": user.last_name,
+                        "karma": user.karma,
                     },
                 }
             )

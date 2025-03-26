@@ -1,10 +1,7 @@
-import UserImage from "@/components/atom/UserImage/UserImage";
-import PostFooterIconList from "@/components/molecules/PostFooterIconList/PostFooterIconList";
-import LikedIconList from "@/components/molecules/LikedIconList/LikedIconList";
 import UserPostCommentSection from "@/components/molecules/UserPost/UserPostBottom/UserPostCommentSection/UserPostCommentSection";
 import useUserPostBottom from "./useUserPostBottom";
-import { fallbackUserProfileImage } from "@/constants/imageUrls";
 import CustomDialogBox from "@/components/organisms/CustomDialogBox/CustomDialogBox";
+import UserPostButtons from "./UserPostButtons/UserPostButtons";
 
 export default function UserPostBottom({
   likesCount,
@@ -42,44 +39,26 @@ export default function UserPostBottom({
         }
         disableYesButton={disableYesButton}
       />
-      <div>
-        <div className="flex justify-between mr-1 py-2">
-          <div className="flex gap-2">
-            <LikedIconList />
-            {getLikesCount(likesCount)}
-          </div>
-          {getCommentsCount(commentsCount)}
-        </div>
-        <hr className="border-gray-200 mx-1"></hr>
-        <div className="flex justify-between ">
-          <div className="flex flex-row justify-center items-center px-4 rounded-md hover:bg-slate-100 my-2">
-            <UserImage
-              imageUrl={post.user_avatar ?? fallbackUserProfileImage}
-              width={24}
-              height={24}
-            />
-          </div>
-
-          <PostFooterIconList
-            handleClickOnComment={handleClickOnComment}
-            setShowReportUserDialog={setShowReportUserDialog}
-            setLikesCount={setLikesCount}
-            setPosts={setPosts}
-            post={post}
-            isReported={isReported}
-            setIsReported={setIsReported}
-          />
-        </div>
-      </div>
+      <UserPostButtons
+        likesCount={likesCount}
+        commentsCount={commentsCount}
+        getLikesCount={getLikesCount}
+        getCommentsCount={getCommentsCount}
+        setLikesCount={setLikesCount}
+        setPosts={setPosts}
+        post={post}
+        handleClickOnComment={handleClickOnComment}
+        setShowReportUserDialog={setShowReportUserDialog}
+        isReported={isReported}
+        setIsReported={setIsReported}
+      />
       {showCommentSection && (
-        <div>
-          <UserPostCommentSection
-            post_id={post.id}
-            setCommentsCount={setCommentsCount}
-            is_repost={post.is_repost}
-            original_post_id={post.is_repost ? post.original_post_id : null}
-          />
-        </div>
+        <UserPostCommentSection
+          post_id={post.id}
+          setCommentsCount={setCommentsCount}
+          is_repost={post.is_repost}
+          original_post_id={post.is_repost ? post.original_post_id : null}
+        />
       )}
     </div>
   );
