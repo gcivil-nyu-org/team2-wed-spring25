@@ -53,7 +53,7 @@ const items = [
   },
   {
     title: "Report a Bug",
-    url: "/users/settings/report",
+    url: "/users/settings/profile#report",
     icon: Flag,
   }
 ];
@@ -77,22 +77,22 @@ const routeItems = [
 const forumItems = [
   {
     title: "Posts",
-    url: "/users/settings/routes",
+    url: "/users/settings/forum/posts",
     icon: MessageSquareDiff,
   },
   {
     title: "Comments",
-    url: "/users/settings/routes",
+    url: "/users/settings/forum/comments",
     icon: MessageSquareText,
   },
   {
     title: "Reactions",
-    url: "/users/settings/routes",
+    url: "/users/settings/forum/reactions",
     icon: ThumbsUp,
   },
   {
     title: "Reported Posts",
-    url: "/users/settings/routes",
+    url: "/users/settings/forum/reports",
     icon: ClipboardX,
   },
 ];
@@ -134,22 +134,24 @@ const SettingsSidebar = () => {
         {/* Banner */}
         <SidebarGroup>
           <SidebarGroupContent className="relative cursor-pointer">
-            <div className="absolute top-0 left-0 flex justify-center items-center rounded-md size-full z-[10] bg-stone-800 opacity-0 hover:opacity-90 transition-opacity duration-200">
-              Edit Display <SquarePen className="h-[20%] ml-2"/>
-            </div>
-            <div className="flex flex-row justify-start items-center ml-3 gap-5 w-[80%]">
-              <Avatar className="h-12 w-12">
-                <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="@shadcn"
-                />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <span>Username</span>
-            </div>
+            <Link href="/users/settings/profile">
+              <div className="absolute top-0 left-0 flex justify-center items-center rounded-md size-full z-[10] bg-stone-800 opacity-0 hover:opacity-90 transition-opacity duration-200">
+                Edit Display <SquarePen className="h-[20%] ml-2" />
+              </div>
+              <div className="flex flex-row justify-start items-center ml-3 gap-5 w-[80%]">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage
+                    src="https://github.com/shadcn.png"
+                    alt="@shadcn"
+                  />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <span>Username</span>
+              </div>
+            </Link>
           </SidebarGroupContent>
         </SidebarGroup>
-        {/* Links */}
+        {/* Account */}
         <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -218,6 +220,26 @@ const SettingsSidebar = () => {
                   <SidebarSeparator />
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        {/* Setting */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/users/settings">
+                    <span className="flex items-center justify-between w-[100%]">
+                      <span className="flex items-center justify-between">
+                        <Settings />
+                        <span className="pl-2">Settings</span>
+                      </span>
+                      <ChevronRight className="pr-1" />
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

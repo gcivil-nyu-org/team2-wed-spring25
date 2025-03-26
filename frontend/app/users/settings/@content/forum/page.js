@@ -9,49 +9,49 @@ import {
 } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 
-const SettingsContent = () => {
+const ForumContent = () => {
   return (
     <div className="h-full w-full">
       <div className="lg:h-header h-mobileheader flex items-center ml-8">
-        <Link href="/users/map">
+        <Link href="/users/settings">
           <ArrowLeft />
         </Link>
         <h1 className="text-lg md:text-xl lg:text-2xl m-8">
-          <Link href="/users/settings">Settings Menu</Link>
+          <Link href="/users/settings">Settings</Link> &gt;
+          <span className="italic"> Forum</span>
         </h1>
       </div>
       <Separator orientation="horizontal" />
       <div className="flex flex-col gap-4 py-8 px-4">
-        <Link href="/users/settings/profile">
+        <Link href="/users/settings/forum/posts">
           <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text hover:bg-sidebar-separator">
             <CardHeader>
-              <CardTitle>Account</CardTitle>
-              <CardDescription>
-                Adjust your display photo, change password, or adjust location
-                and privacy settings
-              </CardDescription>
+              <CardTitle>Posts</CardTitle>
+              <CardDescription>View posts you have made</CardDescription>
             </CardHeader>
           </Card>
         </Link>
-        <Link href="/users/settings/routes">
+        <Link href="/users/settings/forum/comments">
           <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text hover:bg-sidebar-separator">
             <CardHeader>
-              <CardTitle>Route Management</CardTitle>
-              <CardDescription>
-                Favorite routes, set route preferences, and view previous routes
-                taken
-              </CardDescription>
+              <CardTitle>Comments</CardTitle>
+              <CardDescription>View comments you have made</CardDescription>
             </CardHeader>
           </Card>
         </Link>
-        <Link href="/users/settings/forum">
+        <Link href="/users/settings/forum/reactions">
           <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text hover:bg-sidebar-separator">
             <CardHeader>
-              <CardTitle>Forum History</CardTitle>
-              <CardDescription>
-                View previously made posts, comments, reactions, and reports
-                made on the forum
-              </CardDescription>
+              <CardTitle>Reactions</CardTitle>
+              <CardDescription>View posts you have reacted to</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link href="/users/settings/forum/reports">
+          <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text hover:bg-sidebar-separator">
+            <CardHeader>
+              <CardTitle>Reported Posts</CardTitle>
+              <CardDescription>View posts you have reported</CardDescription>
             </CardHeader>
           </Card>
         </Link>
@@ -60,4 +60,4 @@ const SettingsContent = () => {
   );
 };
 
-export default SettingsContent;
+export default ForumContent;
