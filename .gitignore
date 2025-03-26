@@ -1,8 +1,17 @@
+# Data processing
+.conda/*
+output_data/*
+input_data/*
+*.zip
+
 # Python
 __pycache__/
 *.py[cod]
 *.so
 .Python
+.env
+.env.example
+
 env/
 build/
 develop-eggs/
@@ -29,3 +38,10 @@ certs/
 
 # Docker
 .docker/
+
+.coverage
+coverage.xml
+# Local Netlify folder
+.netlify
+
+todo.txt
