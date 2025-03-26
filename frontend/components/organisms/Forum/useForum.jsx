@@ -102,15 +102,11 @@ export default function useForum(settingsType) {
   useEffect(() => {
     const getUserData = async () => {
       try {
-<<<<<<< HEAD
         console.log("user?.id", user?.id);
 
         const data = await apiGet(`/api/forum/user_data?user_id=${user?.id}`);
         console.log("User data fetched:", data);
 
-=======
-        const data = await apiGet(`/forum/user_data?user_id=${user?.id}`);
->>>>>>> b78bab6383c3e8eb3cd98443398cb4658b141f07
         setUserSideCardData(data);
       } catch (error) {
         showError("Error fetching user data");
