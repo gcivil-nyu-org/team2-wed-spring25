@@ -8,3 +8,6 @@ Develop: [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/team2-wed-spr
 
 
 Backend Local: python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
+Frontend Local: 
+- npm run build
+- npm run dev
