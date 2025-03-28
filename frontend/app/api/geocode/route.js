@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 // app/api/geocode/route.js
+=======
+>>>>>>> origin/develop
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {

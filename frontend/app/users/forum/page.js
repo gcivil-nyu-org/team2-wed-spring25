@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client'
 import UserPost from "@/components/organisms/Forum/UserPost"
 import UserImage from "@/components/atom/UserImage/UserImage"
@@ -46,3 +47,10 @@ export default function ForumsPage(){
         </div> 
     )
 }
+=======
+import Forums from "@/components/organisms/Forum/Forum";
+
+export default function ForumPage() {
+  return <Forums />;
+}
+>>>>>>> origin/develop

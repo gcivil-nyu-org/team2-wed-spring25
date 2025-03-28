@@ -1,0 +1,36 @@
+<!-- my_template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoJSON Data</title>
+</head>
+<body>
+    <h1>GeoJSON Points Data</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Total Population</th>
+                <th>Number Complaints</th>
+                <th>Complaint to Population Ratio</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for point in data %}
+            <tr>
+                <td>{{ point.road_seg_i }}</td> <!-- Assuming the 'id' field exists in the GeoJSON -->
+                <td>{{ point.latitude }}</td> <!-- Latitude -->
+                <td>{{ point.longitude }}</td> <!-- Longitude -->
+                <td>{{ point.total_popu }}</td> <!-- Example of another attribute -->
+                <td>{{ point.cmplnt_num }}</td> <!-- Example of another attribute -->
+                <td>{{ point.ratio }}</td> <!-- Example of another attribute -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

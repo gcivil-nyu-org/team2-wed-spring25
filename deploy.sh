@@ -23,4 +23,4 @@ else
   exit 0
 fi
 
-echo "Deployment completed successfully!!"
+echo "Deployment completed successfully!-"

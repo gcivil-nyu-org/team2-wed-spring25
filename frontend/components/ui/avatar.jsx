@@ -12,7 +12,11 @@ function Avatar({
   return (
     (<AvatarPrimitive.Root
       data-slot="avatar"
+<<<<<<< HEAD
       className={cn("relative flex size-8 shrink-0 overflow-hidden rounded-full", className)}
+=======
+      className={cn("relative flex size-16 shrink-0 overflow-hidden bg-stone-800 rounded-full", className)}
+>>>>>>> origin/develop
       {...props} />)
   );
 }

@@ -1,5 +1,3 @@
-// app/app-components/common-components/error-success-handlers.js
-
 /**
  * Extract readable error messages from Django REST Framework error responses
  * @param {Object|string} error - The error response from Django
@@ -56,8 +54,8 @@ export function getDjangoErrorMessage(error) {
                 fieldErrors.push(nestedErrors);
             }
         } 
-        // Handle direct string messages
-        else if (typeof messages === 'string') {
+        // Handle direct string, number, or boolean messages
+        else if (messages !== null && messages !== undefined) {
             fieldErrors.push(`${formatFieldName(field)}: ${messages}`);
         }
     }
@@ -81,17 +79,23 @@ function getNestedErrors(obj, parentField = '') {
     const nestedErrors = [];
     
     for (const [field, value] of Object.entries(obj)) {
-        const fullFieldName = parentField ? `${parentField}.${field}` : field;
+        // Format each segment of the path with proper capitalization
+        const formattedParent = parentField
+            .split('.')
+            .map(segment => formatFieldName(segment))
+            .join('.');
+            
+        const fullFieldName = formattedParent ? `${formattedParent}.${formatFieldName(field)}` : formatFieldName(field);
         
         if (Array.isArray(value)) {
-            nestedErrors.push(`${formatFieldName(fullFieldName)}: ${value.join(', ')}`);
+            nestedErrors.push(`${fullFieldName}: ${value.join(', ')}`);
         } else if (typeof value === 'object' && value !== null) {
-            const deeperErrors = getNestedErrors(value, fullFieldName);
+            const deeperErrors = getNestedErrors(value, parentField ? `${parentField}.${field}` : field);
             if (deeperErrors) {
                 nestedErrors.push(deeperErrors);
             }
-        } else if (typeof value === 'string') {
-            nestedErrors.push(`${formatFieldName(fullFieldName)}: ${value}`);
+        } else if (value !== null && value !== undefined) {
+            nestedErrors.push(`${fullFieldName}: ${value}`);
         }
     }
     

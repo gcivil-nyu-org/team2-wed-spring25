@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+"use client";
+>>>>>>> origin/develop
 import Button from "@/components/atom/Button/Button";
 import Icon from "@/components/atom/Icon/Icon";
 import UserImage from "@/components/atom/UserImage/UserImage";
 import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import EmojiPicker from "emoji-picker-react";
+<<<<<<< HEAD
 import { usePostContent } from "./usePostContent";
 export default function PostDialog({
     onClick,
@@ -31,6 +36,67 @@ export default function PostDialog({
         handleSubmit
     } = usePostContent();
     
+=======
+import { usePostDialog } from "./usePostDialog";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { getUserFullName } from "@/utils/string";
+
+export default function PostDialog({
+  onClick,
+  setPosts,
+  posts_count,
+  is_edit = false,
+  post_id = 0,
+  image_urls = null,
+  content = "",
+  setIsPostDialogOpen = null,
+  is_repost = false,
+  original_post_id = 0,
+}) {
+  const {
+    emojiPickerRef,
+    showEmojiPicker,
+    handleClickOnEmojiPicker,
+    handleOnEmojiClick,
+  } = useEmojiPicker();
+
+  const {
+    fileInputRef,
+    selectedImage,
+    selectedImageName,
+    handleOpenImageSelector,
+    handleRemoveImage,
+    handleFileChange,
+  } = useFileUpload(is_edit, image_urls);
+
+  const {
+    postContent,
+    setPostContent,
+    handleSubmit,
+    isButtonDisabled,
+    isLoading,
+    postDialogRef,
+  } = usePostDialog(
+    setPosts,
+    onClick,
+    is_edit,
+    post_id,
+    content,
+    setIsPostDialogOpen,
+    is_repost,
+    original_post_id
+  );
+  const { showError } = useNotification();
+  let user = null;
+
+  if (typeof window !== "undefined") {
+    user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
+  }
+  if (!user) {
+    showError("Please login to post. User not found.");
+    return null; // or handle the case when user is not found
+  }
+>>>>>>> origin/develop
 
     // const contentEditableRef = useRef(null);
 
@@ -59,7 +125,11 @@ export default function PostDialog({
     //     }
     // }, []);
     return (
+<<<<<<< HEAD
         <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0">
+=======
+        <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0 z-50">
+>>>>>>> origin/develop
             <div className="w-1/2 h-4/5 bg-white rounded-lg flex flex-col">
                 <div className="flex justify-between mb-2 p-4">
                     <div className="flex items-center p-3 rounded-2xl hover:bg-gray-200">
@@ -84,7 +154,11 @@ export default function PostDialog({
                 </div>
                 <div className="mb-4 flex-1 flex flex-col justify-between relative">
                     <div className="flex flex-col flex-1 justify-between overflow-y-auto h-full">
+<<<<<<< HEAD
                         <textarea sd
+=======
+                        <textarea
+>>>>>>> origin/develop
                             type="text" 
                             className="pl-7 text-xl flex-1 resize-none outline-none placeholder-slate-600 " 
                             placeholder="Share Your Thoughts..."      
@@ -127,6 +201,7 @@ export default function PostDialog({
                                 }
                             </div>
                         </div> */}
+<<<<<<< HEAD
                     </div>
                     
                     <div className="flex justify-between items-center mx-3 px-2 pt-3">
@@ -172,3 +247,56 @@ export default function PostDialog({
         </div>
     );
 }
+=======
+          </div>
+
+          <div className="flex justify-between items-center mx-3 px-2 pt-3">
+            {showEmojiPicker && (
+              <div className="absolute bottom-14" ref={emojiPickerRef}>
+                <EmojiPicker
+                  height={400}
+                  onEmojiClick={(emojiObject) =>
+                    handleOnEmojiClick(emojiObject, setPostContent)
+                  }
+                />
+              </div>
+            )}
+            <div className="flex">
+              <Icon
+                onClick={handleClickOnEmojiPicker}
+                src={"/icons/emoji.svg"}
+                width={20}
+                height={20}
+                alt="Emoji Picker"
+                size={"lg"}
+              />
+              <Icon
+                onClick={handleOpenImageSelector}
+                src={"/icons/image-picker.svg"}
+                width={20}
+                height={20}
+                alt="Image Picker"
+                size={"lg"}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+            </div>
+            <Button
+              onClick={() => handleSubmit(selectedImage, onClick)}
+              disabled={isButtonDisabled || isLoading} // Disable during API call or loading
+              aria-disabled={isButtonDisabled || isLoading} // Accessibility
+            >
+              {isLoading ? "Posting..." : "Post"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+>>>>>>> origin/develop

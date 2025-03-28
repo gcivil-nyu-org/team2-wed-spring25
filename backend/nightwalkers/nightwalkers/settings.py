@@ -19,8 +19,9 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-GDAL_LIBRARY_PATH = os.popen('brew --prefix gdal').read().strip() + '/lib/libgdal.dylib'
-GEOS_LIBRARY_PATH = os.popen('brew --prefix geos').read().strip() + '/lib/libgeos_c.dylib'
+# # Allan local
+# GDAL_LIBRARY_PATH = os.popen('brew --prefix gdal').read().strip() + '/lib/libgdal.dylib'
+# GEOS_LIBRARY_PATH = os.popen('brew --prefix geos').read().strip() + '/lib/libgeos_c.dylib'
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 # Quick-start development settings - unsuitable for production
@@ -121,31 +122,12 @@ WSGI_APPLICATION = "nightwalkers.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # Database
-# DATABASES = {
-#     "default": dj_database_url.config(
-#         default=os.getenv("DJANGO_DATABASE_URL"),
-#         conn_max_age=600,  # Optional:
-#         # Improves performance by reusing connections
-#     ),
-#     "test": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.getenv("DB_NAME"),
-#         "USER": os.getenv("DB_USER"),
-#         "PASSWORD": os.getenv("DB_PASSWORD"),
-#         "HOST": os.getenv("DB_HOST"),
-#         "PORT": os.getenv("DB_PORT"),
-#     },
-# }
-# Database
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DJANGO_DATABASE_URL"),
+        conn_max_age=600,  # Optional:
+        # Improves performance by reusing connections
+    )
 }
 
 # Password validation
@@ -208,7 +190,11 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+<<<<<<< HEAD
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+=======
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+>>>>>>> origin/develop
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }

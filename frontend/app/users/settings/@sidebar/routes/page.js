@@ -10,7 +10,11 @@ const RoutesSidebar = () => {
           href="/users/settings/routes"
           className="px-4 py-2 hover:bg-gray-100"
         >
+<<<<<<< HEAD
           My Routes
+=======
+          Saved Routes
+>>>>>>> origin/develop
         </Link>
         <Link
           href="/users/settings/routes/preferences"

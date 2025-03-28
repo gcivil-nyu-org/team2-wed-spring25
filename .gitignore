@@ -11,6 +11,7 @@ __pycache__/
 .Python
 .env
 .env.example
+
 env/
 build/
 develop-eggs/
@@ -44,3 +45,4 @@ coverage.xml
 .netlify
 
 nightwalkers/
+todo.txt

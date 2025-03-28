@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client'
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,27 @@ export function DashboardHeader() {
     );
 
   }
+=======
+"use client";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useAuth } from "@/app/custom-components/AuthHook";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import SettingPanel from "@/app/custom-components/SettingPanel";
+
+// Dashboard header component
+export function DashboardHeader() {
+  const { user } = useAuth();
+  const { showError, showWarning } = useNotification();
+  const testToast = () => {
+    showWarning(
+      "Your location is outside NYC. Using Washington Square Park as default. SafeRouteNYC only supports navigation within New York City.",
+      null,
+      "location_outside_nyc"
+    );
+  };
+
+>>>>>>> origin/develop
   return (
     <>
       <div className="flex justify-between items-center mb-8">
@@ -30,12 +52,20 @@ export function DashboardHeader() {
             </span>
           )}
           <Button asChild>
+<<<<<<< HEAD
             <Link href={`home/`}>Home</Link>
+=======
+            <Link href={`forum/`}>Forum</Link>
+>>>>>>> origin/develop
           </Button>
           <Button asChild>
             <Link href={`map/`}>Map Route</Link>
           </Button>
+<<<<<<< HEAD
           <SettingPanel />
+=======
+          <SettingPanel/>
+>>>>>>> origin/develop
         </div>
       </div>
     </>
@@ -44,7 +74,10 @@ export function DashboardHeader() {
 
 export default function Dashboard() {
   const { user } = useAuth();
+<<<<<<< HEAD
  
+=======
+>>>>>>> origin/develop
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white p-8">
