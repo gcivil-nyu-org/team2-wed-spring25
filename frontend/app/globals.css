@@ -141,35 +141,16 @@ body {
 
 /* Error toast styling */
 .my-toast[data-sonner-toast][data-type="error"] {
-<<<<<<< HEAD
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95)) !important; /* Red */
-=======
   background: linear-gradient(
     135deg,
     rgba(239, 68, 68, 0.95),
     rgba(220, 38, 38, 0.95)
   ) !important; /* Red */
->>>>>>> origin/develop
   color: white;
 }
 
 /* Error type-specific styles */
 .my-toast[data-sonner-toast][data-type="error"].error-token {
-<<<<<<< HEAD
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(109, 40, 217, 0.95)) !important; /* Purple for token errors */
-}
-
-.my-toast[data-sonner-toast][data-type="error"].error-login {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95)) !important; /* Red for login errors */
-}
-
-.my-toast[data-sonner-toast][data-type="error"].error-api {
-  background: linear-gradient(135deg, rgba(243, 166, 33, 0.95), rgba(217, 119, 6, 0.95)) !important; /* Amber for API errors */
-}
-
-.my-toast[data-sonner-toast][data-type="error"].error-permission {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.95), rgba(8, 145, 178, 0.95)) !important; /* Cyan for permission errors */
-=======
   background: linear-gradient(
     135deg,
     rgba(124, 58, 237, 0.95),
@@ -301,7 +282,6 @@ body {
     rgba(16, 185, 129, 0.95),
     rgba(5, 150, 105, 0.95)
   ) !important;
->>>>>>> origin/develop
 }
 
 .my-toast[data-sonner-toast][data-type="error"].error-map_initialization_error {

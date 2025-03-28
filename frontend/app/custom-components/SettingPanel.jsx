@@ -11,13 +11,6 @@ const SettingPanel = () => {
     <SidebarProvider
       open={open}
       onOpenChange={setOpen}
-<<<<<<< HEAD
-      style={{
-        "--sidebar-width": "15rem",
-        "--sidebar-width-mobile": "10rem",
-      }}
-=======
->>>>>>> origin/develop
     >
       <SidebarTrigger />
       <SettingsSidebar />

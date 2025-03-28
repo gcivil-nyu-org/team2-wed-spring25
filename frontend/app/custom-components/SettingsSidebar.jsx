@@ -1,14 +1,6 @@
 import React from "react";
 import {
   UserRound,
-<<<<<<< HEAD
-  Flag,
-  MapPinCheck,
-  ShieldPlus,
-  Settings,
-  LogOut,
-  X,
-=======
   Globe,
   GlobeLock,
   Flag,
@@ -24,15 +16,11 @@ import {
   MessageSquareText,
   ThumbsUp,
   ClipboardX,
->>>>>>> origin/develop
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
-<<<<<<< HEAD
-=======
   SidebarHeader,
->>>>>>> origin/develop
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
@@ -45,38 +33,11 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { useAuth } from "./AuthHook";
-<<<<<<< HEAD
-=======
 import Image from "next/image";
->>>>>>> origin/develop
 
 const items = [
   {
     title: "Profile",
-<<<<<<< HEAD
-    url: "/users/settings/profile",
-    icon: UserRound,
-  },
-  {
-    title: "Routes",
-    url: "/users/settings/routes",
-    icon: MapPinCheck,
-  },
-  {
-    title: "Report",
-    url: "/users/settings/report",
-    icon: Flag,
-  },
-  {
-    title: "Resources",
-    url: "/users/resources",
-    icon: ShieldPlus,
-  },
-  {
-    title: "Settings",
-    url: "/users/settings",
-    icon: Settings,
-=======
     url: "/users/settings/profile#password",
     icon: UserRound,
   },
@@ -133,7 +94,6 @@ const forumItems = [
     title: "Reported Posts",
     url: "/users/settings/forum/reports",
     icon: ClipboardX,
->>>>>>> origin/develop
   },
 ];
 const SettingsSidebar = () => {
@@ -151,24 +111,6 @@ const SettingsSidebar = () => {
   return (
     <Sidebar side="right" collapsible="offcanvas">
       <SidebarContent>
-<<<<<<< HEAD
-        {/* Banner */}
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <div className="w-full">
-              <div className="flex justify-between">
-                <div className="flex-1" /> {/* Spacer */}
-                <div className="p-2 cursor-pointer hover:opacity-70">
-                  <X
-                    onClick={() =>
-                      isMobile ? setOpenMobile(false) : setOpen(false)
-                    }
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-5">
-                <Avatar className="h-24 w-24">
-=======
         {/* Header */}
         <SidebarHeader>
           <div className="relative flex justify-center items-center w-[100%]">
@@ -198,7 +140,6 @@ const SettingsSidebar = () => {
               </div>
               <div className="flex flex-row justify-start items-center ml-3 gap-5 w-[80%]">
                 <Avatar className="h-12 w-12">
->>>>>>> origin/develop
                   <AvatarImage
                     src="https://github.com/shadcn.png"
                     alt="@shadcn"
@@ -207,32 +148,18 @@ const SettingsSidebar = () => {
                 </Avatar>
                 <span>Username</span>
               </div>
-<<<<<<< HEAD
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarSeparator />
-        {/* Links */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-=======
             </Link>
           </SidebarGroupContent>
         </SidebarGroup>
         {/* Account */}
         <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>
->>>>>>> origin/develop
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
-<<<<<<< HEAD
-                      <item.icon />
-                      <span>{item.title}</span>
-=======
                       <span className="flex items-center justify-between w-[100%]">
                         <span className="flex items-center justify-between">
                           <item.icon />
@@ -240,19 +167,11 @@ const SettingsSidebar = () => {
                         </span>
                         <ChevronRight className="pr-1" />
                       </span>
->>>>>>> origin/develop
                     </Link>
                   </SidebarMenuButton>
                   <SidebarSeparator />
                 </SidebarMenuItem>
               ))}
-<<<<<<< HEAD
-              {/* Log Out */}
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={logout}>
-                  <LogOut />
-                  <span>Log Out</span>
-=======
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -332,7 +251,6 @@ const SettingsSidebar = () => {
                 <SidebarMenuButton onClick={logout}>
                   <LogOut />
                   <span>Sign Out</span>
->>>>>>> origin/develop
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
