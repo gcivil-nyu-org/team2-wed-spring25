@@ -17,6 +17,23 @@ body {
   }
 }
 
+
+.my-variable-main-style {
+  min-height: var(--main-min-height);
+  background-image: var(--main-bg-gradient);
+  color: var(--main-text-color);
+  padding: var(--main-padding);
+}
+
+:root {
+    /* Settings for Map Page - to Eventually Use Everywhere? */
+    --main-min-height: 100vh; /* Equivalent to min-h-screen */
+    --main-bg-gradient: linear-gradient(to bottom right, #101c3e, #1d4ed8, #1e3a8a); /* Example gradient */
+    --main-text-color: white;
+    --main-padding: 2rem; /* Equivalent to p-8 */
+}
+
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -93,8 +110,7 @@ body {
     --main-gradient-middle: #1d4ed8;
     --main-gradient-end: #1e3a8a; */
 
-    
-  }
+    }
 }
 
 @layer base {

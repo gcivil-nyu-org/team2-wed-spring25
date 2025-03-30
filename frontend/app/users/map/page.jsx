@@ -315,7 +315,7 @@ function DashboardContent() {
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
   return (
-    <main className="min-h-screen bg-main-gradient text-white p-8">
+    <main className="my-variable-main-style">
       <div className="max-w-4xl mx-auto">
         <DashboardHeader />
         <Suspense
