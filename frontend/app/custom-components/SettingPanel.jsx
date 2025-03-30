@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import SettingsSidebar from "./SettingsSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import BottomNavBar from "@/components/organisms/BottomNavBar/BottomNavBar"; 
 
 const SettingPanel = () => {
   const [open, setOpen] = useState(false);
+  
   useEffect(() => {
     console.log(open)
   }, [open]);
+
   return (
-    <SidebarProvider
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <SidebarTrigger />
+    <SidebarProvider open={open} onOpenChange={setOpen}>
+      <SidebarTrigger /> {/* Keeps default trigger in case it's used elsewhere */}
       <SettingsSidebar />
+      <BottomNavBar /> 
     </SidebarProvider>
   );
 };

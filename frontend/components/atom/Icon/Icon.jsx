@@ -66,12 +66,24 @@ export default function Icon({
         }
       }}
     >
-      <Image
-        src={src}
-        width={selected != null ? selected ? 80 : 40 : width}
-        height={selected != null ? selected ? 80 : 40 : height}
-        alt={alt}
-      />
+    <Image
+      src={src}
+      width={
+        selected != null
+          ? selected
+            ? 80
+            : 40
+          : width ?? 40
+      }
+      height={
+        selected != null
+          ? selected
+            ? 80
+            : 40
+          : height ?? 40
+      }
+      alt={alt}
+    />
       {/* Tooltip */}
       {isHovered && tooltipText && (
         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-sm px-2 py-1 rounded-full whitespace-nowrap">

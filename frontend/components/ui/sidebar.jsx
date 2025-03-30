@@ -232,48 +232,51 @@ function Sidebar({
   );
 }
 
-function SidebarTrigger({ className, onClick, ...props }) {
+function SidebarTrigger({ className, onClick, children, ...props }) {
   const { toggleSidebar } = useSidebar();
+
+  const handleClick = (event) => {
+    onClick?.(event);
+    toggleSidebar();
+  };
+
+  if (children) {
+    return (
+      <div
+        onClick={(e) => {
+          console.log("SidebarTrigger clicked!");
+          onClick?.(e);
+          toggleSidebar();
+        }}
+        className={cn("cursor-pointer", className)}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  // fallback for avatar use case
   let user = null;
   if (typeof window !== "undefined") {
     user = JSON.parse(localStorage.getItem("user"));
   }
-  // if (!user) {
-  //   return null; // or handle the case when user is not found
-  // }
+
   return (
-    // <Button
-    //   data-sidebar="trigger"
-    //   data-slot="sidebar-trigger"
-    //   variant="ghost"
-    //   size="icon"
-    //   className={cn("h-7 w-7", className)}
-    //   onClick={(event) => {
-    //     onClick?.(event);
-    //     toggleSidebar();
-    //   }}
-    //   {...props}
-    // >
-    // <span className="sr-only">Toggle Sidebar</span>
-    // </Button>
-    <>
-      <Avatar
-        className="fixed top-2 right-6 cursor-pointer hover:opacity-80 mt-4"
-        onClick={(event) => {
-          onClick?.(event);
-          toggleSidebar();
-        }}
-        {...props}
-      >
-        <AvatarImage
-          src={user?.avatar ?? fallbackUserProfileImage}
-          alt="user profile"
-        />
-        <AvatarFallback>IMG</AvatarFallback>
-      </Avatar>
-    </>
+    <Avatar
+      className="fixed top-2 right-6 cursor-pointer hover:opacity-80 mt-4"
+      onClick={handleClick}
+      {...props}
+    >
+      <AvatarImage
+        src={user?.avatar ?? fallbackUserProfileImage}
+        alt="user profile"
+      />
+      <AvatarFallback>IMG</AvatarFallback>
+    </Avatar>
   );
 }
+
 
 function SidebarRail({ className, ...props }) {
   const { toggleSidebar } = useSidebar();
