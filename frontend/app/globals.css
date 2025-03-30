@@ -9,12 +9,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* New setting for the map background
 
-main.bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, #101c3e, #1d4ed8, #1e3a8a);
-}
- */
 
 @layer utilities {
   .text-balance {
@@ -24,7 +19,6 @@ main.bg-gradient-to-br {
 
 @layer base {
   :root {
-    /* Should we comment some of these out? */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -93,6 +87,10 @@ main.bg-gradient-to-br {
     --sidebar-border2: rgb(120 113 108);
     --sidebar-separator: rgb(87 83 78);
     --header-height: 12%;
+
+    /* New setting for the map background */
+    --main-gradient: linear-gradient(to bottom right, #101c3e, #1d4ed8, #1e3a8a);
+
   }
 }
 
