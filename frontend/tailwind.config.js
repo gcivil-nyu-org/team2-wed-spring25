@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        'main-gradient': 'linear-gradient(to bottom right, #101c3e, #1d4ed8, #1e3a8a)',
+      },
       screens: {
         xsm: "820px",
         xlg: "1060px",

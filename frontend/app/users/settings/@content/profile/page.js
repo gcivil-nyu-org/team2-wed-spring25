@@ -149,7 +149,7 @@ const ProfileContent = () => {
             <CardHeader>
               <CardTitle>Privacy Settings</CardTitle>
               <CardDescription>
-                Allow/disallow sharing your route history that would help
+                Share your route history to help
                 improve the application
               </CardDescription>
             </CardHeader>
@@ -184,7 +184,7 @@ const ProfileContent = () => {
                   justifyContent: "space-between",
                 }}
               >
-                <Form.Label className="FormLabel">Detail found bug:</Form.Label>
+                <Form.Label className="FormLabel">Details of bug:</Form.Label>
                 <Form.Message className="FormMessage" match="valueMissing">
                   Provide a description of the bug
                 </Form.Message>

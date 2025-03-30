@@ -315,7 +315,7 @@ function DashboardContent() {
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white p-8">
+    <main className="min-h-screen bg-main-gradient text-white p-8">
       <div className="max-w-4xl mx-auto">
         <DashboardHeader />
         <Suspense
