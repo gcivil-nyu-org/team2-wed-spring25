@@ -10,6 +10,8 @@ import SettingPanel from "../custom-components/SettingPanel"
 
 export default function AuthLayout({ children }) {
   const pathname = usePathname(); // ✅ get current path
+
+  // const showBottomNav = true; // show nav bar on all pages
   const showBottomNav = !pathname.includes('/login') && !pathname.includes('/register');
 
   return (
@@ -19,9 +21,10 @@ export default function AuthLayout({ children }) {
         <AuthProvider>
           <ToastNotifications />
 
-          {showBottomNav && <SettingPanel />}
-
-          {children}
+          <div className="pb-16"> {/* Bottom padding using width of navbar*/}
+            {showBottomNav && <SettingPanel />}
+            {children}
+          </div>
 
           <Toaster 
             position="top-right"

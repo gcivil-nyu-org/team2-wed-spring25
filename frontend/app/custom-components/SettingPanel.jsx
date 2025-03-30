@@ -12,7 +12,7 @@ const SettingPanel = () => {
 
   return (
     <SidebarProvider open={open} onOpenChange={setOpen}>
-      <SidebarTrigger /> {/* Keeps default trigger in case it's used elsewhere */}
+      {/* <SidebarTrigger /> Removed the default SidebarTrigger */}
       <SettingsSidebar />
       <BottomNavBar /> 
     </SidebarProvider>

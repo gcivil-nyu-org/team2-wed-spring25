@@ -30,13 +30,26 @@ export default function Icon({
     } else if (size === "xl") {
       data = "w-18 h-18 " + data;
     }
-  } else {
-    if (selected) {
-      data = "scale-110 z-3 w-20 h-20 " + data;
     } else {
-      data = "w-11 h-11 " + data;
+      if (selected) {
+        // Only apply large size if no size is explicitly set
+        if (!size) {
+          data = "scale-110 z-3 w-20 h-20 " + data;
+        } else {
+          // use size-specific selected styles
+          if (size === "md") {
+            data = "scale-110 z-3 w-8 h-8 " + data;
+          } else if (size === "sm") {
+            data = "scale-110 z-3 w-6 h-6 " + data;
+          } else {
+            data = "scale-110 z-3 w-10 h-10 " + data;
+          }
+        }
+      } else {
+        data = "w-8 h-8 " + data;
+      }
     }
-  }
+
 
   // Handle click safely - prevent passing the event object
   const handleClick = (e) => {
@@ -52,7 +65,7 @@ export default function Icon({
   return (
     <div
       onClick={handleClick} // Use our safe handler instead of directly passing onClick
-      className={data}
+      className={`${data} relative`} // tooltiptext positioned relative to icon
       onMouseEnter={() => {
         setIsHovered(true);
         if (onMouseEnter) {
@@ -86,7 +99,7 @@ export default function Icon({
     />
       {/* Tooltip */}
       {isHovered && tooltipText && (
-        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-sm px-2 py-1 rounded-full whitespace-nowrap">
+        <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-sm px-2 py-1 rounded-full whitespace-nowrap z-50 shadow-md">
           {tooltipText}
         </div>
       )}
