@@ -44,4 +44,10 @@ coverage.xml
 # Local Netlify folder
 .netlify
 
+/nightwalkers/
 todo.txt
+
+# Ignore Mac system files and certificates
+.DS_Store
+cert.crt
+*.crt
