@@ -25,6 +25,9 @@ module.exports = {
           border: "var(--sidebar-border2)",
           separator: "var(--sidebar-separator)",
         },
+        legend: {
+          text: "var(--map-legend-text)",
+        },
         settingheader: {
           headerheight: "var(--header-height)",
         },

@@ -53,6 +53,9 @@ body {
     --sidebar-separator: rgb(87 83 78); /* stone-600 */
     --header-mobile-height: 10%;
     --header-height: 12%;
+
+    /* Special Colors */
+    --map-legend-text: rgb(41 37 36);
   }
   .dark {
     --background: 240 10% 3.9%;

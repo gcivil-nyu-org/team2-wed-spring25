@@ -159,22 +159,22 @@ const RouteRenderer = ({
       legend.onAdd = function () {
         const div = L.DomUtil.create("div", "bg-white shadow-md rounded-md p-2");
         div.innerHTML = `
-          <div class="text-sm font-medium">Routes</div>
+          <div class="text-sm font-medium text-legend-text">Routes</div>
           <div class="flex items-center mt-1">
             <div class="w-4 h-1" style="background-color: ${INITIAL_ROUTE_COLOR}; margin-right: 0.5rem;"></div>
-            <div class="text-xs">Standard Route</div>
+            <div class="text-xs text-legend-text">Standard Route</div>
           </div>
           ${
             saferRouteCoords
               ? `
           <div class="flex items-center mt-1">
             <div class="w-4 h-1" style="background-color: ${SAFER_ROUTE_COLOR}; margin-right: 0.5rem;"></div>
-            <div class="text-xs">Safer Route</div>
+            <div class="text-xs text-legend-text">Safer Route</div>
           </div>
           `
               : ""
           }
-          <div class="text-xs mt-1 text-gray-500">Click on a route to select</div>
+          <div class="text-xs mt-1 text-legend-text">Click on a route to select</div>
         `;
         return div;
       };
