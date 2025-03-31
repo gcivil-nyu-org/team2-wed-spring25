@@ -511,11 +511,11 @@ const LocationSearchForm = ({
                 {/* Departure field */}
                 <div className="flex-1 space-y-1 relative">
                     <div className="flex justify-between items-center mb-1">
-                        <label htmlFor="departure" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="departure" className="block text-sm font-medium text-map-text">
                             Departure
                         </label>
                         <div className="flex items-center">
-                            <label htmlFor="useCurrentLocation" className="text-xs text-gray-600 mr-2">
+                            <label htmlFor="useCurrentLocation" className="text-xs text-map-text mr-2">
                                 Use current location
                             </label>
                             <input
@@ -581,7 +581,7 @@ const LocationSearchForm = ({
 
                 {/* Destination field */}
                 <div className="flex-1 space-y-1 relative">
-                    <label htmlFor="destination" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="destination" className="block text-sm font-medium text-map-text">
                         Destination
                     </label>
                     <div className="flex space-x-2">
@@ -635,7 +635,7 @@ const LocationSearchForm = ({
             <Button
                 type="submit"
                 disabled={isButtonDisabled}
-                className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700"
+                className="w-full mt-4 bg-map-off hover:bg-map-on"
             >
                 {isLoading ? (
                     <span className="flex items-center">
@@ -652,14 +652,14 @@ const LocationSearchForm = ({
             </Button>
 
             {routeCalculated && !inputsModified && !hasError && (
-                <div className="text-xs text-blue-600 text-center mt-1">
+                <div className="text-xs text-main-subtext text-center mt-1">
                     Change departure or destination to calculate a new route
                 </div>
             )}
 
             {/* Add note about NYC-only policy */}
-            <div className="text-xs text-gray-500 mt-2 text-center">
-                Note: SafeRouteNYC only supports locations within New York City &apos;s five boroughs.
+            <div className="text-xs text-main-subtext mt-2 text-center">
+                Note: SafeRouteNYC only supports locations within New York City&apos;s five boroughs.
             </div>
         </form>
     );

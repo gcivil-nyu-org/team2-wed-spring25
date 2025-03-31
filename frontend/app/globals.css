@@ -56,6 +56,10 @@ body {
 
     /* Special Colors */
     --map-legend-text: rgb(41 37 36);
+    --map-subtext:rgb(120 113 108); /* stone-500 */
+    --route-button-off: rgb(120 113 108); /* stone-500 */
+    --route-button-on: rgb(87 83 78); /* stone-600 */
+    --map-maintext: rgb(87 83 78); /* stone-600 */
   }
   .dark {
     --background: 240 10% 3.9%;

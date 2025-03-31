@@ -28,6 +28,14 @@ module.exports = {
         legend: {
           text: "var(--map-legend-text)",
         },
+        main:{
+          subtext: "var(--map-subtext)", // Color for subtext in the main area
+        },
+        map: {
+          off: "var(--route-button-off)", // Default color when route is not active
+          on: "var(--route-button-on)", // Color when route is active
+          text: "var(--map-maintext)", // Default color when route is not active
+        },
         settingheader: {
           headerheight: "var(--header-height)",
         },
