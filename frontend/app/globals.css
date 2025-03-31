@@ -17,7 +17,6 @@ body {
   }
 }
 
-
 .my-variable-main-style {
   min-height: var(--main-min-height);
   background-image: var(--main-bg-gradient);
