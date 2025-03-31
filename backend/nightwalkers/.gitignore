@@ -7,3 +7,4 @@ staticfiles
 logfile
 .DS_Store
 **/.DS_Store
+cert.*
