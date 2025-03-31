@@ -1,6 +1,6 @@
 language: python
 python:
-  - "3.11" # Use a stable Python version
+  - "3.11"
 dist: focal
 os: linux
 
@@ -17,57 +17,42 @@ before_install:
 cache:
   directories:
     - ~/.cache/pip
-    - ~/.npm # Cache global npm packages
-    - ~/.cache/npm # Cache npm cache
-    - frontend/node_modules # Cache project dependencies
+    - ~/.npm
+    - ~/.cache/npm
+    - frontend/node_modules
     - frontend/build
     - frontend/.next/cache
-  npm: true # Add explicit npm caching
-  pip: true # Add explicit pip caching
+  npm: true
+  pip: true
 
-# Install dependencies
 install:
   - pip install -r backend/nightwalkers/requirements.txt
   - pip install black flake8 coverage coveralls
+  - nvm install 22.9
+  - npm install -g npm@10.8
+  - cd $FRONTEND_PATH && npm install && cd ..
 
-  # Install Node.js and frontend dependencies
-  - nvm install 22.9 # Install Node.js 22 (or the version your Next.js app requires)
-  - npm install -g npm@10.8 # Update npm to the latest version
-  - cd $FRONTEND_PATH && npm install && cd .. # Install frontend dependencies
-
-# Make the script executable
 before_script:
   - chmod +x deploy.sh
   - chmod +x deploy-to-production.sh
   - chmod +x deploy-to-develop.sh
   - chmod +x deploy-to-netlify.sh
-  - psql -c 'create database nightwalkers_test;' -U postgres
-  # Create a test database (with error handling)
   - psql -c 'DROP DATABASE IF EXISTS nightwalkers_test;' -U postgres
   - psql -c 'CREATE DATABASE nightwalkers_test;' -U postgres
-  # Add PostGIS extension (with error handling)
   - psql -c 'CREATE EXTENSION IF NOT EXISTS postgis;' -U postgres -d nightwalkers_test || echo "Warning: Could not create PostGIS extension"
 
-
-# Run checks and tests
 script:
   - pwd
-
   - black --check backend/nightwalkers/
   - flake8 backend/nightwalkers/
-
   - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH
-  - coverage report # Print coverage report
-  - coverage xml # Generate coverage XML for coveralls
+  - coverage report
+  - coverage xml
+  - cd $FRONTEND_PATH && npm run build && cd ..
 
-  # Frontend build
-  - cd $FRONTEND_PATH && npm run build && cd .. # Build the Next.js app
-
-# Report coverage to coveralls
 after_success:
   - coveralls --service=travis-pro
 
-# Deploy to Render and Netlify upon successful tests for the main and develop branches
 deploy:
   provider: script
   script: ./deploy.sh
@@ -75,7 +60,7 @@ deploy:
   on:
     all_branches: true
     condition: $TRAVIS_BRANCH =~ ^(main|develop)$
-# Notifications (optional)
+
 notifications:
   email:
     on_success: never
