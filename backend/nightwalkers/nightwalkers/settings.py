@@ -118,13 +118,25 @@ WSGI_APPLICATION = "nightwalkers.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # Database
-DATABASES = {
-    "default": dj_database_url.config(
-        default=os.getenv("DJANGO_DATABASE_URL"),
-        conn_max_age=600,  # Optional:
-        # Improves performance by reusing connections
-    )
-}
+if 'TRAVIS' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',  # Since you're using GeoDjango
+            'NAME': 'nightwalkers_test',
+            'USER': 'postgres',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
+else:
+    # Your existing database configuration
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=os.getenv("DJANGO_DATABASE_URL"),
+            conn_max_age=600,
+        )
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
