@@ -30,9 +30,11 @@ export default function Forums({ settingsType = "" }) {
   }
 
   return (
-    <div className={`w-full flex flex-row justify-center items-start my-4`}>
+    <div
+      className={`w-full flex flex-row justify-center items-start my-4 bg-bg-forum`}
+    >
       {!settingsType && (
-        <div className="flex-col hidden  xsm:flex lg:w-2/6 xl:flex xl:flex-col xl:items-center max-w-[225px]">
+        <div className="flex-col hidden  xsm:flex lg:w-2/6 xl:flex xl:flex-col xl:items-center max-w-[225px] ">
           <UserData
             user={user}
             userHeading={userHeading}

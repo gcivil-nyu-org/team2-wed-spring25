@@ -11,8 +11,8 @@ export default function UserData({
   userSideCardData,
 }) {
   return (
-    <div>
-      <div className="relative bg-white  rounded-lg max-h-[210px] pb-4 w-full">
+    <div className="text-text-forum-heading">
+      <div className="relative  rounded-lg max-h-[210px] pb-4 w-full bg-bg-post">
         <div className="h-[58px] absolute left-0 top-0 w-full bg-purple-300 rounded-t-lg">
           <Image
             src={"/topography.svg"}
@@ -22,15 +22,15 @@ export default function UserData({
             className="object-cover h-full w-full rounded-t-xl"
           />
         </div>
-        <div className="w-full pt-7 pl-4 pr-6">
-          <div className="relative inline-block justify-start bg-white rounded-full p-[2px]">
+        <div className="w-full pt-7 pl-4 pr-6 border-dark">
+          <div className="relative inline-block justify-start bg-white rounded-full p-[1.5px]">
             <UserImage
               imageUrl={user.avatar ?? fallbackUserProfileImage}
               width={70}
               height={70}
             />
           </div>
-          <h3 className="text-xl font-semibold">
+          <h3 className="text-xl font-semibold text-forum-heading">
             {/* take 18 characters of the name */}
             {getUserFullName(user.first_name, user.last_name).length > 14
               ? getUserFullName(user.first_name, user.last_name).substring(
@@ -40,13 +40,15 @@ export default function UserData({
               : getUserFullName(user.first_name, user.last_name)}
           </h3>
           {/* show random heading */}
-          <p className="text-xs font-medium pt-1">{userHeading}</p>
-          <p className="text-xs font-medium text-slate-500 pt-1">
+          <p className="text-xs font-medium pt-1 text-forum-subheading">
+            {userHeading}
+          </p>
+          <p className="text-xs font-medium text-forum-subheading2 pt-1">
             {"Brooklyn, New York"}
           </p>
         </div>
       </div>
-      <div className="flex flex-col bg-white w-full mt-4 rounded-lg p-4 text-xs font-semibold text-gray-700">
+      <div className="flex flex-col bg-bg-post w-full mt-4 rounded-lg p-4 text-xs font-semibold text-forum-subheading border-dark">
         {isUserDataCardLoading ?? <Loader />}
         <div className="flex justify-between mt-1">
           <p>Saved Routes</p>

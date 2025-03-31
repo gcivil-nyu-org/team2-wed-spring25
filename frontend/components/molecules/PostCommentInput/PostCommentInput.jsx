@@ -44,7 +44,7 @@ export default function PostCommentInput({
     <div
       className={`flex justify-between text-sm ${
         commentContent !== "" ? " flex-col rounded-3xl " : "rounded-full"
-      } border-[1px] mx-1 mb-4 border-slate-300 relative`}
+      }  mx-1 mb-4 border-light relative`}
     >
       {showEmojiPicker && (
         <div className="absolute bottom-16 right-0" ref={emojiPickerRef}>

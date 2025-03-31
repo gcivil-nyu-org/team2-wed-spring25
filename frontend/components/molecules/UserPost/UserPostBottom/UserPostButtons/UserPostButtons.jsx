@@ -25,7 +25,7 @@ export default function UserPostButtons({
         </div>
         {getCommentsCount(commentsCount)}
       </div>
-      <hr className="border-gray-200 mx-1"></hr>
+      <hr className="border-top-light mx-1"></hr>
       <div className="flex justify-between ">
         <div className="flex flex-row justify-center items-center px-4 rounded-md hover:bg-slate-100 my-2">
           <UserImage
