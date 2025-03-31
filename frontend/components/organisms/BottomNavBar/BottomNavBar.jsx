@@ -12,7 +12,7 @@ export default function BottomNavBar() {
   const isActive = (path) => pathname.startsWith(path);
 
   return (
-    // Set z-index to 1000 to override everything hopefully
+    // Set z-index to 1000 to override everything
     <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white z-[1000] border-t border-gray-300 flex justify-around items-center shadow-md">
 
       <Icon
