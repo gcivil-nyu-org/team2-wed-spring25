@@ -20,8 +20,10 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Allan local
-GDAL_LIBRARY_PATH = os.popen('brew --prefix gdal').read().strip() + '/lib/libgdal.dylib'
-GEOS_LIBRARY_PATH = os.popen('brew --prefix geos').read().strip() + '/lib/libgeos_c.dylib'
+GDAL_LIBRARY_PATH = os.popen("brew --prefix gdal").read().strip() + "/lib/libgdal.dylib"
+GEOS_LIBRARY_PATH = (
+    os.popen("brew --prefix geos").read().strip() + "/lib/libgeos_c.dylib"
+)
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 # Quick-start development settings - unsuitable for production
