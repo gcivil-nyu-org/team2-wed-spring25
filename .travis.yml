@@ -41,6 +41,7 @@ before_script:
   - psql -c 'CREATE DATABASE nightwalkers_test;' -U postgres
   # Simple command without complex error handling
   - psql -c 'CREATE EXTENSION IF NOT EXISTS postgis;' -U postgres -d nightwalkers_test
+  - mkdir -p $BASE_PATH/static
 
 script:
   - pwd
