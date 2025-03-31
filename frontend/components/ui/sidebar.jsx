@@ -244,7 +244,6 @@ function SidebarTrigger({ className, onClick, children, ...props }) {
     return (
       <div
         onClick={(e) => {
-          console.log("SidebarTrigger clicked!");
           onClick?.(e);
           toggleSidebar();
         }}
