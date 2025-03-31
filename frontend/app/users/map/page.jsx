@@ -29,7 +29,7 @@ export function LogoutButton() {
     <Button
       onClick={logout}
       variant="outline"
-      className="bg-white/10 hover:bg-white/20 border-white/20 text-white"
+      className="bg-white/10 hover:bg-white/20 border-white/20 text-sidebar-text"
     >
       Logout
     </Button>
@@ -45,7 +45,7 @@ export function MapPage() {
       <h1 className="text-3xl font-bold">Dashboard</h1>
       <div className="flex items-center gap-4">
         {user && (
-          <span className="text-sm text-white/80">
+          <span className="text-sm text-sidebar-text/80">
             Logged in as: {user.email}
           </span>
         )}
@@ -250,7 +250,7 @@ function DashboardContent() {
       )}
 
       <div className="bg-white/10 rounded-lg p-4 mb-6">
-        <h2 className="text-xl font-semibold mb-3 text-white">Route Planner</h2>
+        <h2 className="text-xl font-semibold mb-3 text-sidebar-text">Route Planner</h2>
 
         {/* Location Search Form */}
         <div className="mb-6">
@@ -278,10 +278,10 @@ function DashboardContent() {
 
       {/* Instructions */}
       <div className="bg-white/10 rounded-lg p-4 mb-6">
-        <h2 className="text-xl font-semibold mb-3 text-white">
+        <h2 className="text-xl font-semibold mb-3 text-sidebar-text">
           How to Use This Map
         </h2>
-        <ul className="list-disc pl-5 space-y-1 text-white/90">
+        <ul className="list-disc pl-5 space-y-1 text-sidebar-text/90">
           <li>
             Check &quot;Use current location&quot; if you want to use your
             current location as the starting point
@@ -304,7 +304,7 @@ function DashboardContent() {
             You can share routes by copying the URL after planning a route
           </li>
         </ul>
-        <p className="text-sm text-white/80 mt-4">
+        <p className="text-sm text-sidebar-text/80 mt-4">
           Note: Location services must be enabled in your browser when using
           &quot;Current Location&quot; as your starting point.
         </p>
@@ -315,7 +315,7 @@ function DashboardContent() {
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
   return (
-    <main className="my-variable-main-style">
+    <main className="min-h-screen bg-sidebar-group text-sidebar-text p-8">
       <div className="max-w-4xl mx-auto">
         <DashboardHeader />
         <Suspense
