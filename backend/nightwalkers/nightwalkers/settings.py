@@ -121,7 +121,7 @@ WSGI_APPLICATION = "nightwalkers.wsgi.application"
 if 'TRAVIS' in os.environ:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',  # Since you're using GeoDjango
+            'ENGINE': 'django.db.backends.postgresql',  # Use standard PostgreSQL first
             'NAME': 'nightwalkers_test',
             'USER': 'postgres',
             'PASSWORD': '',
@@ -129,6 +129,26 @@ if 'TRAVIS' in os.environ:
             'PORT': '5432',
         }
     }
+    
+    # Function to check if PostGIS is available
+    def check_postgis():
+        from django.db import connection
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute("SELECT PostGIS_Version();")
+                return True
+            except Exception:
+                return False
+    
+    # Try to update to PostGIS if available
+    try:
+        import django
+        django.setup()
+        if check_postgis():
+            DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
+    except Exception as e:
+        print(f"Warning: Could not use PostGIS: {e}")
+        print("Continuing with standard PostgreSQL")
 else:
     # Your existing database configuration
     DATABASES = {
@@ -137,7 +157,6 @@ else:
             conn_max_age=600,
         )
     }
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
