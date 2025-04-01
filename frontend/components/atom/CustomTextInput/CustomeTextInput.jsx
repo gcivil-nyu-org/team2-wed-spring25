@@ -20,8 +20,8 @@ export default function CustomTextInput({
       contentEditable={isLoading ? false : true}
       suppressContentEditableWarning={true}
       ref={editableDivRef}
-      className={`outline-none flex items-center pl-3  ${
-        content === "" ? "text-gray-500" : "pt-2"
+      className={`outline-none flex text-forum-subheading items-center pl-3  ${
+        content === "" ? "text-gray-400" : "pt-2"
       }`}
       onInput={handleEditableDivInput}
       onClick={handleEditableDivOnClick}

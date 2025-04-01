@@ -86,7 +86,7 @@ class GoogleAuthView(APIView):
                 user.email_verified = True
                 user.first_name = first_name
                 user.last_name = last_name
-                user.karma = 0
+                
                 if "picture" in idinfo:
                     user.avatar_url = idinfo["picture"]
 
@@ -116,10 +116,11 @@ class LoginView(APIView):
 
         # Authenticate with email as the USERNAME_FIELD
         user = authenticate(email=email, password=password)
-        print(user)
+        print("user.karma", user.karma)
         if user is not None:
             # Use standardized response format
             return Response(get_standard_response(user))
+
         else:
             return Response(
                 {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED

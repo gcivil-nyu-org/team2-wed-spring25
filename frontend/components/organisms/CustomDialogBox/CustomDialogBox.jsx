@@ -11,8 +11,11 @@ export default function CustomDialogBox({
 }) {
   return (
     showDialog && (
-      <div className="flex fixed top-0 left-0 h-full w-full bg-black bg-opacity-5 justify-center items-center z-10">
-        <div ref={dialogRef} className="flex flex-col bg-white p-4 rounded-xl">
+      <div className="border-light flex fixed top-0 left-0 h-full w-full bg-bg-forum bg-opacity-5 justify-center items-center z-10">
+        <div
+          ref={dialogRef}
+          className="flex flex-col bg-bg-forum p-4 rounded-xl text-forum-heading"
+        >
           <h3 className="font-semibold mb-2">{title}</h3>
           <p className="mb-4">{description}</p>
           <div className="flex mt-2 justify-end gap-2">

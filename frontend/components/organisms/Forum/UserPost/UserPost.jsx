@@ -13,7 +13,7 @@ export default function UserPost({ post, setPosts }) {
     useUserPost(post.likes_count, post.comments_count);
 
   return (
-    <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-white border-[1px] relative">
+    <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-bg-post border-dark relative">
       {post.is_repost && (
         <div>
           <div className="flex text-xs items-center mx-4 py-2">
@@ -22,15 +22,15 @@ export default function UserPost({ post, setPosts }) {
               width={24}
               height={24}
             />
-            <span className="ml-2 font-semibold mr-0 pr-0">
+            <span className="ml-2 font-semibold mr-0 pr-0 text-forum-subheading">
               {getUserFullName(
                 post.reposted_by.first_name,
                 post.reposted_by.last_name
               )}
             </span>
-            <p className="text-slate-600 ml-1">reposted this</p>
+            <p className="text-forum-subheading2 ml-1">reposted this</p>
           </div>
-          <hr className="border-gray-200 mx-4" />
+          <hr className="border-top-light mx-4" />
         </div>
       )}
       <UserPostHeader

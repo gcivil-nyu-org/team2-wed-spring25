@@ -53,7 +53,7 @@ export default function LikeIconTextWithTooltip({
       {/* Tooltip Div */}
       {isTooltipVisible && (
         <div
-          className="absolute -top-20 bg-white p-1 rounded-full shadow-md pointer-events-auto"
+          className="absolute -top-20 bg-bg-post p-1 rounded-full shadow-md pointer-events-auto border border-gray-500"
           onMouseEnter={handleMouseEnter} // Keep tooltip visible when hovering over it
           onMouseLeave={handleMouseLeave} // Hide tooltip after 0.5 seconds when leaving
         >
