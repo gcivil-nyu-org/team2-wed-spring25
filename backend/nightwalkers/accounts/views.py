@@ -77,7 +77,7 @@ class GoogleAuthView(APIView):
                 user.email_verified = True
                 user.first_name = first_name  # Ensure names stay updated
                 user.last_name = last_name
-                
+
                 if "picture" in idinfo:
                     user.avatar_url = idinfo["picture"]
 
