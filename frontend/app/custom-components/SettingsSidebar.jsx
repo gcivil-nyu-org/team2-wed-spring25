@@ -32,8 +32,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { useAuth } from "./AuthHook";
+import { signOut } from "next-auth/react";
 import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 
 const items = [
   {
@@ -106,9 +109,31 @@ const SettingsSidebar = () => {
     isMobile,
     toggleSidebar,
   } = useSidebar();
-  const { logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const router = useRouter();
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+
+      // Sign out using Next-Auth
+      await signOut({
+        redirect: false // Don't redirect automatically
+      });
+
+      // Manual redirect after signOut completes
+      router.push("/login");
+      router.refresh(); // Force refresh to clear any cached pages
+
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setIsLoggingOut(false);
+      
+    }
+  };
 
   return (
+
     <Sidebar side="right" collapsible="offcanvas">
       <SidebarContent>
         {/* Header */}
@@ -248,9 +273,9 @@ const SettingsSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={logout}>
+                <SidebarMenuButton onClick={handleLogout}>
                   <LogOut />
-                  <span>Sign Out</span>
+                  <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
