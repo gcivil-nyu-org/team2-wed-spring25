@@ -33,7 +33,8 @@
 #         """Test creating a user without email raises error"""
 #         with self.assertRaises(ValueError):
 #             User.objects.create_user(
-#                 email=None, password="testpass123", first_name="Test", last_name="User"
+#                 email=None, password="testpass123", \
+#                  first_name="Test", last_name="User"
 #             )
 
 #     def test_create_user_no_first_name(self):
