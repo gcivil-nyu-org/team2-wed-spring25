@@ -116,6 +116,7 @@ const SettingsSidebar = () => {
           <div className="relative flex justify-center items-center w-[100%]">
             <div className="absolute left-0 text-xl p-4 cursor-pointer hover:opacity-70">
               <ArrowLeft
+                data-testid="arrow-left-icon"
                 onClick={() =>
                   isMobile ? setOpenMobile(false) : setOpen(false)
                 }
