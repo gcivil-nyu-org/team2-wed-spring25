@@ -61,7 +61,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
     def __str__(self):
-        return f"{self.get_full_name()} ({self.email})"
+        return f"{self.get_full_name()} ({self.email}) {self.get_karma()}"
 
     def get_user_karma(self):
         return self.karma

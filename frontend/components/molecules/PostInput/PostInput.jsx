@@ -18,7 +18,7 @@ export default function PostInput({
           posts_count={userPosts.length}
         />
       )}
-      <div className="felx flex-col rounded-lg bg-white mb-4 border-[1px]">
+      <div className="flex flex-col rounded-lg bg-bg-post mb-4 border-dark">
         <div className="flex flex-row pl-4 py-3">
           <UserImage
             imageUrl={user.avatar ?? fallbackUserProfileImage}
@@ -27,9 +27,9 @@ export default function PostInput({
           />
           <div
             onClick={handleClick}
-            className="group flex flex-row items-center w-full border-gray-400 border-[1px] mx-3 rounded-3xl hover:bg-gray-100 hover:cursor-pointer"
+            className="group flex flex-row items-center w-full border-light mx-3 hover:bg-bg-forum hover:bg-opacity-50 rounded-3xl hover:cursor-pointer"
           >
-            <p className="ml-4 text-slate-600 text-sm font-bold group-hover:text-slate-900 ">
+            <p className="ml-4 text-forum-heading2 text-sm font-semibold group-hover:text-white ">
               Start a post
             </p>
           </div>

@@ -17,7 +17,7 @@ export default function IconText({
 }) {
   return (
     <div
-      className="flex flex-1 p-2 my-3 mx-1 space-x-1 justify-center items-center rounded-md h-[35px] relative md:flex-col lg:flex-row  hover:bg-slate-100 hover:cursor-pointer "
+      className="flex flex-1 p-2 my-3 mx-1 space-x-1 justify-center items-center rounded-md h-[35px] relative md:flex-col lg:flex-row  hover:bg-black hover:cursor-pointer "
       onClick={onClick}
     >
       <Image
@@ -25,7 +25,7 @@ export default function IconText({
         width={user_has_liked ? 16 : width}
         height={user_has_liked ? 16 : height}
         alt={alt}
-        className="object-fill"
+        className="object-fill "
       />
       <p
         className={`hidden md:block ${getLikeTypeColor(

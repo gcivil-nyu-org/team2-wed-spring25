@@ -216,6 +216,7 @@ def get_user_data(request):
         except User.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
         total_followers = Follow.objects.filter(following_user=user).count()
+        print("user: ", user)
         user_karma = user.karma
         total_posts = Post.objects.filter(user=user).count()
         # get Total Saved Routers count by current user using SavedRoute model
@@ -317,8 +318,9 @@ def get_posts(request):
                 .order_by("-date_created")
             )
         elif settings_type == "comments":
-            # find all the posts_id where user has commented then
-            # filter the posts and annotate and order by date and paginate amd return
+            # find all the posts_id where user has commented \
+            # then filter the posts and annotate and order by \
+            # date and paginate amd return
             posts = (
                 Post.objects.filter(comments__user=user)
                 .annotate(
