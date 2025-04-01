@@ -12,6 +12,10 @@ module.exports = {
         xsm: "820px",
         xlg: "1060px",
       },
+      height: {
+        mobileheader: "var(--header-mobile-height)",
+        header: "var(--header-height)",
+      },
       colors: {
         bg: {
           forum: "black",
@@ -30,6 +34,9 @@ module.exports = {
           text: "var(--sidebar-text)",
           border: "var(--sidebar-border2)",
           separator: "var(--sidebar-separator)",
+        },
+        settingheader: {
+          headerheight: "var(--header-height)",
         },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

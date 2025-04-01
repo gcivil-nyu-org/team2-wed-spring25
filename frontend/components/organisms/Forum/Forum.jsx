@@ -31,7 +31,7 @@ export default function Forums({ settingsType = "" }) {
 
   return (
     <div
-      className={`w-full flex flex-row justify-center items-start my-4 bg-bg-forum`}
+      className={`w-full flex flex-row justify-center items-start py-4 bg-bg-forum`}
     >
       {!settingsType && (
         <div className="flex-col hidden  xsm:flex lg:w-2/6 xl:flex xl:flex-col xl:items-center max-w-[225px] ">
@@ -43,7 +43,7 @@ export default function Forums({ settingsType = "" }) {
           />
         </div>
       )}
-      <div className="w-full lg:w-4/6 xl:2/5 flex flex-col md:mx-2 lg:mx-4 h-screen max-w-[555px]">
+      <div className="w-full lg:w-4/6 xl:2/5 flex flex-col md:mx-2 lg:mx-4 min-h-screen max-w-[555px]">
         {!settingsType && (
           <PostInput
             isOpen={isOpen}

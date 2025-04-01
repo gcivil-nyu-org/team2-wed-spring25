@@ -55,6 +55,8 @@ body {
     --forum-createpost-heading: rgb(
       255 255 255 / 0.75
     ); /* Used for the create post heading in forums */
+    --header-mobile-height: 10%;
+    --header-height: 12%;
   }
   .dark {
     --background: 240 10% 3.9%;
@@ -89,6 +91,7 @@ body {
     --sidebar-border2: rgb(120 113 108);
     --sidebar-separator: rgb(87 83 78);
     /* gray-100 for forum headings in dark mode */
+    --header-height: 12%;
   }
 }
 
