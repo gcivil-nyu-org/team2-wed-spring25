@@ -48,6 +48,13 @@ body {
     --sidebar-text: rgb(243 244 246); /* gray-100 */
     --sidebar-border2: rgb(120 113 108); /* stone-500 */
     --sidebar-separator: rgb(87 83 78); /* stone-600 */
+
+    --forum-heading: rgb(255 255 255);
+    --forum-subheading: rgb(255 255 255 / 0.9);
+    --forum-subheading2: rgb(255 255 255 / 0.6);
+    --forum-createpost-heading: rgb(
+      255 255 255 / 0.75
+    ); /* Used for the create post heading in forums */
     --header-mobile-height: 10%;
     --header-height: 12%;
   }
@@ -83,6 +90,7 @@ body {
     --sidebar-text: rgb(243 244 246);
     --sidebar-border2: rgb(120 113 108);
     --sidebar-separator: rgb(87 83 78);
+    /* gray-100 for forum headings in dark mode */
     --header-height: 12%;
   }
 }
@@ -352,4 +360,22 @@ body {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  .border-light {
+    @apply border border-gray-600;
+  }
+
+  .border-dark {
+    @apply border border-gray-800;
+  }
+
+  .border-top-light {
+    @apply border-t border-gray-600;
+  }
+
+  .border-top-dark {
+    @apply border-t border-gray-800;
+  }
 }

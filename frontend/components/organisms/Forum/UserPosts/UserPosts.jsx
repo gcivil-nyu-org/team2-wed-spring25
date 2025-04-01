@@ -24,7 +24,7 @@ export default function UserPosts({
         {isLoadingMore && <Loader />}
       </div>
       {!hasMore && (
-        <p className="text-center text-gray-500 text-lg mt-8 mb-10">
+        <p className="text-center text-forum-heading2 text-lg mt-8 mb-10">
           No more posts to show
         </p>
       )}
