@@ -16,21 +16,21 @@ export default function BottomNavBar() {
     <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white z-[1000] border-t border-gray-300 flex justify-around items-center shadow-md">
 
       <Icon
-        src="/icons/map.svg"
-        alt="map"
-        size="md"
-        tooltipText="Map"
-        selected={isActive('/users/map')}
-        onClick={() => router.push('/users/map')}
-      />
-
-      <Icon
         src="/icons/forum.svg"
         alt="forum"
         size="md"
         tooltipText="Forum"
         selected={isActive('/users/forum')}
         onClick={() => router.push('/users/forum')}
+      />
+
+      <Icon
+        src="/icons/map.svg"
+        alt="map"
+        size="md"
+        tooltipText="Map"
+        selected={isActive('/users/map')}
+        onClick={() => router.push('/users/map')}
       />
 
       <Icon
