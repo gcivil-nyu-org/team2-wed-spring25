@@ -1,6 +1,5 @@
-// app/layout.js
-// import localFont from "next/font/local";
 import "./globals.css";
+import AuthProvider from "@/components/Auth/AuthProvider";
 
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",  // Updated path to match your directory structure
@@ -23,10 +22,12 @@ import "./globals.css";
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-        {/* <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> */}
-        <body className={`antialiased bg-bglinkedin`}>
+      {/* <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> */}
+      <body className={`antialiased bg-bglinkedin`}>
+        <AuthProvider>
           {children}
-        </body>
+        </AuthProvider>
+      </body>
     </html>
   );
 }

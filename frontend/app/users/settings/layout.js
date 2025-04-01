@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import Image from "next/image";
 
-const SettingsLayout = ({ sidebar, content }) => {
+const SettingsLayout = ({ children, sidebar, content }) => {
   return (
     <div className="flex flex-row font-mono h-screen w-full bg-sidebar-group text-sidebar-text">
       <div className="hidden lg:flex flex-col justify-start items-center h-full w-[15%] gap-8">
@@ -24,7 +24,7 @@ const SettingsLayout = ({ sidebar, content }) => {
         {sidebar}
       </div>
       <Separator orientation="vertical" />
-      {content}
+      {content || children}
     </div>
   );
 };

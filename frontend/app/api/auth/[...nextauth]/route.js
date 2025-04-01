@@ -1,58 +1,142 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import https from "https";
-import fetch from "node-fetch";
-import { getDjangoErrorMessage } from "@/utils/django-error-handler";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { jwtDecode } from "jwt-decode";
 
 const BASE_URL = process.env.NEXT_PUBLIC_DJANGO_API_URL;
-const isProd = process.env.NODE_ENV === "production";
+
+/**
+ * Helper function for Django API calls during auth flow
+ */
+async function djangoFetch(url, options = {}) {
+  const fetchOptions = {
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+    ...options,
+  };
+  
+  const response = await fetch(`${BASE_URL}${url}`, fetchOptions);
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.detail || errorData.error || `Django error: ${response.status}`;
+    throw new Error(errorMessage);
+  }
+  
+  return await response.json();
+}
+
+/**
+ * Refresh the access token using the refresh token
+ */
+async function refreshAccessToken(refreshToken) {
+  try {
+    const refreshedTokens = await djangoFetch("/auth/token/refresh/", {
+      method: "POST",
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    if (!refreshedTokens.access) {
+      throw new Error("Failed to refresh access token");
+    }
+
+    return {
+      ...refreshedTokens,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      access: null,
+      refresh: null,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
+
 const handler = NextAuth({
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
-  ],
-  callbacks: {
-    // Send properties to the client, like an access_token from a provider.
-    async signIn({ user, account, profile }) {
-      if (!account) {
-        console.error(
-          "Account object is undefined in signIn callback",
-          account
-        );
-        return false;
-      }
-      if (account.provider == "google") {
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
         try {
-          //send the google token to our django backend
-          const url = `${BASE_URL}/auth/google/`;
-          const fetchOptions = {
+          const data = await djangoFetch("/auth/login/", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
+          });
+          
+          return {
+            id: data.user.id,
+            email: data.user.email,
+            name: `${data.user.first_name} ${data.user.last_name}`,
+            image: data.user.avatar_url || null,
+            djangoTokens: {
+              access: data.access,
+              refresh: data.refresh,
             },
+            djangoUser: data.user,
+          };
+        } catch (error) {
+          console.error("Credentials authentication failed:", error);
+          return null;
+        }
+      },
+    }),
+  ],
+  events: {
+    async signOut({ token }) {
+      // Call your Django logout endpoint when NextAuth signOut is triggered
+      if (token?.djangoTokens?.refresh) {
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_DJANGO_API_URL}/auth/logout/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token.djangoTokens.access}`
+            },
+            body: JSON.stringify({
+              refresh: token.djangoTokens.refresh
+            })
+          });
+        } catch (error) {
+          console.error('Error during Django logout:', error);
+          // Continue with sign out even if Django logout fails
+        }
+      }
+    }
+  },
+  pages: {
+    signIn: '/login',  // Your custom login page
+    signOut: '/login', // Redirect to login after signing out
+    error: '/login',   // Error page (or your login page to show errors there)
+  },
+  callbacks: {
+    async signIn({ user, account }) {
+      if (!account) return false;
+      
+      if (account.provider === "google") {
+        try {
+          const data = await djangoFetch("/auth/google/", {
+            method: "POST",
             body: JSON.stringify({
               token: account.id_token,
               email: user.email,
               name: user.name,
             }),
-          };
-          if (!isProd) {
-            fetchOptions.agent = new https.Agent({ rejectUnauthorized: false });
-          }
-          const response = await fetch(url, fetchOptions);
-
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            const errorMessage = errorData
-              ? getDjangoErrorMessage(errorData)
-              : `Django error: ${response.status}`;
-            console.error("Django auth error:", errorMessage);
-            throw new Error(errorMessage);
-          }
-
-          const data = await response.json();
+          });
+          
           user.djangoTokens = {
             access: data.access,
             refresh: data.refresh,
@@ -64,36 +148,107 @@ const handler = NextAuth({
           return false;
         }
       }
+      
       return true;
     },
-    // If you want to use the session in client components
-    async jwt({ token, user, account }) {
-      if (user && user.djangoTokens) {
-        // Store Django tokens in the JWT
+    
+    async jwt({ token, user, trigger }) {
+      // Initial sign-in: store the tokens
+      if (user?.djangoTokens) {
         token.djangoTokens = user.djangoTokens;
         token.djangoUser = user.djangoUser;
+        return token;
       }
-
-      // If we have an account but no Django tokens yet, this might be the initial
-      // JWT creation before the signIn callback has run
-      if (account && !token.djangoTokens) {
-        // We'll get the tokens in the next JWT update after signIn completes
-        console.log("Initial JWT creation, waiting for Django tokens");
+      
+      // Handle session updates
+      if (trigger === "update") {
+        return { ...token };
       }
-
-      return token;
+      
+      // Return if no access token (shouldn't happen)
+      if (!token.djangoTokens?.access) {
+        return token;
+      }
+      
+      // Check if the access token is expired
+      const accessExpiry = getTokenExpiry(token.djangoTokens.access);
+      const refreshExpiry = getTokenExpiry(token.djangoTokens.refresh);
+      const now = Math.floor(Date.now() / 1000);
+      
+      // If refresh token is expired, force sign out
+      if (refreshExpiry <= now) {
+        return { ...token, error: "RefreshTokenExpired" };
+      }
+      
+      // If access token is not expired or close to expiry, return existing token
+      // Add 30-second buffer to avoid edge cases
+      if (accessExpiry > now + 30) {
+        return token;
+      }
+      
+      // Access token is expired, try to refresh it
+      const refreshed = await refreshAccessToken(token.djangoTokens.refresh);
+      
+      if (refreshed.error) {
+        // Refresh failed, return token with error
+        return { ...token, error: refreshed.error };
+      }
+      
+      // Refresh succeeded, update the token
+      return {
+        ...token,
+        djangoTokens: {
+          access: refreshed.access,
+          refresh: refreshed.refresh || token.djangoTokens.refresh,
+        },
+      };
     },
 
     async session({ session, token }) {
-      // Add Django tokens and user to the session
-      if (token?.djangoTokens) {
-        session.djangoTokens = token.djangoTokens;
-        session.djangoUser = token.djangoUser;
+      // Add Django tokens and user to session
+      session.djangoTokens = token.djangoTokens;
+      session.djangoUser = token.djangoUser;
+      
+      // Pass any errors to the client
+      if (token.error) {
+        session.error = token.error;
       }
-
+      
       return session;
     },
   },
+  events: {
+    async signOut({ token }) {
+      // Blacklist the refresh token when user signs out
+      if (token?.djangoTokens?.refresh) {
+        try {
+          await djangoFetch("/auth/logout/", {
+            method: "POST",
+            body: JSON.stringify({ refresh: token.djangoTokens.refresh }),
+          });
+        } catch (error) {
+          console.error("Error logging out from Django:", error);
+        }
+      }
+    },
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 7 * 24 * 60 * 60
+  },
+  debug: process.env.NODE_ENV === "development",
 });
+
+/**
+ * Helper function to extract expiry time from JWT token
+ */
+function getTokenExpiry(token) {
+  try {
+    const decoded = jwtDecode(token);
+    return decoded.exp;
+  } catch (error) {
+    return 0;
+  }
+}
 
 export { handler as GET, handler as POST };

@@ -22,7 +22,7 @@ const PostFooterIconList = ({
   }, [post.is_reported, setIsReported]);
   return (
     <div className="flex flex-1 relative">
-      <div className="flex-1 group">
+      <div className="flex-1 group ">
         {/* like option list */}
         <LikeIconTextWithTooltip
           iconData={iconsData[0]}

@@ -1,3 +1,5 @@
+import { commentDark, likeDark, reportDark, repostDark } from "@/public/icons";
+
 const icons = [
   { src: "/icons/likeli.svg", alt: "Like" },
   { src: "/icons/clap.svg", alt: "Clap" },
@@ -9,30 +11,30 @@ const icons = [
 
 const iconsData = [
   {
-    src: "/icons/like.svg",
+    src: likeDark,
     width: 16,
     height: 16,
     alt: "Like",
     text: "Like",
   },
   {
-    src: "/icons/message.png",
-    width: 15,
-    height: 15,
+    src: commentDark,
+    width: 16,
+    height: 16,
     alt: "Comment",
     text: "Comment",
   },
   {
-    src: "/icons/repost.svg",
-    width: 16,
-    height: 16,
+    src: repostDark,
+    width: 20,
+    height: 20,
     alt: "Repost",
     text: "Repost",
   },
   {
-    src: "/icons/report.png",
-    width: 13,
-    height: 13,
+    src: reportDark,
+    width: 16,
+    height: 16,
     alt: "Report",
     text: "Report",
   },

@@ -32,16 +32,16 @@ export default function PostCommentUserBody({
   return (
     <div className="flex-1 flex-col justify-start items-start mx-2">
       <div className="flex justify-between items-start">
-        <h3 className="font-semibold text-sm leading-none">
+        <h3 className="font-semibold text-sm leading-none text-forum-subheading">
           {userFullName.length > 16
             ? userFullName.slice(0, 16) + "..."
             : userFullName}
         </h3>
-        <p className="leading-none mt-1 text-xs text-slate-500 font-normal">
+        <p className="leading-none mt-1 text-xs text-forum-subheading font-normal">
           {formatDateAgoShort(parentComment.date_created)}
         </p>
       </div>
-      <p className="leading-none text-xs text-slate-500 font-normal">
+      <p className="leading-none text-xs text-forum-subheading2 font-normal">
         Kingslayer • <span>⚡{parentComment.user.user_karma} •</span>
       </p>
       {isEditCommentVisible ? (
@@ -62,12 +62,14 @@ export default function PostCommentUserBody({
         </div>
       ) : (
         <>
-          <p className="mt-2 mb-1">{parentComment.content}</p>
+          <p className="mt-2 mb-1 text-forum-heading">
+            {parentComment.content}
+          </p>
           <div className="flex items-center text-xs text-gray-500 font-semibold relative -left-1">
             <div className="relative flex items-center">
               {isTooltipVisible && (
                 <div
-                  className="absolute -top-[4.9rem] bg-white p-1 rounded-full shadow-md pointer-events-auto"
+                  className="absolute -top-[4.9rem] bg-bg-post p-1 rounded-full shadow-md pointer-events-auto border border-gray-500 border-opacity-100"
                   onMouseEnter={handleMouseEnter} // Keep tooltip visible when hovering over it
                   onMouseLeave={handleMouseLeave} // Hide tooltip after 0.5 seconds when leaving
                 >
@@ -75,7 +77,7 @@ export default function PostCommentUserBody({
                 </div>
               )}
               <p
-                className={`p-1 hover:bg-gray-100 rounded-sm hover:cursor-pointer ${getLikeTypeColor(
+                className={`p-1 hover:bg-bg-forum rounded-sm hover:cursor-pointer ${getLikeTypeColor(
                   userHasLiked,
                   likeType
                 )} font-semibold group-hover:${getGroupHoverTextColor(
@@ -109,7 +111,7 @@ export default function PostCommentUserBody({
             <p className="mx-1 font-thin">|</p>
             <div className="flex items-center">
               <p
-                className="p-1 hover:bg-gray-100 rounded-sm text-slate-600 hover:cursor-pointer"
+                className="p-1 hover:bg-bg-forum rounded-sm text-forum-heading2 hover:cursor-pointer"
                 onClick={() => setShowCommentReplyInput(!showCommentReplyInput)}
               >
                 Reply
@@ -117,7 +119,7 @@ export default function PostCommentUserBody({
               {repliesCount > 0 && <span className="text-xs">•</span>}
               {repliesCount > 0 && (
                 <p
-                  className="p-1 rounded-sm text-slate-400 font-semibold hover:cursor-pointer"
+                  className="p-1 rounded-sm text-forum-heading2 font-semibold hover:cursor-pointer"
                   onClick={() => {
                     setShowCommentReply(!showCommentReply);
                   }}

@@ -3,7 +3,6 @@ import { useState, useEffect, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useAuth } from "@/app/custom-components/AuthHook";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import LocationSearchForm from "@/app/custom-components/LocationSearchForm";
 import { DashboardHeader } from "../home/page";
@@ -38,7 +37,6 @@ export function LogoutButton() {
 
 // Dashboard header component
 export function MapPage() {
-  const { user } = useAuth();
 
   return (
     <div className="flex justify-between items-center mb-8">
@@ -46,10 +44,9 @@ export function MapPage() {
       <div className="flex items-center gap-4">
         {user && (
           <span className="text-sm text-sidebar-text/80">
-            Logged in as: {user.email}
+            Logged in as:
           </span>
         )}
-        <LogoutButton />
         <Button>
           <Link href={`map/`}>Map Route</Link>
         </Button>
@@ -63,7 +60,6 @@ export function MapPage() {
 
 function DashboardContent() {
   const searchParams = useSearchParams();
-  const { user } = useAuth();
   const [mapboxToken, setMapboxToken] = useState("");
   const [departureCoords, setDepartureCoords] = useState(null);
   const [destinationCoords, setDestinationCoords] = useState(null);
