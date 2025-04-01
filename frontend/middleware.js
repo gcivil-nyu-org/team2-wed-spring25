@@ -10,7 +10,7 @@ export default withAuth(
     // If no token or no Django tokens, deny access
     if (!token || !token.djangoTokens?.access) {
       return NextResponse.redirect(
-        new URL(`/login?error=token_missing`, req.url)
+        new URL(`/login`, req.url)
       );
     }
     
@@ -30,13 +30,13 @@ export default withAuth(
       // If token is expired, redirect to login
       if (decoded.exp <= now) {
         return NextResponse.redirect(
-          new URL(`/login?error=session_expired`, req.url)
+          new URL(`/login`, req.url)
         );
       }
     } catch (error) {
       console.error("Error decoding token:", error);
       return NextResponse.redirect(
-        new URL(`/login?error=token_invalid`, req.url)
+        new URL(`/login`, req.url)
       );
     }
     

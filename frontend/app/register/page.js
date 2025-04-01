@@ -98,7 +98,7 @@ export default function RegisterPage() {
           null, // Details (optional)
           "signup" // Type (login, signup, profile, etc.)
         );
-        router.push("/users/login");
+        router.push("/login");
       } else {
         setError("Invalid response from server");
         setLoading(false);

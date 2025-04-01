@@ -35,9 +35,6 @@ export function MapPage() {
             Logged in as:
           </span>
         )}
-        <Button>
-          <Link href={`map/`}>Map Route</Link>
-        </Button>
       </div>
     </div>
   );
