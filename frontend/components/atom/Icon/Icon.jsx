@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 export default function Icon({
-  onClick = () => { },
+  onClick = () => {},
   src,
   width,
   height,
@@ -18,7 +18,7 @@ export default function Icon({
     "flex justify-center items-center rounded-full hover:cursor-pointer transition-all duration-200 inline-block";
 
   if (selected == null) {
-    data = "hover:bg-gray-200 " + data;
+    data = "hover:bg-bg-forum " + data;
     if (size === "sm") {
       data = "w-5 h-5 " + data;
     } else if (size === "md") {
@@ -41,7 +41,7 @@ export default function Icon({
   // Handle click safely - prevent passing the event object
   const handleClick = (e) => {
     e.stopPropagation(); // Prevent event bubbling if needed
-    
+
     // Call onClick with the alt text instead of the event
     // This ensures we pass a string not an event object
     if (onClick) {
@@ -68,8 +68,8 @@ export default function Icon({
     >
       <Image
         src={src}
-        width={selected != null ? selected ? 80 : 40 : width}
-        height={selected != null ? selected ? 80 : 40 : height}
+        width={selected != null ? (selected ? 80 : 40) : width}
+        height={selected != null ? (selected ? 80 : 40) : height}
         alt={alt}
       />
       {/* Tooltip */}
@@ -79,5 +79,5 @@ export default function Icon({
         </div>
       )}
     </div>
-  )
+  );
 }
