@@ -829,16 +829,9 @@ const LocationSearchForm = ({
         </div>
       )}
 
-            {/* Add note about NYC-only policy */}
-            <div className="text-xs text-main-subtext mt-2 text-center">
-                Note: SafeRouteNYC only supports locations within New York City&apos;s five boroughs.
-            </div>
-        </form>
-    );
       {/* Add note about NYC-only policy */}
-      <div className="text-xs text-gray-500 mt-2 text-center">
-        Note: SafeRouteNYC only supports locations within New York City &apos;s
-        five boroughs.
+      <div className="text-xs text-main-subtext mt-2 text-center">
+            Note: SafeRouteNYC only supports locations within New York City&apos;s five boroughs.
       </div>
     </form>
   );
