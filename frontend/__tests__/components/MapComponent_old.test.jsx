@@ -1,11 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import Dashboard from "@/app/users/map/page";
-import { useAuth } from "@/app/custom-components/AuthHook";
-import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
-import MapComponent from "@/app/custom-components/MapComponent";
-
-// Mock the hooks and dynamic imports
-jest.mock("@/app/custom-components/AuthHook");
+import RoutingMapComponent from "@/app/custom-components/MapComponents/MapComponent";
 jest.mock("@/app/custom-components/ToastComponent/NotificationContext");
 jest.mock("next/dynamic", () => () => {
   const DynamicComponent = () => (

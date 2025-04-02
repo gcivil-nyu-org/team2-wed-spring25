@@ -45,7 +45,6 @@ const useUserLocation = ({
       Array.isArray(departureCoords) &&
       !hasExplicitCoordinates
     ) {
-      console.log("Setting explicit departure coordinates:", departureCoords);
 
       // Check if coordinates are within NYC
       if (isWithinNYC(departureCoords)) {
@@ -82,7 +81,6 @@ const useUserLocation = ({
 
     const getUserLocationOnLoad = async () => {
       setIsGettingLocation(true);
-      console.log("Getting user location on initial load...");
 
       try {
         if (!navigator.geolocation) {
@@ -112,7 +110,6 @@ const useUserLocation = ({
           );
         });
 
-        console.log("Got user location on initial load:", position.coords);
 
         // Check if location is within NYC bounds
         const lat = position.coords.latitude;
@@ -123,10 +120,6 @@ const useUserLocation = ({
           setUserLocation([lat, lng]);
           setOutsideNYC(false);
         } else {
-          // Outside NYC - default to Washington Square Park
-          console.log(
-            "Location outside NYC, defaulting to Washington Square Park"
-          );
           setUserLocation(defaultLocation);
           setOutsideNYC(true);
 
@@ -179,7 +172,6 @@ const useUserLocation = ({
 
     const getUserLocation = async () => {
       setIsGettingLocation(true);
-      console.log("Getting user location due to useCurrentLocation flag...");
 
       try {
         if (!navigator.geolocation) {
@@ -209,7 +201,6 @@ const useUserLocation = ({
           );
         });
 
-        console.log("Got user location:", position.coords);
 
         // Check if location is within NYC bounds
         const lat = position.coords.latitude;
@@ -220,10 +211,6 @@ const useUserLocation = ({
           setUserLocation([lat, lng]);
           setOutsideNYC(false);
         } else {
-          // Outside NYC - default to Washington Square Park
-          console.log(
-            "Location outside NYC, defaulting to Washington Square Park"
-          );
           setUserLocation(defaultLocation);
           setOutsideNYC(true);
 
@@ -272,7 +259,6 @@ const useUserLocation = ({
       !hasExplicitCoordinates &&
       initialLocationAttemptRef.current
     ) {
-      console.log("No location set, using default location");
       setUserLocation(defaultLocation);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -299,7 +285,6 @@ const useUserLocation = ({
       navigator.geolocation.getCurrentPosition(
         (position) => {
           clearTimeout(timeoutId); // Clear the timeout
-          console.log("Got user location on retry:", position.coords);
           const { latitude, longitude } = position.coords;
 
           // Check if within NYC

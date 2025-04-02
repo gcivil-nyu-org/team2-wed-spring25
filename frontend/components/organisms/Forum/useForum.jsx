@@ -15,8 +15,12 @@ export default function useForum(settingsType) {
   const [hasMore, setHasMore] = useState(true); // Track if there are more posts to fetch
   const loaderRef = useRef(null);
   const limit = 10; // Number of posts to fetch per request
-  let userHeading =
-    userHeadings[Math.floor(Math.random() * userHeadings.length)];
+  const [userHeading, setUserHeading] = useState(0);
+  useEffect(() => {
+    let userHeading =
+      userHeadings[Math.floor(Math.random() * userHeadings.length)];
+    setUserHeading(userHeading);
+  }, []);
 
   const handleClick = () => {
     setIsOpen(!isOpen);
@@ -75,32 +79,6 @@ export default function useForum(settingsType) {
     }
   }, [hasMore, isLoadingMore, offset, user?.id, limit, settingsType]);
 
-  // // Set up the Intersection Observer
-  // useEffect(() => {
-  //   const currentLoaderRef = loaderRef.current;
-  //   if (!currentLoaderRef) {
-  //     return; // Exit if loaderRef is not set
-  //   }
-
-  //   const observer = new IntersectionObserver(
-  //     (entries) => {
-  //       alert("Intersection Observer triggered");
-  //       if (entries[0].isIntersecting && hasMore) {
-  //         loadMorePosts(); // Fetch more posts when the loader div is visible
-  //       }
-  //     },
-  //     { threshold: 0.3 } // Trigger when the div is half visible
-  //   );
-
-  //   observer.observe(currentLoaderRef); // Start observing the loader div
-
-  //   // Cleanup the observer
-  //   return () => {
-  //     observer.unobserve(currentLoaderRef);
-  //   };
-  // }, [hasMore, loadMorePosts]); // Removed loaderRef.current dependency
-
-  // Improved Intersection Observer setup
   useEffect(() => {
     console.log("Setting up Intersection Observer");
 
@@ -136,12 +114,14 @@ export default function useForum(settingsType) {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const data = await apiGet(`/api/forum/user_data?user_id=${user?.id}`);
+        const data = await apiGet(`/forum/user_data?user_id=${user?.id}`);
+
         setUserSideCardData(data);
       } catch (error) {
         showError("Error fetching user data");
         console.error("Error fetching user data:", error);
       } finally {
+        // Any additional logic after fetching user data
         setIsUserDataCardLoading(false); // Set loading to false after fetching user data
       }
     };
