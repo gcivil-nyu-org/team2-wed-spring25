@@ -7,5 +7,6 @@
 
 **Backend Local:** python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
 
-**Frontend Local:** - npm run build
+**Frontend Local:** 
+- npm run build
 - npm run dev
