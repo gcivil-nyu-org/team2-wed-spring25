@@ -49,6 +49,7 @@ before_script:
   - chmod +x deploy-to-production.sh
   - chmod +x deploy-to-develop.sh
   - chmod +x deploy-to-netlify.sh
+  - pg_isready
   # - psql -U postgres -c "DROP DATABASE IF EXISTS test_[secure];"  # For PostgreSQL
   - psql -U postgres -c "CREATE DATABASE test_db;"
   - psql -U postgres -d test_db -c "CREATE EXTENSION postgis;"
