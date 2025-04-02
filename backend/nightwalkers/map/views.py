@@ -256,8 +256,7 @@ def create_avoid_polygons(hotspots, radius=0.1):
 
     for hotspot in hotspots:
         # Scale radius based on complaints (crime intensity)
-        scaled_radius = radius * (1 + (hotspot["complaints"] / 100))
-
+        scaled_radius = max(0.2, radius * (1 + (hotspot["complaints"] / 75)))
         # Create a simple circle-like polygon with 8 points
         polygon_points = []
         for i in range(8):
