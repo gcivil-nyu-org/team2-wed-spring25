@@ -5,6 +5,7 @@ import Image from "next/image";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 
 export default function UserData({
+  isLoading,
   user,
   userHeading,
   isUserDataCardLoading,
@@ -52,19 +53,23 @@ export default function UserData({
         {isUserDataCardLoading ?? <Loader />}
         <div className="flex justify-between mt-1">
           <p>Saved Routes</p>
-          <p>{userSideCardData.total_saved_routes}</p>
+          {!isLoading ? (
+            <p>{userSideCardData.total_saved_routes}</p>
+          ) : (
+            <p>...</p>
+          )}
         </div>
         <div className="flex justify-between mt-1">
           <p>Total Posts</p>
-          <p>{userSideCardData.total_posts}</p>
+          {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
         </div>
         <div className="flex justify-between mt-1">
           <p>Followers</p>
-          <p>{userSideCardData.total_followers}</p>
+          {!isLoading ? <p>{userSideCardData.total_followers}</p> : <p>...</p>}
         </div>
         <div className="flex justify-between mt-1">
           <p>Karma</p>
-          <p>{userSideCardData.user_karma}</p>
+          {!isLoading ? <p>{userSideCardData.user_karma}</p> : <p>...</p>}
         </div>
       </div>
     </div>

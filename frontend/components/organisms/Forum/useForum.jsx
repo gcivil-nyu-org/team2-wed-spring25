@@ -75,29 +75,63 @@ export default function useForum(settingsType) {
     }
   }, [hasMore, isLoadingMore, offset, user?.id, limit, settingsType]);
 
-  // Set up the Intersection Observer
+  // // Set up the Intersection Observer
+  // useEffect(() => {
+  //   const currentLoaderRef = loaderRef.current;
+  //   if (!currentLoaderRef) {
+  //     return; // Exit if loaderRef is not set
+  //   }
+
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       alert("Intersection Observer triggered");
+  //       if (entries[0].isIntersecting && hasMore) {
+  //         loadMorePosts(); // Fetch more posts when the loader div is visible
+  //       }
+  //     },
+  //     { threshold: 0.3 } // Trigger when the div is half visible
+  //   );
+
+  //   observer.observe(currentLoaderRef); // Start observing the loader div
+
+  //   // Cleanup the observer
+  //   return () => {
+  //     observer.unobserve(currentLoaderRef);
+  //   };
+  // }, [hasMore, loadMorePosts]); // Removed loaderRef.current dependency
+
+  // Improved Intersection Observer setup
   useEffect(() => {
+    console.log("Setting up Intersection Observer");
+
     const currentLoaderRef = loaderRef.current;
-    if (!currentLoaderRef) {
-      return; // Exit if loaderRef is not set
-    }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadMorePosts(); // Fetch more posts when the loader div is visible
-        }
-      },
-      { threshold: 0.5 } // Trigger when the div is half visible
-    );
+    if (!currentLoaderRef || !hasMore) return;
+    console.log("Loader ref is set and hasMore is true");
 
-    observer.observe(currentLoaderRef); // Start observing the loader div
+    const handleIntersection = (entries) => {
+      console.log("Intersection Observer triggered", entries);
 
-    // Cleanup the observer
-    return () => {
-      observer.unobserve(currentLoaderRef);
+      const [entry] = entries;
+      if (entry.isIntersecting && !isLoadingMore) {
+        loadMorePosts();
+      }
     };
-  }, [hasMore, loadMorePosts]); // Removed loaderRef.current dependency
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      root: null,
+      rootMargin: "20px",
+      threshold: 0.1,
+    });
+
+    observer.observe(currentLoaderRef);
+
+    return () => {
+      if (currentLoaderRef) {
+        observer.unobserve(currentLoaderRef);
+      }
+    };
+  }, [loadMorePosts, hasMore, isLoadingMore]); // Dependencies that affect when we should observe
 
   useEffect(() => {
     const getUserData = async () => {
@@ -110,7 +144,6 @@ export default function useForum(settingsType) {
         showError("Error fetching user data");
         console.error("Error fetching user data:", error);
       } finally {
-        // Any additional logic after fetching user data      
         setIsUserDataCardLoading(false); // Set loading to false after fetching user data
       }
     };
