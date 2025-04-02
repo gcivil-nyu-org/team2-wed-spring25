@@ -13,6 +13,25 @@ export function UserProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Sync userDetails to localStorage whenever it changes
+  useEffect(() => {
+    if (userDetails) {
+      try {
+        // Store user data in localStorage for backward compatibility
+        localStorage.setItem("user", JSON.stringify(userDetails));        
+      } catch (err) {
+        console.error("Error syncing user to localStorage:", err);
+      }
+    } else if (status === "unauthenticated") {
+      // Clear localStorage when user is logged out
+      try {
+        localStorage.removeItem("user");        
+      } catch (err) {
+        console.error("Error removing user from localStorage:", err);
+      }
+    }
+  }, [userDetails, status]);
+
   // Fetch user details when session changes
   useEffect(() => {
     async function fetchUserDetails() {
@@ -25,8 +44,7 @@ export function UserProvider({ children }) {
       // Use cached details from session if available
       if (session.djangoUser && 
           session.djangoUser.id && 
-          session.djangoUser.email) {
-        console.log("Using cached user details from session");
+          session.djangoUser.email) {        
         setUserDetails(session.djangoUser);
         setIsLoading(false);
         return;
@@ -35,7 +53,7 @@ export function UserProvider({ children }) {
       // Otherwise fetch fresh user details
       try {
         setIsLoading(true);
-        const userData = await authAPI.authenticatedGet("/users/me/");
+        const userData = await authAPI.authenticatedGet("/users/me/");        
         setUserDetails(userData);
         setError(null);
       } catch (err) {
@@ -48,6 +66,22 @@ export function UserProvider({ children }) {
 
     fetchUserDetails();
   }, [session, status]);
+
+  // Check if localStorage has user data on initial load
+  useEffect(() => {
+    try {
+      // Check if localStorage has user data that we might want to use
+      // This is for compatibility during the transition period
+      const storedUser = localStorage.getItem("user");
+      if (storedUser && !userDetails && status === "loading") {
+        // Only use localStorage data temporarily while Next-Auth is still loading
+        const parsedUser = JSON.parse(storedUser);        
+        // We don't set this to state to avoid conflicts with Next-Auth
+      }
+    } catch (err) {
+      console.error("Error checking localStorage for user:", err);
+    }
+  }, []);
 
   // Force refresh function
   const refreshUserDetails = async () => {

@@ -119,13 +119,14 @@ const SettingsSidebar = () => {
       await signOut({
         redirect: false // Don't redirect automatically
       });
-
+      localStorage.removeItem('user');
       // Manual redirect after signOut completes
       router.push("/login");
       router.refresh(); // Force refresh to clear any cached pages
 
     } catch (error) {
       console.error("Logout error:", error);
+      router.push("/login");
     } finally {
       setIsLoggingOut(false);
       

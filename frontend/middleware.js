@@ -17,7 +17,7 @@ export default withAuth(
     // Check for token errors set by the JWT callback
     if (token.error) {
       return NextResponse.redirect(
-        new URL(`/login?error=${token.error}`, req.url)
+        new URL(`/login`, req.url)
       );
     }
     

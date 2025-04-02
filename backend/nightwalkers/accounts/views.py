@@ -101,11 +101,12 @@ class GoogleAuthView(APIView):
             )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print("Login in ")
         email = request.data.get("email")
         password = request.data.get("password")
         if not email or not password:
@@ -116,16 +117,14 @@ class LoginView(APIView):
 
         # Authenticate with email as the USERNAME_FIELD
         user = authenticate(email=email, password=password)
-        print("user.karma", user.karma)
+
         if user is not None:
             # Use standardized response format
             return Response(get_standard_response(user))
-
         else:
             return Response(
                 {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
-
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -185,15 +184,10 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
+        print(f"User id: {request.user}")
+        user = User.objects.get(id=request.user)
         return Response(
-            {
-                "id": user.id,
-                "email": user.email,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "avatar_url": user.avatar_url if hasattr(user, "avatar_url") else None,
-            }
+            get_standard_response(user)
         )
 
 

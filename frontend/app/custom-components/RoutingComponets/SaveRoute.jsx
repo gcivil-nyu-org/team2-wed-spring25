@@ -1,33 +1,33 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-  Popover, 
-  PopoverTrigger, 
-  PopoverContent 
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent
 } from "@/components/ui/popover";
-import { 
-  Button 
+import {
+  Button
 } from "@/components/ui/button";
-import { 
-  Input 
+import {
+  Input
 } from "@/components/ui/input";
-import { 
-  Label 
+import {
+  Label
 } from "@/components/ui/label";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent, 
-  CardFooter 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
 } from "@/components/ui/card";
-import { 
-  BookmarkPlus, 
-  Check, 
-  Star, 
-  StarHalf 
+import {
+  BookmarkPlus,
+  Check,
+  Star,
+  StarHalf
 } from "lucide-react";
 import { authAPI } from "@/utils/fetch/fetch";
 import { useNotification } from "../ToastComponent/NotificationContext";
@@ -59,7 +59,6 @@ export default function SaveRouteComponent({ departure, destination }) {
       destination_lon: destination[1],
       favorite: isFavorite
     };
-    console.log('Saving route:', requestData);
     try {
       const response = await authAPI.authenticatedPost('/save-route/', requestData);
 
@@ -89,8 +88,8 @@ export default function SaveRouteComponent({ departure, destination }) {
     <Popover open={open} onOpenChange={setOpen}>
       {/* FIX: Don't use asChild here, use a normal trigger button */}
       <PopoverTrigger>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="flex items-center gap-2 bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
           type="button"
         >
@@ -110,19 +109,19 @@ export default function SaveRouteComponent({ departure, destination }) {
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="routeName">Route Name</Label>
-                <Input 
+                <Input
                   id="routeName"
-                  type="text" 
+                  type="text"
                   value={routeName}
                   onChange={(e) => setRouteName(e.target.value)}
-                  required 
+                  required
                   placeholder="Name this route"
                   maxLength={50}
                   className="w-full"
                 />
               </div>
-              
-              
+
+
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label>From</Label>
@@ -137,11 +136,11 @@ export default function SaveRouteComponent({ departure, destination }) {
                   </span>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-2 pt-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   className={`${isFavorite ? 'bg-amber-50 text-amber-600 border-amber-200' : 'text-gray-500'} p-2 h-auto`}
                   onClick={() => setIsFavorite(!isFavorite)}
                 >
@@ -151,11 +150,11 @@ export default function SaveRouteComponent({ departure, destination }) {
                   {isFavorite ? 'Favorite route' : 'Mark as favorite'}
                 </span>
               </div>
-              
+
               <CardFooter className="flex justify-end px-0 pt-4 pb-0">
-                <Button 
-                  type="submit" 
-                  disabled={isLoading || !routeName} 
+                <Button
+                  type="submit"
+                  disabled={isLoading || !routeName}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white"
                 >
                   {isLoading ? (
