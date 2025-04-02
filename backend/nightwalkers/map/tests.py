@@ -665,8 +665,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     ):
         """Test the process_route_with_crime_data function"""
         # Mock polyline decode
-        mock_polyline_decode.return_value = [[-74.0060, 40.7128], \
-          [-118.2437, 34.0522]]
+        mock_polyline_decode.return_value = [[-74.0060, 40.7128], [-118.2437, 34.0522]]
 
         # Mock cursor for crime data
         mock_cursor_instance = MagicMock()
