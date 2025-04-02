@@ -5,12 +5,13 @@ dist: focal
 os: linux
 
 services:
-  -postgresql
+  - postgresql
 
 addons:
+  postgresql: "12"
   apt:
     packages:
-      -postgresql-12-postgis-3
+      - postgresql-12-postgis-3
 
 env:
   - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
