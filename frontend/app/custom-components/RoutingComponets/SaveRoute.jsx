@@ -87,7 +87,7 @@ export default function SaveRouteComponent({ departure, destination }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       {/* FIX: Don't use asChild here, use a normal trigger button */}
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         <Button
           variant="outline"
           className="flex items-center gap-2 bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"

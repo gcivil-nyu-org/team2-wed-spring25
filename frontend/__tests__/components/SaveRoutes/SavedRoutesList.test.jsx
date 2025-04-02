@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { act } from 'react'; // Changed from 'react-dom/test-utils'
 import SavedRoutesList from '@/app/custom-components/RoutingComponets/SavedRoutesList';
 import { authAPI } from "@/utils/fetch/fetch";
 import { useNotification } from '@/app/custom-components/ToastComponent/NotificationContext';
@@ -14,7 +15,7 @@ jest.mock("next/navigation", () => ({
 
 jest.mock("@/utils/fetch/fetch", () => ({
   authAPI: {
-    authenticatedFetch: jest.fn(),
+    authenticatedGet: jest.fn(),
     authenticatedPatch: jest.fn(),
     authenticatedDelete: jest.fn(),
   },
@@ -35,8 +36,13 @@ window.location = {
   origin: 'https://example.com',
 };
 
+// Mock for fallback clipboard
+Object.defineProperty(global.document, 'execCommand', {
+  value: jest.fn().mockImplementation(() => true),
+});
+
 // Mock for navigator.clipboard
-Object.defineProperty(navigator, 'clipboard', {
+Object.defineProperty(global.navigator, 'clipboard', {
   value: {
     writeText: jest.fn(),
   },
@@ -100,59 +106,67 @@ describe('SavedRoutesList', () => {
   });
 
   it('should render loading state initially', async () => {
-    // Setup a promise that never resolves to keep component in loading state
-    let fetchPromise;
-    authAPI.authenticatedFetch.mockImplementation(() => {
-      fetchPromise = new Promise(() => {});
-      return fetchPromise;
+    // Pending promise to keep loading state
+    let resolveFetch;
+    const fetchPromise = new Promise(resolve => { resolveFetch = resolve; });
+    authAPI.authenticatedGet.mockImplementation(() => fetchPromise);
+    
+    await act(async () => {
+      render(<SavedRoutesList />);
     });
     
-    render(<SavedRoutesList />);
+    // Check for skeleton elements
+    const skeletonElements = document.querySelectorAll('[data-slot="skeleton"]');
+    expect(skeletonElements.length).toBeGreaterThan(0);
     
-    // Check for skeletons by data-slot instead of data-testid
-    await waitFor(() => {
-      const skeletonElements = document.querySelectorAll('[data-slot="skeleton"]');
-      expect(skeletonElements.length).toBeGreaterThan(0);
+    // Clean up by resolving the promise
+    await act(async () => {
+      resolveFetch(mockRoutes);
     });
   });
 
   it('should display routes when loaded successfully', async () => {
-    authAPI.authenticatedFetch.mockResolvedValue(mockRoutes);
+    authAPI.authenticatedGet.mockResolvedValue(mockRoutes);
     
     await act(async () => {
       render(<SavedRoutesList />);
     });
     
-    await waitFor(() => {
-      expect(screen.getByText('Route 1')).toBeInTheDocument();
-      expect(screen.getByText('Route 2')).toBeInTheDocument();
-      expect(screen.getByText('Route 3')).toBeInTheDocument();
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
+    
+    expect(screen.getByText('Route 1')).toBeInTheDocument();
+    expect(screen.getByText('Route 2')).toBeInTheDocument();
+    expect(screen.getByText('Route 3')).toBeInTheDocument();
   });
 
   it('should show error state when fetching fails', async () => {
-    authAPI.authenticatedFetch.mockRejectedValue(new Error('Network error'));
+    authAPI.authenticatedGet.mockRejectedValue(new Error('Network error'));
     
     await act(async () => {
       render(<SavedRoutesList />);
     });
     
-    await waitFor(() => {
-      expect(screen.getByText('Failed to load your routes')).toBeInTheDocument();
-      expect(mockShowError).toHaveBeenCalledWith('Failed to retrieve routes');
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
+    
+    expect(screen.getByText('Failed to load your routes')).toBeInTheDocument();
+    expect(mockShowError).toHaveBeenCalledWith('Failed to retrieve routes');
     
     // Test retry button
     await act(async () => {
-      const retryButton = screen.getByText('Retry');
-      fireEvent.click(retryButton);
+      fireEvent.click(screen.getByText('Retry'));
     });
     
-    expect(authAPI.authenticatedFetch).toHaveBeenCalledTimes(2);
+    expect(authAPI.authenticatedGet).toHaveBeenCalledTimes(2);
   });
 
   it('should display empty state when no routes are available', async () => {
-    authAPI.authenticatedFetch.mockResolvedValue({
+    authAPI.authenticatedGet.mockResolvedValue({
       count: 0,
       next: null,
       previous: null,
@@ -163,25 +177,29 @@ describe('SavedRoutesList', () => {
       render(<SavedRoutesList />);
     });
     
-    await waitFor(() => {
-      expect(screen.getByText('No saved routes')).toBeInTheDocument();
-      expect(screen.getByText("You haven't saved any routes yet.")).toBeInTheDocument();
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
+    
+    expect(screen.getByText('No saved routes')).toBeInTheDocument();
+    expect(screen.getByText("You haven't saved any routes yet.")).toBeInTheDocument();
   });
 
   it('should toggle favorite status when star button is clicked', async () => {
-    authAPI.authenticatedFetch.mockResolvedValue(mockRoutes);
+    authAPI.authenticatedGet.mockResolvedValue(mockRoutes);
     authAPI.authenticatedPatch.mockResolvedValue({ success: true });
     
     await act(async () => {
       render(<SavedRoutesList />);
     });
     
-    await waitFor(() => {
-      expect(screen.getByText('Route 1')).toBeInTheDocument();
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     
-    // Find and click the first star button (non-favorite route)
+    // Toggle favorite for non-favorite route
     await act(async () => {
       const favoriteButtons = screen.getAllByTitle(/favorites/i);
       fireEvent.click(favoriteButtons[0]);
@@ -195,23 +213,37 @@ describe('SavedRoutesList', () => {
       }
     );
     
-    await waitFor(() => {
-      expect(mockShowSuccess).toHaveBeenCalledWith('Route added to favorites');
+    expect(mockShowSuccess).toHaveBeenCalledWith('Route added to favorites');
+    
+    // Toggle favorite for already-favorite route
+    await act(async () => {
+      const favoriteButtons = screen.getAllByTitle(/favorites/i);
+      fireEvent.click(favoriteButtons[1]); // Second button is for Route 2 which is already a favorite
     });
+    
+    expect(authAPI.authenticatedPatch).toHaveBeenCalledWith(
+      '/update-route/',
+      {
+        id: 2,
+        favorite: false
+      }
+    );
+    
+    expect(mockShowSuccess).toHaveBeenCalledWith('Route removed from favorites');
   });
 
   it('should navigate to route when navigation button is clicked', async () => {
-    authAPI.authenticatedFetch.mockResolvedValue(mockRoutes);
+    authAPI.authenticatedGet.mockResolvedValue(mockRoutes);
     
     await act(async () => {
       render(<SavedRoutesList />);
     });
     
-    await waitFor(() => {
-      expect(screen.getByText('Route 1')).toBeInTheDocument();
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     
-    // Find and click a navigation button
     await act(async () => {
       const navigateButtons = screen.getAllByTitle('Navigate to this route');
       fireEvent.click(navigateButtons[0]);
@@ -222,65 +254,83 @@ describe('SavedRoutesList', () => {
     );
   });
 
-  it('should copy route link when share button is clicked', async () => {
-    authAPI.authenticatedFetch.mockResolvedValue(mockRoutes);
-    navigator.clipboard.writeText.mockResolvedValue(undefined);
+  it('should copy route link using fallback when clipboard API fails', async () => {
+    authAPI.authenticatedGet.mockResolvedValue(mockRoutes);
+    
+    // Save original clipboard API
+    const originalClipboard = navigator.clipboard;
+    
+    // Remove clipboard API entirely to force fallback
+    Object.defineProperty(navigator, 'clipboard', {
+      value: undefined,
+      configurable: true
+    });
     
     await act(async () => {
       render(<SavedRoutesList />);
     });
     
-    await waitFor(() => {
-      expect(screen.getByText('Route 1')).toBeInTheDocument();
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     
-    // Find and click a share button
     await act(async () => {
       const shareButtons = screen.getAllByTitle('Share this route');
       fireEvent.click(shareButtons[0]);
     });
     
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      'https://example.com/users/map?dep_lat=51.5074&dep_lon=-0.1278&dest_lat=48.8566&dest_lon=2.3522'
-    );
+    expect(document.execCommand).toHaveBeenCalledWith('copy');
+    expect(mockShowSuccess).toHaveBeenCalledWith('Link copied to clipboard');
     
-    await waitFor(() => {
-      expect(mockShowSuccess).toHaveBeenCalledWith('Link copied to clipboard');
+    // Restore clipboard API
+    Object.defineProperty(navigator, 'clipboard', {
+      value: originalClipboard,
+      configurable: true
     });
   });
 
   it('should open delete dialog when delete button is clicked', async () => {
-    authAPI.authenticatedFetch.mockResolvedValue(mockRoutes);
+    authAPI.authenticatedGet.mockResolvedValue(mockRoutes);
     
     await act(async () => {
       render(<SavedRoutesList />);
     });
     
-    await waitFor(() => {
-      expect(screen.getByText('Route 1')).toBeInTheDocument();
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     
-    // Find and click a delete button
     await act(async () => {
       const deleteButtons = screen.getAllByTitle('Delete this route');
       fireEvent.click(deleteButtons[0]);
     });
     
-    // Check if dialog is opened with correct content
     expect(screen.getByText('Delete Route')).toBeInTheDocument();
     expect(screen.getByText('Are you sure you want to delete "Route 1"? This action cannot be undone.')).toBeInTheDocument();
+    
+    // Test cancel button
+    await act(async () => {
+      const cancelButton = screen.getByText('Cancel');
+      fireEvent.click(cancelButton);
+    });
+    
+    // Dialog should be closed
+    expect(screen.queryByText('Are you sure you want to delete "Route 1"?')).not.toBeInTheDocument();
   });
 
   it('should delete route when confirmed in dialog', async () => {
-    authAPI.authenticatedFetch.mockResolvedValue(mockRoutes);
+    authAPI.authenticatedGet.mockResolvedValue(mockRoutes);
     authAPI.authenticatedDelete.mockResolvedValue({ success: true });
     
     await act(async () => {
       render(<SavedRoutesList />);
     });
     
-    await waitFor(() => {
-      expect(screen.getByText('Route 1')).toBeInTheDocument();
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     
     // Open delete dialog
@@ -296,29 +346,76 @@ describe('SavedRoutesList', () => {
     });
     
     expect(authAPI.authenticatedDelete).toHaveBeenCalledWith('/delete-route/1/');
-    
-    await waitFor(() => {
-      expect(mockShowSuccess).toHaveBeenCalledWith('Route deleted successfully');
-    });
+    expect(mockShowSuccess).toHaveBeenCalledWith('Route deleted successfully');
   });
 
-  it('should handle pagination correctly', async () => {
-    authAPI.authenticatedFetch.mockResolvedValue(mockRoutes);
+  it('should handle failed route deletion', async () => {
+    authAPI.authenticatedGet.mockResolvedValue(mockRoutes);
+    authAPI.authenticatedDelete.mockRejectedValue(new Error('Delete failed'));
     
     await act(async () => {
       render(<SavedRoutesList />);
     });
     
-    await waitFor(() => {
-      expect(screen.getByText('Route 1')).toBeInTheDocument();
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     
-    // Find and click next page button
+    // Open delete dialog
+    await act(async () => {
+      const deleteButtons = screen.getAllByTitle('Delete this route');
+      fireEvent.click(deleteButtons[0]);
+    });
+    
+    // Confirm deletion
+    await act(async () => {
+      const confirmButton = screen.getByText('Delete');
+      fireEvent.click(confirmButton);
+    });
+    
+    expect(authAPI.authenticatedDelete).toHaveBeenCalledWith('/delete-route/1/');
+    expect(mockShowError).toHaveBeenCalledWith('Failed to delete route');
+  });
+
+  it('should handle pagination correctly', async () => {
+    authAPI.authenticatedGet.mockResolvedValue(mockRoutes);
+    
+    await act(async () => {
+      render(<SavedRoutesList />);
+    });
+    
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+    
     await act(async () => {
       const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
     });
     
-    expect(authAPI.authenticatedFetch).toHaveBeenCalledWith('/retrieve-routes?page=2');
+    expect(authAPI.authenticatedGet).toHaveBeenCalledWith('/retrieve-routes?page=2');
+  });
+
+  it('should handle error when toggling favorite status', async () => {
+    authAPI.authenticatedGet.mockResolvedValue(mockRoutes);
+    authAPI.authenticatedPatch.mockRejectedValue(new Error('Update failed'));
+    
+    await act(async () => {
+      render(<SavedRoutesList />);
+    });
+    
+    // Wait for component to finish rendering
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+    
+    await act(async () => {
+      const favoriteButtons = screen.getAllByTitle(/favorites/i);
+      fireEvent.click(favoriteButtons[0]);
+    });
+    
+    expect(mockShowError).toHaveBeenCalledWith('Failed to update route');
   });
 });

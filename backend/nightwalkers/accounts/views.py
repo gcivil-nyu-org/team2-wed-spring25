@@ -183,11 +183,12 @@ class RegisterView(APIView):
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        print(f"User id: {request.user}")
-        user = User.objects.get(id=request.user)
+    def get(self, request, *args, **kwargs):
+        print(f"User id: {request.user.id}")
+        user = User.objects.get(id=request.user.id)
+        user_serializer = UserSerializer(user)
         return Response(
-            get_standard_response(user)
+            {"user": user_serializer.data},
         )
 
 
@@ -204,7 +205,8 @@ class GetUserView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = (AllowAny,)  # Changed from IsAuthenticated to AllowAny
+    # If you want tests to expect 401 when unauthenticated, use IsAuthenticated
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         try:
