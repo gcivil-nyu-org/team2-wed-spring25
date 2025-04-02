@@ -35,7 +35,6 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
         
         // Use cache if it's still valid
         if (now - timestamp < CACHE_EXPIRY && Array.isArray(data) && data.length > 0) {
-          console.log("Using cached heatmap data");
           setHeatmapPoints(data);
           setHeatmapDataLoaded(true);
           return;
@@ -126,6 +125,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       setIsLoading(false);
       isGloballyFetching = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array to run only once
   
   // Explicitly add the callback as a dependency to satisfy React lint rules

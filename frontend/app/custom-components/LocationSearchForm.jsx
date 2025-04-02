@@ -111,7 +111,6 @@ const LocationSearchForm = ({
 
     setIsSearchingDeparture(true);
     try {
-      console.log("Fetching departure suggestions for:", departure);
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
           departure
@@ -124,12 +123,10 @@ const LocationSearchForm = ({
 
       const data = await response.json();
       if (data.features && data.features.length > 0) {
-        console.log("Received departure suggestions:", data.features.length);
         // Show all suggestions instead of filtering
         setDepartureSuggestions(data.features);
         setShowDepartureSuggestions(true);
       } else {
-        console.log("No departure suggestions found");
         setDepartureSuggestions([]);
         setShowDepartureSuggestions(false);
         setHasError(true);
@@ -319,7 +316,6 @@ const getCurrentLocation = async () => {
 
   // Handle selecting a departure suggestion
   const handleSelectDeparture = (suggestion) => {
-    console.log("Selected departure:", suggestion.place_name);
 
     // Convert coordinates to [lat, lng] for Leaflet
     const [lng, lat] = suggestion.center;
@@ -349,7 +345,6 @@ const getCurrentLocation = async () => {
 
   // Handle selecting a destination suggestion
   const handleSelectDestination = (suggestion) => {
-    console.log("Selected destination:", suggestion.place_name);
 
     // Convert coordinates to [lat, lng] for Leaflet
     const [lng, lat] = suggestion.center;
@@ -505,14 +500,6 @@ const getCurrentLocation = async () => {
       );
       return;
     }
-
-    console.log("Form is valid, submitting with coordinates:", {
-      departure: useCurrentLocation ? "Current Location" : departure,
-      departureCoordinates: departureCoordinates,
-      destination: destination,
-      destinationCoordinates: destinationCoordinates,
-      useCurrentLocation: useCurrentLocation,
-    });
 
     // Send the search data to the parent component
     onSearch({

@@ -81,6 +81,7 @@ export function UserProvider({ children }) {
     } catch (err) {
       console.error("Error checking localStorage for user:", err);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Force refresh function

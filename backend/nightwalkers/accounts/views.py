@@ -25,13 +25,14 @@ def get_tokens_for_user(user):
         "access": str(refresh.access_token),
     }
 
+
 def get_standard_response(user):
     """Standardized response format for all auth endpoints"""
     tokens = get_tokens_for_user(user)
     return {
         "access": tokens["access"],
         "refresh": tokens["refresh"],
-        "user": UserSerializer(user).data
+        "user": UserSerializer(user).data,
     }
 
 
@@ -126,6 +127,7 @@ class LoginView(APIView):
                 {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
 
+
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
@@ -163,7 +165,7 @@ class RegisterView(APIView):
 
         # Create the user
         try:
-            user = User.objects.create_user(
+            User.objects.create_user(
                 email=email,
                 password=password,
                 first_name=first_name,
@@ -219,4 +221,3 @@ class LogoutView(APIView):
             return Response({"success": "Logged out successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=400)
-

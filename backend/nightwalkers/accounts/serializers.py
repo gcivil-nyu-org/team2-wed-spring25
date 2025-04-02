@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
             "avatar",
             "date_joined",
             "avatar_url",
-            "total_saved_routes"
+            "total_saved_routes",
         )
         read_only_fields = ("id", "email_verified", "date_joined")
 
