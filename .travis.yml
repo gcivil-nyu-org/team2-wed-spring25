@@ -4,6 +4,14 @@ python:
 dist: focal
 os: linux
 
+services:
+  -postgresql
+
+addons:
+  apt:
+    packages:
+      -postgresql-12-postgis-3
+
 env:
   - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
@@ -41,6 +49,8 @@ before_script:
   - chmod +x deploy-to-develop.sh
   - chmod +x deploy-to-netlify.sh
   # - psql -U postgres -c "DROP DATABASE IF EXISTS test_[secure];"  # For PostgreSQL
+  - psql -U postgres -c "CREATE DATABASE test_db;"
+  - psql -U postgres -d test_db -c "CREATE EXTENSION postgis;"
 
 # Run checks and tests
 script:
