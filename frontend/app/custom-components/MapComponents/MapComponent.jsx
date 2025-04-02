@@ -74,7 +74,7 @@ const RoutingMapComponent = ({
       }
 
       // Create map centered on user location
-      console.log("Creating map instance");
+
       const map = L.map(container, {
         maxBounds: [
           [40.4957, -74.2557], // Southwest coordinates (Staten Island)
@@ -143,7 +143,7 @@ const RoutingMapComponent = ({
       });
 
       // Mark map as initialized
-      console.log("Map initialized successfully");
+
       setMapLoaded(true);
       mapInitializedRef.current = true;
       setMapCriticalError(null); // Clear any previous errors
@@ -171,18 +171,14 @@ const RoutingMapComponent = ({
       if (useCurrentLocation) {
         // If using current location, we need to wait until userLocation is set
         if (userLocation) {
-          console.log("Using current location for route:", userLocation);
+
           fetchRouteData(userLocation, destinationCoords);
         } else {
-          console.log("Waiting for current location to be detected...");
+
           // The userLocation will be set by the geolocation logic elsewhere in the component
         }
       } else if (departureCoords) {
         // Using explicit departure coordinates
-        console.log(
-          "Using explicit departure coordinates for route:",
-          departureCoords
-        );
         fetchRouteData(departureCoords, destinationCoords);
       }
     }
@@ -213,17 +209,17 @@ const RoutingMapComponent = ({
       };
 
       // Make API call
-      console.log("Fetching route with:", requestData);
+
       const response = await authAPI.authenticatedPost(
         "/get-route/",
         requestData
       );
-      console.log("API response:", response);
+
 
       // Extract route summary for display
       // If extractRouteSummary isn't working correctly, let's create the routeInfo manually
       let routeInfo = {};
-      
+
       // Manual parsing of initial route data
       if (response.initial_route && response.initial_route.routes && response.initial_route.routes.length > 0) {
         const initialRoute = response.initial_route.routes[0];
@@ -232,7 +228,7 @@ const RoutingMapComponent = ({
           duration: initialRoute.summary?.duration || 0,
           instructions: initialRoute.segments?.[0]?.steps || []
         };
-        
+
         // Enhance turn instructions
         if (routeInfo.initial.instructions) {
           routeInfo.initial.instructions = enhanceTurnInstructions(
@@ -240,7 +236,7 @@ const RoutingMapComponent = ({
           );
         }
       }
-      
+
       // Manual parsing of safer route data
       if (response.safer_route && response.safer_route.routes && response.safer_route.routes.length > 0) {
         const saferRoute = response.safer_route.routes[0];
@@ -249,7 +245,7 @@ const RoutingMapComponent = ({
           duration: saferRoute.summary?.duration || 0,
           instructions: saferRoute.segments?.[0]?.steps || []
         };
-        
+
         // Enhance turn instructions
         if (routeInfo.safer.instructions) {
           routeInfo.safer.instructions = enhanceTurnInstructions(
@@ -257,7 +253,7 @@ const RoutingMapComponent = ({
           );
         }
       }
-      
+
       // Add the original response structure for debugging
       routeInfo.initial_route = response.initial_route;
       routeInfo.safer_route = response.safer_route;

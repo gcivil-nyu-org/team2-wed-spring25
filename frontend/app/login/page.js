@@ -239,7 +239,7 @@ export function LoginContent() {
             <div className="text-center text-blue-200">
               <span>Don&apos;t have an account? </span>
               <Link
-                href="/users/register"
+                href="/register"
                 className="text-white hover:underline font-semibold"
               >
                 Sign up

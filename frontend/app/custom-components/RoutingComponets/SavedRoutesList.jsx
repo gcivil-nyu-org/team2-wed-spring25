@@ -37,15 +37,15 @@ const SavedRoutesList = () => {
         setIsLoading(true);
         setError(false);
 
-        try {
-            const response = await authAPI.authenticatedFetch(`/retrieve-routes?page=${page}`);
+        try {            
+            const response = await authAPI.authenticatedGet(`/retrieve-routes?page=${page}`);
             setPagination({
                 ...response,
                 currentPage: page
             });
             setIsLoading(false);
         } catch (e) {
-            setError(true);
+            setError(true);            
             showError("Failed to retrieve routes");
             setIsLoading(false);
         }
@@ -123,8 +123,7 @@ const SavedRoutesList = () => {
                 .then(() => {
                     showSuccess("Link copied to clipboard");
                 })
-                .catch((err) => {
-                    console.error("Failed to copy: ", err);
+                .catch((err) => {                    
                     showError("Failed to copy link");
                 });
         } else {
@@ -137,8 +136,7 @@ const SavedRoutesList = () => {
                 document.execCommand("copy");
                 document.body.removeChild(textarea);
                 showSuccess("Link copied to clipboard");
-            } catch (e) {
-                console.error("Failed to copy: ", e);
+            } catch (e) {                
                 showError("Failed to copy link");
             }
         }

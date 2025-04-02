@@ -111,7 +111,6 @@ const LocationSearchForm = ({
 
     setIsSearchingDeparture(true);
     try {
-      console.log("Fetching departure suggestions for:", departure);
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
           departure
@@ -124,12 +123,10 @@ const LocationSearchForm = ({
 
       const data = await response.json();
       if (data.features && data.features.length > 0) {
-        console.log("Received departure suggestions:", data.features.length);
         // Show all suggestions instead of filtering
         setDepartureSuggestions(data.features);
         setShowDepartureSuggestions(true);
       } else {
-        console.log("No departure suggestions found");
         setDepartureSuggestions([]);
         setShowDepartureSuggestions(false);
         setHasError(true);
@@ -209,92 +206,116 @@ const LocationSearchForm = ({
     }
   };
 
-  // Function to get current location when the checkbox is toggled
-  const getCurrentLocation = async () => {
-    if (!navigator.geolocation) {
+  // Function to get current location with improved error handling
+const getCurrentLocation = async () => {
+  if (!navigator.geolocation) {
+    showWarning(
+      "Geolocation not supported",
+      "Your browser does not support geolocation services.",
+      "location_not_supported"
+    );
+    setUseCurrentLocation(false);
+    setHasError(true);
+    return;
+  }
+
+  setIsGettingLocation(true);
+
+  try {
+    // Create a promise that wraps geolocation API with only ONE timeout mechanism
+    const position = await new Promise((resolve, reject) => {
+      // Store the watchId so we can clear it later
+      const watchId = navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve(position);
+        },
+        (error) => {
+          // Handle specific geolocation errors
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              reject(new Error("Location permission denied"));
+              break;
+            case error.POSITION_UNAVAILABLE:
+              reject(new Error("Location information unavailable"));
+              break;
+            case error.TIMEOUT:
+              reject(new Error("Location request timed out"));
+              break;
+            default:
+              reject(new Error("Unknown location error"));
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,  // Increased timeout to 10 seconds
+          maximumAge: 0
+        }
+      );
+
+      // No additional manual timeout - rely solely on the browser's timeout
+    });
+
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    // Check if within NYC
+    if (isWithinNYC([lat, lng])) {
+      // Location is within NYC - we can use it
+      showSuccess(
+        "Using your current location",
+        "Successfully obtained your location.",
+        "using_current_location"
+      );
+      // Keep checkbox checked
+      setUseCurrentLocation(true);
+      // Clear departure field since we're using current location
+      setDeparture("");
+      setDepartureCoordinates(null);
+      // Mark inputs as modified
+      setInputsModified(true);
+    } else {
+      // Outside NYC - warn and uncheck
       showWarning(
-        "Geolocation not supported",
-        "Your browser does not support geolocation services.",
-        "location_not_supported"
+        "Location outside NYC",
+        "Your current location is outside New York City. SafeRouteNYC only works within the five boroughs.",
+        "location_outside_nyc"
       );
       setUseCurrentLocation(false);
       setHasError(true);
-      return;
+    }
+  } catch (error) {
+    console.error("Error getting location:", error);
+    setHasError(true);
+
+    if (error.message === "Location permission denied") {
+      showWarning(
+        "Location access denied",
+        "Please enable location services in your browser settings to use this feature.",
+        "location_permission_denied"
+      );
+    } else if (error.message === "Location request timed out") {
+      showWarning(
+        "Location timeout",
+        "Could not determine your location in time. Please try again or enter your address manually.",
+        "location_timeout"
+      );
+    } else {
+      showError(
+        "Location error",
+        error.message || "Failed to get your current location.",
+        "location_error"
+      );
     }
 
-    setIsGettingLocation(true);
-
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0,
-        });
-
-        // Also set a timeout
-        setTimeout(() => {
-          reject(new Error("Geolocation timeout"));
-        }, 5000);
-      });
-
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-
-      // Check if within NYC
-      if (isWithinNYC([lat, lng])) {
-        // Location is within NYC - we can use it
-        showSuccess(
-          "Using your current location",
-          "Successfully obtained your location.",
-          "using_current_location"
-        );
-        // Keep checkbox checked
-        setUseCurrentLocation(true);
-        // Clear departure field since we're using current location
-        setDeparture("");
-        setDepartureCoordinates(null);
-        // Mark inputs as modified
-        setInputsModified(true);
-      } else {
-        // Outside NYC - warn and uncheck
-        showWarning(
-          "Location outside NYC",
-          "Your current location is outside New York City. SafeRouteNYC only works within the five boroughs.",
-          "location_outside_nyc"
-        );
-        setUseCurrentLocation(false);
-        setHasError(true);
-      }
-    } catch (error) {
-      console.error("Error getting location:", error);
-      setHasError(true);
-
-      if (error.code === 1) {
-        // Permission denied
-        showWarning(
-          "Location access denied",
-          "Please enable location services in your browser to use this feature.",
-          "location_permission_denied"
-        );
-      } else {
-        showError(
-          "Location error",
-          error.message || "Failed to get your current location.",
-          "location_error"
-        );
-      }
-
-      // Uncheck the box since we couldn't get location
-      setUseCurrentLocation(false);
-    } finally {
-      setIsGettingLocation(false);
-    }
-  };
+    // Uncheck the box since we couldn't get location
+    setUseCurrentLocation(false);
+  } finally {
+    setIsGettingLocation(false);
+  }
+};
 
   // Handle selecting a departure suggestion
   const handleSelectDeparture = (suggestion) => {
-    console.log("Selected departure:", suggestion.place_name);
 
     // Convert coordinates to [lat, lng] for Leaflet
     const [lng, lat] = suggestion.center;
@@ -324,7 +345,6 @@ const LocationSearchForm = ({
 
   // Handle selecting a destination suggestion
   const handleSelectDestination = (suggestion) => {
-    console.log("Selected destination:", suggestion.place_name);
 
     // Convert coordinates to [lat, lng] for Leaflet
     const [lng, lat] = suggestion.center;
@@ -480,14 +500,6 @@ const LocationSearchForm = ({
       );
       return;
     }
-
-    console.log("Form is valid, submitting with coordinates:", {
-      departure: useCurrentLocation ? "Current Location" : departure,
-      departureCoordinates: departureCoordinates,
-      destination: destination,
-      destinationCoordinates: destinationCoordinates,
-      useCurrentLocation: useCurrentLocation,
-    });
 
     // Send the search data to the parent component
     onSearch({

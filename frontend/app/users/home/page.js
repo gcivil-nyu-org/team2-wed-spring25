@@ -3,10 +3,19 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import SettingPanel from "@/app/custom-components/SettingPanel";
 import { useUser } from "@/components/Auth/UserContextProvider";
+import { authAPI } from "@/utils/fetch/fetch";
 // Dashboard header component
 export function DashboardHeader() {
   const { user, isLoading } = useUser();
-
+  const testAPI = async ()=>{
+    try{
+      const response = await authAPI.authenticatedGet("users/me");
+      console.log(response);
+    }
+    catch(error){
+      console.error("Error fetching user data:", error);
+    }
+  }
   return (
     <>
       <div className="flex justify-between items-center mb-8">
@@ -18,8 +27,8 @@ export function DashboardHeader() {
           <Button asChild>
             <Link href={`forum/`}>Forum</Link>
           </Button>
-          <Button asChild>
-            <Link href={`map/`}>Map Route</Link>
+          <Button onClick={testAPI}>
+            TestAPI
           </Button>
           <SettingPanel/>
         </div>
