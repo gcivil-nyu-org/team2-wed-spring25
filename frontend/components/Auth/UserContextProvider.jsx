@@ -25,7 +25,14 @@ export function UserProvider({
 }) {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [userDetails, setUserDetails] = useState(null);
+  const [userDetails, setUserDetails] = useState(() => {
+    // Initialize from localStorage if available
+    if (typeof window !== "undefined") {
+      const savedUser = localStorage.getItem("user");
+      return savedUser ? JSON.parse(savedUser) : null;
+    }
+    return null;
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [loadingMessage, setLoadingMessage] = useState("Fetching user details...");
@@ -191,7 +198,16 @@ export function UserProvider({
     }
 
     fetchUserDetails();
-  }, [session, status, router, disableBackgroundRefresh]);
+  }, [session, status]);
+
+  // Update localStorage when userDetails changes
+  useEffect(() => {
+    if (userDetails) {
+      localStorage.setItem("user", JSON.stringify(userDetails));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [userDetails]);
 
   // Force refresh function
   const refreshUserDetails = async () => {
