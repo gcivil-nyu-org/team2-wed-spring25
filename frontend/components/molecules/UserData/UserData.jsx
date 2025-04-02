@@ -53,6 +53,7 @@ export default function UserData({
         {isUserDataCardLoading ?? <Loader />}
         <div className="flex justify-between mt-1">
           <p>Saved Routes</p>
+          <p>{userSideCardData?.total_saved_routes}</p>
           {!isLoading ? (
             <p>{userSideCardData.total_saved_routes}</p>
           ) : (

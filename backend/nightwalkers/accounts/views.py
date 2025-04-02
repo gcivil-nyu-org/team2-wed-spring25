@@ -33,6 +33,7 @@ def get_standard_response(user):
         "access": tokens["access"],
         "refresh": tokens["refresh"],
         "user": UserSerializer(user).data,
+        "user": UserSerializer(user).data,
     }
 
 
