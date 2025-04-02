@@ -1,6 +1,7 @@
 import Icon from "@/components/atom/Icon/Icon";
 import CustomDialogBox from "@/components/organisms/CustomDialogBox/CustomDialogBox";
 import usePostCommentOptionList from "./usePostCommentOptionList";
+import { deleteDark, editDark, ellipsisDark, reportDark } from "@/public/icons";
 
 export default function PostCommentOptionList({
   isCommentOptionListVisible,
@@ -40,10 +41,10 @@ export default function PostCommentOptionList({
       />
 
       <Icon
-        src={"/icons/more-options.svg"}
+        src={ellipsisDark}
         size={"md"}
-        width={30}
-        height={30}
+        width={20}
+        height={20}
         alt={"..."}
         onClick={() =>
           setIsCommentOptionListVisible(!isCommentOptionListVisible)
@@ -53,22 +54,22 @@ export default function PostCommentOptionList({
       {isCommentOptionListVisible && (
         <div
           ref={dropdownRef}
-          className="absolute top-7 right-2 rounded-b-lg rounded-l-lg bg-white z-10 border-2 py-1 border-color-gray-200 shadow-md"
+          className="absolute top-7 right-2 rounded-b-lg rounded-l-lg bg-forum-post border-light z-10  py-1 shadow-md text-forum-heading"
         >
           <ul>
             {parentComment?.user?.id !== user.id && (
               <li
-                className="hover:bg-gray-100 flex gap-2 pl-4 pr-5 py-1 hover:cursor-pointer"
+                className="hover:bg-forum-primary flex gap-2 pl-4 pr-5 py-1 hover:cursor-pointer justify-start items-center"
                 onClick={() => {
                   setShowReportCategoryDialog(true);
                   setIsCommentOptionListVisible(false);
                 }}
               >
                 <Icon
-                  src={"/icons/report.png"}
+                  src={reportDark}
                   size={"md"}
-                  width={13}
-                  height={13}
+                  width={18}
+                  height={18}
                   alt={"Report"}
                 ></Icon>
                 <p>Report</p>
@@ -77,7 +78,7 @@ export default function PostCommentOptionList({
 
             {parentComment?.user?.id === user.id && (
               <li
-                className="hover:bg-gray-100 flex gap-2 pl-4 pr-5 py-1 hover:cursor-pointer"
+                className="hover:bg-gray-100 flex gap-2 pl-4 pr-5 py-1 hover:cursor-pointer justify-start items-center"
                 onClick={() => {
                   console.log(parentComment.id, "parentComment.id");
                   setIsEditCommentVisible(true);
@@ -85,10 +86,10 @@ export default function PostCommentOptionList({
                 }}
               >
                 <Icon
-                  src={"/icons/pencil.png"}
+                  src={editDark}
                   size={"md"}
-                  width={13}
-                  height={13}
+                  width={18}
+                  height={18}
                   alt={"Edit"}
                 ></Icon>
                 <p>Edit</p>
@@ -97,18 +98,18 @@ export default function PostCommentOptionList({
 
             {parentComment?.user?.id === user.id && (
               <li
-                className="hover:bg-gray-100 flex gap-2 pl-4 pr-5 py-1 hover:cursor-pointer"
+                className="hover:bg-gray-100 flex gap-2 pl-4 pr-5 py-1 hover:cursor-pointer justify-start items-center"
                 onClick={() => {
                   setShowDeleteCommentDialog(true);
                   setIsCommentOptionListVisible(false);
                 }}
               >
                 <Icon
-                  src={"/icons/delete.png"}
+                  src={deleteDark}
                   size={"md"}
-                  width={13}
-                  height={13}
-                  alt={"Report"}
+                  width={18}
+                  height={18}
+                  alt={"Delete"}
                 ></Icon>
                 <p>Delete</p>
               </li>

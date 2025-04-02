@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import AnimatedBackground from "../../custom-components/AnimatedBackground";
+import AnimatedBackground from "../custom-components/AnimatedBackground";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -98,7 +98,7 @@ export default function RegisterPage() {
           null, // Details (optional)
           "signup" // Type (login, signup, profile, etc.)
         );
-        router.push("/users/login");
+        router.push("/login");
       } else {
         setError("Invalid response from server");
         setLoading(false);

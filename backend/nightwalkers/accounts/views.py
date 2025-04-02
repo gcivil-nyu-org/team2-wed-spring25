@@ -26,6 +26,16 @@ def get_tokens_for_user(user):
     }
 
 
+def get_standard_response(user):
+    """Standardized response format for all auth endpoints"""
+    tokens = get_tokens_for_user(user)
+    return {
+        "access": tokens["access"],
+        "refresh": tokens["refresh"],
+        "user": UserSerializer(user).data,
+    }
+
+
 class GoogleAuthView(APIView):
     permission_classes = (AllowAny,)
 
@@ -75,20 +85,16 @@ class GoogleAuthView(APIView):
                 user.provider = "google"
                 user.provider_id = idinfo["sub"]
                 user.email_verified = True
-                user.first_name = first_name  # Ensure names stay updated
+                user.first_name = first_name
                 user.last_name = last_name
-                user.karma = 0
+
                 if "picture" in idinfo:
                     user.avatar_url = idinfo["picture"]
 
                 user.save()
 
-            # Generate tokens
-            tokens = get_tokens_for_user(user)
-
-            return Response(
-                {**tokens, "user": UserSerializer(user).data}, status=status.HTTP_200_OK
-            )
+            # Use standardized response format
+            return Response(get_standard_response(user), status=status.HTTP_200_OK)
 
         except ValueError:
             return Response(
@@ -98,24 +104,10 @@ class GoogleAuthView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LogoutView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        try:
-            refresh_token = request.data.get("refresh")
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response({"success": "Logged out successfully"})
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)
-
-
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print("Login in ")
         email = request.data.get("email")
         password = request.data.get("password")
         if not email or not password:
@@ -126,22 +118,10 @@ class LoginView(APIView):
 
         # Authenticate with email as the USERNAME_FIELD
         user = authenticate(email=email, password=password)
-        print(user)
-        if user is not None:
-            refresh = RefreshToken.for_user(user)
 
-            return Response(
-                {
-                    "access": str(refresh.access_token),
-                    "refresh": str(refresh),
-                    "user": {
-                        "id": user.id,
-                        "email": user.email,
-                        "first_name": user.first_name,
-                        "last_name": user.last_name,
-                    },
-                }
-            )
+        if user is not None:
+            # Use standardized response format
+            return Response(get_standard_response(user))
         else:
             return Response(
                 {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
@@ -185,27 +165,15 @@ class RegisterView(APIView):
 
         # Create the user
         try:
-            user = User.objects.create_user(
+            User.objects.create_user(
                 email=email,
                 password=password,
                 first_name=first_name,
                 last_name=last_name,
             )
-
-            # Generate JWT tokens
-            refresh = RefreshToken.for_user(user)
-
             return Response(
                 {
                     "detail": "User registered successfully",
-                    "access": str(refresh.access_token),
-                    "refresh": str(refresh),
-                    "user": {
-                        "id": user.id,
-                        "email": user.email,
-                        "first_name": user.first_name,
-                        "last_name": user.last_name,
-                    },
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -217,16 +185,12 @@ class RegisterView(APIView):
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
+    def get(self, request, *args, **kwargs):
+        print(f"User id: {request.user.id}")
+        user = User.objects.get(id=request.user.id)
+        user_serializer = UserSerializer(user)
         return Response(
-            {
-                "id": user.id,
-                "email": user.email,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "avatar_url": user.avatar_url if hasattr(user, "avatar_url") else None,
-            }
+            {"user": user_serializer.data},
         )
 
 
@@ -240,3 +204,20 @@ class GetUserView(APIView):
             return Response(
                 {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
+
+
+class LogoutView(APIView):
+    # If you want tests to expect 401 when unauthenticated, use IsAuthenticated
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh")
+            if not refresh_token:
+                return Response({"error": "No refresh token provided"}, status=400)
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"success": "Logged out successfully"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)

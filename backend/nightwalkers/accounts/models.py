@@ -61,7 +61,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
     def __str__(self):
-        return f"{self.get_full_name()} ({self.email})"
+        return f"{self.get_full_name()} ({self.email}) {self.get_karma()}"
 
     def get_user_karma(self):
         return self.karma
@@ -117,6 +117,10 @@ class User(AbstractUser):
     def is_mutual_follow(self, user):
         """Check if both users follow each other."""
         return self.is_following(user) and self.is_followed_by(user)
+
+    def get_saved_routes_count(self):
+        """Returns the count of saved routes for this user"""
+        return self.saved_routes.count()
 
 
 class Follow(models.Model):
