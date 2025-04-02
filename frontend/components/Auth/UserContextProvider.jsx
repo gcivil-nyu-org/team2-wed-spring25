@@ -9,7 +9,14 @@ const UserContext = createContext(null);
 // Provider component
 export function UserProvider({ children }) {
   const { data: session, status } = useSession();
-  const [userDetails, setUserDetails] = useState(null);
+  const [userDetails, setUserDetails] = useState(() => {
+    // Initialize from localStorage if available
+    if (typeof window !== "undefined") {
+      const savedUser = localStorage.getItem("user");
+      return savedUser ? JSON.parse(savedUser) : null;
+    }
+    return null;
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -23,9 +30,11 @@ export function UserProvider({ children }) {
       }
 
       // Use cached details from session if available
-      if (session.djangoUser && 
-          session.djangoUser.id && 
-          session.djangoUser.email) {
+      if (
+        session.djangoUser &&
+        session.djangoUser.id &&
+        session.djangoUser.email
+      ) {
         console.log("Using cached user details from session");
         setUserDetails(session.djangoUser);
         setIsLoading(false);
@@ -49,10 +58,19 @@ export function UserProvider({ children }) {
     fetchUserDetails();
   }, [session, status]);
 
+  // Update localStorage when userDetails changes
+  useEffect(() => {
+    if (userDetails) {
+      localStorage.setItem("user", JSON.stringify(userDetails));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [userDetails]);
+
   // Force refresh function
   const refreshUserDetails = async () => {
     if (status !== "authenticated") return null;
-    
+
     try {
       setIsLoading(true);
       const userData = await authAPI.authenticatedGet("/users/me/");
@@ -74,7 +92,7 @@ export function UserProvider({ children }) {
     isLoading,
     error,
     isAuthenticated: status === "authenticated",
-    refreshUserDetails
+    refreshUserDetails,
   };
 
   // Provide the context to children
