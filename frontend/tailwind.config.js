@@ -17,6 +17,16 @@ module.exports = {
         header: "var(--header-height)",
       },
       colors: {
+        bg: {
+          forum: "black",
+          post: "#1b1f23", // Dark background for posts in the forum
+        },
+        forum: {
+          heading: "var(--forum-heading)",
+          heading2: "var(--forum-createpost-heading)",
+          subheading: "var(--forum-subheading)",
+          subheading2: "var(--forum-subheading2)",
+        },
         bglinkedin: "#f4f2ee",
         sidebar: {
           bg: "var(--sidebar-bg)",
@@ -80,6 +90,12 @@ module.exports = {
   safelist: [
     "text-slate-900",
     "text-blue-900",
+    "text-blue-400",
+    "text-green-400",
+    "text-red-400",
+    "text-purple-400",
+    "text-yellow-400",
+    "text-sky-400",
     "text-green-900",
     "text-purple-900",
     "text-red-900",
@@ -116,5 +132,6 @@ module.exports = {
     "bg-red-800",
     "items-start",
     "items-center",
+    "text-forum-subheading",
   ],
 };

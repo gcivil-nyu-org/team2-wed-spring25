@@ -106,14 +106,14 @@ export default function UserPostHeader({
         </div>
       )}
       <UserImage imageUrl={user_avatar} width={48} height={48} />
-      <div className="flex-1 flex-col justify-start pl-3 leading-none">
-        <p className="text-md font-medium ">
+      <div className="flex-1 flex-col justify-start pl-3 leading-none text-forum-subheading">
+        <p className="text-md font-medium">
           {getUserFullName(user_fullname, "")}
         </p>
-        <p className="text-xs font-normal text-gray-500 ">
+        <p className="text-xs font-normal text-forum-subheading2">
           Kingslayer • <span>⚡{user_karma} •</span>
         </p>
-        <p className="text-xs font-normal text-gray-500 leading-none">
+        <p className="text-xs font-normal text-forum-subheading2 leading-none">
           {formatDateAgo(date_created)}
         </p>
       </div>

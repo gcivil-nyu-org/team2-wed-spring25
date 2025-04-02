@@ -59,7 +59,7 @@ export default function Home() {
                       Access safe navigation and community alerts
                     </p>
                   </div>
-                  <Link href="/users/login" className="">
+                  <Link href="/login" className="">
                     <Button
                       size="lg"
                       className="w-full bg-white text-blue-600 mt-3 hover:bg-blue-50 font-semibold transition-colors duration-300"
@@ -67,7 +67,7 @@ export default function Home() {
                       Sign In
                     </Button>
                   </Link>
-                  <Link href={`/users/register`}>
+                  <Link href={`/register`}>
                     <Button
                       size="lg"
                       className="w-full mt-3 text-white border-white/50 hover:bg-white/10 transition-colors duration-300"
