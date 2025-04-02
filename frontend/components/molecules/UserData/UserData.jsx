@@ -52,19 +52,19 @@ export default function UserData({
         {isUserDataCardLoading ?? <Loader />}
         <div className="flex justify-between mt-1">
           <p>Saved Routes</p>
-          <p>{userSideCardData?.total_saved_routes}</p>
+          <p>{userSideCardData.total_saved_routes}</p>
         </div>
         <div className="flex justify-between mt-1">
           <p>Total Posts</p>
-          <p>{userSideCardData?.total_posts}</p>
+          <p>{userSideCardData.total_posts}</p>
         </div>
         <div className="flex justify-between mt-1">
           <p>Followers</p>
-          <p>{userSideCardData?.total_followers}</p>
+          <p>{userSideCardData.total_followers}</p>
         </div>
         <div className="flex justify-between mt-1">
           <p>Karma</p>
-          <p>{userSideCardData?.user_karma}</p>
+          <p>{userSideCardData.user_karma}</p>
         </div>
       </div>
     </div>
