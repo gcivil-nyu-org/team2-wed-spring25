@@ -104,6 +104,8 @@ export default function useForum(settingsType) {
   useEffect(() => {
     console.log("Setting up Intersection Observer");
 
+    console.log("Setting up Intersection Observer");
+
     const currentLoaderRef = loaderRef.current;
 
     if (!currentLoaderRef || !hasMore) return;
