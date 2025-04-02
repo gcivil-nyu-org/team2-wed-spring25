@@ -25,15 +25,13 @@ def get_tokens_for_user(user):
         "access": str(refresh.access_token),
     }
 
-
 def get_standard_response(user):
     """Standardized response format for all auth endpoints"""
     tokens = get_tokens_for_user(user)
     return {
         "access": tokens["access"],
         "refresh": tokens["refresh"],
-        "user": UserSerializer(user).data,
-        "user": UserSerializer(user).data,
+        "user": UserSerializer(user).data
     }
 
 
@@ -103,8 +101,6 @@ class GoogleAuthView(APIView):
             )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -222,3 +218,4 @@ class LogoutView(APIView):
             return Response({"success": "Logged out successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=400)
+
