@@ -14,7 +14,10 @@ addons:
       - postgresql-13-postgis-3
 
 env:
-  - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
+  global:
+    - DJANGO_DATABASE_URL=postgres://postgres@localhost:5432/test_db
+  jobs:
+    - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
 before_install:
   - sudo apt-get update -qq
