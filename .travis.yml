@@ -19,6 +19,10 @@ env:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y gdal-bin
+  # Make sure PostgreSQL is running
+  - sudo systemctl restart postgresql
+  # Check PostgreSQL status
+  - sudo systemctl status postgresql
 
 cache:
   directories:
