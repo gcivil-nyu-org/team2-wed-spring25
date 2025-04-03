@@ -4,23 +4,14 @@ import { NotificationProvider } from "@/app/custom-components/ToastComponent/Not
 import ToastNotifications from "./custom-components/ToastComponent/ToastNotification";
 import { Toaster } from "@/components/ui/sonner"
 
-// const geistSans = localFont({
-//   src: "./fonts/GeistVF.woff",  // Updated path to match your directory structure
-//   variable: "--font-geist-sans",
-// });
 
-// const geistMono = localFont({
-//   src: "./fonts/GeistMonoVF.woff",  // Updated path to match your directory structure
-//   variable: "--font-geist-mono",
-// });
-
-// export const metadata = {
-//   title: "Nightwalkers",
-//   description: "Nightwalkers is a community-driven safety app for navigating New York City",
-//   icons: {
-//     icon: '/owl-logo.svg'
-//   }
-// };
+export const metadata = {
+  title: "Nightwalkers",
+  description: "Nightwalkers is a community-driven safety app for navigating New York City",
+  icons: {
+    icon: '/owl-logo.svg'
+  }
+};
 
 export default function RootLayout({ children }) {
   return (
