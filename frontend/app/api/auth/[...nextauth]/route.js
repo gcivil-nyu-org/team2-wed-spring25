@@ -17,11 +17,14 @@ async function djangoFetch(url, options = {}) {
     ...options,
   };
 
+
   const response = await fetch(`${BASE_URL}${url}`, fetchOptions);
+
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData.detail || errorData.error || `Django error: ${response.status}`;
+    const errorMessage =
+      errorData.detail || errorData.error || `Django error: ${response.status}`;
     throw new Error(errorMessage);
   }
 
@@ -80,7 +83,9 @@ const handler = NextAuth({
           return {
             id: data.user.id,
             email: data.user.email,
-            name: `${data.user.first_name} ${data.user.last_name}`,
+            name: `${data?.user?.first_name || "unknown"} ${
+              data?.user?.last_name || "unknown"
+            }`,
             image: data.user.avatar_url || null,
             djangoTokens: {
               access: data.access,
@@ -96,9 +101,9 @@ const handler = NextAuth({
     }),
   ],
   pages: {
-    signIn: '/login',  // Your custom login page
-    signOut: '/login', // Redirect to login after signing out
-    error: '/login',   // Error page (or your login page to show errors there)
+    signIn: "/login", // Your custom login page
+    signOut: "/login", // Redirect to login after signing out
+    error: "/login", // Error page (or your login page to show errors there)
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -220,7 +225,7 @@ const handler = NextAuth({
   },
   session: {
     strategy: "jwt",
-    maxAge: 7 * 24 * 60 * 60
+    maxAge: 7 * 24 * 60 * 60,
   },
   debug: process.env.NODE_ENV === "development",
 });
