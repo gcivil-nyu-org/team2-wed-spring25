@@ -68,12 +68,5 @@ export const config = {
   matcher: [
     // Protect everything under /users
     "/users/:path*",
-    
-    // Add any other protected routes
-    "/dashboard/:path*",
-    "/profile/:path*",
-    
-    // Exclude specific public paths if needed
-    // "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };

@@ -170,7 +170,7 @@ class RegisterView(APIView):
             )
             return Response(
                 {
-                    "detail": "User registered successfully",
+                    "success": "User registered successfully",
                 },
                 status=status.HTTP_201_CREATED,
             )
