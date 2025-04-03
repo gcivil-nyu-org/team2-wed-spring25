@@ -169,5 +169,3 @@ class ReportPost(models.Model):
     class Meta:
         ordering = ["-post"]  # Orders reports by post (most recent first)
         unique_together = ["post", "reporting_user"]  # Prevents duplicate reports
-
-
