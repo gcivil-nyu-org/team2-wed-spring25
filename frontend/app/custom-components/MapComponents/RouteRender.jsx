@@ -184,7 +184,6 @@ const RouteRenderer = ({
       // Zoom to departure point ONLY on initial render of route data
       // This is crucial - we only want to center the map when the route is first loaded
       if (initialRenderRef.current) {
-        console.log("Initial route render - centering map");
         mapInstance.setView(departureCoord, 16);
         initialRenderRef.current = false;
       }
@@ -205,8 +204,6 @@ const RouteRenderer = ({
     if (!initialRouteRef.current && !saferRouteRef.current) return;
 
     try {
-      console.log("Updating route styles for active route:", activeRoute);
-      
       // Update initial route
       if (initialRouteRef.current) {
         initialRouteRef.current.setStyle({

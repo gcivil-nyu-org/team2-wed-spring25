@@ -12,12 +12,12 @@ import {
 const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
   const [showInstructions, setShowInstructions] = useState(false);
   const [currentRouteData, setCurrentRouteData] = useState(null);
-  
+
   // Update current route data when activeRoute or routeDetails change
   useEffect(() => {
     // Handle possible undefined or missing data gracefully
     if (!routeDetails) return;
-    
+
     setCurrentRouteData(routeDetails[activeRoute]);
   }, [activeRoute, routeDetails]);
 
@@ -31,13 +31,26 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
     return `${hours} hr ${minutes} min`;
   };
 
-  // Function to format distance
+  // Function to format distance in miles/feet (US units)
   const formatDistance = (meters) => {
     if (!meters) return "--";
-    if (meters < 1000) return `${Math.round(meters)} m`;
-    return `${(meters / 1000).toFixed(1)} km`;
-  };
 
+    // Constants for conversion
+    const METERS_TO_FEET = 3.28084;
+    const METERS_TO_MILES = 0.000621371;
+
+    // Convert to feet
+    const feet = meters * METERS_TO_FEET;
+
+    // If less than 1000 feet, show in feet
+    if (feet < 1000) {
+      return `${Math.round(feet)} ft`;
+    }
+
+    // Otherwise, convert to miles with one decimal place
+    const miles = meters * METERS_TO_MILES;
+    return `${miles.toFixed(1)} mi`;
+  };
   // Check if we have valid data for initial and safer routes
   const hasInitialRoute = routeDetails?.initial?.distance > 0;
   const hasSaferRoute = routeDetails?.safer?.distance > 0;
@@ -90,18 +103,6 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
               </div>
             </div>
           </div>
-
-          {/* Debug info in development environment */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="text-xs text-gray-400 mt-1">
-              Debug: {JSON.stringify({
-                activeRoute,
-                hasData: !!currentRouteData,
-                distance: currentRouteData?.distance,
-                duration: currentRouteData?.duration
-              })}
-            </div>
-          )}
 
           {/* Turn-by-turn instructions */}
           <div>

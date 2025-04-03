@@ -17,7 +17,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_DJANGO_API_URL;
 export async function enhancedFetch(url, options = {}, session = null) {
   const urlPath = url.startsWith("/") ? url : `/${url}`;
   const fullUrl = `${BASE_URL}${urlPath}`;
-  const { timeoutMs = 8000, ...fetchOptions } = options;
+  const { timeoutMs = 15000, ...fetchOptions } = options;
 
   // Setup abort controller for timeout
   const controller = new AbortController();
@@ -42,7 +42,7 @@ export async function enhancedFetch(url, options = {}, session = null) {
     if (response.status === 401 && session) {
       // Token expired - redirect to login
       if (typeof window !== 'undefined') {
-        signOut({ callbackUrl: '/users/login?error=session_expired' });
+        signOut({ callbackUrl: '/login' });
       }
       throw new Error("Session expired. Please login again.");
     }
@@ -186,90 +186,3 @@ export const authAPI = {
     }, session);
   },
 };
-
-// ========= HOOK-BASED API (for components with frequent session changes) =========
-
-export function useApi() {
-  const { data: session, status } = useSession();
-  
-  return {
-    // Regular API methods
-    apiGet,
-    apiPost,
-    apiPut,
-    apiPatch,
-    apiDelete,
-    
-    // Auth methods with session from hook
-    authAPI: {
-      getAuthHeaders() {
-        return session?.djangoTokens?.access 
-          ? { Authorization: `Bearer ${session.djangoTokens.access}` } 
-          : {};
-      },
-      
-      authenticatedGet(url, options = {}) {
-        return enhancedFetch(url, {
-          method: "GET",
-          ...options,
-          headers: {
-            ...options.headers,
-            ...this.getAuthHeaders(),
-          },
-        }, session);
-      },
-      
-      authenticatedPost(url, data, options = {}) {
-        return enhancedFetch(url, {
-          method: "POST",
-          body: JSON.stringify(data),
-          ...options,
-          headers: {
-            ...options.headers,
-            ...this.getAuthHeaders(),
-          },
-        }, session);
-      },
-      
-      authenticatedPut(url, data, options = {}) {
-        return enhancedFetch(url, {
-          method: "PUT",
-          body: JSON.stringify(data),
-          ...options,
-          headers: {
-            ...options.headers,
-            ...this.getAuthHeaders(),
-          },
-        }, session);
-      },
-      
-      authenticatedPatch(url, data, options = {}) {
-        return enhancedFetch(url, {
-          method: "PATCH",
-          body: JSON.stringify(data),
-          ...options,
-          headers: {
-            ...options.headers,
-            ...this.getAuthHeaders(),
-          },
-        }, session);
-      },
-      
-      authenticatedDelete(url, options = {}) {
-        return enhancedFetch(url, {
-          method: "DELETE",
-          ...options,
-          headers: {
-            ...options.headers,
-            ...this.getAuthHeaders(),
-          },
-        }, session);
-      },
-    },
-    
-    // Session status
-    isLoading: status === 'loading',
-    isAuthenticated: status === 'authenticated',
-    session
-  };
-}

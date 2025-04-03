@@ -50,6 +50,7 @@ jest.mock("../../../app/custom-components/RoutingComponets/SaveRoute", () => ({
 
 // Mock API
 jest.mock("../../../utils/fetch/fetch", () => ({
+
   authAPI: {
     authenticatedPost: jest.fn(),
   },
@@ -176,3 +177,4 @@ describe("RoutingMapComponent", () => {
     );
   });
 });
+

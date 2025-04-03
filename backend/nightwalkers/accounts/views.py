@@ -25,13 +25,14 @@ def get_tokens_for_user(user):
         "access": str(refresh.access_token),
     }
 
+
 def get_standard_response(user):
     """Standardized response format for all auth endpoints"""
     tokens = get_tokens_for_user(user)
     return {
         "access": tokens["access"],
         "refresh": tokens["refresh"],
-        "user": UserSerializer(user).data
+        "user": UserSerializer(user).data,
     }
 
 
@@ -101,11 +102,12 @@ class GoogleAuthView(APIView):
             )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print("Login in ")
         email = request.data.get("email")
         password = request.data.get("password")
         if not email or not password:
@@ -116,11 +118,10 @@ class LoginView(APIView):
 
         # Authenticate with email as the USERNAME_FIELD
         user = authenticate(email=email, password=password)
-        print("user.karma", user.karma)
+
         if user is not None:
             # Use standardized response format
             return Response(get_standard_response(user))
-
         else:
             return Response(
                 {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
@@ -164,7 +165,7 @@ class RegisterView(APIView):
 
         # Create the user
         try:
-            user = User.objects.create_user(
+            User.objects.create_user(
                 email=email,
                 password=password,
                 first_name=first_name,
@@ -184,16 +185,12 @@ class RegisterView(APIView):
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
+    def get(self, request, *args, **kwargs):
+        print(f"User id: {request.user.id}")
+        user = User.objects.get(id=request.user.id)
+        user_serializer = UserSerializer(user)
         return Response(
-            {
-                "id": user.id,
-                "email": user.email,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "avatar_url": user.avatar_url if hasattr(user, "avatar_url") else None,
-            }
+            {"user": user_serializer.data},
         )
 
 
@@ -210,7 +207,8 @@ class GetUserView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = (AllowAny,)  # Changed from IsAuthenticated to AllowAny
+    # If you want tests to expect 401 when unauthenticated, use IsAuthenticated
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         try:
@@ -223,4 +221,3 @@ class LogoutView(APIView):
             return Response({"success": "Logged out successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=400)
-

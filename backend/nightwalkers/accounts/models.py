@@ -118,6 +118,10 @@ class User(AbstractUser):
         """Check if both users follow each other."""
         return self.is_following(user) and self.is_followed_by(user)
 
+    def get_saved_routes_count(self):
+        """Returns the count of saved routes for this user"""
+        return self.saved_routes.count()
+
 
 class Follow(models.Model):
     # Main user (the one who is following)

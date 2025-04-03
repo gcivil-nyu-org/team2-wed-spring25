@@ -2,8 +2,6 @@ export const extractCoordinates = (routeData) => {
   if (!routeData) return [];
 
   try {
-    console.log('Extracting coordinates from ORS data:', routeData);
-
     // If the route has standard GeoJSON features
     if (routeData.features && routeData.features.length > 0) {
       const feature = routeData.features[0];

@@ -4,12 +4,28 @@ python:
 dist: focal
 os: linux
 
+services:
+  - postgresql
+
+addons:
+  postgresql: "13"
+  apt:
+    packages:
+      - postgresql-13-postgis-3
+
 env:
-  - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
+  global:
+    - DJANGO_DATABASE_URL=postgres://postgres@localhost:5432/test_db
+  jobs:
+    - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y gdal-bin
+  # Make sure PostgreSQL is running
+  - sudo systemctl restart postgresql
+  # Check PostgreSQL status
+  - sudo systemctl status postgresql
 
 cache:
   directories:
@@ -40,7 +56,11 @@ before_script:
   - chmod +x deploy-to-production.sh
   - chmod +x deploy-to-develop.sh
   - chmod +x deploy-to-netlify.sh
+  - pg_isready
   # - psql -U postgres -c "DROP DATABASE IF EXISTS test_[secure];"  # For PostgreSQL
+  - psql -U postgres -c "CREATE DATABASE test_db;"
+  - sudo apt-get install -y postgresql-13-postgis-3
+  - psql -U postgres -d test_db -c "CREATE EXTENSION postgis;"
 
 # Run checks and tests
 script:
