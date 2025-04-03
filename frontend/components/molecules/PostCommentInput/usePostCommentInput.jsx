@@ -3,6 +3,7 @@ import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useState } from "react";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { fallbackUserProfileImage } from "@/constants/imageUrls";
 export default function usePostCommentInput(
   post_id,
   setCommentsCount,
@@ -88,11 +89,11 @@ export default function usePostCommentInput(
         is_reply: is_reply,
         parent_comment_id: parent_comment_id,
         user: {
-          avatar_url: user.avatar,
-          email: user.email,
-          first_name: user.first_name,
-          id: user.id,
-          last_name: user.last_name,
+          avatar_url: user?.avatar ? user.avatar : null,
+          email: user?.email || "Unknown",
+          first_name: user?.first_name || "Unknown",
+          id: user?.id || 0,
+          last_name: user?.last_name || "Unknown",
         },
       };
       showSuccess(`Comment ${isEdit ? "edited" : "submitted"} successfully`);

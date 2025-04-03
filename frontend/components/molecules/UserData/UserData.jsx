@@ -26,19 +26,25 @@ export default function UserData({
         <div className="w-full pt-7 pl-4 pr-6 border-dark">
           <div className="relative inline-block justify-start bg-white rounded-full p-[1.5px]">
             <UserImage
-              imageUrl={user.avatar ?? fallbackUserProfileImage}
+              imageUrl={user?.avatar ? user.avatar : fallbackUserProfileImage}
               width={70}
               height={70}
             />
           </div>
           <h3 className="text-xl font-semibold text-forum-heading">
             {/* take 18 characters of the name */}
-            {getUserFullName(user.first_name, user.last_name).length > 14
-              ? getUserFullName(user.first_name, user.last_name).substring(
-                  0,
-                  14
-                ) + ".."
-              : getUserFullName(user.first_name, user.last_name)}
+            {getUserFullName(
+              user?.first_name || "Uknown",
+              user?.last_name || "Uknown"
+            ).length > 14
+              ? getUserFullName(
+                  user?.first_name || "Uknown",
+                  user?.last_name || "Uknown"
+                ).substring(0, 14) + ".."
+              : getUserFullName(
+                  user?.first_name || "Uknown",
+                  user?.last_name || "Uknown"
+                )}
           </h3>
           {/* show random heading */}
           <p className="text-xs font-medium pt-1 text-forum-subheading">
