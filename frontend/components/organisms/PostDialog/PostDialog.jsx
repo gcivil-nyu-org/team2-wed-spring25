@@ -67,6 +67,8 @@ export default function PostDialog({
     return null; // or handle the case when user is not found
   }
 
+  console.log("user in post dialog", user);
+
   // const contentEditableRef = useRef(null);
 
   // Handle keydown events
@@ -105,7 +107,7 @@ export default function PostDialog({
             />
             <div className="ml-4">
               <h1 className="text-xl font-bold leading-none text-forum-heading">
-                Shreyash Dhamane
+                {getUserFullName(user.first_name, user.last_name)}
               </h1>
               <p className="font-extralight text-sm text-forum-subheading">
                 Post to Anyone

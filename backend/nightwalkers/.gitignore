@@ -3,7 +3,8 @@
 !.env.example
 static
 staticfiles
-.pem
+*.pem
 logfile
 .DS_Store
 **/.DS_Store
+*.crt

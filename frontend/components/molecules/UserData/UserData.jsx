@@ -53,7 +53,6 @@ export default function UserData({
         {isUserDataCardLoading ?? <Loader />}
         <div className="flex justify-between mt-1">
           <p>Saved Routes</p>
-          <p>{userSideCardData?.total_saved_routes}</p>
           {!isLoading ? (
             <p>{userSideCardData.total_saved_routes}</p>
           ) : (
@@ -64,6 +63,7 @@ export default function UserData({
           <p>Total Posts</p>
           {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
           {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
+
         </div>
         <div className="flex justify-between mt-1">
           <p>Followers</p>
