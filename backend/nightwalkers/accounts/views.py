@@ -173,7 +173,7 @@ class RegisterView(APIView):
             )
             return Response(
                 {
-                    "detail": "User registered successfully",
+                    "success": "User registered successfully",
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -207,8 +207,8 @@ class GetUserView(APIView):
 
 
 class LogoutView(APIView):
-    # If you want tests to expect 401 when unauthenticated, use IsAuthenticated
-    permission_classes = (IsAuthenticated,)
+    # Users do not have to pass an access token
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         try:

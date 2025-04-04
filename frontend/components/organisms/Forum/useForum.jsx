@@ -79,6 +79,7 @@ export default function useForum(settingsType) {
     }
   }, [hasMore, isLoadingMore, offset, user?.id, limit, settingsType]);
 
+
   useEffect(() => {
     console.log("Setting up Intersection Observer");
 
@@ -89,6 +90,7 @@ export default function useForum(settingsType) {
 
     const handleIntersection = (entries) => {
       console.log("Intersection Observer triggered", entries);
+
 
       const [entry] = entries;
       if (entry.isIntersecting && !isLoadingMore) {
@@ -121,7 +123,6 @@ export default function useForum(settingsType) {
         showError("Error fetching user data");
         console.error("Error fetching user data:", error);
       } finally {
-        // Any additional logic after fetching user data
         setIsUserDataCardLoading(false); // Set loading to false after fetching user data
       }
     };
