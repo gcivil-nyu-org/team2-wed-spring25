@@ -276,7 +276,6 @@ function SidebarTrigger({ className, onClick, children, ...props }) {
   );
 }
 
-
 function SidebarRail({ className, ...props }) {
   const { toggleSidebar } = useSidebar();
 

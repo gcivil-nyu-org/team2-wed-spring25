@@ -442,7 +442,11 @@ def get_posts(request):
 # Get a single post by ID
 def get_post(request, post_id):
     if request.method == "GET":
-        post = get_object_or_404(Post, id=post_id)
+        try:
+            print(f"All posts in DB: {Post.objects.all().values_list('id', flat=True)}")
+            post = get_object_or_404(Post, id=post_id)
+        except Post.DoesNotExist:
+            return JsonResponse({"error": "Post not found"}, status=404)
         post_data = {
             "id": post.id,
             "title": post.title,
@@ -461,7 +465,7 @@ def get_post(request, post_id):
             ],
             "likes_count": post.likes.count(),
         }
-        return JsonResponse(post_data)
+        return JsonResponse(post_data, status=200)
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
@@ -672,101 +676,6 @@ def comments(request, post_id):
             return JsonResponse(
                 {"error": "Internal server error", "status": 500}, status=500
             )
-
-        # try:
-        #     post_id = post_id  # Get the post ID from the URL
-
-        #     user_id = request.GET.get(
-        #         "user_id"
-        #     )  # Get the current user ID from query parameters
-
-        #     parent_comment_id = request.GET.get(
-        #         "parent_comment_id"
-        #     )  # Optional: Get the parent comment ID for nested comments
-        #     if not user_id:
-        #         return JsonResponse({"error": "user_id is required"}, status=400)
-
-        #     # fetch the parent comment if parent_comment_id is provided
-        #     parent_comment = None
-        #     if parent_comment_id != 0:
-        #         try:
-        #             parent_comment = \
-        # Comment.objects.get(id=parent_comment_id, post_id=post_id)
-        #         except Comment.DoesNotExist:
-        #             pass
-
-        #     # Fetch all likes by the current user
-        #     # for comments in this post from the CommentLike table
-        #     user_likes = CommentLike.objects.filter(
-        #         user_id=user_id,
-        #         comment__post_id=post_id,  # Filter likes for comments in this post
-        #     ).values("comment_id", "like_type")
-
-        #     # Convert user_likes into a dictionary for quick lookup
-        #     user_likes_dict = {
-        #         like["comment_id"]: like["like_type"] for like in user_likes
-        #     }
-
-        #     # Subquery to count replies for each comment
-        #     replies_subquery = (
-        #         Comment.objects.filter(parent_comment_id=OuterRef("id"))
-        #         .values("parent_comment_id")
-        #         .annotate(count=Count("id"))
-        #         .values("count")
-        #     )
-
-        #     # Annotate comments with the total number of likes and replies
-        #     comments = (
-        #         Comment.objects.filter(post_id=post_id, \
-        # parent_comment=parent_comment)  # Only top-level comments
-        #         .select_related("user")
-        #         .annotate(
-        #             likes_count=Count("comment_likes", \
-        # distinct=True),  # Count total likes for each comment
-        #             replies_count=Subquery(replies_subquery, \
-        # output_field=IntegerField()),  # Count total replies for each comment
-        #         )
-        #         .order_by("-date_created")
-        #     )
-
-        #     # Serialize the comments along with user details and like information
-        #     comments_data = [
-        #         {
-        #             "id": comment.id,
-        #             "post_id": comment.post_id,
-        #             "content": comment.content,
-        #             "date_created": comment.date_created,
-        #             "user": {
-        #                 "id": comment.user.id,
-        #                 "avatar_url": comment.user.avatar_url,
-        #                 "email": comment.user.email,  # Only include if necessary
-        #                 "first_name": comment.user.first_name,
-        #                 "last_name": comment.user.last_name,
-        #                 "user_karma": comment.user.karma,
-        #             },
-        #             "likes_count": comment.likes_count,  \
-        # # Total likes on the comment
-        #             "replies_count": comment.replies_count or 0,  \
-        # # Total replies to the comment
-        #             # Check if the current user has liked the comment
-        #             "user_has_liked": comment.id in user_likes_dict,
-        #             "like_type": user_likes_dict.get(
-        #                 comment.id
-        #             ),  # Get the like_type if the user has liked the comment
-        #         }
-        #         for comment in comments
-        #     ]
-
-        #     return JsonResponse(
-        #         {"comments": comments_data, "status": 200}, safe=False, status=200
-        #     )
-
-        # except Exception as e:
-        #     print("Error fetching comments:", str(e))  # Logs for debugging
-        #     return JsonResponse(
-        #         {"error": "Internal server error", "status": 500}, status=500
-        #     )
-
     return JsonResponse({"error": "Method not allowed", "status": 405}, status=405)
 
 
