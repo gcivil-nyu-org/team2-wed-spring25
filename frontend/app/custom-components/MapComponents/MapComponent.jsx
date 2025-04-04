@@ -104,9 +104,7 @@ const RoutingMapComponent = ({
       const userIcon = L.divIcon({
         className: "custom-user-marker-icon",
         html: `
-          <div class="user-location-pulse">
-            <div class="user-location-dot"></div>
-          </div>
+            <div class="user-location-dot" style="background-color: grey;"></div>
         `,
         iconSize: [30, 30],
         iconAnchor: [15, 15],
@@ -122,7 +120,7 @@ const RoutingMapComponent = ({
       const locateButton = L.DomUtil.create("div", "leaflet-control");
       locateButton.innerHTML = `
         <div class="bg-white rounded-md shadow-md p-2 cursor-pointer hover:bg-gray-100">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-map-legendtext">
             <circle cx="12" cy="12" r="10"></circle>
             <circle cx="12" cy="12" r="1"></circle>
           </svg>
@@ -311,7 +309,7 @@ const RoutingMapComponent = ({
           <div className="absolute top-4 right-4 z-[1000]">
             <button
               onClick={retryLocation}
-              className="bg-indigo-600 text-white px-3 py-2 rounded-md text-sm shadow-md hover:bg-indigo-700 transition-colors"
+              className="bg-map-bg text-white px-3 py-2 rounded-md text-sm shadow-md hover:bg-map-darkerbg transition-colors"
             >
               Enable Location Access
             </button>
