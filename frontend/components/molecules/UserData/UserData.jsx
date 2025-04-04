@@ -34,16 +34,16 @@ export default function UserData({
           <h3 className="text-xl font-semibold text-forum-heading">
             {/* take 18 characters of the name */}
             {getUserFullName(
-              user?.first_name || "Uknown",
-              user?.last_name || "Uknown"
+              user?.first_name || "Unknown",
+              user?.last_name || "Unknown"
             ).length > 14
               ? getUserFullName(
-                  user?.first_name || "Uknown",
-                  user?.last_name || "Uknown"
+                  user?.first_name || "Unknown",
+                  user?.last_name || "Unknown"
                 ).substring(0, 14) + ".."
               : getUserFullName(
-                  user?.first_name || "Uknown",
-                  user?.last_name || "Uknown"
+                  user?.first_name || "Unknown",
+                  user?.last_name || "Unknown"
                 )}
           </h3>
           {/* show random heading */}
