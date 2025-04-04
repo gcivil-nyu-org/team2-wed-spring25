@@ -61,6 +61,8 @@ body {
     /* Map-Specific Colors */
     --map-color: rgb(243, 244, 246); /* gray-100 */
     --legend-text: rgb(68 64 60); /* stone-700 */
+    --pulse-color: rgb(120, 113, 108, 0.873); /* violet-500 */
+    --pointer-color: rgb(120 113 108);
   }
   .dark {
     --background: 240 10% 3.9%;
