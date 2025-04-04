@@ -24,8 +24,8 @@ export default function UserPost({ post, setPosts }) {
             />
             <span className="ml-2 font-semibold mr-0 pr-0 text-forum-subheading">
               {getUserFullName(
-                post.reposted_by.first_name,
-                post.reposted_by.last_name
+                post?.reposted_by?.first_name || "Unknown",
+                post?.reposted_by?.last_name || "Unknown"
               )}
             </span>
             <p className="text-forum-subheading2 ml-1">reposted this</p>

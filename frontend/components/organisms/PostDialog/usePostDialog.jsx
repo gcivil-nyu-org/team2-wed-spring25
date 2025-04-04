@@ -89,8 +89,11 @@ export const usePostDialog = (
         like_type: null,
         likes_count: 0,
         title: "",
-        user_avatar: user.avatar,
-        user_fullname: getUserFullName(user.first_name, user.last_name),
+        user_avatar: user?.avatar || null,
+        user_fullname: getUserFullName(
+          user?.first_name || "Unknown",
+          user?.last_name || "Unknown"
+        ),
         user_has_liked: false,
         user_id: user.id,
         user_karma: response.user.karma,

@@ -53,9 +53,9 @@ export default function usePostFooterIconList(post, setPosts) {
         reposted_by: {
           id: user.id,
           username: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          avatar_url: user.avatar,
+          first_name: user?.first_name || "Unknown",
+          last_name: user?.last_name || "Unknown",
+          avatar_url: user?.avatar ? user.avatar : null,
         },
       };
       setPosts((prevPosts) => {

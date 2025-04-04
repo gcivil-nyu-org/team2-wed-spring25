@@ -15,8 +15,12 @@ export default function useForum(settingsType) {
   const [hasMore, setHasMore] = useState(true); // Track if there are more posts to fetch
   const loaderRef = useRef(null);
   const limit = 10; // Number of posts to fetch per request
-  let userHeading =
-    userHeadings[Math.floor(Math.random() * userHeadings.length)];
+  const [userHeading, setUserHeading] = useState(0);
+  useEffect(() => {
+    let userHeading =
+      userHeadings[Math.floor(Math.random() * userHeadings.length)];
+    setUserHeading(userHeading);
+  }, []);
 
   const handleClick = () => {
     setIsOpen(!isOpen);
@@ -75,42 +79,50 @@ export default function useForum(settingsType) {
     }
   }, [hasMore, isLoadingMore, offset, user?.id, limit, settingsType]);
 
-  // Set up the Intersection Observer
+
   useEffect(() => {
+    console.log("Setting up Intersection Observer");
+
     const currentLoaderRef = loaderRef.current;
-    if (!currentLoaderRef) {
-      return; // Exit if loaderRef is not set
-    }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadMorePosts(); // Fetch more posts when the loader div is visible
-        }
-      },
-      { threshold: 0.5 } // Trigger when the div is half visible
-    );
+    if (!currentLoaderRef || !hasMore) return;
+    console.log("Loader ref is set and hasMore is true");
 
-    observer.observe(currentLoaderRef); // Start observing the loader div
+    const handleIntersection = (entries) => {
+      console.log("Intersection Observer triggered", entries);
 
-    // Cleanup the observer
-    return () => {
-      observer.unobserve(currentLoaderRef);
+
+      const [entry] = entries;
+      if (entry.isIntersecting && !isLoadingMore) {
+        loadMorePosts();
+      }
     };
-  }, [hasMore, loadMorePosts]); // Removed loaderRef.current dependency
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      root: null,
+      rootMargin: "20px",
+      threshold: 0.1,
+    });
+
+    observer.observe(currentLoaderRef);
+
+    return () => {
+      if (currentLoaderRef) {
+        observer.unobserve(currentLoaderRef);
+      }
+    };
+  }, [loadMorePosts, hasMore, isLoadingMore]); // Dependencies that affect when we should observe
 
   useEffect(() => {
     const getUserData = async () => {
-      try {      
-
-        const data = await apiGet(`/forum/user_data?user_id=${user?.id}`);      
+      try {
+        const data = await apiGet(`/forum/user_data?user_id=${user?.id}`);
 
         setUserSideCardData(data);
       } catch (error) {
         showError("Error fetching user data");
         console.error("Error fetching user data:", error);
       } finally {
-        // Any additional logic after fetching user data      
         setIsUserDataCardLoading(false); // Set loading to false after fetching user data
       }
     };

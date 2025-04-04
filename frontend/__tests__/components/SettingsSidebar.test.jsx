@@ -1,119 +1,176 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import SettingsSidebar from "@/app/custom-components/SettingsSidebar";
-import { useSidebar } from "@/components/ui/sidebar";
+import { signOut } from "next-auth/react";
 
-// Mock the UI components
-jest.mock("@/components/ui/avatar", () => ({
-  Avatar: ({ children }) => <div data-testid="avatar">{children}</div>,
-  AvatarImage: ({ src, alt }) => <img src={src} alt={alt} />,
-  AvatarFallback: ({ children }) => <div>{children}</div>,
+// Mock localStorage
+const mockLocalStorage = {
+  removeItem: jest.fn(),
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  clear: jest.fn(),
+};
+
+Object.defineProperty(window, "localStorage", {
+  value: mockLocalStorage,
+  writable: true,
+});
+
+// Mock next/auth
+jest.mock("next-auth/react", () => ({
+  signOut: jest.fn(() => Promise.resolve({ url: "/login" })),
 }));
 
-jest.mock("@/components/ui/sidebar", () => ({
-  useSidebar: jest.fn(),
-  Sidebar: ({ children }) => <div data-testid="sidebar">{children}</div>,
-  SidebarContent: ({ children }) => <div>{children}</div>,
-  SidebarGroup: ({ children }) => <div>{children}</div>,
-  SidebarGroupContent: ({ children }) => <div>{children}</div>,
-  SidebarGroupLabel: ({ children }) => <div>{children}</div>,
-  SidebarMenu: ({ children }) => <div>{children}</div>,
-  SidebarMenuButton: ({ children, asChild }) => <div>{children}</div>,
-  SidebarMenuItem: ({ children }) => <div>{children}</div>,
-  SidebarSeparator: () => <hr />,
+// Mock next/navigation
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    refresh: jest.fn(),
+  }),
 }));
 
-// Mock next/link
+const mockSetOpen = jest.fn();
+const mockSetOpenMobile = jest.fn();
+
+jest.mock("next/image", () => ({
+  __esModule: true,
+  default: (props) => <img {...props} />,
+}));
+
 jest.mock("next/link", () => {
-  return ({ children, href }) => {
-    return <a href={href}>{children}</a>;
+  return ({ children, href }) => <a href={href}>{children}</a>;
+});
+
+jest.mock("@/components/ui/sidebar", () => {
+  const useSidebar = () => ({
+    open: true,
+    setOpen: mockSetOpen,
+    openMobile: false,
+    setOpenMobile: mockSetOpenMobile,
+    isMobile: false,
+    toggleSidebar: jest.fn(),
+  });
+
+  return {
+    Sidebar: ({ children, side, collapsible }) => <div>{children}</div>,
+    SidebarHeader: ({ children }) => <div>{children}</div>,
+    SidebarContent: ({ children }) => <div>{children}</div>,
+    SidebarGroup: ({ children }) => <div>{children}</div>,
+    SidebarGroupContent: ({ children, className }) => (
+      <div className={className}>{children}</div>
+    ),
+    SidebarGroupLabel: ({ children }) => <div>{children}</div>,
+    SidebarMenu: ({ children }) => <div>{children}</div>,
+    SidebarMenuButton: ({ children, onClick, asChild }) => {
+      if (asChild) return children;
+      return <button onClick={onClick}>{children}</button>;
+    },
+    SidebarMenuItem: ({ children }) => <div>{children}</div>,
+    SidebarSeparator: () => <hr />,
+    useSidebar,
   };
 });
 
-// Mock Lucide icons
-jest.mock("lucide-react", () => ({
-  UserRound: () => <img role="img" hidden alt="user" />,
-  Flag: () => <img role="img" hidden alt="flag" />,
-  MapPinCheck: () => <img role="img" hidden alt="map" />,
-  ShieldPlus: () => <img role="img" hidden alt="shield" />,
-  Settings: () => <img role="img" hidden alt="settings" />,
-  LogOut: () => <img role="img" hidden alt="logout" />,
-  X: () => <img role="img" hidden alt="close" />,
-}));
-
-// Navigation items
-const NAVIGATION_ITEMS = [
-  { text: "Profile", href: "/users/settings/profile" },
-  { text: "Routes", href: "/users/settings/routes" },
-  { text: "Report", href: "/users/settings/report" },
-  { text: "Resources", href: "/users/resources" },
-  { text: "Settings", href: "/users/settings" },
-  { text: "Sign Out", href: "#" },
-];
-
 describe("SettingsSidebar", () => {
-  const mockUseSidebar = {
-    state: {},
-    open: true,
-    setOpen: jest.fn(),
-    openMobile: false,
-    setOpenMobile: jest.fn(),
-    isMobile: false,
-    toggleSidebar: jest.fn(),
-  };
-
   beforeEach(() => {
-    useSidebar.mockImplementation(() => mockUseSidebar);
+    jest.clearAllMocks();
   });
 
-  it("renders the sidebar with user avatar and username", () => {
+  it("renders heading", () => {
     render(<SettingsSidebar />);
-    expect(screen.getByAltText("@shadcn")).toBeInTheDocument();
+    expect(screen.getByText("User Settings")).toBeInTheDocument();
+  });
+
+  it("renders user avatar section", () => {
+    render(<SettingsSidebar />);
     expect(screen.getByText("Username")).toBeInTheDocument();
+    expect(screen.getByText("Edit Display")).toBeInTheDocument();
+  });
+
+  it("renders main sections correctly", () => {
+    render(<SettingsSidebar />);
+    expect(screen.getByText("User Settings")).toBeInTheDocument();
+    expect(screen.getByText("Account")).toBeInTheDocument();
+    expect(screen.getByText("Route Management")).toBeInTheDocument();
+    expect(screen.getByText("Forum History")).toBeInTheDocument();
+    expect(screen.getByText("Settings")).toBeInTheDocument();
+    expect(screen.getByText("Logout")).toBeInTheDocument();
   });
 
   it("renders all navigation items with correct links", () => {
     render(<SettingsSidebar />);
 
-    NAVIGATION_ITEMS.forEach(({ text, href }) => {
-      const link = screen.getByText(text).closest("a");
-      expect(link).toBeInTheDocument();
-      expect(link).toHaveAttribute("href", href);
+    // Test account section links
+    expect(screen.getByText("Profile").closest("a")).toHaveAttribute(
+      "href",
+      "/users/settings/profile#password"
+    );
+    expect(screen.getByText("Location Settings").closest("a")).toHaveAttribute(
+      "href",
+      "/users/settings/profile#location"
+    );
+
+    // Test route section links
+    expect(screen.getByText("Saved Routes").closest("a")).toHaveAttribute(
+      "href",
+      "/users/settings/routes#saved"
+    );
+    expect(screen.getByText("Route Preferences").closest("a")).toHaveAttribute(
+      "href",
+      "/users/settings/routes#preferences"
+    );
+
+    // Test forum section links
+    expect(screen.getByText("Posts").closest("a")).toHaveAttribute(
+      "href",
+      "/users/settings/forum/posts"
+    );
+    expect(screen.getByText("Comments").closest("a")).toHaveAttribute(
+      "href",
+      "/users/settings/forum/comments"
+    );
+  });
+
+  it("handles logout process correctly", async () => {
+    const mockRouter = { push: jest.fn(), refresh: jest.fn() };
+    jest
+      .spyOn(require("next/navigation"), "useRouter")
+      .mockReturnValue(mockRouter);
+
+    render(<SettingsSidebar />);
+
+    // Click logout button
+    fireEvent.click(screen.getByText("Logout"));
+
+    // Verify signOut was called
+    expect(signOut).toHaveBeenCalledWith({
+      redirect: false,
+    });
+
+    // Verify loading state is shown
+    expect(screen.getByText("Logging out...")).toBeInTheDocument();
+
+    // Wait for async operations to complete
+    await waitFor(() => {
+      // Verify localStorage.removeItem was called
+      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith("user");
+      // Verify router.push was called
+      expect(mockRouter.push).toHaveBeenCalledWith("/login");
+      // Verify router.refresh was called
+      expect(mockRouter.refresh).toHaveBeenCalled();
     });
   });
 
-  it("closes sidebar when X button is clicked on desktop", () => {
-    render(<SettingsSidebar />);
-
-    const closeButton = screen.getByRole("button", { name: /x/i });
-    fireEvent.click(closeButton);
-
-    expect(mockUseSidebar.setOpen).toHaveBeenCalledWith(false);
-    expect(mockUseSidebar.setOpenMobile).not.toHaveBeenCalled();
-  });
-
-  it("closes sidebar when X button is clicked on mobile", () => {
-    useSidebar.mockImplementation(() => ({
-      ...mockUseSidebar,
-      isMobile: true,
-    }));
-
-    render(<SettingsSidebar />);
-
-    const closeButton = screen.getByRole("button", { name: /x/i });
-    fireEvent.click(closeButton);
-
-    expect(mockUseSidebar.setOpenMobile).toHaveBeenCalledWith(false);
-  });
-
-  it("renders navigation items with correct icons", () => {
-    render(<SettingsSidebar />);
-    const icons = screen.getAllByRole("img", { hidden: true });
-    expect(icons.length).toBe(NAVIGATION_ITEMS.length);
-  });
-
-  it("renders the sidebar on the right side", () => {
+  it("closes sidebar when back arrow is clicked - desktop", () => {
     const { container } = render(<SettingsSidebar />);
-    expect(container.firstChild).toHaveAttribute("data-side", "right");
+    const backArrow = container.querySelector("svg"); // ArrowLeft icon
+    fireEvent.click(backArrow);
+    expect(mockSetOpen).toHaveBeenCalledWith(false);
+  });
+
+  it("handles ArrowLeft click", () => {
+    render(<SettingsSidebar />);
+    const arrowLeftIcon = screen.getByTestId("arrow-left-icon");
+    fireEvent.click(arrowLeftIcon);
   });
 });

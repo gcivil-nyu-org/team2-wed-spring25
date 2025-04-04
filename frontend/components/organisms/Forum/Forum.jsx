@@ -21,14 +21,6 @@ export default function Forums({ settingsType = "" }) {
     userSideCardData,
   } = useForum(settingsType);
 
-  if (isLoading) {
-    return (
-      <div className="h-screen w-screen flex justify-center items-center">
-        <Loader />
-      </div>
-    );
-  }
-
   return (
     <div
       className={`w-full flex flex-row justify-center items-start py-4 bg-bg-forum`}
@@ -36,6 +28,7 @@ export default function Forums({ settingsType = "" }) {
       {!settingsType && (
         <div className="flex-col hidden  xsm:flex lg:w-2/6 xl:flex xl:flex-col xl:items-center max-w-[225px] ">
           <UserData
+            isLoading={isLoading}
             user={user}
             userHeading={userHeading}
             isUserDataCardLoading={isUserDataCardLoading}
@@ -53,13 +46,31 @@ export default function Forums({ settingsType = "" }) {
             user={user}
           />
         )}
-        <UserPosts
-          userPosts={userPosts}
-          setUserPosts={setUserPosts}
-          hasMore={hasMore}
-          loaderRef={loaderRef}
-          isLoadingMore={isLoadingMore}
-        />
+        {!isLoading && (
+          <UserPosts
+            userPosts={userPosts}
+            setUserPosts={setUserPosts}
+            hasMore={hasMore}
+            loaderRef={loaderRef}
+            isLoadingMore={isLoadingMore}
+          />
+        )}
+        {/* Always render the loader div, but hide it if there are no more posts */}
+        {(isLoading || hasMore) && (
+          <div
+            ref={loaderRef}
+            className={`flex justify-center items-center h-[50vh] ${
+              hasMore ? "visible" : "hidden"
+            }`}
+          >
+            {<Loader />}
+          </div>
+        )}
+        {!hasMore && (
+          <p className="text-center text-forum-heading2 text-lg mt-8 mb-10">
+            No more posts to show
+          </p>
+        )}
       </div>
       {!settingsType && (
         <div className="bg-white rounded-sm h-1/2 hidden xlg:flex xlg:flex-col xlg:justify-center xlg:items-center w-[225px] max-w-[225px] max-h-[210px]">

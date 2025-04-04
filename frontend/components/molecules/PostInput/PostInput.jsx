@@ -21,7 +21,7 @@ export default function PostInput({
       <div className="flex flex-col rounded-lg bg-bg-post mb-4 border-dark">
         <div className="flex flex-row pl-4 py-3">
           <UserImage
-            imageUrl={user.avatar ?? fallbackUserProfileImage}
+            imageUrl={user?.avatar ? user.avatar : fallbackUserProfileImage}
             width={48}
             height={48}
           />
