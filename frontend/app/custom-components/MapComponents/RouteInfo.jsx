@@ -66,7 +66,11 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
               className="h-8 px-3 py-1"
               onClick={() => setActiveRoute("initial")}
               disabled={!hasInitialRoute}
-            >
+              style={{
+                backgroundColor: activeRoute === "initial" ? "lightblue" : "transparent",
+                color: activeRoute === "initial" ? "black" : "lightblue",
+                border: activeRoute === "initial" ? "none" : "1px solid lightblue",
+              }}                        >
               Standard Route
             </Button>
             <Button
@@ -74,6 +78,11 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
               className="h-8 px-3 py-1"
               onClick={() => setActiveRoute("safer")}
               disabled={!hasSaferRoute}
+              style={{
+                backgroundColor: activeRoute === "safer" ? "lightgreen" : "transparent",
+                color: activeRoute === "safer" ? "black" : "lightgreen",
+                border: activeRoute === "safer" ? "none" : "1px solid lightgreen",
+              }}            
             >
               Safer Route
             </Button>
