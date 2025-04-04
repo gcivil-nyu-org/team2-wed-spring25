@@ -236,7 +236,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       {/* Heatmap Toggle */}
       <div className="absolute bottom-4 left-4 z-[499] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
         <label
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-map-legendtext"
           htmlFor="heatmap-switch"
         >
           Crime Heatmap
@@ -247,7 +247,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
           onCheckedChange={setShowHeatmap}
           disabled={!heatmapDataLoaded || heatmapPoints.length === 0}
           className={`${
-            showHeatmap ? "bg-indigo-600" : "bg-gray-200"
+            showHeatmap ? "bg-map-bg" : "bg-gray-200"
           } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
             (!heatmapDataLoaded || heatmapPoints.length === 0) ? "opacity-50 cursor-not-allowed" : ""
           }`}

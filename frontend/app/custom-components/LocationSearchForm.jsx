@@ -555,14 +555,14 @@ const getCurrentLocation = async () => {
           <div className="flex justify-between items-center mb-1">
             <label
               htmlFor="departure"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-map-legendtext"
             >
               Departure
             </label>
             <div className="flex items-center">
               <label
                 htmlFor="useCurrentLocation"
-                className="text-xs text-gray-600 mr-2"
+                className="text-xs text-map-legendtext mr-2"
               >
                 Use current location
               </label>
@@ -648,7 +648,7 @@ const getCurrentLocation = async () => {
         <div className="flex-1 space-y-1 relative">
           <label
             htmlFor="destination"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-map-legendtext"
           >
             Destination
           </label>
@@ -710,7 +710,7 @@ const getCurrentLocation = async () => {
       <Button
         type="submit"
         disabled={isButtonDisabled}
-        className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700"
+        className="w-full mt-4 bg-map-bg hover:bg-map-darkerbg"
       >
         {isLoading ? (
           <span className="flex items-center">
@@ -735,8 +735,8 @@ const getCurrentLocation = async () => {
       )}
 
       {/* Add note about NYC-only policy */}
-      <div className="text-xs text-gray-500 mt-2 text-center">
-        Note: SafeRouteNYC only supports locations within New York City &apos;s
+      <div className="text-xs text-map-legendtext mt-2 text-center">
+        Note: SafeRouteNYC only supports locations within New York City&apos;s
         five boroughs.
       </div>
     </form>
