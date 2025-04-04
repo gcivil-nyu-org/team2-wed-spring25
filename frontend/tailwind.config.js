@@ -56,6 +56,8 @@ module.exports = {
           text: "var(--sidebar-text)",
           mapcolor: "var(--map-color)",
           legendtext: "var(--legend-text)",
+          safety: "var(--safety-color)",
+          safety2: "var(--safety-color-2)",
         },
         settingheader: {
           headerheight: "var(--header-height)",
