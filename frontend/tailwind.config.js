@@ -50,6 +50,13 @@ module.exports = {
           safety: "var(--safety-color)",
           safety2: "var(--safety-color-2)",
         },
+        map:{
+          bg: "var(--sidebar-bg)",
+          darkerbg: "var(--sidebar-group-bg)",
+          text: "var(--sidebar-text)",
+          mapcolor: "var(--map-color)",
+          legendtext: "var(--legend-text)",
+        },
         settingheader: {
           headerheight: "var(--header-height)",
         },
