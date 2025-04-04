@@ -1,15 +1,36 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import SettingsSidebar from "@/app/custom-components/SettingsSidebar";
+import { signOut } from "next-auth/react";
 
-const mockLogout = jest.fn();
+// Mock localStorage
+const mockLocalStorage = {
+  removeItem: jest.fn(),
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  clear: jest.fn(),
+};
+
+Object.defineProperty(window, "localStorage", {
+  value: mockLocalStorage,
+  writable: true,
+});
+
+// Mock next/auth
+jest.mock("next-auth/react", () => ({
+  signOut: jest.fn(() => Promise.resolve({ url: "/login" })),
+}));
+
+// Mock next/navigation
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    refresh: jest.fn(),
+  }),
+}));
+
 const mockSetOpen = jest.fn();
 const mockSetOpenMobile = jest.fn();
-const mockUseAuth = jest.fn(() => ({
-  user: { id: "123", name: "Test User" },
-  logout: mockLogout,
-  isAuthenticated: true,
-}));
 
 jest.mock("next/image", () => ({
   __esModule: true,
@@ -50,18 +71,9 @@ jest.mock("@/components/ui/sidebar", () => {
   };
 });
 
-jest.mock("@/app/custom-components/AuthHook", () => ({
-  useAuth: () => mockUseAuth(),
-}));
-
 describe("SettingsSidebar", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAuth.mockImplementation(() => ({
-      user: { id: "123", name: "Test User" },
-      logout: mockLogout,
-      isAuthenticated: true,
-    }));
   });
 
   it("renders heading", () => {
@@ -82,7 +94,7 @@ describe("SettingsSidebar", () => {
     expect(screen.getByText("Route Management")).toBeInTheDocument();
     expect(screen.getByText("Forum History")).toBeInTheDocument();
     expect(screen.getByText("Settings")).toBeInTheDocument();
-    expect(screen.getByText("Sign Out")).toBeInTheDocument();
+    expect(screen.getByText("Logout")).toBeInTheDocument();
   });
 
   it("renders all navigation items with correct links", () => {
@@ -119,10 +131,34 @@ describe("SettingsSidebar", () => {
     );
   });
 
-  it("calls logout when sign out is clicked", () => {
+  it("handles logout process correctly", async () => {
+    const mockRouter = { push: jest.fn(), refresh: jest.fn() };
+    jest
+      .spyOn(require("next/navigation"), "useRouter")
+      .mockReturnValue(mockRouter);
+
     render(<SettingsSidebar />);
-    fireEvent.click(screen.getByText("Sign Out"));
-    expect(mockLogout).toHaveBeenCalled();
+
+    // Click logout button
+    fireEvent.click(screen.getByText("Logout"));
+
+    // Verify signOut was called
+    expect(signOut).toHaveBeenCalledWith({
+      redirect: false,
+    });
+
+    // Verify loading state is shown
+    expect(screen.getByText("Logging out...")).toBeInTheDocument();
+
+    // Wait for async operations to complete
+    await waitFor(() => {
+      // Verify localStorage.removeItem was called
+      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith("user");
+      // Verify router.push was called
+      expect(mockRouter.push).toHaveBeenCalledWith("/login");
+      // Verify router.refresh was called
+      expect(mockRouter.refresh).toHaveBeenCalled();
+    });
   });
 
   it("closes sidebar when back arrow is clicked - desktop", () => {
