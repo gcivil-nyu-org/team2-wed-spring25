@@ -16,10 +16,7 @@ async function djangoFetch(url, options = {}) {
     },
     ...options,
   };
-
-
   const response = await fetch(`${BASE_URL}${url}`, fetchOptions);
-
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
@@ -172,6 +169,7 @@ const handler = NextAuth({
 
       // Access token is expired or close to expiring, try to refresh it
       console.log("JWT callback: Refreshing access token");
+
       const refreshed = await refreshAccessToken(token.djangoTokens.refresh);
 
       if (refreshed.error) {
