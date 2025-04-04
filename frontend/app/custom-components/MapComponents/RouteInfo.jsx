@@ -59,7 +59,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
     <Card className="w-full">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg">Route Information</CardTitle>
+          <CardTitle className="text-lg text-map-legendtext">Route Information</CardTitle>
           <div className="flex items-center gap-2">
             <Button
               variant={activeRoute === "initial" ? "default" : "outline"}
