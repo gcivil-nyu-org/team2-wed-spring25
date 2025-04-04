@@ -63,6 +63,8 @@ body {
     --legend-text: rgb(68 64 60); /* stone-700 */
     --pulse-color: rgb(120, 113, 108, 0.873); /* violet-500 */
     --pointer-color: rgb(120 113 108);
+    --safety-color: rgb(101, 249, 155); /* green-500 */
+    --safety-color-2: rgb(29, 215, 97); /* green-500 */
   }
   .dark {
     --background: 240 10% 3.9%;

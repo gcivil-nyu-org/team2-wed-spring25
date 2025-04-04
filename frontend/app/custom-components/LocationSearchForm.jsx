@@ -710,7 +710,7 @@ const getCurrentLocation = async () => {
       <Button
         type="submit"
         disabled={isButtonDisabled}
-        className="w-full mt-4 bg-map-bg hover:bg-map-darkerbg"
+        className="w-full mt-4 bg-map-safety hover:bg-map-safety2 text-map-legendtext"
       >
         {isLoading ? (
           <span className="flex items-center">
