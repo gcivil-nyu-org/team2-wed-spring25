@@ -25,13 +25,14 @@ def get_tokens_for_user(user):
         "access": str(refresh.access_token),
     }
 
+
 def get_standard_response(user):
     """Standardized response format for all auth endpoints"""
     tokens = get_tokens_for_user(user)
     return {
         "access": tokens["access"],
         "refresh": tokens["refresh"],
-        "user": UserSerializer(user).data
+        "user": UserSerializer(user).data,
     }
 
 
@@ -101,6 +102,8 @@ class GoogleAuthView(APIView):
             )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -204,8 +207,8 @@ class GetUserView(APIView):
 
 
 class LogoutView(APIView):
-    # If you want tests to expect 401 when unauthenticated, use IsAuthenticated
-    permission_classes = (IsAuthenticated,)
+    # Users do not have to pass an access token
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         try:
@@ -218,4 +221,3 @@ class LogoutView(APIView):
             return Response({"success": "Logged out successfully"})
         except Exception as e:
             return Response({"error": str(e)}, status=400)
-

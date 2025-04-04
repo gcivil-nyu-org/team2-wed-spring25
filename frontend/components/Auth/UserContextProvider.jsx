@@ -191,6 +191,7 @@ export function UserProvider({
     }
 
     fetchUserDetails();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, status]);
 
   // Force refresh function
