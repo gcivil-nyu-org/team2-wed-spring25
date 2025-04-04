@@ -555,14 +555,14 @@ const getCurrentLocation = async () => {
           <div className="flex justify-between items-center mb-1">
             <label
               htmlFor="departure"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-map-legendtext"
             >
               Departure
             </label>
             <div className="flex items-center">
               <label
                 htmlFor="useCurrentLocation"
-                className="text-xs text-gray-600 mr-2"
+                className="text-xs text-map-legendtext mr-2"
               >
                 Use current location
               </label>
@@ -572,10 +572,10 @@ const getCurrentLocation = async () => {
                 checked={useCurrentLocation}
                 onChange={toggleUseCurrentLocation}
                 disabled={isGettingLocation}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                className="h-4 w-4 text-map-legendtext focus:ring-map-bg border-gray-300 rounded"
               />
               {isGettingLocation && (
-                <div className="ml-2 w-4 h-4 border-2 border-t-transparent border-indigo-600 rounded-full animate-spin"></div>
+                <div className="ml-2 w-4 h-4 border-2 border-t-transparent border-map-bg rounded-full animate-spin"></div>
               )}
             </div>
           </div>
@@ -593,14 +593,14 @@ const getCurrentLocation = async () => {
               onKeyDown={handleDepartureKeyDown}
               onFocus={() => {}}
               onClick={(e) => e.stopPropagation()}
-              className={`text-black flex-1 ${
+              className={`text-map-legendtext flex-1 ${
                 useCurrentLocation ? "bg-gray-100" : ""
               }`}
               disabled={useCurrentLocation}
             />
             <Button
               type="button"
-              className="text-black"
+              className="text-map-legendtext"
               onClick={(e) => {
                 e.stopPropagation();
                 fetchDepartureSuggestions();
@@ -613,7 +613,7 @@ const getCurrentLocation = async () => {
               variant="outline"
             >
               {isSearchingDeparture ? (
-                <div className="w-4 h-4 border-2 border-t-transparent border-indigo-600 rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-t-transparent border-map-bg rounded-full animate-spin"></div>
               ) : (
                 "Search"
               )}
@@ -631,7 +631,7 @@ const getCurrentLocation = async () => {
                   <div
                     key={suggestion.id}
                     onClick={() => handleSelectDeparture(suggestion)}
-                    className="cursor-pointer text-black hover:bg-gray-100 p-3 border-b border-gray-100"
+                    className="cursor-pointer text-map-legendtext hover:bg-gray-100 p-3 border-b border-gray-100"
                   >
                     <div className="font-medium">{suggestion.text}</div>
                     <div className="text-sm text-gray-500">
@@ -648,7 +648,7 @@ const getCurrentLocation = async () => {
         <div className="flex-1 space-y-1 relative">
           <label
             htmlFor="destination"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-map-legendtext"
           >
             Destination
           </label>
@@ -662,11 +662,11 @@ const getCurrentLocation = async () => {
               onKeyDown={handleDestinationKeyDown}
               onFocus={() => {}}
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 text-black"
+              className="flex-1 text-map-legendtext"
             />
             <Button
               type="button"
-              className="text-black"
+              className="text-map-legendtext"
               onClick={(e) => {
                 e.stopPropagation();
                 fetchDestinationSuggestions();
@@ -675,7 +675,7 @@ const getCurrentLocation = async () => {
               variant="outline"
             >
               {isSearchingDestination ? (
-                <div className="w-4 h-4 border-2 border-t-transparent border-indigo-600 rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-t-transparent border-map-bg rounded-full animate-spin"></div>
               ) : (
                 "Search"
               )}
@@ -693,7 +693,7 @@ const getCurrentLocation = async () => {
                   <div
                     key={suggestion.id}
                     onClick={() => handleSelectDestination(suggestion)}
-                    className="cursor-pointer text-black hover:bg-gray-100 p-3 border-b border-gray-100"
+                    className="cursor-pointer text-map-legendtext hover:bg-gray-100 p-3 border-b border-gray-100"
                   >
                     <div className="font-medium">{suggestion.text}</div>
                     <div className="text-sm text-gray-500">
@@ -710,7 +710,7 @@ const getCurrentLocation = async () => {
       <Button
         type="submit"
         disabled={isButtonDisabled}
-        className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700"
+        className="w-full mt-4 bg-map-safety hover:bg-map-safety2 text-map-legendtext"
       >
         {isLoading ? (
           <span className="flex items-center">
@@ -729,14 +729,14 @@ const getCurrentLocation = async () => {
       </Button>
 
       {routeCalculated && !inputsModified && !hasError && (
-        <div className="text-xs text-blue-600 text-center mt-1">
+        <div className="text-xs text-map-legendtext text-center mt-1">
           Change departure or destination to calculate a new route
         </div>
       )}
 
       {/* Add note about NYC-only policy */}
-      <div className="text-xs text-gray-500 mt-2 text-center">
-        Note: SafeRouteNYC only supports locations within New York City &apos;s
+      <div className="text-xs text-map-legendtext mt-2 text-center">
+        Note: SafeRouteNYC only supports locations within New York City&apos;s
         five boroughs.
       </div>
     </form>

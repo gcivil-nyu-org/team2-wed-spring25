@@ -14,7 +14,7 @@ const ClientOnlyMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
+      <div className="w-full h-[500px] flex items-center justify-center bg-map-color rounded-lg">
         <div className="text-lg font-semibold">Loading map component...</div>
       </div>
     ),
@@ -31,7 +31,7 @@ export function MapPage() {
       <h1 className="text-3xl font-bold">Dashboard</h1>
       <div className="flex items-center gap-4">
         {user && (
-          <span className="text-sm text-white/80">
+          <span className="text-sm text-map-text/80">
             Logged in as:
           </span>
         )}
@@ -231,7 +231,7 @@ function DashboardContent() {
       )}
 
       <div className="bg-white/10 rounded-lg p-4 mb-6">
-        <h2 className="text-xl font-semibold mb-3 text-white">Route Planner</h2>
+        <h2 className="text-xl font-semibold mb-3 text-map-text">Route Planner</h2>
 
         {/* Location Search Form */}
         <div className="mb-6">
@@ -259,10 +259,10 @@ function DashboardContent() {
 
       {/* Instructions */}
       <div className="bg-white/10 rounded-lg p-4 mb-6">
-        <h2 className="text-xl font-semibold mb-3 text-white">
+        <h2 className="text-xl font-semibold mb-3 text-map-text">
           How to Use This Map
         </h2>
-        <ul className="list-disc pl-5 space-y-1 text-white/90">
+        <ul className="list-disc pl-5 space-y-1 text-map-text/90">
           <li>
             Check &quot;Use current location&quot; if you want to use your
             current location as the starting point
@@ -285,7 +285,7 @@ function DashboardContent() {
             You can share routes by copying the URL after planning a route
           </li>
         </ul>
-        <p className="text-sm text-white/80 mt-4">
+        <p className="text-sm text-map-text/80 mt-4">
           Note: Location services must be enabled in your browser when using
           &quot;Current Location&quot; as your starting point.
         </p>
@@ -296,7 +296,7 @@ function DashboardContent() {
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white p-8">
+    <main className="min-h-screen bg-map-bg text-map-text p-4">
       <div className="max-w-4xl mx-auto">
         <DashboardHeader />
         <Suspense

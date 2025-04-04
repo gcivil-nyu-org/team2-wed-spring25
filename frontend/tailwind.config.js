@@ -35,6 +35,15 @@ module.exports = {
           border: "var(--sidebar-border2)",
           separator: "var(--sidebar-separator)",
         },
+        map:{
+          bg: "var(--sidebar-bg)",
+          darkerbg: "var(--sidebar-group-bg)",
+          text: "var(--sidebar-text)",
+          mapcolor: "var(--map-color)",
+          legendtext: "var(--legend-text)",
+          safety: "var(--safety-color)",
+          safety2: "var(--safety-color-2)",
+        },
         settingheader: {
           headerheight: "var(--header-height)",
         },

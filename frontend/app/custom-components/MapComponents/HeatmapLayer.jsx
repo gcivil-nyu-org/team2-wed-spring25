@@ -236,7 +236,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       {/* Heatmap Toggle */}
       <div className="absolute bottom-4 left-4 z-[499] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
         <label
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-map-legendtext"
           htmlFor="heatmap-switch"
         >
           Crime Heatmap
@@ -247,8 +247,8 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
           onCheckedChange={setShowHeatmap}
           disabled={!heatmapDataLoaded || heatmapPoints.length === 0}
           className={`${
-            showHeatmap ? "bg-indigo-600" : "bg-gray-200"
-          } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+            showHeatmap ? "bg-map-bg" : "bg-gray-200"
+          } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-map-bg focus:ring-offset-2 ${
             (!heatmapDataLoaded || heatmapPoints.length === 0) ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
@@ -261,7 +261,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
         
         {isLoading && (
           <span className="text-xs text-gray-500 ml-2 flex items-center">
-            <svg className="animate-spin -ml-1 mr-2 h-3 w-3 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin -ml-1 mr-2 h-3 w-3 text-map-bg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -272,7 +272,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
         {!isLoading && heatmapDataLoaded && heatmapPoints.length === 0 && (
           <button 
             onClick={handleRefresh}
-            className="ml-2 text-xs text-indigo-600 hover:text-indigo-800"
+            className="ml-2 text-xs text-map-bg hover:text-map-darkerbg"
           >
             Retry
           </button>
