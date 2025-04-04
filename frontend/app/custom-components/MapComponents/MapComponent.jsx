@@ -104,9 +104,7 @@ const RoutingMapComponent = ({
       const userIcon = L.divIcon({
         className: "custom-user-marker-icon",
         html: `
-          <div class="user-location-pulse">
-            <div class="user-location-dot"></div>
-          </div>
+            <div class="user-location-dot" style="background-color: grey;"></div>
         `,
         iconSize: [30, 30],
         iconAnchor: [15, 15],
