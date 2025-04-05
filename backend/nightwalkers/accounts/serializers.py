@@ -35,3 +35,9 @@ class UserReportSerializer(serializers.ModelSerializer):
         model = ReportIssue
         fields = "__all__"
         read_only_fields = ("id", "reported_at", "user")
+
+class UserReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportIssue
+        fields = "__all__"
+        read_only_fields = ("id", "reported_at", "user")
