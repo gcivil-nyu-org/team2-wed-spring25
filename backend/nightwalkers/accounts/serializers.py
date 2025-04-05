@@ -1,4 +1,4 @@
-from .models import User
+from .models import User, ReportIssue
 from rest_framework import serializers
 
 
@@ -28,3 +28,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_total_saved_routes(self, obj):
         return obj.saved_routes.count()
+
+class UserReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportIssue
+        fields = "__all__"
+        read_only_fields = ("id", "reported_at", "user")
