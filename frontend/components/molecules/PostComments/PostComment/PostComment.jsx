@@ -49,8 +49,8 @@ export default function PostComment({
   } = usePostComment(parentComment, post_id, original_post_id, is_repost);
 
   const userFullName = getUserFullName(
-    parentComment.user.first_name,
-    parentComment.user.last_name
+    parentComment?.user?.first_name || "Unknown",
+    parentComment?.user?.last_name || "Unknown"
   );
   const reportedCategoryNotSelected =
     "border-gray-300 text-gray-600 hover:border-transparent hover:shadow-[0_0_0_2px_rgba(156,163,175,1)] hover:bg-gray-100";

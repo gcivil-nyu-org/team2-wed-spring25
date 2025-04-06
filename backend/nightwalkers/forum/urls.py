@@ -8,7 +8,7 @@ urlpatterns = [
     path("posts/create/", views.create_post, name="create_post"),
     path("posts/repost/", views.create_repost, name="create_repost"),
     path("posts/<int:post_id>/", views.get_post, name="get_post"),
-    path("posts/<int:post_id>/delete/", views.delete_post, name="get_post"),
+    path("posts/<int:post_id>/delete/", views.delete_post, name="delete_post"),
     # Comment endpoints
     path(
         "posts/<int:post_id>/comments/",
@@ -27,10 +27,10 @@ urlpatterns = [
         name="follow_unfollow_user",
     ),
     path("posts/<int:post_id>/report/", views.report_post, name="report_post"),
-    path("posts/comment/report/", views.report_comment, name="report_post"),
+    path("posts/comment/report/", views.report_comment, name="report_comment"),
     path(
         "posts/<int:post_id>/comments/<int:comment_id>/delete/",
         views.delete_comment,
-        name="report_post",
+        name="delete_comment",
     ),
 ]

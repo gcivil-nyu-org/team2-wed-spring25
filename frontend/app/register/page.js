@@ -15,14 +15,13 @@ import AnimatedBackground from "../custom-components/AnimatedBackground";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { getSession } from "next-auth/react";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 
 export default function RegisterPage() {
   const { showSuccess } = useNotification();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Initialize as false
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -31,16 +30,6 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    getSession().then((session) => {
-      if (session) {
-        router.push("/home");
-      } else {
-        setLoading(false);
-      }
-    });
-  }, [router]);
 
   const handleOAuthSignup = async (provider) => {
     try {
@@ -91,7 +80,7 @@ export default function RegisterPage() {
         password: formData.password,
       });
 
-      if (response.access && response.refresh) {
+      if (response.success) {
         // Redirect to user home
         showSuccess(
           "You have successfully created your account!", // Message
@@ -109,10 +98,6 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
-
-  if (loading) {
-    return null; // Or a loading spinner
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
@@ -181,7 +166,7 @@ export default function RegisterPage() {
                   required
                   className="bg-white/10 border-white/20 text-white placeholder:text-blue-200"
                   placeholder="Enter your first name"
-                  value={formData.name}
+                  value={formData.first_name}
                   onChange={handleInputChange}
                 />
               </div>
@@ -196,7 +181,7 @@ export default function RegisterPage() {
                   required
                   className="bg-white/10 border-white/20 text-white placeholder:text-blue-200"
                   placeholder="Enter your last name"
-                  value={formData.name}
+                  value={formData.last_name}
                   onChange={handleInputChange}
                 />
               </div>
@@ -248,15 +233,16 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 className="w-full bg-white text-blue-600 hover:bg-blue-50"
+                disabled={loading}
               >
-                Create Account
+                {loading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 
             <div className="text-center text-blue-200">
               <span>Already have an account? </span>
               <Link
-                href="/users/login"
+                href="/login"
                 className="text-white hover:underline font-semibold"
               >
                 Sign in

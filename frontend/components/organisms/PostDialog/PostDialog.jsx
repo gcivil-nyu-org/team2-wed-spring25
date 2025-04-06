@@ -67,6 +67,8 @@ export default function PostDialog({
     return null; // or handle the case when user is not found
   }
 
+  console.log("user in post dialog", user);
+
   // const contentEditableRef = useRef(null);
 
   // Handle keydown events
@@ -99,13 +101,16 @@ export default function PostDialog({
         <div className="flex justify-between mb-2 p-4">
           <div className="flex items-center p-3 rounded-2xl hover:bg-black">
             <UserImage
-              imageUrl={user.avatar || fallbackUserProfileImage} // Fallback to default avatar if not available
+              imageUrl={user?.avatar || fallbackUserProfileImage} // Fallback to default avatar if not available
               width={50}
               height={50}
             />
             <div className="ml-4">
               <h1 className="text-xl font-bold leading-none text-forum-heading">
-                Shreyash Dhamane
+                {getUserFullName(
+                  user?.first_name || "Unknown",
+                  user?.last_name || "Unknown"
+                )}
               </h1>
               <p className="font-extralight text-sm text-forum-subheading">
                 Post to Anyone

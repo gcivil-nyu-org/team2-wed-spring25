@@ -5,6 +5,7 @@ import Image from "next/image";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 
 export default function UserData({
+  isLoading,
   user,
   userHeading,
   isUserDataCardLoading,
@@ -25,19 +26,25 @@ export default function UserData({
         <div className="w-full pt-7 pl-4 pr-6 border-dark">
           <div className="relative inline-block justify-start bg-white rounded-full p-[1.5px]">
             <UserImage
-              imageUrl={user.avatar ?? fallbackUserProfileImage}
+              imageUrl={user?.avatar ? user.avatar : fallbackUserProfileImage}
               width={70}
               height={70}
             />
           </div>
           <h3 className="text-xl font-semibold text-forum-heading">
             {/* take 18 characters of the name */}
-            {getUserFullName(user.first_name, user.last_name).length > 14
-              ? getUserFullName(user.first_name, user.last_name).substring(
-                  0,
-                  14
-                ) + ".."
-              : getUserFullName(user.first_name, user.last_name)}
+            {getUserFullName(
+              user?.first_name || "Unknown",
+              user?.last_name || "Unknown"
+            ).length > 14
+              ? getUserFullName(
+                  user?.first_name || "Unknown",
+                  user?.last_name || "Unknown"
+                ).substring(0, 14) + ".."
+              : getUserFullName(
+                  user?.first_name || "Unknown",
+                  user?.last_name || "Unknown"
+                )}
           </h3>
           {/* show random heading */}
           <p className="text-xs font-medium pt-1 text-forum-subheading">
@@ -52,19 +59,25 @@ export default function UserData({
         {isUserDataCardLoading ?? <Loader />}
         <div className="flex justify-between mt-1">
           <p>Saved Routes</p>
-          <p>{userSideCardData.total_saved_routes}</p>
+          {!isLoading ? (
+            <p>{userSideCardData.total_saved_routes}</p>
+          ) : (
+            <p>...</p>
+          )}
         </div>
         <div className="flex justify-between mt-1">
           <p>Total Posts</p>
-          <p>{userSideCardData.total_posts}</p>
+          {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
+          {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
+
         </div>
         <div className="flex justify-between mt-1">
           <p>Followers</p>
-          <p>{userSideCardData.total_followers}</p>
+          {!isLoading ? <p>{userSideCardData.total_followers}</p> : <p>...</p>}
         </div>
         <div className="flex justify-between mt-1">
           <p>Karma</p>
-          <p>{userSideCardData.user_karma}</p>
+          {!isLoading ? <p>{userSideCardData.user_karma}</p> : <p>...</p>}
         </div>
       </div>
     </div>
