@@ -122,18 +122,18 @@ const UserReportsList = () => {
     const hasMoreText = report.description.length > truncatedText.length;
     
     return (
-      <div className="border rounded-lg p-4 mb-4 hover:shadow-md transition-shadow duration-200 bg-white">
+      <div className="border rounded-lg p-4 mb-4 hover:shadow-md transition-shadow duration-200 bg-sidebar-bg border-sidebar-border">
         <div className="flex justify-between items-start">
-          <h3 className="text-lg font-medium text-gray-900">{report.title}</h3>
+          <h3 className="text-lg font-medium text-sidebar-text">{report.title}</h3>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            {report.status || 'Open'}
+            {report.status || 'Submitted'}
           </span>
         </div>
         <div className="flex items-center text-sm text-gray-500 mt-1 mb-3">
           <Clock className="mr-1 h-4 w-4" />
           <span>Reported {formatDateAgoShort(report.reported_at)}</span>
         </div>
-        <div className="text-gray-600 text-sm">
+        <div className="text-sidebar-text text-sm">
           {isExpanded ? (
             <p className="whitespace-pre-line">{report.description}</p>
           ) : (
@@ -154,15 +154,13 @@ const UserReportsList = () => {
   };
 
   return (
-    <div className="max-w-3xl py-6 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-3xl py-6">
       <div className="md:flex md:items-center md:justify-between mb-6">
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+          <h2 className="text-2xl font-bold leading-7 text-sidebar-text sm:text-3xl sm:truncate">
             My Reports
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            View and track the status of your submitted bug reports
-          </p>
+          
         </div>
         {/* <div className="mt-4 flex md:mt-0 md:ml-4">
           <button

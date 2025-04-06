@@ -34,6 +34,12 @@ module.exports = {
           text: "var(--sidebar-text)",
           border: "var(--sidebar-border2)",
           separator: "var(--sidebar-separator)",
+          inputbg: "var(--sidebar-input-bg)",
+          inputborder: "var(--sidebar-input-border)",
+          inputtext: "var(--sidebar-input-text)",
+          inputplaceholder: "var(--sidebar-input-placeholder)",
+          inputfocus: "var(--sidebar-input-focus-ring)",
+          labeltext: "var(--sidebar-label-text)",
         },
         map:{
           bg: "var(--sidebar-bg)",
