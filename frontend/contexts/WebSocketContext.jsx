@@ -78,7 +78,8 @@ export const WebSocketProvider = ({ children }) => {
       setRetryCount(0);
     };
 
-    ws.current.onclose = () => {
+    ws.current.onclose = (event) => {
+      console.log("Close code:", event.code, "Reason:", event.reason);
       setConnectionStatus("disconnected");
       attemptReconnect();
     };
