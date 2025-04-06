@@ -186,23 +186,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             # Validate the current user is part of this chat
             if str(self.user_id) != str(current_user_id):
-                print(f"User {self.user_id} is not authorized to mark messages as read in chat {chat_uuid}.")
-                await self.send(text_data=json.dumps({
-                    "type": "error",
-                    "message": "Unauthorized to mark messages as read",
-                }))
+                print(
+                    f"User {self.user_id} \
+                      is not authorized to mark \
+                      messages as read in chat {chat_uuid}."
+                )
+                await self.send(
+                    text_data=json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Unauthorized to mark messages as read",
+                        }
+                    )
+                )
                 return
 
             # Mark messages as read in the database
             from .models import Chat, Message
-            
+
             # Proper async ORM usage
             chat = await Chat.objects.aget(uuid=chat_uuid)
             await Message.objects.filter(
-                chat=chat,
-                sender__id=sender_id,
-                read=False
-            ).aupdate(read=True)  # Changed to aupdate()
+                chat=chat, sender__id=sender_id, read=False
+            ).aupdate(
+                read=True
+            )  # Changed to aupdate()
 
             # Notify the sender
             await self.channel_layer.group_send(
@@ -216,10 +224,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         except Exception as e:
             print(f"Error marking messages as read: {str(e)}")
-            await self.send(text_data=json.dumps({
-                "type": "error",
-                "message": str(e),
-            }))
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        "type": "error",
+                        "message": str(e),
+                    }
+                )
+            )
 
     # async def handle_mark_messages_read(self, data):
     #     """

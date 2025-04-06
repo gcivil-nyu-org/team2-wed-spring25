@@ -2,19 +2,14 @@
 
 import UserImage from "@/components/atom/UserImage/UserImage";
 import { getUserFullName } from "@/utils/string";
+import useChatHeader from "./useChatHeader";
 
 const ChatHeader = ({ selectedUser, onlineUsers }) => {
-  const user = selectedUser.user;
-  let isUserOnline = false;
-  onlineUsers.forEach((onlineUser) => {
-    if (onlineUser.id == user.id) {
-      isUserOnline = true;
-    }
-  });
+  const { user, isUserOnline } = useChatHeader(selectedUser, onlineUsers);
   return (
     <div
       key={user.id}
-      className="flex gap-3 px-4 py-3 items-center bg-gray-700"
+      className="flex gap-3 px-4 py-3 items-center bg-gray-800"
     >
       <div>
         <UserImage imageUrl={user.avatar} width={40} height={40} />

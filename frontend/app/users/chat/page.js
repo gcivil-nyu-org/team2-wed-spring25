@@ -1,115 +1,103 @@
 "use client";
 
-import ChatHeader from "@/components/molecules/Chat/ChatHeader/ChatHeader";
-import ChatInput from "@/components/molecules/Chat/ChatInput/ChatInput";
-import ChatMessage from "@/components/molecules/Chat/ChatMessage/ChatMessage";
 import Loader from "@/components/molecules/Loader/Loader";
 import ChatSidebar from "@/components/organisms/Chat/ChatSidebar";
-import { apiGet } from "@/utils/fetch/fetch";
-import React, { useEffect, useRef, useState } from "react";
-import { useWebSocket } from "@/contexts/WebSocketContext";
+import ChatUser from "@/components/organisms/Chat/ChatUser";
+import useChat from "./useChat";
+import { useState } from "react";
+import Image from "next/image";
 
 const ChatHome = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const {
-    initializeConnection,
-    connectionStatus,
+    isLoading,
     onlineUsers,
     chatUserList,
     setChatUserList,
     selectedUser,
     setSelectedUser,
-  } = useWebSocket();
-  const messagesEndRef = useRef(null);
-  useEffect(() => {
-    const fetchChatUserList = async () => {
-      try {
-        const user = JSON.parse(localStorage.getItem("user"));
-
-        const response = await apiGet(`/chats/${user.id}`);
-
-        setChatUserList(response.data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchChatUserList();
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return; // Server-side guard
-
-    const checkAndConnect = () => {
-      try {
-        const userData = localStorage.getItem("user");
-
-        if (userData) {
-          const userId = JSON.parse(userData).id;
-
-          // Only initialize if not already connected
-          if (connectionStatus !== "connected") {
-            initializeConnection(userId);
-          }
-        }
-      } catch (error) {
-        console.error("Connection initialization error:", error);
-      }
-    };
-
-    // Check immediately
-    checkAndConnect();
-  }, []);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [chatUserList, selectedUser]); // Re-run when these change
+    messagesEndRef,
+    isSidebarOpen,
+    setIsSidebarOpen,
+  } = useChat();
 
   return (
     <main className="bg-bg-forum w-screen max-w-screen h-screen max-h-screen flex justify-center items-center">
-      <section className="w-full h-full max-w-4xl bg-bg-post flex divide-x divide-gray-700">
-        <div className="w-2/5  max-h-screen overflow-y-auto scrollbar-hide">
-          {isLoading ? (
-            <Loader />
-          ) : (
-            <ChatSidebar
-              chatUserList={chatUserList}
-              setSelectedUser={setSelectedUser}
-              onlineUsers={onlineUsers}
-              setChatUserList={setChatUserList}
-            />
-          )}
-        </div>
-        {selectedUser && (
-          <div className="w-3/5 flex flex-col">
-            <ChatHeader
-              selectedUser={chatUserList.find(
-                (user) => user.user.id === selectedUser.user.id
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <section className="w-full h-full max-w-4xl bg-bg-post flex">
+          <div className="hidden md:flex w-2/5 max-h-screen overflow-y-auto scrollbar-hide justify-end items-center">
+            {isLoading ? (
+              <Loader />
+            ) : (
+              <ChatSidebar
+                chatUserList={chatUserList}
+                setSelectedUser={setSelectedUser}
+                onlineUsers={onlineUsers}
+                setChatUserList={setChatUserList}
+                setIsSidebarOpen={() => {
+                  setIsSidebarOpen(false);
+                }}
+              />
+            )}
+          </div>
+          <div className="flex flex-col justify-end md:hidden bg-bg-forum h-screen max-h-screen max-w-10">
+            <button
+              className="bg-blue-500 text-white p-1 m-1 rounded mb-2"
+              onClick={() => {
+                setIsSidebarOpen(!isSidebarOpen);
+              }}
+            >
+              <Image
+                src={
+                  isSidebarOpen
+                    ? "/icons/arrow-left.svg"
+                    : "/icons/arrow-right.svg"
+                }
+                alt={"message icon"}
+                width={24}
+                height={24}
+              />
+            </button>
+          </div>
+
+          {isSidebarOpen ? (
+            <div className="md:hidden w-full flex justify-start max-h-screen overflow-y-auto scrollbar-hide items-center">
+              {isLoading ? (
+                <div className="flex-1 flex justify-center items-center">
+                  <Loader />
+                </div>
+              ) : (
+                <ChatSidebar
+                  chatUserList={chatUserList}
+                  setSelectedUser={setSelectedUser}
+                  onlineUsers={onlineUsers}
+                  setChatUserList={setChatUserList}
+                  setIsSidebarOpen={setIsSidebarOpen}
+                />
               )}
-              onlineUsers={onlineUsers}
-            />
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
-              {chatUserList
-                .find((user) => user.user.id === selectedUser.user.id)
-                .messages.map((message) => {
-                  return <ChatMessage key={message.id} message={message} />;
-                })}
-              <div ref={messagesEndRef} />
             </div>
-            <div className="mt-4">
-              <ChatInput
+          ) : null}
+          {!isSidebarOpen ? (
+            selectedUser ? (
+              <ChatUser
                 selectedUser={selectedUser}
                 setChatUserList={setChatUserList}
+                messagesEndRef={messagesEndRef}
+                onlineUsers={onlineUsers}
+                chatUserList={chatUserList}
+                setIsSidebarOpen={setIsSidebarOpen}
               />
-            </div>
-          </div>
-        )}
-      </section>
+            ) : (
+              <div className="w-full md:w-3/5 flex justify-center items-center">
+                <h1 className="text-center text-2xl text-forum-subheading font-bold">
+                  Select a user to chat with
+                </h1>
+              </div>
+            )
+          ) : null}
+        </section>
+      )}
     </main>
   );
 };

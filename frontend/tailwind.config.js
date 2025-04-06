@@ -135,5 +135,7 @@ module.exports = {
     "text-forum-subheading",
     "justify-start",
     "justify-end",
+    "ml-8",
+    "mr-8",
   ],
 };

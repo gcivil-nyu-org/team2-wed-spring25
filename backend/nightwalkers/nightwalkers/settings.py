@@ -58,7 +58,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://test-night-walkers.onrender.com",
     "https://testnyuwalkers.netlify.app",
     "https://nyuwalkers.netlify.app",
-    "https://software-engineering-web-socket.onrender.com"
+    "https://software-engineering-web-socket.onrender.com",
 ]
 CORS_ALLOWED_ORIGINS = [
     "https://localhost",
@@ -68,12 +68,12 @@ CORS_ALLOWED_ORIGINS = [
     "https://test-night-walkers.onrender.com",
     "https://testnyuwalkers.netlify.app",
     "https://nyuwalkers.netlify.app",
-    "https://software-engineering-web-socket.onrender.com"
+    "https://software-engineering-web-socket.onrender.com",
 ]
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS  # For Channels compatibility
 
 # WebSocket security
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -148,11 +148,7 @@ ASGI_APPLICATION = "nightwalkers.asgi.application"
 #     }
 # }
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 

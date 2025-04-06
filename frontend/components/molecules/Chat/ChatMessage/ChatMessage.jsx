@@ -1,24 +1,15 @@
-"use client";
+"use client"; // Ensures this only runs on client-side
 
+import { getLastMessageTimeStampAMPM } from "@/utils/datetime";
 import Image from "next/image";
+import Loader from "../../Loader/Loader";
+import useChatMessage from "./useChatMessage";
 
 const Message = ({ message }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const currentUserId = user.id; // Assuming you have the current user's ID from local storage
-
-  const getLastMessageTimeStampAMPM = (timestamp) => {
-    const date = new Date(timestamp);
-
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? "PM" : "AM";
-
-    // Remove leading zero by converting to number and back
-    const formattedHours = parseInt(hours % 12 || 12).toString();
-    const formattedMinutes = minutes.toString().padStart(2, "0");
-
-    return `${formattedHours}:${formattedMinutes} ${ampm}`;
-  };
+  const { currentUserId } = useChatMessage();
+  if (currentUserId === null) {
+    return <Loader />;
+  }
 
   return (
     <div
@@ -27,10 +18,12 @@ const Message = ({ message }) => {
       }`}
     >
       <div
-        className={`text-forum-subheading  px-2 py-1 bg-bg-forum rounded-lg flex`}
+        className={`text-forum-subheading px-2 py-1 bg-bg-forum rounded-lg flex ${
+          currentUserId == message.sender_id ? "ml-8" : "mr-8"
+        }`}
       >
-        <div className="">
-          <div className="flex">
+        <div className={``}>
+          <div className={`flex `}>
             <p>{message.content}</p>
           </div>
           <div className="flex justify-end items-center">
@@ -46,7 +39,7 @@ const Message = ({ message }) => {
                 }
                 width={23}
                 height={23}
-                alt="Image Picker"
+                alt="Message status"
                 className="pl-2"
               />
             )}

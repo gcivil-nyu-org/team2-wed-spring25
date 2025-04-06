@@ -58,17 +58,13 @@ export const WebSocketProvider = ({ children }) => {
     }
   };
 
-  const getSelectedUser = () => {
-    return selectedUser;
-  };
-
   const setupWebSocket = () => {
     if (!userId) return;
 
     cleanupConnection();
     const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-    const wsUrl = `${protocol}localhost:8001/ws/chat/${userId}/`;
-    // const wsUrl = `${protocol}software-engineering-web-socket.onrender.com/ws/chat/${userId}/`;
+    // const wsUrl = `${protocol}localhost:8001/ws/chat/${userId}/`;
+    const wsUrl = `${protocol}${process.env.NEXT_PUBLIC_WEB_SOCKET}/ws/chat/${userId}/`;
     console.log("WebSocket URL:", wsUrl);
 
     setConnectionStatus("connecting");
@@ -127,7 +123,7 @@ export const WebSocketProvider = ({ children }) => {
               const isSelected =
                 selectedUserRef.current?.user?.id == data.sender_id;
 
-              // If this is the currently selected chat, mark as read immediately
+              // if the current user is selected, mark the messages as read immediately
               if (isSelected) {
                 send({
                   type: "mark_messages_read",
@@ -160,13 +156,13 @@ export const WebSocketProvider = ({ children }) => {
 
       if (data.type === "message_delivery") {
         console.log("Message delivery status:", data);
-        // Update UI (e.g., mark message as delivered)
+        //helpful for image delivery status
       }
 
       if (data.type === "messages_read") {
         console.log("Message read status:", data);
         const { chat_uuid, reader_id } = data;
-        // Update UI (e.g., mark message as read)
+
         setChatUserList((prev) => {
           return prev.map((chat) => {
             if (chat.chat_uuid == chat_uuid) {
@@ -207,7 +203,7 @@ export const WebSocketProvider = ({ children }) => {
         connectionStatus,
         send,
         onlineUsers,
-        setOnlineUsers, // Expose setOnlineUsers if needed
+        setOnlineUsers,
         chatUserList,
         setChatUserList,
         handleUserSelection,
