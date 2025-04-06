@@ -12,15 +12,18 @@ const ChatHeader = ({ selectedUser, onlineUsers }) => {
     }
   });
   return (
-    <div key={user.id} className="flex gap-2">
+    <div
+      key={user.id}
+      className="flex gap-3 px-4 py-3 items-center bg-gray-700"
+    >
       <div>
-        <UserImage imageUrl={user.avatar} width={50} height={50} />
+        <UserImage imageUrl={user.avatar} width={40} height={40} />
       </div>
-      <div>
-        <h3 className="text-lg font-semibold text-forum-heading truncate">
+      <div className="flex flex-col justify-center">
+        <h3 className="text-md font-semibold text-forum-heading truncate leading-none">
           {getUserFullName(user.first_name, user.last_name)}
         </h3>
-        <p className="text-forum-subheading2 truncate">
+        <p className="text-forum-subheading2 truncate text-sm">
           {isUserOnline ? "Online" : "Offline"}
         </p>
       </div>

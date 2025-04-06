@@ -35,10 +35,37 @@ def get_mutual_follows_with_chats(request, user_id):
                 'messages': message_serializer.data,
                 'unread_count': Message.objects.filter(chat=chat, read=False).exclude(sender=current_user).count()
             })
+
         
         return JsonResponse({'data': response_data}, status=200, safe=False)
         
     except ObjectDoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+    
+@csrf_exempt
+def read_user_messages(request, chat_uuid, sender_id):
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only POST method is allowed"}, status=405)
+    
+    try:
+        # Verify the chat exists and involves the current user
+        chat = Chat.objects.get(uuid=chat_uuid)
+        #get sender user from sender_id
+        sender = User.objects.get(id=sender_id)
+        # Mark unread messages from this sender as read
+        Message.objects.filter(
+            chat=chat,
+            sender=sender,
+            read=False
+        ).update(read=True)
+        
+        return JsonResponse({
+            "status": "success",
+        }, status=200)
+        
+    except Chat.DoesNotExist:
+        return JsonResponse({"error": "Chat not found"}, status=404)
     except Exception as e:
         return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)

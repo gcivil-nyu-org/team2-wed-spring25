@@ -3,5 +3,6 @@ from . import views
 
 urlpatterns = [
     path('<int:user_id>/', views.get_mutual_follows_with_chats, name='get_mutual_follows_with_chats'),
-    # path('chat/<str:room_name>/', views.room, name='room'),
+    path('<uuid:chat_uuid>/read/<int:sender_id>/', views.read_user_messages, name='read_user_messages'),
+    
 ]

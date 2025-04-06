@@ -6,7 +6,7 @@ import ChatMessage from "@/components/molecules/Chat/ChatMessage/ChatMessage";
 import Loader from "@/components/molecules/Loader/Loader";
 import ChatSidebar from "@/components/organisms/Chat/ChatSidebar";
 import { apiGet } from "@/utils/fetch/fetch";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 
 const ChatHome = () => {
@@ -17,19 +17,18 @@ const ChatHome = () => {
     onlineUsers,
     chatUserList,
     setChatUserList,
+    selectedUser,
+    setSelectedUser,
   } = useWebSocket();
-  const [selectedUser, setSelectedUser] = useState(null);
-
+  const messagesEndRef = useRef(null);
   useEffect(() => {
     const fetchChatUserList = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
 
         const response = await apiGet(`/chats/${user.id}`);
-        console.log("Chat user list response:", response.data); // Debugging line
 
         setChatUserList(response.data);
-        console.log(response.data);
       } catch (error) {
         console.log(error);
       } finally {
@@ -63,18 +62,18 @@ const ChatHome = () => {
     checkAndConnect();
   }, []);
 
-  useEffect(() => {
-    console.log("chat user list is updated", chatUserList);
-  }, [chatUserList]);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    console.log("Online users:", onlineUsers);
-  }, [onlineUsers]);
+    scrollToBottom();
+  }, [chatUserList, selectedUser]); // Re-run when these change
 
   return (
     <main className="bg-bg-forum w-screen max-w-screen h-screen max-h-screen flex justify-center items-center">
       <section className="w-full h-full max-w-4xl bg-bg-post flex divide-x divide-gray-700">
-        <div className="w-1/3">
+        <div className="w-2/5  max-h-screen overflow-y-auto scrollbar-hide">
           {isLoading ? (
             <Loader />
           ) : (
@@ -82,11 +81,12 @@ const ChatHome = () => {
               chatUserList={chatUserList}
               setSelectedUser={setSelectedUser}
               onlineUsers={onlineUsers}
+              setChatUserList={setChatUserList}
             />
           )}
         </div>
         {selectedUser && (
-          <div className="w-2/3 flex flex-col">
+          <div className="w-3/5 flex flex-col">
             <ChatHeader
               selectedUser={chatUserList.find(
                 (user) => user.user.id === selectedUser.user.id
@@ -99,6 +99,7 @@ const ChatHome = () => {
                 .messages.map((message) => {
                   return <ChatMessage key={message.id} message={message} />;
                 })}
+              <div ref={messagesEndRef} />
             </div>
             <div className="mt-4">
               <ChatInput

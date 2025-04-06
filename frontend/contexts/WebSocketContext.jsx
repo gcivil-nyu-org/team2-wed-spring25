@@ -11,7 +11,8 @@ export const WebSocketProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]); // New state for online users
   const [chatUserList, setChatUserList] = useState([]);
-
+  const [selectedUser, setSelectedUser] = useState(null);
+  const selectedUserRef = useRef(selectedUser);
   const initializeConnection = (newUserId) => {
     console.log("Initializing connection with userId:", newUserId);
 
@@ -40,6 +41,25 @@ export const WebSocketProvider = ({ children }) => {
         setupWebSocket();
       }, delay);
     }
+  };
+
+  const handleUserSelection = (chat_uuid, sender_id) => {
+    try {
+      if (!chat_uuid || !sender_id) return;
+
+      send({
+        type: "mark_messages_read",
+        sender_id: sender_id, // The user whose messages we're viewing
+        chat_uuid: chat_uuid,
+        current_user_id: userId,
+      });
+    } catch (error) {
+      console.error("Error selecting user:", error);
+    }
+  };
+
+  const getSelectedUser = () => {
+    return selectedUser;
   };
 
   const setupWebSocket = () => {
@@ -100,8 +120,23 @@ export const WebSocketProvider = ({ children }) => {
           const updatedList = prev.map((chat) => {
             if (chat.user.id == data.sender_id) {
               console.log("Updating chat for user:", chat.user.id); // Debugging line
+              console.log("Selected user:", selectedUserRef.current); // Debugging line
+
+              const isSelected =
+                selectedUserRef.current?.user?.id == data.sender_id;
+
+              // If this is the currently selected chat, mark as read immediately
+              if (isSelected) {
+                send({
+                  type: "mark_messages_read",
+                  sender_id: data.sender_id,
+                  chat_uuid: chat.chat_uuid,
+                  current_user_id: userId,
+                });
+              }
               return {
                 ...chat,
+                unread_count: !isSelected ? chat.unread_count + 1 : 0,
                 messages: [
                   ...chat.messages,
                   {
@@ -116,6 +151,7 @@ export const WebSocketProvider = ({ children }) => {
             }
             return chat;
           });
+
           return updatedList;
         });
       }
@@ -124,8 +160,35 @@ export const WebSocketProvider = ({ children }) => {
         console.log("Message delivery status:", data);
         // Update UI (e.g., mark message as delivered)
       }
+
+      if (data.type === "messages_read") {
+        console.log("Message read status:", data);
+        const { chat_uuid, reader_id } = data;
+        // Update UI (e.g., mark message as read)
+        setChatUserList((prev) => {
+          return prev.map((chat) => {
+            if (chat.chat_uuid == chat_uuid) {
+              return {
+                ...chat,
+                messages: chat.messages.map((message) => {
+                  if (message.sender_id != reader_id) {
+                    return { ...message, read: true };
+                  }
+                  return message;
+                }),
+              };
+            }
+            return chat;
+          });
+        });
+      }
     };
   };
+
+  useEffect(() => {
+    console.log("Selected user changed:", selectedUser);
+    selectedUserRef.current = selectedUser;
+  }, [selectedUser]);
 
   // Setup WebSocket when userId changes
   useEffect(() => {
@@ -145,6 +208,9 @@ export const WebSocketProvider = ({ children }) => {
         setOnlineUsers, // Expose setOnlineUsers if needed
         chatUserList,
         setChatUserList,
+        handleUserSelection,
+        selectedUser,
+        setSelectedUser,
       }}
     >
       {children}

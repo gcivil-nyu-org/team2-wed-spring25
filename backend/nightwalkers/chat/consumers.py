@@ -79,6 +79,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         if data['type'] == 'chat_message':
             await self.handle_chat_message(data)
+        elif data['type'] == 'mark_messages_read':
+            await self.handle_mark_messages_read(data)
 
     async def handle_chat_message(self, data):
         recipient_id = data['recipient_id']
@@ -86,7 +88,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         # Save message to database
         message = await self.save_message(recipient_id, content)
-        
         # Check if recipient is online
         is_online = await self.is_user_online(recipient_id)
         #print all above
@@ -119,12 +120,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         recipient = User.objects.get(id=recipient_id)
         
+        #always take the user with smalelr id as user1 and the other as user2
+        if self.user.id < recipient.id:
+            user1 = self.user
+            user2 = recipient
+        else:
+            user1 = recipient
+            user2 = self.user
+
         # Get or create chat
-        chat, created = Chat.objects.get_or_create(
-            user1=self.user,
-            user2=recipient
-        )
         
+        chat, created = Chat.objects.get_or_create(user1=user1, user2=user2)
+
         # Create message
         return Message.objects.create(
             chat=chat,
@@ -150,4 +157,51 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "sender_id": event["sender_id"],
             "timestamp": event["timestamp"],
             "message_id": event["message_id"]
+        }))
+
+    async def handle_mark_messages_read(self, data):
+        """
+        Marks all unread messages from a specific sender in a chat as read
+        """
+        chat_uuid = data['chat_uuid']
+        sender_id = data['sender_id']
+        current_user_id = data['current_user_id']
+        
+        # Validate the current user is part of this chat
+        if str(self.user_id) != str(current_user_id):
+            print(f"User {self.user_id} is not authorized to mark messages as read in chat {chat_uuid}.")
+            await self.send(text_data=json.dumps({
+                "type": "error",
+                "message": "Unauthorized to mark messages as read"
+            }))
+            return
+        
+        # Mark messages as read in the database
+        from .models import Chat, Message
+        chat = await database_sync_to_async(Chat.objects.get)(uuid=chat_uuid)
+        await database_sync_to_async(Message.objects.filter)(
+            chat=chat,
+            sender__id=sender_id,
+            is_read=False
+        ).update(is_read=True)
+        
+        # Notify the sender that their messages were read (if online)
+        await self.channel_layer.group_send(
+            f"user_{sender_id}",
+            {
+                "type": "messages_read_notification",
+                "chat_uuid": chat_uuid,
+                "reader_id": current_user_id,
+            }
+        )
+
+
+    async def messages_read_notification(self, event):
+        """
+        Notifies a user that their messages were read by someone
+        """
+        await self.send(text_data=json.dumps({
+            "type": "messages_read",
+            "chat_uuid": event["chat_uuid"],
+            "reader_id": event["reader_id"],
         }))

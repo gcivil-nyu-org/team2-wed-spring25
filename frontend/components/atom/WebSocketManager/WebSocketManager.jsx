@@ -22,8 +22,6 @@ export default function WebSocketManager() {
 
           // Only initialize if not already connected
           if (connectionStatus !== "connected") {
-            console.log("Initializing WebSocket connection..."); // Debugging line
-
             initializeConnection(userId);
           }
         }
