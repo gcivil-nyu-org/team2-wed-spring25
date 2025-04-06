@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import * as Switch from "@radix-ui/react-switch";
 import * as Form from "@radix-ui/react-form";
+import ReportAppIssueForm from "@/app/custom-components/ReportAppIssues/ReportAppIssueForm";
+import UserReportsList from "@/app/custom-components/ReportAppIssues/UserReportList";
 import {
   Card,
   CardHeader,
@@ -175,33 +177,8 @@ const ProfileContent = () => {
           <h2 id="report" className="mb-4">
             Report a Bug
           </h2>
-          <Form.Root className="bg-sidebar-bg border border-sidebar-border rounded-md text-sidebar-text">
-            <Form.Field className="FormField" name="bug">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Form.Label className="FormLabel">Detail found bug:</Form.Label>
-                <Form.Message className="FormMessage" match="valueMissing">
-                  Provide a description of the bug
-                </Form.Message>
-                <Form.Message className="FormMessage" match="typeMismatch">
-                  Provide a description of the bug
-                </Form.Message>
-              </div>
-              <Form.Control asChild>
-                <input className="Input" type="bug" required />
-              </Form.Control>
-            </Form.Field>
-            <Form.Submit asChild>
-              <Button className="bg-sidebar-border" style={{ marginTop: 10 }}>
-                Report
-              </Button>
-            </Form.Submit>
-          </Form.Root>
+          <ReportAppIssueForm />
+          <UserReportsList />
         </div>
       </div>
     </div>
