@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db.models import Q
 
+
 class CustomUserManager(BaseUserManager):
 
     def create_user(self, email, first_name, last_name, password=None, **extra_fields):
@@ -127,9 +128,8 @@ class User(AbstractUser):
         Returns all users who follow the current user AND are followed by them.
         (Uses a single DB query for efficiency)
         """
-        return User.objects.filter(
-            Q(followers=self) & Q(following=self)
-        )
+        return User.objects.filter(Q(followers=self) & Q(following=self))
+
 
 class Follow(models.Model):
     # Main user (the one who is following)

@@ -80,9 +80,7 @@ INSTALLED_APPS = [
     "map",
     "channels",
     "chat",
-
 ]
-
 
 
 # Current command to run https server:
@@ -120,7 +118,7 @@ TEMPLATES = [
     },
 ]
 
-#initially we used wsgi, switch to asgi for websockets
+# initially we used wsgi, switch to asgi for websockets
 # WSGI_APPLICATION = "nightwalkers.wsgi.application"
 ASGI_APPLICATION = "nightwalkers.asgi.application"
 CHANNEL_LAYERS = {
