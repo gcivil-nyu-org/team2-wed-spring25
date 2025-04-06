@@ -4,7 +4,15 @@ import { NotificationProvider } from "@/app/custom-components/ToastComponent/Not
 import ToastNotifications from "./custom-components/ToastComponent/ToastNotification";
 import { Toaster } from "@/components/ui/sonner";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
-import WebSocketManager from "@/components/atom/WebSocketManager/WebSocketManager";
+
+export const metadata = {
+  title: "Nightwalkers",
+  description:
+    "Nightwalkers is a community-driven safety app for navigating New York City",
+  icons: {
+    icon: "/owl-logo.svg",
+  },
+};
 
 export default function RootLayout({ children }) {
   return (

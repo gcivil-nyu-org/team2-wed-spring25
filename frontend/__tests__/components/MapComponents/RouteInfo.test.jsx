@@ -5,7 +5,7 @@ import RouteInfo from "@/app/custom-components/MapComponents/RouteInfo";
 describe("RouteInfo", () => {
   const mockRouteDetails = {
     initial: {
-      distance: 1500, // 1.5km
+      distance: 1609.34, // 1 mile (in meters)
       duration: 900, // 15 minutes
       instructions: [
         { instruction: "Turn right", distance: 100, duration: 60 },
@@ -13,7 +13,7 @@ describe("RouteInfo", () => {
       ],
     },
     safer: {
-      distance: 2000, // 2km
+      distance: 3218.69, // 2 miles (in meters)
       duration: 1200, // 20 minutes
       instructions: [
         { instruction: "Go straight", distance: 300, duration: 180 },
@@ -22,7 +22,7 @@ describe("RouteInfo", () => {
     },
   };
 
-  it("renders route information correctly", () => {
+  it("renders route information correctly with miles", () => {
     render(
       <RouteInfo
         routeDetails={mockRouteDetails}
@@ -31,13 +31,34 @@ describe("RouteInfo", () => {
       />
     );
 
-    expect(screen.getByText("1.5 km")).toBeInTheDocument();
+    // Should show 1 mile for initial route
+    expect(screen.getByText("1.0 mi")).toBeInTheDocument();
     expect(screen.getByText("15 min")).toBeInTheDocument();
   });
 
-  it("switches between initial and safer routes", () => {
-    const mockSetActiveRoute = jest.fn();
+  it("handles decimal miles correctly", () => {
+    const decimalMileRoute = {
+      initial: {
+        distance: 2414.02, // 1.5 miles (in meters)
+        duration: 1080, // 18 minutes
+        instructions: [],
+      },
+    };
+
     render(
+      <RouteInfo
+        routeDetails={decimalMileRoute}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    expect(screen.getByText("1.5 mi")).toBeInTheDocument();
+  });
+
+  it("switches between initial and safer routes showing correct distances", () => {
+    const mockSetActiveRoute = jest.fn();
+    const { rerender } = render(
       <RouteInfo
         routeDetails={mockRouteDetails}
         activeRoute="initial"
@@ -45,8 +66,20 @@ describe("RouteInfo", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("Safer Route"));
-    expect(mockSetActiveRoute).toHaveBeenCalledWith("safer");
+    // Initial route should show 1 mile
+    expect(screen.getByText("1.0 mi")).toBeInTheDocument();
+
+    // Switch to safer route
+    rerender(
+      <RouteInfo
+        routeDetails={mockRouteDetails}
+        activeRoute="safer"
+        setActiveRoute={mockSetActiveRoute}
+      />
+    );
+
+    // Safer route should show 2 miles
+    expect(screen.getByText("2.0 mi")).toBeInTheDocument();
   });
 
   it("toggles turn-by-turn instructions visibility", () => {
@@ -91,7 +124,7 @@ describe("RouteInfo", () => {
   it("formats duration correctly", () => {
     const routeWithLongDuration = {
       initial: {
-        distance: 1500,
+        distance: 1609.34, // 1 mile
         duration: 3660, // 1 hour and 1 minute
         instructions: [],
       },

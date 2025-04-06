@@ -57,6 +57,14 @@ body {
     ); /* Used for the create post heading in forums */
     --header-mobile-height: 10%;
     --header-height: 12%;
+
+    /* Map-Specific Colors */
+    --map-color: rgb(243, 244, 246); /* gray-100 */
+    --legend-text: rgb(68 64 60); /* stone-700 */
+    --pulse-color: rgb(120, 113, 108, 0.873); /* violet-500 */
+    --pointer-color: rgb(120 113 108);
+    --safety-color: rgb(101, 249, 155); /* green-500 */
+    --safety-color-2: rgb(29, 215, 97); /* green-500 */
   }
   .dark {
     --background: 240 10% 3.9%;

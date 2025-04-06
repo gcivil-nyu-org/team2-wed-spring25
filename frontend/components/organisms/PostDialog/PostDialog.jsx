@@ -108,8 +108,8 @@ export default function PostDialog({
             <div className="ml-4">
               <h1 className="text-xl font-bold leading-none text-forum-heading">
                 {getUserFullName(
-                  user?.first_name || "Uknown",
-                  user?.last_name || "Uknown"
+                  user?.first_name || "Unknown",
+                  user?.last_name || "Unknown"
                 )}
               </h1>
               <p className="font-extralight text-sm text-forum-subheading">

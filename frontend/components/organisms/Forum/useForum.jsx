@@ -116,7 +116,6 @@ export default function useForum(settingsType) {
         showError("Error fetching user data");
         console.error("Error fetching user data:", error);
       } finally {
-        // Any additional logic after fetching user data
         setIsUserDataCardLoading(false); // Set loading to false after fetching user data
       }
     };

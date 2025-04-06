@@ -9,9 +9,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ValidationError
-
-# from .models import User
-from .serializers import UserSerializer
+from .models import ReportIssue
+from .serializers import UserSerializer, UserReportSerializer
 from django.contrib.auth import authenticate
 
 
@@ -173,7 +172,7 @@ class RegisterView(APIView):
             )
             return Response(
                 {
-                    "detail": "User registered successfully",
+                    "success": "User registered successfully",
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -207,8 +206,8 @@ class GetUserView(APIView):
 
 
 class LogoutView(APIView):
-    # If you want tests to expect 401 when unauthenticated, use IsAuthenticated
-    permission_classes = (IsAuthenticated,)
+    # Users do not have to pass an access token
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         try:
@@ -220,4 +219,34 @@ class LogoutView(APIView):
             token.blacklist()
             return Response({"success": "Logged out successfully"})
         except Exception as e:
-            return Response({"error": str(e)}, status=400)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReportIssueView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserReportSerializer
+
+    def get_queryset(self):
+        return ReportIssue.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        reports = self.get_queryset()
+        report_serializer = self.serializer_class(reports, many=True)
+        print(report_serializer.data)
+        return Response(report_serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = UserReportSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer.save(user=request.user)
+            return Response(
+                {"success": "Report submitted successfully"},
+                status=status.HTTP_201_CREATED,
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"There was an error saving the data: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
