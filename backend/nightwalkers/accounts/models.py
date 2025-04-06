@@ -150,8 +150,9 @@ class Follow(models.Model):
     def __str__(self):
         return f"{self.main_user} follows {self.following_user}"
 
+
 class ReportIssue(models.Model):
-    user = models.ForeignKey(User, on_delete = models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     reported_at = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100, null=False)
     description = models.TextField(null=False, max_length=500)

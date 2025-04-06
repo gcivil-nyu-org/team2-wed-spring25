@@ -6,7 +6,7 @@ from .views import (
     LoginView,
     RegisterView,
     GetUserView,
-    ReportIssueView
+    ReportIssueView,
 )
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 

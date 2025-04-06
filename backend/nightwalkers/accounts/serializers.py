@@ -29,6 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_total_saved_routes(self, obj):
         return obj.saved_routes.count()
 
+
 class UserReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportIssue
