@@ -179,43 +179,89 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """
         Marks all unread messages from a specific sender in a chat as read
         """
-        chat_uuid = data["chat_uuid"]
-        sender_id = data["sender_id"]
-        current_user_id = data["current_user_id"]
+        try:
+            chat_uuid = data["chat_uuid"]
+            sender_id = data["sender_id"]
+            current_user_id = data["current_user_id"]
 
-        # Validate the current user is part of this chat
-        if str(self.user_id) != str(current_user_id):
-            print(
-                f"User {self.user_id} is not authorized to \
-                    mark messages as read in chat {chat_uuid}."
+            # Validate the current user is part of this chat
+            if str(self.user_id) != str(current_user_id):
+                print(f"User {self.user_id} is not authorized to mark messages as read in chat {chat_uuid}.")
+                await self.send(text_data=json.dumps({
+                    "type": "error",
+                    "message": "Unauthorized to mark messages as read",
+                }))
+                return
+
+            # Mark messages as read in the database
+            from .models import Chat, Message
+            
+            # Proper async ORM usage
+            chat = await Chat.objects.aget(uuid=chat_uuid)
+            await Message.objects.filter(
+                chat=chat,
+                sender__id=sender_id,
+                read=False
+            ).aupdate(read=True)  # Changed to aupdate()
+
+            # Notify the sender
+            await self.channel_layer.group_send(
+                f"user_{sender_id}",
+                {
+                    "type": "messages_read_notification",
+                    "chat_uuid": chat_uuid,
+                    "reader_id": current_user_id,
+                },
             )
-            await self.send(
-                text_data=json.dumps(
-                    {
-                        "type": "error",
-                        "message": "Unauthorized to mark messages as read",
-                    }
-                )
-            )
-            return
 
-        # Mark messages as read in the database
-        from .models import Chat, Message
+        except Exception as e:
+            print(f"Error marking messages as read: {str(e)}")
+            await self.send(text_data=json.dumps({
+                "type": "error",
+                "message": str(e),
+            }))
 
-        chat = await database_sync_to_async(Chat.objects.get)(uuid=chat_uuid)
-        await database_sync_to_async(Message.objects.filter)(
-            chat=chat, sender__id=sender_id, is_read=False
-        ).update(is_read=True)
+    # async def handle_mark_messages_read(self, data):
+    #     """
+    #     Marks all unread messages from a specific sender in a chat as read
+    #     """
+    #     chat_uuid = data["chat_uuid"]
+    #     sender_id = data["sender_id"]
+    #     current_user_id = data["current_user_id"]
 
-        # Notify the sender that their messages were read (if online)
-        await self.channel_layer.group_send(
-            f"user_{sender_id}",
-            {
-                "type": "messages_read_notification",
-                "chat_uuid": chat_uuid,
-                "reader_id": current_user_id,
-            },
-        )
+    #     # Validate the current user is part of this chat
+    #     if str(self.user_id) != str(current_user_id):
+    #         print(
+    #             f"User {self.user_id} is not authorized to \
+    #                 mark messages as read in chat {chat_uuid}."
+    #         )
+    #         await self.send(
+    #             text_data=json.dumps(
+    #                 {
+    #                     "type": "error",
+    #                     "message": "Unauthorized to mark messages as read",
+    #                 }
+    #             )
+    #         )
+    #         return
+
+    #     # Mark messages as read in the database
+    #     from .models import Chat, Message
+
+    #     chat = await database_sync_to_async(Chat.objects.get)(uuid=chat_uuid)
+    #     await database_sync_to_async(Message.objects.filter)(
+    #         chat=chat, sender__id=sender_id, is_read=False
+    #     ).update(is_read=True)
+
+    #     # Notify the sender that their messages were read (if online)
+    #     await self.channel_layer.group_send(
+    #         f"user_{sender_id}",
+    #         {
+    #             "type": "messages_read_notification",
+    #             "chat_uuid": chat_uuid,
+    #             "reader_id": current_user_id,
+    #         },
+    #     )
 
     async def messages_read_notification(self, event):
         """

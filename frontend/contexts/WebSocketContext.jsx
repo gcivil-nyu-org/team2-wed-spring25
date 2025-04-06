@@ -67,7 +67,8 @@ export const WebSocketProvider = ({ children }) => {
 
     cleanupConnection();
     const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-    const wsUrl = `${protocol}software-engineering-web-socket.onrender.com/ws/chat/${userId}/`;
+    const wsUrl = `${protocol}localhost:8001/ws/chat/${userId}/`;
+    // const wsUrl = `${protocol}software-engineering-web-socket.onrender.com/ws/chat/${userId}/`;
     console.log("WebSocket URL:", wsUrl);
 
     setConnectionStatus("connecting");
