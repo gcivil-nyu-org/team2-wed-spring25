@@ -69,16 +69,20 @@ script:
   - black --check backend/nightwalkers/
   - flake8 backend/nightwalkers/
 
+  # Backend tests and coverage
   - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH --keepdb
-  - coverage report # Print coverage report
-  - coverage xml # Generate coverage XML for coveralls
+  - coverage report
+  - coverage xml
+  - COVERALLS_FLAG_NAME="backend" coveralls --service=travis-pro
+
+  # Frontend tests and coverage
+  - cd $FRONTEND_PATH
+  - npm run test -- --coverage
+  - COVERALLS_FLAG_NAME="frontend" coveralls < coverage/lcov.info
+  - cd ..
 
   # Frontend build
-  - cd $FRONTEND_PATH && npm run build && cd .. # Build the Next.js app
-
-# Report coverage to coveralls
-after_success:
-  - coveralls --service=travis-pro
+  - cd $FRONTEND_PATH && npm run build && cd ..
 
 # Deploy to Render and Netlify upon successful tests for the main and develop branches
 deploy:
