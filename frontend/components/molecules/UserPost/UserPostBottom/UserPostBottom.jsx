@@ -1,3 +1,4 @@
+"use client";
 import UserPostCommentSection from "@/components/molecules/UserPost/UserPostBottom/UserPostCommentSection/UserPostCommentSection";
 import useUserPostBottom from "./useUserPostBottom";
 import CustomDialogBox from "@/components/organisms/CustomDialogBox/CustomDialogBox";

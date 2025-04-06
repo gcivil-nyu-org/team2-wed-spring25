@@ -56,16 +56,16 @@ export default function Forums({ settingsType = "" }) {
           />
         )}
         {/* Always render the loader div, but hide it if there are no more posts */}
-        {(isLoading || hasMore) && (
+        {
           <div
             ref={loaderRef}
             className={`flex justify-center items-center h-[50vh] ${
               hasMore ? "visible" : "hidden"
             }`}
           >
-            {<Loader />}
+            <Loader />
           </div>
-        )}
+        }
         {!hasMore && (
           <p className="text-center text-forum-heading2 text-lg mt-8 mb-10">
             No more posts to show

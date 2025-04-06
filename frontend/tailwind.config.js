@@ -133,5 +133,7 @@ module.exports = {
     "items-start",
     "items-center",
     "text-forum-subheading",
+    "justify-start",
+    "justify-end",
   ],
 };

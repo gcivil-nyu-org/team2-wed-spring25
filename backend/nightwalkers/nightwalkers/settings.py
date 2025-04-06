@@ -63,6 +63,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -77,7 +78,13 @@ INSTALLED_APPS = [
     "accounts",
     "forum",
     "map",
+    "channels",
+    "chat",
+
 ]
+
+
+
 # Current command to run https server:
 # python manage.py runserver_plus
 # --cert-file ../../certs/localhost+1.pem
@@ -113,8 +120,17 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "nightwalkers.wsgi.application"
-
+#initially we used wsgi, switch to asgi for websockets
+# WSGI_APPLICATION = "nightwalkers.wsgi.application"
+ASGI_APPLICATION = "nightwalkers.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    }
+}
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 

@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 
 export default function Loader({ size = "w-4 h-4", color = "text-gray-500" }) {

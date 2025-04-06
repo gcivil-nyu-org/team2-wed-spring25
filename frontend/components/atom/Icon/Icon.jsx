@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -30,26 +31,25 @@ export default function Icon({
     } else if (size === "xl") {
       data = "w-18 h-18 " + data;
     }
-    } else {
-      if (selected) {
-        // Only apply large size if no size is explicitly set
-        if (!size) {
-          data = "scale-110 z-3 w-20 h-20 " + data;
-        } else {
-          // use size-specific selected styles
-          if (size === "md") {
-            data = "scale-110 z-3 w-8 h-8 " + data;
-          } else if (size === "sm") {
-            data = "scale-110 z-3 w-6 h-6 " + data;
-          } else {
-            data = "scale-110 z-3 w-10 h-10 " + data;
-          }
-        }
+  } else {
+    if (selected) {
+      // Only apply large size if no size is explicitly set
+      if (!size) {
+        data = "scale-110 z-3 w-20 h-20 " + data;
       } else {
-        data = "w-8 h-8 " + data;
+        // use size-specific selected styles
+        if (size === "md") {
+          data = "scale-110 z-3 w-8 h-8 " + data;
+        } else if (size === "sm") {
+          data = "scale-110 z-3 w-6 h-6 " + data;
+        } else {
+          data = "scale-110 z-3 w-10 h-10 " + data;
+        }
       }
+    } else {
+      data = "w-8 h-8 " + data;
     }
-
+  }
 
   // Handle click safely - prevent passing the event object
   const handleClick = (e) => {
@@ -79,24 +79,12 @@ export default function Icon({
         }
       }}
     >
-    <Image
-      src={src}
-      width={
-        selected != null
-          ? selected
-            ? 80
-            : 40
-          : width ?? 40
-      }
-      height={
-        selected != null
-          ? selected
-            ? 80
-            : 40
-          : height ?? 40
-      }
-      alt={alt}
-    />
+      <Image
+        src={src}
+        width={selected != null ? (selected ? 80 : 40) : width ?? 40}
+        height={selected != null ? (selected ? 80 : 40) : height ?? 40}
+        alt={alt}
+      />
 
       {/* Tooltip */}
       {isHovered && tooltipText && (

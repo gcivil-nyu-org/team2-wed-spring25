@@ -1,3 +1,4 @@
+"use client";
 import Icon from "@/components/atom/Icon/Icon";
 import { getUserFullName } from "@/utils/string";
 import usePostComment from "@/components/molecules/PostComments/PostComment/usePostComment";

@@ -1,3 +1,4 @@
+"use client";
 import { getUserFullName } from "@/utils/string";
 import Loader from "../Loader/Loader";
 import UserImage from "@/components/atom/UserImage/UserImage";
@@ -34,16 +35,16 @@ export default function UserData({
           <h3 className="text-xl font-semibold text-forum-heading">
             {/* take 18 characters of the name */}
             {getUserFullName(
-              user?.first_name || "Uknown",
-              user?.last_name || "Uknown"
+              isLoading ? "Uknown" : user?.first_name,
+              isLoading ? "Uknown" : user?.last_name
             ).length > 14
               ? getUserFullName(
-                  user?.first_name || "Uknown",
-                  user?.last_name || "Uknown"
+                  isLoading ? "Uknown" : user?.first_name,
+                  isLoading ? "Uknown" : user?.last_name
                 ).substring(0, 14) + ".."
               : getUserFullName(
-                  user?.first_name || "Uknown",
-                  user?.last_name || "Uknown"
+                  isLoading ? "Uknown" : user?.first_name,
+                  isLoading ? "Uknown" : user?.last_name
                 )}
           </h3>
           {/* show random heading */}

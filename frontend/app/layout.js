@@ -1,26 +1,10 @@
 import "./globals.css";
 import AuthProvider from "@/components/Auth/AuthProvider";
-import { NotificationProvider } from "@/app/custom-components/ToastComponent/NotificationContext"
+import { NotificationProvider } from "@/app/custom-components/ToastComponent/NotificationContext";
 import ToastNotifications from "./custom-components/ToastComponent/ToastNotification";
-import { Toaster } from "@/components/ui/sonner"
-
-// const geistSans = localFont({
-//   src: "./fonts/GeistVF.woff",  // Updated path to match your directory structure
-//   variable: "--font-geist-sans",
-// });
-
-// const geistMono = localFont({
-//   src: "./fonts/GeistMonoVF.woff",  // Updated path to match your directory structure
-//   variable: "--font-geist-mono",
-// });
-
-// export const metadata = {
-//   title: "Nightwalkers",
-//   description: "Nightwalkers is a community-driven safety app for navigating New York City",
-//   icons: {
-//     icon: '/owl-logo.svg'
-//   }
-// };
+import { Toaster } from "@/components/ui/sonner";
+import { WebSocketProvider } from "@/contexts/WebSocketContext";
+import WebSocketManager from "@/components/atom/WebSocketManager/WebSocketManager";
 
 export default function RootLayout({ children }) {
   return (
@@ -28,17 +12,20 @@ export default function RootLayout({ children }) {
       {/* <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> */}
       <body className={`antialiased bg-bglinkedin`}>
         <AuthProvider>
-          <NotificationProvider>
-            <ToastNotifications />
-            {children}
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                className: "my-toast",
-                duration: 5000,
-              }}
-            />
-          </NotificationProvider>
+          <WebSocketProvider>
+            {/* <WebSocketManager /> */}
+            <NotificationProvider>
+              <ToastNotifications />
+              {children}
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  className: "my-toast",
+                  duration: 5000,
+                }}
+              />
+            </NotificationProvider>
+          </WebSocketProvider>
         </AuthProvider>
       </body>
     </html>

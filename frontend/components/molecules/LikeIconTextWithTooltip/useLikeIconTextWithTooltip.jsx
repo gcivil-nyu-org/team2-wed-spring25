@@ -35,8 +35,8 @@ export default function useLikeIconTextWithTooltip(
 
   const throttledHandleOnLike = async (like_type) => {
     // Ensure like_type is a string, not a DOM element or event
-    if (typeof like_type !== 'string') {
-      console.error('Invalid like_type:', like_type);
+    if (typeof like_type !== "string") {
+      console.error("Invalid like_type:", like_type);
       showError("Invalid like type");
       return;
     }
@@ -46,13 +46,13 @@ export default function useLikeIconTextWithTooltip(
       showError("Please wait before liking again.");
       return;
     }
-    
+
     // Disable the button for 2 seconds
     setIsDisabled(true);
-    
+
     try {
       let userHasLiked2 = null;
-      
+
       if (
         !userHasLiked &&
         ["Like", "Clap", "Support", "Heart", "Bulb", "Laugh"].includes(
@@ -77,14 +77,14 @@ export default function useLikeIconTextWithTooltip(
         setUserHasLiked(false);
         userHasLiked2 = false;
       }
-      
+
       setTooltipVisible(false);
-      
+
       let userString = null;
       if (typeof window !== "undefined") {
         userString = localStorage.getItem("user"); // Retrieve the string
       }
-      
+
       let user = null;
       if (userString) {
         try {
@@ -107,7 +107,7 @@ export default function useLikeIconTextWithTooltip(
 
       // Ensure we're only sending primitive values
       const postIdToUse = is_repost ? original_post_id : post_id;
-      
+
       // Create a simple payload with only primitive values
       const payload = {
         post_id: String(postIdToUse), // Ensure it's a string
@@ -132,7 +132,7 @@ export default function useLikeIconTextWithTooltip(
     } catch (error) {
       showError("Error: Check console for details.");
       console.error("Error liking the post:", error);
-      
+
       // Revert UI changes if API call failed
       if (!userHasLiked2) {
         setLikesCount((prevCount) => prevCount + 1);
@@ -157,7 +157,7 @@ export default function useLikeIconTextWithTooltip(
       }
     };
   }, []);
-  
+
   return {
     userHasLiked,
     setUserHasLiked,
