@@ -58,7 +58,25 @@ CSRF_TRUSTED_ORIGINS = [
     "https://test-night-walkers.onrender.com",
     "https://testnyuwalkers.netlify.app",
     "https://nyuwalkers.netlify.app",
+    "https://software-engineering-web-socket.onrender.com"
 ]
+CORS_ALLOWED_ORIGINS = [
+    "https://localhost",
+    "https://localhost:3000",
+    "https://127.0.0.1:3000",
+    "https://night-walkers.onrender.com",
+    "https://test-night-walkers.onrender.com",
+    "https://testnyuwalkers.netlify.app",
+    "https://nyuwalkers.netlify.app",
+    "https://software-engineering-web-socket.onrender.com"
+]
+CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS  # For Channels compatibility
+
+# WebSocket security
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Application definition
 

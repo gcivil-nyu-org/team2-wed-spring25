@@ -8,8 +8,7 @@
 
 **Backend Local: **python3 manage.py runserver_plus --cert-file cert.pem --key-file key.pem
 
-export DJANGO_SETTINGS_MODULE=nightwalkers.settings
-**daphne server: **daphne -e ssl:8001:privateKey=key.pem:certKey=cert.pem nightwalkers.asgi:application
+export DJANGO_SETTINGS_MODULE=nightwalkers.settings && python3 manage.py runserver_plus --cert-file cert.pem --key-file key.pem & daphne -e ssl:8001:privateKey=key.pem:certKey=cert.pem nightwalkers.asgi:application
 \*\*Frontend Local:
 \*\*- npm run build
 
