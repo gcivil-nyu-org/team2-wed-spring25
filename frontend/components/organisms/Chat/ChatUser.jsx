@@ -1,6 +1,7 @@
 import ChatHeader from "@/components/molecules/Chat/ChatHeader/ChatHeader";
 import ChatMessage from "@/components/molecules/Chat/ChatMessage/ChatMessage";
 import ChatInput from "@/components/molecules/Chat/ChatInput/ChatInput";
+import Image from "next/image";
 
 const ChatUser = ({
   selectedUser,
@@ -32,6 +33,17 @@ const ChatUser = ({
           .messages.map((message) => {
             return <ChatMessage key={message.id} message={message} />;
           })}
+        {listOfUsersTyping.includes(selectedUser.user.id.toString()) && (
+          <div className="ml-4">
+            <Image
+              src={"/icons/typing-animation.gif"}
+              alt="typing animation"
+              width={60}
+              height={60}
+              unoptimized={true}
+            />
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
       <div className="mt-4">

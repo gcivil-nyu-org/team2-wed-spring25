@@ -6,8 +6,6 @@ import useChatHeader from "./useChatHeader";
 
 const ChatHeader = ({ selectedUser, onlineUsers, listOfUsersTyping }) => {
   const { user, isUserOnline } = useChatHeader(selectedUser, onlineUsers);
-  console.log("user.id ", user.id);
-  console.log("listOfUsersTyping ", listOfUsersTyping);
   return (
     <div
       key={user.id}

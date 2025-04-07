@@ -64,7 +64,7 @@ export default function useChat() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [chatUserList, selectedUser]); // Re-run when these change
+  }, [chatUserList, selectedUser]);
 
   return {
     isLoading,
