@@ -3,10 +3,11 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 import json
-from datetime import datetime
+
 # Add at the top of consumers.py
 online_users = set()
 typing_users = {}
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -81,7 +82,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
             online_users.remove(self.user_id)
-        
+
         if hasattr(self, "user_id") and str(self.user_id) in typing_users:
             del typing_users[str(self.user_id)]
 
@@ -251,7 +252,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
         )
-    
+
     async def handle_typing_status(self, data):
         """
         Handles typing status updates from users
@@ -259,7 +260,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         is_typing = data["is_typing"]
         chat_uuid = data.get("chat_uuid")  # Optional: if you want to track per-chat
         recipient_id = data.get("recipient_id")  # Who should be notified
-        
+
         # Check if recipient is online
         is_online = await self.is_user_online(recipient_id)
 
@@ -280,10 +281,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         Sends typing status updates to clients
         """
         await self.send(
-            text_data=json.dumps({
-                "type": "typing",
-                "sender_id": event["sender_id"],
-                "is_typing": event["is_typing"],
-                "chat_uuid": event.get("chat_uuid"),
-            })
+            text_data=json.dumps(
+                {
+                    "type": "typing",
+                    "sender_id": event["sender_id"],
+                    "is_typing": event["is_typing"],
+                    "chat_uuid": event.get("chat_uuid"),
+                }
+            )
         )
