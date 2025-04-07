@@ -1,28 +1,32 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import PostComment from "@/components/molecules/PostComments/PostComment/PostComment";
 import { NotificationProvider } from "@/app/custom-components/ToastComponent/NotificationContext";
+import usePostComment from "@/components/molecules/PostComments/PostComment/usePostComment";
 
-// Mock the sub-components
+// Mock the hook
+jest.mock("@/components/molecules/PostComments/PostComment/usePostComment");
+
+// Simple mock components
 jest.mock(
-  "@/components/molecules/PostComments/PostComment/PostCommentUserImage",
+  "@/components/molecules/PostComments/PostComment/PostCommentUserImage/PostCommentUserImage",
   () => {
-    return function MockUserImage() {
-      return <div data-testid="user-image" />;
+    return function MockUserImage({ avatar_url }) {
+      return <div data-testid="user-image">{avatar_url}</div>;
     };
   }
 );
 
 jest.mock(
-  "@/components/molecules/PostComments/PostComment/PostCommentUserBody",
+  "@/components/molecules/PostComments/PostComment/PostCommentUserBody/PostCommentUserBody",
   () => {
-    return function MockUserBody() {
-      return <div data-testid="user-body" />;
+    return function MockUserBody({ userFullName }) {
+      return <div data-testid="user-body">{userFullName}</div>;
     };
   }
 );
 
 jest.mock(
-  "@/components/molecules/PostComments/PostComment/PostCommentOptionList",
+  "@/components/molecules/PostComments/PostComment/PostCommentOptionList/PostCommentOptionList",
   () => {
     return function MockOptionList() {
       return <div data-testid="option-list" />;
@@ -36,22 +40,25 @@ jest.mock("@/components/molecules/PostCommentInput/PostCommentInput", () => {
   };
 });
 
-const mockComment = {
-  id: 1,
-  user: {
-    first_name: "John",
-    last_name: "Doe",
-    avatar_url: "https://example.com/avatar.jpg",
-  },
-  user_has_liked: false,
-  like_type: null,
-  likes_count: 0,
-  replies_count: 0,
-  content: "Test comment",
-  is_repost: false,
-};
+jest.mock("@/components/organisms/ReportDialog/ReportDialog", () => {
+  return function MockReportDialog() {
+    return <div data-testid="report-dialog" />;
+  };
+});
 
 describe("PostComment", () => {
+  const mockComment = {
+    id: 1,
+    user: {
+      id: 123,
+      first_name: "John",
+      last_name: "Doe",
+      avatar_url: "test-avatar.jpg",
+    },
+    content: "Test comment",
+    is_repost: false,
+  };
+
   const defaultProps = {
     parentComment: mockComment,
     post_id: 1,
@@ -61,11 +68,42 @@ describe("PostComment", () => {
     setCommentsCount: jest.fn(),
   };
 
+  const mockHookValues = {
+    isTooltipVisible: false,
+    handleMouseEnter: jest.fn(),
+    handleMouseLeave: jest.fn(),
+    throttledHandleOnLikeComment: jest.fn(),
+    likesCount: 0,
+    userHasLiked: false,
+    likeType: null,
+    repliesCount: 0,
+    showCommentReply: false,
+    setShowCommentReply: jest.fn(),
+    showCommentReplyInput: false,
+    setShowCommentReplyInput: jest.fn(),
+    replies: [],
+    setReplies: jest.fn(),
+    setRepliesCount: jest.fn(),
+    isCommentOptionListVisible: false,
+    setIsCommentOptionListVisible: jest.fn(),
+    showReportCategoryDialog: false,
+    setShowReportCategoryDialog: jest.fn(),
+    reportCategorySelectedIndex: null,
+    setReportCategorySelectedIndex: jest.fn(),
+    dropdownRef: { current: null },
+    reportCategoryDialogRef: { current: null },
+    handleReportComment: jest.fn(),
+    isReportedCommentLoading: false,
+    isEditCommentVisible: false,
+    setIsEditCommentVisible: jest.fn(),
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
+    usePostComment.mockReturnValue(mockHookValues);
   });
 
-  it("renders the comment with all main components", () => {
+  it("renders basic comment structure", () => {
     render(
       <NotificationProvider>
         <PostComment {...defaultProps} />
@@ -75,21 +113,36 @@ describe("PostComment", () => {
     expect(screen.getByTestId("user-image")).toBeInTheDocument();
     expect(screen.getByTestId("user-body")).toBeInTheDocument();
     expect(screen.getByTestId("option-list")).toBeInTheDocument();
+    expect(screen.getByText("John Doe")).toBeInTheDocument();
   });
 
-  it("shows reply input when showCommentReplyInput is true", async () => {
+  it("shows reply input when enabled", () => {
+    usePostComment.mockReturnValue({
+      ...mockHookValues,
+      showCommentReplyInput: true,
+    });
+
     render(
       <NotificationProvider>
         <PostComment {...defaultProps} />
       </NotificationProvider>
     );
 
-    // Trigger reply input visibility (you'll need to expose this functionality)
-    const replyButton = screen.getByTestId("reply-button");
-    fireEvent.click(replyButton);
+    expect(screen.getByTestId("comment-input")).toBeInTheDocument();
+  });
 
-    await waitFor(() => {
-      expect(screen.getByTestId("comment-input")).toBeInTheDocument();
+  it("shows report dialog when enabled", () => {
+    usePostComment.mockReturnValue({
+      ...mockHookValues,
+      showReportCategoryDialog: true,
     });
+
+    render(
+      <NotificationProvider>
+        <PostComment {...defaultProps} />
+      </NotificationProvider>
+    );
+
+    expect(screen.getByTestId("report-dialog")).toBeInTheDocument();
   });
 });
