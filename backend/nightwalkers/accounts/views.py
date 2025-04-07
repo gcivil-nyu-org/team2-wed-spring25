@@ -232,7 +232,6 @@ class ReportIssueView(APIView):
     def get(self, request, *args, **kwargs):
         reports = self.get_queryset()
         report_serializer = self.serializer_class(reports, many=True)
-        print(report_serializer.data)
         return Response(report_serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
@@ -250,3 +249,87 @@ class ReportIssueView(APIView):
                 {"error": f"There was an error saving the data: {str(e)}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+
+        # Check if user is a Google user
+        if user.provider == "google":
+            return Response(
+                {"error": "Account is managed by google"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+
+        # Validate input
+        if not current_password or not new_password:
+            return Response(
+                {"error": "Current password and new password are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Verify current password
+        if not user.check_password(current_password):
+            return Response(
+                {"error": "Current password is incorrect"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate new password
+        try:
+            validate_password(new_password)
+        except ValidationError as e:
+            return Response({"error": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Set new password
+        user.set_password(new_password)
+        user.save()
+
+        # Use standardized response format
+        return Response(
+            {"success": "Password changed successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ChangeUserNamesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+
+        # Check if user is a Google user
+        if user.provider == "google":
+            return Response(
+                {"error": "Account is managed by google"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        first_name = request.data.get("first_name")
+        last_name = request.data.get("last_name")
+
+        # Validate input
+        if not first_name or not last_name:
+            return Response(
+                {"error": "First name and last name are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Update names
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+
+        return Response(
+            {
+                "success": "Names updated successfully",
+                "user": UserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
