@@ -50,8 +50,9 @@ export default function useLikeIconTextWithTooltip(
     // Disable the button for 2 seconds
     setIsDisabled(true);
 
+    let userHasLiked2 = null; // Moved outside try block
+
     try {
-      let userHasLiked2 = null;
 
       if (
         !userHasLiked &&
@@ -133,7 +134,6 @@ export default function useLikeIconTextWithTooltip(
       showError("Error: Check console for details.");
       console.error("Error liking the post:", error);
 
-      // Revert UI changes if API call failed
       if (!userHasLiked2) {
         setLikesCount((prevCount) => prevCount + 1);
         setUserHasLiked(true);
