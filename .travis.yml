@@ -16,6 +16,7 @@ addons:
 env:
   global:
     - DJANGO_DATABASE_URL=postgres://postgres@localhost:5432/test_db
+    - COVERALLS_PARALLEL=true
   jobs:
     - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
@@ -74,12 +75,12 @@ script:
   - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH --keepdb
   - coverage report
   - coverage xml
-  - COVERALLS_FLAG_NAME="backend" COVERALLS_PARALLEL=true coveralls --service=travis-pro < coverage/xml
+  - COVERALLS_FLAG_NAME="backend" coveralls --service=travis-pro < coverage/xml
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
   - npm run test -- --coverage --coverageThreshold='{"global":{"branches":70,"functions":70,"lines":70,"statements":70}}'
-  - COVERALLS_FLAG_NAME="frontend" COVERALLS_PARALLEL=true coveralls --service=travis-pro < coverage/lcov.info
+  - COVERALLS_FLAG_NAME="frontend" coveralls --service=travis-pro < coverage/lcov.info
   - cd ..
 
   # Frontend build
