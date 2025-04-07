@@ -1,3 +1,4 @@
+"use client";
 import CustomButton from "@/components/atom/CustomButton/CustomButton";
 
 export default function CustomDialogBox({

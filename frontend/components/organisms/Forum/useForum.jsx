@@ -77,21 +77,14 @@ export default function useForum(settingsType) {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [hasMore, isLoadingMore, offset, user?.id, limit, settingsType]);
-
+  }, [hasMore, isLoadingMore]);
 
   useEffect(() => {
-    console.log("Setting up Intersection Observer");
-
     const currentLoaderRef = loaderRef.current;
 
     if (!currentLoaderRef || !hasMore) return;
-    console.log("Loader ref is set and hasMore is true");
 
     const handleIntersection = (entries) => {
-      console.log("Intersection Observer triggered", entries);
-
-
       const [entry] = entries;
       if (entry.isIntersecting && !isLoadingMore) {
         loadMorePosts();
@@ -101,7 +94,7 @@ export default function useForum(settingsType) {
     const observer = new IntersectionObserver(handleIntersection, {
       root: null,
       rootMargin: "20px",
-      threshold: 0.1,
+      threshold: 0.3,
     });
 
     observer.observe(currentLoaderRef);

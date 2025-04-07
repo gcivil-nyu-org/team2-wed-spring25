@@ -16,15 +16,20 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Suspense } from 'react';
+import { Suspense } from "react";
+import Loader from "@/components/molecules/Loader/Loader";
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
+          <div className="text-white text-xl">
+            <Loader />
+          </div>
+        </div>
+      }
+    >
       <LoginContent />
     </Suspense>
   );
@@ -38,16 +43,15 @@ export function LoginContent() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
   // Get error message from URL if it exists
   useEffect(() => {
     const errorFromParams = searchParams.get("error");
     if (errorFromParams) {
       const errorMessages = {
-        "session_expired": "Your session has expired. Please log in again.",
-        "CredentialsSignin": "Invalid email or password.",
-        "OAuthSignin": "Error signing in with Google.",
-        "default": "An error occurred during sign in."
+        session_expired: "Your session has expired. Please log in again.",
+        CredentialsSignin: "Invalid email or password.",
+        OAuthSignin: "Error signing in with Google.",
+        default: "An error occurred during sign in.",
       };
 
       setError(errorMessages[errorFromParams] || errorMessages.default);
@@ -57,6 +61,8 @@ export function LoginContent() {
   // Check if user is already logged in
   useEffect(() => {
     if (status === "authenticated") {
+      //get user id
+
       router.replace("/users/home");
     }
   }, [status, router]);
@@ -96,11 +102,12 @@ export function LoginContent() {
       if (result?.error) {
         // Map known error codes to user-friendly messages
         const errorMessages = {
-          "CredentialsSignin": "Invalid email or password",
-          "SessionExpired": "Your session expired. Please log in again",
-          "RefreshTokenExpired": "Your session has expired. Please log in again",
-          "RefreshAccessTokenError": "Authentication error. Please try again",
-          "OAuthAccountNotLinked": "Email already in use with a different provider",
+          CredentialsSignin: "Invalid email or password",
+          SessionExpired: "Your session expired. Please log in again",
+          RefreshTokenExpired: "Your session has expired. Please log in again",
+          RefreshAccessTokenError: "Authentication error. Please try again",
+          OAuthAccountNotLinked:
+            "Email already in use with a different provider",
           // Add other error codes as you encounter them
         };
 
