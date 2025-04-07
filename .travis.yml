@@ -77,7 +77,7 @@ script:
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
-  - npm run test -- --coverage --passWithNoTests
+  - npm run test -- --coverage --coverageThreshold='{"global":{"branches":70,"functions":70,"lines":70,"statements":70}}'
   - COVERALLS_FLAG_NAME="frontend" coveralls < coverage/lcov.info
   - cd ..
 
