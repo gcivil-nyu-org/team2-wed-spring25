@@ -558,7 +558,7 @@ class UserDataManagementTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.data["error"],
-            "Google users cannot change their password through this method.",
+            "Account is managed by google",
         )
 
     def test_change_password_incorrect_current(self):
@@ -644,7 +644,7 @@ class UserDataManagementTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.data["error"],
-            "Google users cannot change their names through this method.",
+            "Account is managed by google",
         )
 
     def test_change_names_missing_fields(self):
