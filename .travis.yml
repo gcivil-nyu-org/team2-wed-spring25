@@ -74,12 +74,12 @@ script:
   - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH --keepdb
   - coverage report
   - coverage xml
-  - COVERALLS_FLAG_NAME="backend" coveralls --service=travis-pro
+  - COVERALLS_FLAG_NAME="backend" coveralls --service=travis-pro --parallel
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
   - npm run test -- --coverage --coverageThreshold='{"global":{"branches":70,"functions":70,"lines":70,"statements":70}}'
-  - COVERALLS_FLAG_NAME="frontend" coveralls < coverage/lcov.info
+  - COVERALLS_FLAG_NAME="frontend" coveralls --service=travis-pro --parallel < coverage/lcov.info
   - cd ..
 
   # Frontend build
