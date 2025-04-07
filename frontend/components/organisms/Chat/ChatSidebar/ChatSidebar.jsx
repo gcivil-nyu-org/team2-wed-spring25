@@ -18,7 +18,7 @@ const ChatSidebar = ({
   });
 
   return (
-    <section className="w-full relative border-r border-gray-700 h-full">
+    <section className="w-full relative borderLightR h-full">
       <div className="sticky top-0 bg-bg-post block z-10">
         <h2 className="text-xl font-normal text-forum-heading py-3 mx-4 ">
           Chats
@@ -30,7 +30,7 @@ const ChatSidebar = ({
           return (
             <div
               key={user.id}
-              className="flex items-center gap-3 hover:cursor-pointer hover:bg-gray-800 rounded-lg px-4"
+              className="flex items-center gap-3 hover:cursor-pointer chatSidebarHover rounded-lg px-4"
               onClick={() => {
                 handleUserSelect(chatUser);
                 setIsSidebarOpen(false);
@@ -39,7 +39,7 @@ const ChatSidebar = ({
               <div className="py-3">
                 <UserImage imageUrl={user.avatar} width={49} height={49} />
               </div>
-              <div className="border-b border-gray-700 flex flex-col flex-1 justify-center py-3">
+              <div className="borderLightB flex flex-col flex-1 justify-center py-3">
                 <div className="flex justify-between items-center">
                   <h3 className="text-md font-normal text-forum-subheading truncate">
                     {getUserFullName(user.first_name, user.last_name)}
@@ -71,8 +71,8 @@ const ChatSidebar = ({
                     </p>
                   )}
                   {chatUser.unread_count > 0 && (
-                    <div className="absolute size-6 bg-gray-700 rounded-full -bottom-1 right-0 flex items-center justify-center">
-                      <p className="text-xs text-white text-center">
+                    <div className="absolute size-6 chatBackground rounded-full -bottom-1 right-0 flex items-center justify-center">
+                      <p className="text-xs text-forum-heading text-center">
                         {chatUser.unread_count > 9
                           ? "9+"
                           : chatUser.unread_count}

@@ -94,7 +94,7 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
           {currentUserId == message.sender_id && (
             <div className="absolute top-0 right-0 flex flex-col items-end">
               <button
-                className=" opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent to-black translate-x-3 group-hover:translate-x-0 transition-all duration-300 "
+                className=" opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent to-bg-forum translate-x-3 group-hover:translate-x-0 transition-all duration-300 "
                 onClick={handleSettingsClick}
               >
                 <Image
@@ -106,13 +106,13 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
                 />
               </button>
               {isSettingsOpen && (
-                <div className="z-10 bg-gray-800 w-36" ref={settingsRef}>
+                <div className="z-10 chatBackgroundDark w-36" ref={settingsRef}>
                   <ul className="my-2 w-full">
                     {messageSettings.map((setting) => (
                       <li className="w-full">
                         <button
                           key={setting.id}
-                          className="text-xs text-left w-full text-white hover:bg-gray-900 px-6 py-3"
+                          className="text-sm text-left w-full text-forum-heading chatHoverDark px-6 py-3"
                           onClick={setting.onClick}
                         >
                           {setting.title}
@@ -128,7 +128,7 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
             <p>{message.content}</p>
           </div>
           <div className="flex justify-end items-center">
-            <p className="pl-6 text-xs text-gray-400 leading-none">
+            <p className="pl-6 text-xs chatSubtext leading-none">
               {getLastMessageTimeStampAMPM(message.timestamp)}
             </p>
             {message.sender_id == currentUserId && (

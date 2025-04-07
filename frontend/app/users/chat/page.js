@@ -45,7 +45,7 @@ const ChatHome = () => {
           </div>
           <div className="flex flex-col justify-end md:hidden bg-bg-forum h-screen max-h-screen max-w-10">
             <button
-              className="bg-blue-500 text-white p-1 m-1 rounded mb-2"
+              className="bg-map-bg  p-1 m-1 rounded mb-2"
               onClick={() => {
                 setIsSidebarOpen(!isSidebarOpen);
               }}

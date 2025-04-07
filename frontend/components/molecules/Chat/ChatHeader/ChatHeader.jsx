@@ -9,7 +9,7 @@ const ChatHeader = ({ selectedUser, onlineUsers, listOfUsersTyping }) => {
   return (
     <div
       key={user.id}
-      className="flex gap-3 px-4 py-3 items-center bg-gray-800"
+      className="flex gap-3 px-4 py-3 items-center chatBackgroundDark"
     >
       <div>
         <UserImage imageUrl={user.avatar} width={40} height={40} />
@@ -21,7 +21,7 @@ const ChatHeader = ({ selectedUser, onlineUsers, listOfUsersTyping }) => {
         <p className="text-forum-subheading2 truncate text-sm">
           {isUserOnline ? (
             listOfUsersTyping.includes(user.id.toString()) ? (
-              <span className="text-white">typing...</span>
+              <span className="text-forum-heading">typing...</span>
             ) : (
               "Onine"
             )
