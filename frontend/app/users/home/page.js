@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import SettingPanel from "@/app/custom-components/SettingPanel";
 import { useUser } from "@/components/Auth/UserContextProvider";
 import { authAPI } from "@/utils/fetch/fetch";
 // Dashboard header component
@@ -30,7 +29,6 @@ export function DashboardHeader() {
           <Button onClick={testAPI}>
             TestAPI
           </Button>
-          <SettingPanel/>
         </div>
       </div>
     </>

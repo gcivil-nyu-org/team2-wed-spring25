@@ -1,9 +1,8 @@
 import "./globals.css";
 import AuthProvider from "@/components/Auth/AuthProvider";
-import { NotificationProvider } from "@/app/custom-components/ToastComponent/NotificationContext"
+import { NotificationProvider } from "@/app/custom-components/ToastComponent/NotificationContext";
 import ToastNotifications from "./custom-components/ToastComponent/ToastNotification";
-import { Toaster } from "@/components/ui/sonner"
-
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata = {
   title: "Nightwalkers",
@@ -16,8 +15,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      {/* <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> */}
-      <body className={`antialiased bg-bglinkedin`}>
+      <body className="antialiased bg-bglinkedin">
         <AuthProvider>
           <NotificationProvider>
             <ToastNotifications />
