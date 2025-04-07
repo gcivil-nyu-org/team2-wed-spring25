@@ -232,7 +232,6 @@ class ReportIssueView(APIView):
     def get(self, request, *args, **kwargs):
         reports = self.get_queryset()
         report_serializer = self.serializer_class(reports, many=True)
-        print(report_serializer.data)
         return Response(report_serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):

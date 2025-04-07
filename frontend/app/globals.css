@@ -48,7 +48,16 @@ body {
     --sidebar-text: rgb(243 244 246); /* gray-100 */
     --sidebar-border2: rgb(120 113 108); /* stone-500 */
     --sidebar-separator: rgb(87 83 78); /* stone-600 */
+    --sidebar-input-bg: rgb(41, 37, 36, 0.9);        /* Dark background for inputs */
+    --sidebar-input-border: rgb(87, 83, 78);         /* Same as sidebar-separator */
+    --sidebar-input-text: rgb(243, 244, 246);        /* Same as sidebar-text */
+    --sidebar-input-placeholder: rgb(120, 113, 108, 0.7); /* Semi-transparent border2 */
+    --sidebar-input-focus-ring: rgb(120, 113, 108);  /* Same as sidebar-border2 */
+    --sidebar-label-text: rgb(243, 244, 246, 0.8); /* Same as sidebar-text */
 
+
+
+    /*Forum?*/
     --forum-heading: rgb(255 255 255);
     --forum-subheading: rgb(255 255 255 / 0.9);
     --forum-subheading2: rgb(255 255 255 / 0.6);
