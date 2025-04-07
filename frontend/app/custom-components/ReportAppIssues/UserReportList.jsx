@@ -43,10 +43,10 @@ const UserReportsList = () => {
 
   // Empty state component
   const EmptyState = () => (
-    <div className="text-center py-12 border border-dashed rounded-lg bg-gray-50">
-      <ClipboardList className="mx-auto h-12 w-12 text-gray-400" />
-      <h3 className="mt-4 text-lg font-medium text-gray-900">No reports yet</h3>
-      <p className="mt-2 text-sm text-gray-500">
+    <div className="text-center py-12 border rounded-lg bg-sidebar-bg border-sidebar-border w-full">
+      <ClipboardList className="mx-auto h-12 w-12 text-sidebar-text" />
+      <h3 className="mt-4 text-lg font-medium text-sidebar-text">No reports yet</h3>
+      <p className="mt-2 text-sm text-sidebar-text">
         You haven't submitted any bug reports. When you do, they'll appear here.
       </p>
       {/* <div className="mt-6">
@@ -154,7 +154,7 @@ const UserReportsList = () => {
   };
 
   return (
-    <div className="max-w-3xl py-6">
+    <div className="w-full py-6">
       <div className="md:flex md:items-center md:justify-between mb-6">
         <div className="flex-1 min-w-0">
           <h2 className="text-2xl font-bold leading-7 text-sidebar-text sm:text-3xl sm:truncate">

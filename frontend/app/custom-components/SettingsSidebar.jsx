@@ -41,7 +41,7 @@ import { useRouter } from "next/navigation";
 const items = [
   {
     title: "Profile",
-    url: "/users/settings/profile#password",
+    url: "/users/settings/profile",
     icon: UserRound,
   },
   {
