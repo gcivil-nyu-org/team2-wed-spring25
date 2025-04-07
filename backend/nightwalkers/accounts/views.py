@@ -9,9 +9,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ValidationError
-
-# from .models import User
-from .serializers import UserSerializer
+from .models import ReportIssue
+from .serializers import UserSerializer, UserReportSerializer
 from django.contrib.auth import authenticate
 
 
@@ -220,4 +219,117 @@ class LogoutView(APIView):
             token.blacklist()
             return Response({"success": "Logged out successfully"})
         except Exception as e:
-            return Response({"error": str(e)}, status=400)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReportIssueView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserReportSerializer
+
+    def get_queryset(self):
+        return ReportIssue.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        reports = self.get_queryset()
+        report_serializer = self.serializer_class(reports, many=True)
+        return Response(report_serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = UserReportSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer.save(user=request.user)
+            return Response(
+                {"success": "Report submitted successfully"},
+                status=status.HTTP_201_CREATED,
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"There was an error saving the data: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+
+        # Check if user is a Google user
+        if user.provider == "google":
+            return Response(
+                {"error": "Account is managed by google"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+
+        # Validate input
+        if not current_password or not new_password:
+            return Response(
+                {"error": "Current password and new password are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Verify current password
+        if not user.check_password(current_password):
+            return Response(
+                {"error": "Current password is incorrect"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate new password
+        try:
+            validate_password(new_password)
+        except ValidationError as e:
+            return Response({"error": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Set new password
+        user.set_password(new_password)
+        user.save()
+
+        # Use standardized response format
+        return Response(
+            {"success": "Password changed successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ChangeUserNamesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+
+        # Check if user is a Google user
+        if user.provider == "google":
+            return Response(
+                {"error": "Account is managed by google"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        first_name = request.data.get("first_name")
+        last_name = request.data.get("last_name")
+
+        # Validate input
+        if not first_name or not last_name:
+            return Response(
+                {"error": "First name and last name are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Update names
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+
+        return Response(
+            {
+                "success": "Names updated successfully",
+                "user": UserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
