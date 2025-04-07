@@ -64,6 +64,7 @@ before_script:
 
 # Run checks and tests
 script:
+  - export COVERALLS_PARALLEL=true
   - pwd
 
   - black --check backend/nightwalkers/
@@ -100,3 +101,4 @@ notifications:
 
 after_script:
   - curl -k https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN
+  - coveralls --finish

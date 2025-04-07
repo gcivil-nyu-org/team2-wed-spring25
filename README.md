@@ -2,8 +2,8 @@
 
 **Test Coverage:**
 [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/team2-wed-spring25.svg?token=qXXqQBVVz5xbzNpep8Jg&branch=travis-jest)](https://app.travis-ci.com/gcivil-nyu-org/team2-wed-spring25)
-[![Backend Coverage](https://coveralls.io/repos/github/gcivil-nyu-org/team2-wed-spring25/badge.svg?branch=travis-jest&flag=backend&t=TIMESTAMP)](https://coveralls.io/github/gcivil-nyu-org/team2-wed-spring25?branch=travis-jest)
-[![Frontend Coverage](https://coveralls.io/repos/github/gcivil-nyu-org/team2-wed-spring25/badge.svg?branch=travis-jest&flag=frontend&t=TIMESTAMP)](https://coveralls.io/github/gcivil-nyu-org/team2-wed-spring25?branch=travis-jest)
+[![Backend Coverage](https://coveralls.io/repos/github/gcivil-nyu-org/team2-wed-spring25/badge.svg?branch=travis-jest&flag=backend)](https://coveralls.io/github/gcivil-nyu-org/team2-wed-spring25?branch=travis-jest)
+[![Frontend Coverage](https://coveralls.io/repos/github/gcivil-nyu-org/team2-wed-spring25/badge.svg?branch=travis-jest&flag=frontend)](https://coveralls.io/github/gcivil-nyu-org/team2-wed-spring25?branch=travis-jest)
 
 **Main:** [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/team2-wed-spring25.svg?token=qXXqQBVVz5xbzNpep8Jg&branch=main)](https://app.travis-ci.com/gcivil-nyu-org/team2-wed-spring25)
 [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/team2-wed-spring25/badge.svg?branch=main)](https://coveralls.io/github/gcivil-nyu-org/team2-wed-spring25?branch=main)
