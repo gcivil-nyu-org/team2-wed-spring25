@@ -6,7 +6,9 @@ export default function useChatInput(selectedUser, setChatUserList) {
   const [rows, setRows] = useState(1);
   const [messageContent, setMessageContent] = useState("");
   const textareaRef = useRef(null);
-  const { send, connectionStatus } = useWebSocket();
+  const { send, connectionStatus, handleUserTyping } = useWebSocket();
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
   const {
     emojiPickerRef,
     showEmojiPicker,
@@ -73,6 +75,30 @@ export default function useChatInput(selectedUser, setChatUserList) {
     }
   };
 
+  const handleTypingActivity = () => {
+    // If user wasn't previously typing, notify that they started
+    if (!isTyping) {
+      setIsTyping(true);
+      handleUserTyping(selectedUser.chat_uuid, selectedUser.user.id, true);
+    }
+
+    // Clear any existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set a new timeout to detect when typing stops
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      handleUserTyping(selectedUser.chat_uuid, selectedUser.user.id, false);
+    }, 1000); // Adjust this delay as needed (1000ms = 1 second)
+  };
+
+  const handleChange = (e) => {
+    setMessageContent(e.target.value);
+    handleTypingActivity(); // Track typing activity
+  };
+
   return {
     messageContent,
     setMessageContent,
@@ -84,5 +110,11 @@ export default function useChatInput(selectedUser, setChatUserList) {
     handleInput,
     rows,
     emojiPickerRef,
+    handleChange,
+    isTyping,
+    setIsTyping,
+    typingTimeoutRef,
+    handleTypingActivity,
+    handleUserTyping,
   };
 }

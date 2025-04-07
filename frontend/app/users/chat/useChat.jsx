@@ -12,6 +12,8 @@ export default function useChat() {
     setChatUserList,
     selectedUser,
     setSelectedUser,
+    listOfUsersTyping,
+    handleUserTyping,
   } = useWebSocket();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef(null);
@@ -74,5 +76,7 @@ export default function useChat() {
     messagesEndRef,
     isSidebarOpen,
     setIsSidebarOpen,
+    listOfUsersTyping,
+    handleUserTyping,
   };
 }

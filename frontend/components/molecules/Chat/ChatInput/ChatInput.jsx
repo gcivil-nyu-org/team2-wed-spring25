@@ -15,6 +15,12 @@ const ChatInput = ({ selectedUser, setChatUserList }) => {
     handleInput,
     rows,
     emojiPickerRef,
+    handleChange,
+    isTyping,
+    setIsTyping,
+    typingTimeoutRef,
+    handleTypingActivity,
+    handleUserTyping,
   } = useChatInput(selectedUser, setChatUserList);
   return (
     <div className="flex border-t-2 border-gray-700">
@@ -39,7 +45,7 @@ const ChatInput = ({ selectedUser, setChatUserList }) => {
             size={"lg"}
           />
         </button>
-        <textarea
+        {/* <textarea
           ref={textareaRef}
           className="flex-1 bg-transparent outline-none resize-none text-forum-heading py-2 px-4 
         overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-transparent"
@@ -52,6 +58,33 @@ const ChatInput = ({ selectedUser, setChatUserList }) => {
           }}
           value={messageContent}
           onChange={(e) => setMessageContent(e.target.value)}
+        /> */}
+        <textarea
+          ref={textareaRef}
+          className="flex-1 bg-transparent outline-none resize-none text-forum-heading py-2 px-4 
+    overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-transparent"
+          placeholder="Write a message..."
+          rows={rows}
+          onInput={handleInput}
+          style={{
+            minHeight: "1.5rem",
+            maxHeight: "4.5rem",
+          }}
+          value={messageContent}
+          onChange={handleChange} // Updated to use the new handler
+          onKeyDown={handleTypingActivity} // Also track key presses
+          onBlur={() => {
+            // When textarea loses focus, immediately stop typing indication
+            if (isTyping) {
+              clearTimeout(typingTimeoutRef.current);
+              setIsTyping(false);
+              handleUserTyping(
+                selectedUser.chat_uuid,
+                selectedUser.user.id,
+                false
+              );
+            }
+          }}
         />
       </div>
       <button onClick={handleSend} disabled={!messageContent.trim()}>

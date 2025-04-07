@@ -4,8 +4,10 @@ import UserImage from "@/components/atom/UserImage/UserImage";
 import { getUserFullName } from "@/utils/string";
 import useChatHeader from "./useChatHeader";
 
-const ChatHeader = ({ selectedUser, onlineUsers }) => {
+const ChatHeader = ({ selectedUser, onlineUsers, listOfUsersTyping }) => {
   const { user, isUserOnline } = useChatHeader(selectedUser, onlineUsers);
+  console.log("user.id ", user.id);
+  console.log("listOfUsersTyping ", listOfUsersTyping);
   return (
     <div
       key={user.id}
@@ -19,7 +21,11 @@ const ChatHeader = ({ selectedUser, onlineUsers }) => {
           {getUserFullName(user.first_name, user.last_name)}
         </h3>
         <p className="text-forum-subheading2 truncate text-sm">
-          {isUserOnline ? "Online" : "Offline"}
+          {isUserOnline
+            ? listOfUsersTyping.includes(user.id.toString())
+              ? "typing..."
+              : "Onine"
+            : "Offline"}
         </p>
       </div>
     </div>

@@ -8,6 +8,8 @@ const ChatUser = ({
   messagesEndRef,
   onlineUsers,
   chatUserList,
+  handleUserTyping,
+  listOfUsersTyping,
 }) => {
   return (
     <div className="w-full md:w-3/5 flex flex-col">
@@ -16,6 +18,7 @@ const ChatUser = ({
           (user) => user.user.id === selectedUser.user.id
         )}
         onlineUsers={onlineUsers}
+        listOfUsersTyping={listOfUsersTyping}
       />
       <div
         className={`flex-1 overflow-y-auto scrollbar-hide`}
@@ -35,6 +38,7 @@ const ChatUser = ({
         <ChatInput
           selectedUser={selectedUser}
           setChatUserList={setChatUserList}
+          handleUserTyping={handleUserTyping}
         />
       </div>
     </div>

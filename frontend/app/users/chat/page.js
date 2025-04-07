@@ -4,7 +4,6 @@ import Loader from "@/components/molecules/Loader/Loader";
 import ChatSidebar from "@/components/organisms/Chat/ChatSidebar";
 import ChatUser from "@/components/organisms/Chat/ChatUser";
 import useChat from "./useChat";
-import { useState } from "react";
 import Image from "next/image";
 
 const ChatHome = () => {
@@ -18,6 +17,8 @@ const ChatHome = () => {
     messagesEndRef,
     isSidebarOpen,
     setIsSidebarOpen,
+    handleUserTyping,
+    listOfUsersTyping,
   } = useChat();
 
   return (
@@ -87,6 +88,8 @@ const ChatHome = () => {
                 onlineUsers={onlineUsers}
                 chatUserList={chatUserList}
                 setIsSidebarOpen={setIsSidebarOpen}
+                handleUserTyping={handleUserTyping}
+                listOfUsersTyping={listOfUsersTyping}
               />
             ) : (
               <div className="w-full md:w-3/5 flex justify-center items-center">

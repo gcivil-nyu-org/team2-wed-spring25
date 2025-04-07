@@ -12,6 +12,7 @@ export const WebSocketProvider = ({ children }) => {
   const [onlineUsers, setOnlineUsers] = useState([]); // New state for online users
   const [chatUserList, setChatUserList] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [listOfUsersTyping, setListOfUsersTyping] = useState([]);
   const selectedUserRef = useRef(selectedUser);
   const initializeConnection = (newUserId) => {
     console.log("Initializing connection with userId:", newUserId);
@@ -40,6 +41,21 @@ export const WebSocketProvider = ({ children }) => {
         setRetryCount((prev) => prev + 1);
         setupWebSocket();
       }, delay);
+    }
+  };
+
+  const handleUserTyping = (chat_uuid, recipient_id, is_typing) => {
+    try {
+      if (!chat_uuid || !recipient_id) return;
+
+      send({
+        type: "typing_status",
+        is_typing: is_typing,
+        recipient_id: recipient_id,
+        chat_uuid: chat_uuid,
+      });
+    } catch (error) {
+      console.error("Error sending typing status:", error);
     }
   };
 
@@ -88,7 +104,6 @@ export const WebSocketProvider = ({ children }) => {
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-
       if (data.type === "user_list") {
         const newdata = data.users.map((i) => ({ id: i }));
         setOnlineUsers(newdata); // Update online users list
@@ -109,17 +124,11 @@ export const WebSocketProvider = ({ children }) => {
       }
 
       if (data.type === "chat_message") {
-        console.log("New chat message:", data);
         // Update UI (e.g., add message to chat window)
 
         setChatUserList((prev) => {
-          console.log("Previous chat user list:", prev); // Debugging line
-
           const updatedList = prev.map((chat) => {
             if (chat.user.id == data.sender_id) {
-              console.log("Updating chat for user:", chat.user.id); // Debugging line
-              console.log("Selected user:", selectedUserRef.current); // Debugging line
-
               const isSelected =
                 selectedUserRef.current?.user?.id == data.sender_id;
 
@@ -160,7 +169,6 @@ export const WebSocketProvider = ({ children }) => {
       }
 
       if (data.type === "messages_read") {
-        console.log("Message read status:", data);
         const { chat_uuid, reader_id } = data;
 
         setChatUserList((prev) => {
@@ -178,6 +186,23 @@ export const WebSocketProvider = ({ children }) => {
             }
             return chat;
           });
+        });
+      }
+
+      if (data.type === "typing") {
+        const { sender_id, is_typing, chat_uuid } = data;
+        setListOfUsersTyping((prev) => {
+          // Create a new Set for immutability
+          const newSet = new Set(prev);
+
+          if (is_typing) {
+            newSet.add(sender_id);
+          } else {
+            newSet.delete(sender_id);
+          }
+
+          // Convert back to array for state
+          return Array.from(newSet);
         });
       }
     };
@@ -209,6 +234,8 @@ export const WebSocketProvider = ({ children }) => {
         handleUserSelection,
         selectedUser,
         setSelectedUser,
+        listOfUsersTyping,
+        handleUserTyping,
       }}
     >
       {children}

@@ -3,10 +3,9 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 import json
-
+from datetime import datetime
 # Add at the top of consumers.py
 online_users = set()
-
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -89,6 +88,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.handle_chat_message(data)
         elif data["type"] == "mark_messages_read":
             await self.handle_mark_messages_read(data)
+        elif data["type"] == "typing_status":
+            await self.handle_typing_status(data)
 
     async def handle_chat_message(self, data):
         recipient_id = data["recipient_id"]
@@ -233,48 +234,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 )
             )
 
-    # async def handle_mark_messages_read(self, data):
-    #     """
-    #     Marks all unread messages from a specific sender in a chat as read
-    #     """
-    #     chat_uuid = data["chat_uuid"]
-    #     sender_id = data["sender_id"]
-    #     current_user_id = data["current_user_id"]
-
-    #     # Validate the current user is part of this chat
-    #     if str(self.user_id) != str(current_user_id):
-    #         print(
-    #             f"User {self.user_id} is not authorized to \
-    #                 mark messages as read in chat {chat_uuid}."
-    #         )
-    #         await self.send(
-    #             text_data=json.dumps(
-    #                 {
-    #                     "type": "error",
-    #                     "message": "Unauthorized to mark messages as read",
-    #                 }
-    #             )
-    #         )
-    #         return
-
-    #     # Mark messages as read in the database
-    #     from .models import Chat, Message
-
-    #     chat = await database_sync_to_async(Chat.objects.get)(uuid=chat_uuid)
-    #     await database_sync_to_async(Message.objects.filter)(
-    #         chat=chat, sender__id=sender_id, is_read=False
-    #     ).update(is_read=True)
-
-    #     # Notify the sender that their messages were read (if online)
-    #     await self.channel_layer.group_send(
-    #         f"user_{sender_id}",
-    #         {
-    #             "type": "messages_read_notification",
-    #             "chat_uuid": chat_uuid,
-    #             "reader_id": current_user_id,
-    #         },
-    #     )
-
     async def messages_read_notification(self, event):
         """
         Notifies a user that their messages were read by someone
@@ -287,4 +246,41 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "reader_id": event["reader_id"],
                 }
             )
+        )
+    
+    async def handle_typing_status(self, data):
+        """
+        Handles typing status updates from users
+        """
+        is_typing = data["is_typing"]
+        chat_uuid = data.get("chat_uuid")  # Optional: if you want to track per-chat
+        recipient_id = data.get("recipient_id")  # Who should be notified
+        
+        # Check if recipient is online
+        is_online = await self.is_user_online(recipient_id)
+
+        # Notify the recipient if they are online
+        if is_online:
+            await self.channel_layer.group_send(
+                f"user_{recipient_id}",
+                {
+                    "type": "typing_indicator",
+                    "sender_id": self.user_id,
+                    "is_typing": is_typing,
+                    "chat_uuid": chat_uuid,
+                },
+            )
+
+
+    async def typing_indicator(self, event):
+        """
+        Sends typing status updates to clients
+        """
+        await self.send(
+            text_data=json.dumps({
+                "type": "typing",
+                "sender_id": event["sender_id"],
+                "is_typing": event["is_typing"],
+                "chat_uuid": event.get("chat_uuid"),
+            })
         )
