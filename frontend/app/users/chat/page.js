@@ -1,8 +1,8 @@
 "use client";
 
 import Loader from "@/components/molecules/Loader/Loader";
-import ChatSidebar from "@/components/organisms/Chat/ChatSidebar";
-import ChatUser from "@/components/organisms/Chat/ChatUser";
+import ChatSidebar from "@/components/organisms/Chat/ChatSidebar/ChatSidebar";
+import ChatUser from "@/components/organisms/Chat/ChatUser/ChatUser";
 import useChat from "./useChat";
 import Image from "next/image";
 

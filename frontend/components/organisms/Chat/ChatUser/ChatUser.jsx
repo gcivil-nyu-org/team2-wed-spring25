@@ -2,6 +2,7 @@ import ChatHeader from "@/components/molecules/Chat/ChatHeader/ChatHeader";
 import ChatMessage from "@/components/molecules/Chat/ChatMessage/ChatMessage";
 import ChatInput from "@/components/molecules/Chat/ChatInput/ChatInput";
 import Image from "next/image";
+import useChatUser from "./useChatUser";
 
 const ChatUser = ({
   selectedUser,
@@ -12,6 +13,8 @@ const ChatUser = ({
   handleUserTyping,
   listOfUsersTyping,
 }) => {
+  const { openSettingsId, setOpenSettingsId, messagesContainerRef } =
+    useChatUser();
   return (
     <div className="w-full md:w-3/5 flex flex-col">
       <ChatHeader
@@ -27,11 +30,19 @@ const ChatUser = ({
           backgroundImage: 'url("/images/topography.svg")',
           backgroundSize: "cover",
         }}
+        ref={messagesContainerRef}
       >
         {chatUserList
           .find((user) => user.user.id === selectedUser.user.id)
           .messages.map((message) => {
-            return <ChatMessage key={message.id} message={message} />;
+            return (
+              <ChatMessage
+                key={message.id}
+                message={message}
+                openSettingsId={openSettingsId}
+                setOpenSettingsId={setOpenSettingsId}
+              />
+            );
           })}
         {listOfUsersTyping.includes(selectedUser.user.id.toString()) && (
           <div className="ml-4">
