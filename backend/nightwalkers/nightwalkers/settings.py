@@ -16,6 +16,7 @@ import sys
 import dj_database_url  # noqa: F401
 from dotenv import load_dotenv
 from datetime import timedelta
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,15 +75,13 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS  # For Channels compatibility
 
 # WebSocket security
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 if 'test' in sys.argv:
-    # When running tests, don't redirect to HTTPS
     SECURE_SSL_REDIRECT = False
 else:
-    # In other environments, use the environment setting or default to False
-    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False') == 'True'
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 # Application definition
 
