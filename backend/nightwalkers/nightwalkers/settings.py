@@ -74,7 +74,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS  # For Channels compatibility
 
 # WebSocket security
-if 'test' in sys.argv:
+if "test" in sys.argv:
     SECURE_SSL_REDIRECT = False
 else:
     SECURE_SSL_REDIRECT = True
