@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 # Add at the top of consumers.py
 online_users = set()
+typing_users = {}
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -80,6 +81,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
             online_users.remove(self.user_id)
+        
+        if hasattr(self, "user_id") and str(self.user_id) in typing_users:
+            del typing_users[str(self.user_id)]
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -270,7 +274,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "chat_uuid": chat_uuid,
                 },
             )
-
 
     async def typing_indicator(self, event):
         """

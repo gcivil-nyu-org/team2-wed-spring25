@@ -10,11 +10,13 @@ const ChatSidebar = ({
   onlineUsers,
   setChatUserList,
   setIsSidebarOpen,
+  listOfUsersTyping,
 }) => {
   const { handleUserSelect } = useChatSidebar({
     setSelectedUser,
     setChatUserList,
   });
+
   return (
     <section className="w-full relative border-r border-gray-700 h-full">
       <div className="sticky top-0 bg-bg-post block z-10">
@@ -42,6 +44,7 @@ const ChatSidebar = ({
                   <h3 className="text-md font-normal text-forum-subheading truncate">
                     {getUserFullName(user.first_name, user.last_name)}
                   </h3>
+
                   {chatUser.messages.length > 0 && (
                     <p className="text-forum-subheading2 text-xs">
                       {getLastMessageTimeStamp(

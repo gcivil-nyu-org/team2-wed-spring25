@@ -209,7 +209,6 @@ export const WebSocketProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    console.log("Selected user changed:", selectedUser);
     selectedUserRef.current = selectedUser;
   }, [selectedUser]);
 

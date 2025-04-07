@@ -21,11 +21,15 @@ const ChatHeader = ({ selectedUser, onlineUsers, listOfUsersTyping }) => {
           {getUserFullName(user.first_name, user.last_name)}
         </h3>
         <p className="text-forum-subheading2 truncate text-sm">
-          {isUserOnline
-            ? listOfUsersTyping.includes(user.id.toString())
-              ? "typing..."
-              : "Onine"
-            : "Offline"}
+          {isUserOnline ? (
+            listOfUsersTyping.includes(user.id.toString()) ? (
+              <span className="text-white">typing...</span>
+            ) : (
+              "Onine"
+            )
+          ) : (
+            "Offline"
+          )}
         </p>
       </div>
     </div>

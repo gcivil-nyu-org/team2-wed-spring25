@@ -39,6 +39,7 @@ const ChatHome = () => {
                 setIsSidebarOpen={() => {
                   setIsSidebarOpen(false);
                 }}
+                listOfUsersTyping={listOfUsersTyping}
               />
             )}
           </div>
@@ -75,6 +76,7 @@ const ChatHome = () => {
                   onlineUsers={onlineUsers}
                   setChatUserList={setChatUserList}
                   setIsSidebarOpen={setIsSidebarOpen}
+                  listOfUsersTyping={listOfUsersTyping}
                 />
               )}
             </div>
