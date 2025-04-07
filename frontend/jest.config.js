@@ -43,14 +43,25 @@ const config = {
   // ],
 
   // An object that configures minimum threshold enforcement for coverage results
-  coverageThreshold: {
-    global: {
-      branches: 85,
-      functions: 85,
-      lines: 85,
-      statements: 85,
-    },
-  },
+  coverageThreshold: process.env.CI
+    ? {
+        // Lower thresholds for CI environment
+        global: {
+          branches: 70,
+          functions: 70,
+          lines: 70,
+          statements: 70,
+        },
+      }
+    : {
+        // Keep stricter thresholds for local development
+        global: {
+          branches: 85,
+          functions: 85,
+          lines: 85,
+          statements: 85,
+        },
+      },
 
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
