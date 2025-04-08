@@ -23,7 +23,7 @@
 }
 
 .user-location-dot {
-  background-color: #4e46e5;
+  background-color: var(--pointer-color);
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -39,7 +39,7 @@
   position: absolute;
   width: 40px; /* Increased from 20px */
   height: 40px; /* Increased from 20px */
-  background: rgba(78, 70, 229, 0.873);
+  background: var(--pulse-color);
   border-radius: 50%;
   z-index: 2;
   left: -16%; /* Center it precisely */

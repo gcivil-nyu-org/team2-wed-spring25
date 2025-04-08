@@ -1,3 +1,4 @@
+"use client";
 import UserImage from "@/components/atom/UserImage/UserImage";
 import LikedIconList from "@/components/molecules/LikedIconList/LikedIconList";
 import PostFooterIconList from "@/components/molecules/PostFooterIconList/PostFooterIconList";

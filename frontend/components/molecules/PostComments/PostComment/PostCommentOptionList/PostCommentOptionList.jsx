@@ -1,3 +1,4 @@
+"use client";
 import Icon from "@/components/atom/Icon/Icon";
 import CustomDialogBox from "@/components/organisms/CustomDialogBox/CustomDialogBox";
 import usePostCommentOptionList from "./usePostCommentOptionList";
@@ -38,6 +39,7 @@ export default function PostCommentOptionList({
         title="Delete Comment"
         description={`Are you sure you want to delete comment. This action cannot be undone.`}
         disableYesButton={disableButtons}
+        data-testid="delete-dialog"
       />
 
       <Icon
@@ -49,12 +51,14 @@ export default function PostCommentOptionList({
         onClick={() =>
           setIsCommentOptionListVisible(!isCommentOptionListVisible)
         }
+        data-testid="icon-..."
       />
 
       {isCommentOptionListVisible && (
         <div
           ref={dropdownRef}
           className="absolute top-7 right-2 rounded-b-lg rounded-l-lg bg-forum-post border-light z-10  py-1 shadow-md text-forum-heading"
+          data-testid="options-list"
         >
           <ul>
             {parentComment?.user?.id !== user.id && (
@@ -64,6 +68,7 @@ export default function PostCommentOptionList({
                   setShowReportCategoryDialog(true);
                   setIsCommentOptionListVisible(false);
                 }}
+                data-testid="report-option"
               >
                 <Icon
                   src={reportDark}
@@ -71,7 +76,8 @@ export default function PostCommentOptionList({
                   width={18}
                   height={18}
                   alt={"Report"}
-                ></Icon>
+                  data-testid="icon-Report"
+                />
                 <p>Report</p>
               </li>
             )}
@@ -84,6 +90,7 @@ export default function PostCommentOptionList({
                   setIsEditCommentVisible(true);
                   setIsCommentOptionListVisible(false);
                 }}
+                data-testid="edit-option"
               >
                 <Icon
                   src={editDark}
@@ -91,7 +98,8 @@ export default function PostCommentOptionList({
                   width={18}
                   height={18}
                   alt={"Edit"}
-                ></Icon>
+                  data-testid="icon-Edit"
+                />
                 <p>Edit</p>
               </li>
             )}
@@ -103,6 +111,7 @@ export default function PostCommentOptionList({
                   setShowDeleteCommentDialog(true);
                   setIsCommentOptionListVisible(false);
                 }}
+                data-testid="delete-option"
               >
                 <Icon
                   src={deleteDark}
@@ -110,7 +119,8 @@ export default function PostCommentOptionList({
                   width={18}
                   height={18}
                   alt={"Delete"}
-                ></Icon>
+                  data-testid="icon-Delete"
+                />
                 <p>Delete</p>
               </li>
             )}

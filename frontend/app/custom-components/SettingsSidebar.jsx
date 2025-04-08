@@ -36,12 +36,13 @@ import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getUserFullName } from "@/utils/string";
 
 
 const items = [
   {
     title: "Profile",
-    url: "/users/settings/profile#password",
+    url: "/users/settings/profile",
     icon: UserRound,
   },
   {
@@ -132,6 +133,15 @@ const SettingsSidebar = () => {
       
     }
   };
+  let user = null;
+
+  if (typeof window !== "undefined") {
+    user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
+  }
+  if (!user) {
+    showError("Please login to get settings. User not found.");
+    return null; // or handle the case when user is not found
+  }
 
   return (
 
@@ -168,12 +178,17 @@ const SettingsSidebar = () => {
               <div className="flex flex-row justify-start items-center ml-3 gap-5 w-[80%]">
                 <Avatar className="h-12 w-12">
                   <AvatarImage
-                    src="https://github.com/shadcn.png"
+                    src={user?.avatar || fallbackUserProfileImage}
                     alt="@shadcn"
                   />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
-                <span>Username</span>
+                <span>
+                {getUserFullName(
+                  user?.first_name || "Unknown",
+                  user?.last_name || "Unknown"
+                )}
+                </span>
               </div>
             </Link>
           </SidebarGroupContent>

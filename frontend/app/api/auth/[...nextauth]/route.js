@@ -46,7 +46,22 @@ async function refreshAccessToken(refreshToken) {
       ...refreshedTokens,
       error: null,
     };
-  } catch (error) {
+  } catch (error) {    
+    // Check for specific error messages that indicate token issues
+    const errorMessage = error.message || '';
+    
+    if (
+      errorMessage.includes("blacklisted") || 
+      errorMessage.includes("invalid") ||
+      errorMessage.includes("expired")
+    ) {
+      return {
+        access: null,
+        refresh: null,
+        error: "TokenInvalid",
+      };
+    }
+    
     return {
       access: null,
       refresh: null,
@@ -98,9 +113,9 @@ const handler = NextAuth({
     }),
   ],
   pages: {
-    signIn: "/login", // Your custom login page
+    signIn: "/login", 
     signOut: "/login", // Redirect to login after signing out
-    error: "/login", // Error page (or your login page to show errors there)
+    error: "/login", 
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -173,14 +188,22 @@ const handler = NextAuth({
       const refreshed = await refreshAccessToken(token.djangoTokens.refresh);
 
       if (refreshed.error) {
-        // Only invalidate for permanent errors
-        if (refreshed.error === "RefreshTokenExpired") {
-          console.log("JWT callback: Refresh failed - token expired");
+        // For any token-related errors, force re-authentication
+        if (refreshed.error === "TokenInvalid" || refreshed.error === "RefreshTokenExpired") {
+          console.log(`JWT callback: Refresh failed - ${refreshed.error}`);
           return { ...token, error: refreshed.error };
         }
-        // For temporary errors, continue with existing token
-        console.log("JWT callback: Temporary refresh error, using existing token");
-        return token;
+        
+        // For network errors or temporary backend issues, 
+        // continue with existing token if it's still valid
+        if (accessExpiry > now) {
+          console.log("JWT callback: Temporary network error, using existing token");
+          return token;
+        } else {
+          // If the token is expired and we can't refresh it, force re-auth
+          console.log("JWT callback: Token expired and refresh failed");
+          return { ...token, error: "SessionExpired" };
+        }
       }
 
       // Refresh succeeded, update the token
@@ -193,6 +216,7 @@ const handler = NextAuth({
         },
       };
     },
+    
     async session({ session, token }) {
       // Add Django tokens and user to session
       session.djangoTokens = token.djangoTokens;
