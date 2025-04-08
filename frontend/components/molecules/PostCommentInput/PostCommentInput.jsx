@@ -1,3 +1,4 @@
+"use client";
 import CommentButton from "@/components/atom/CommentButton/CommentButton";
 import CustomTextInput from "@/components/atom/CustomTextInput/CustomeTextInput";
 import Icon from "@/components/atom/Icon/Icon";
@@ -16,6 +17,7 @@ export default function PostCommentInput({
   initialContent = "",
   isEdit = false,
   setIsInputVisible = null,
+  buttonName = "Comment",
 }) {
   const {
     handleCommentSubmit,
@@ -53,6 +55,7 @@ export default function PostCommentInput({
             onEmojiClick={(emojiObject) =>
               handleOnEmojiClick(emojiObject, setCommentContent)
             }
+            theme="dark"
           />
         </div>
       )}

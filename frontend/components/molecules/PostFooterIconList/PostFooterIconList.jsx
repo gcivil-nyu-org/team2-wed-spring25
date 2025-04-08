@@ -1,3 +1,4 @@
+"use client";
 import IconText from "@/components/molecules/IconText/IconText";
 import LikeIconTextWithTooltip from "@/components/molecules/LikeIconTextWithTooltip/LikeIconTextWithTooltip";
 import { iconsData } from "@/constants/icons";

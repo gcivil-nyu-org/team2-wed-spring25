@@ -103,7 +103,7 @@ describe("SettingsSidebar", () => {
     // Test account section links
     expect(screen.getByText("Profile").closest("a")).toHaveAttribute(
       "href",
-      "/users/settings/profile#password"
+      "/users/settings/profile"
     );
     expect(screen.getByText("Location Settings").closest("a")).toHaveAttribute(
       "href",

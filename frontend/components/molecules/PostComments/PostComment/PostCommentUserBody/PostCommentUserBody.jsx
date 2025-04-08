@@ -1,3 +1,4 @@
+"use client";
 import Icon from "@/components/atom/Icon/Icon";
 import LikeOptionList from "@/components/molecules/LikeOptionList/LikeOptionList";
 import PostCommentInput from "@/components/molecules/PostCommentInput/PostCommentInput";

@@ -12,6 +12,44 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  .borderLight {
+    @apply border border-gray-700; /* Added 'border' for basic border styling */
+  }
+
+  .borderLightR {
+    @apply border-r border-gray-700; /* Added 'border' for basic border styling */
+  }
+
+  .borderDarkR {
+    @apply border-r border-gray-800; /* Added 'border' for basic border styling */
+  }
+
+  .borderLightB {
+    @apply border-b border-gray-700; /* Added 'border' for basic border styling */
+  }
+
+  .borderDarkB {
+    @apply border-b border-gray-800; /* Added 'border' for basic border styling */
+  }
+
+  .chatSidebarHover {
+    @apply hover:bg-gray-800; /* Added 'hover' for basic hover styling */
+  }
+
+  .chatHoverDark {
+    @apply hover:bg-gray-900; /* Added 'hover' for basic hover styling */
+  }
+
+  .chatBackground {
+    @apply bg-gray-700; /* Added 'bg' for basic background styling */
+  }
+  .chatBackgroundDark {
+    @apply bg-gray-800; /* Added 'bg' for basic background styling */
+  }
+  .chatSubtext {
+    @apply text-gray-400; /* Added 'text' for basic text styling */
+  }
 }
 
 @layer base {
@@ -48,14 +86,21 @@ body {
     --sidebar-text: rgb(243 244 246); /* gray-100 */
     --sidebar-border2: rgb(120 113 108); /* stone-500 */
     --sidebar-separator: rgb(87 83 78); /* stone-600 */
-    --sidebar-input-bg: rgb(41, 37, 36, 0.9);        /* Dark background for inputs */
-    --sidebar-input-border: rgb(87, 83, 78);         /* Same as sidebar-separator */
-    --sidebar-input-text: rgb(243, 244, 246);        /* Same as sidebar-text */
-    --sidebar-input-placeholder: rgb(120, 113, 108, 0.7); /* Semi-transparent border2 */
-    --sidebar-input-focus-ring: rgb(120, 113, 108);  /* Same as sidebar-border2 */
+    --sidebar-input-bg: rgb(41, 37, 36, 0.9); /* Dark background for inputs */
+    --sidebar-input-border: rgb(87, 83, 78); /* Same as sidebar-separator */
+    --sidebar-input-text: rgb(243, 244, 246); /* Same as sidebar-text */
+    --sidebar-input-placeholder: rgb(
+      120,
+      113,
+      108,
+      0.7
+    ); /* Semi-transparent border2 */
+    --sidebar-input-focus-ring: rgb(
+      120,
+      113,
+      108
+    ); /* Same as sidebar-border2 */
     --sidebar-label-text: rgb(243, 244, 246, 0.8); /* Same as sidebar-text */
-
-
 
     /*Forum?*/
     --forum-heading: rgb(255 255 255);
@@ -395,4 +440,14 @@ body {
   .border-top-dark {
     @apply border-t border-gray-800;
   }
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

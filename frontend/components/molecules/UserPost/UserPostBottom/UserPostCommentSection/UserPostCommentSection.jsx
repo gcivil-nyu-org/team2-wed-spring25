@@ -1,3 +1,4 @@
+"use client";
 import PostCommentInput from "@/components/molecules/PostCommentInput/PostCommentInput";
 import PostComments from "@/components/molecules/PostComments/PostComments";
 import useUserPostCommentSection from "@/components/molecules/UserPost/UserPostBottom/UserPostCommentSection/useUserPostCommentSection";
