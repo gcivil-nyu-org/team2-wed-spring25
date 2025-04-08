@@ -77,6 +77,7 @@ export default function useForum(settingsType) {
     } finally {
       setIsLoadingMore(false);
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, isLoadingMore]);
 
   useEffect(() => {
