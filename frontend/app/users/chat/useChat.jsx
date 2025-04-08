@@ -32,6 +32,7 @@ export default function useChat() {
       }
     };
     fetchChatUserList();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ export default function useChat() {
 
     // Check immediately
     checkAndConnect();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const scrollToBottom = () => {

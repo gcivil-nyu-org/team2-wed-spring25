@@ -109,9 +109,8 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
                 <div className="z-10 chatBackgroundDark w-36" ref={settingsRef}>
                   <ul className="my-2 w-full">
                     {messageSettings.map((setting) => (
-                      <li className="w-full">
+                      <li className="w-full" key={setting.id}>
                         <button
-                          key={setting.id}
                           className="text-sm text-left w-full text-forum-heading chatHoverDark px-6 py-3"
                           onClick={setting.onClick}
                         >
