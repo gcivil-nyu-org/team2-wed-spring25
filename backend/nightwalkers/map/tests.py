@@ -458,7 +458,7 @@ class RouteViewAPITestCase(BaseTestCase):
     @patch("polyline.decode")
     @patch("django.db.connection.cursor")
     def test_safer_route_generation_failure(
-            self, mock_cursor, mock_polyline_decode, mock_post
+        self, mock_cursor, mock_polyline_decode, mock_post
     ):
         """Test fallback when safer route generation fails"""
         # Setup mock for OpenRouteService
@@ -496,7 +496,9 @@ class RouteViewAPITestCase(BaseTestCase):
     @patch("requests.post")
     @patch("polyline.decode")
     @patch("map.views.process_route_with_crime_data")
-    def test_successful_safer_route_generation(self, mock_process, mock_decode, mock_post):
+    def test_successful_safer_route_generation(
+        self, mock_process, mock_decode, mock_post
+    ):
         """Test successful generation of a safer route"""
         # Setup sequential mocks for initial and safer route
         mock_initial_response = MagicMock()
@@ -556,6 +558,14 @@ class HeatmapDataTestCase(BaseTestCase):
         # Verify that None is handled properly
         self.assertEqual(data[2]["intensity"], 0.0)
 
+        # Verify that the SQL query was executed
+        self.assertTrue(mock_cursor_instance.execute.called)
+        # Check that the expected SQL query was used
+        args, _ = mock_cursor_instance.execute.call_args
+        self.assertIn("SELECT ST_Y(wkb_geometry) AS latitude", args[0])
+        self.assertIn("ST_X(wkb_geometry) AS longitude", args[0])
+        self.assertIn("FROM filtered_grouped_data_centroid", args[0])
+
     @patch("django.db.connection.cursor")
     def test_heatmap_data_db_error(self, mock_cursor):
         """Test handling of database errors"""
@@ -581,6 +591,56 @@ class HeatmapDataTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data, [])
+
+    @patch("django.db.connection.cursor")
+    def test_heatmap_data_invalid_value_handling(self, mock_cursor):
+        """Test handling of invalid values in the database results"""
+        # Mock cursor to return data with invalid values
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = [
+            (40.7128, -74.0060, "invalid"),  # String that isn't a number
+            (40.7580, -73.9855, {}),  # Invalid type
+            (40.7431, -73.9712, None),  # None value
+        ]
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 3)
+
+        # All intensity values should be converted to numbers
+        # Invalid entries should be converted to 0.0
+        self.assertEqual(data[0]["intensity"], 0.0)
+        self.assertEqual(data[1]["intensity"], 0.0)
+        self.assertEqual(data[2]["intensity"], 0.0)
+
+    @patch("django.db.connection.cursor")
+    def test_heatmap_data_direct_function_call(self, mock_cursor):
+        """Test direct call to heatmap_data function"""
+        # Mock the cursor's fetchall method
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = self.mock_data
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        # Create a mock request
+        mock_request = MagicMock()
+
+        # Call the function directly
+        response = heatmap_data(mock_request)
+
+        # Check the response
+        self.assertEqual(response.status_code, 200)
+
+        # Parse the JSON
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 3)
+
+        # Verify data structure
+        self.assertIn("latitude", data[0])
+        self.assertIn("longitude", data[0])
+        self.assertIn("intensity", data[0])
 
 
 class RouteSafetyFunctionsTestCase(BaseTestCase):
@@ -687,7 +747,9 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         # Don't check exact number of coordinates which can vary based on implementation
         # Just check that each polygon has coordinates
         for polygon in result.geoms:
-            self.assertGreater(len(polygon.exterior.coords), 4)  # At least a simple polygon
+            self.assertGreater(
+                len(polygon.exterior.coords), 4
+            )  # At least a simple polygon
 
     def test_create_avoid_polygons_empty(self):
         """Test create_avoid_polygons with empty hotspots"""
@@ -702,24 +764,19 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         # This helps us verify the scaling logic without relying on external libraries
 
         # For the low complaints test, create a small polygon
-        small_polygon = Polygon([
-            (0, 0), (0, 1), (1, 1), (1, 0), (0, 0)
-        ])
+        small_polygon = Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
 
         # For the high complaints test, create a larger polygon
-        large_polygon = Polygon([
-            (0, 0), (0, 2), (2, 2), (2, 0), (0, 0)
-        ])
+        large_polygon = Polygon([(0, 0), (0, 2), (2, 2), (2, 0), (0, 0)])
 
         # Configure the mock to return our controlled polygons
         mock_transform.side_effect = [
             # First hotspot with low complaints
             Point(1, 1),  # point_utm (first transform call)
             small_polygon,  # buffer_wgs84 (second transform call)
-
             # Second hotspot with high complaints
             Point(1, 1),  # point_utm (third transform call)
-            large_polygon  # buffer_wgs84 (fourth transform call)
+            large_polygon,  # buffer_wgs84 (fourth transform call)
         ]
 
         # Create two hotspots with significantly different complaint numbers
@@ -821,14 +878,64 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         mock_post.side_effect = [mock_response, mock_success_response]
 
         # Create polygons with more than 5 elements
-        avoid_polygons = MultiPolygon([
-            Polygon([(-74.02, 40.72), (-74.01, 40.72), (-74.01, 40.73), (-74.02, 40.73), (-74.02, 40.72)]),
-            Polygon([(-74.03, 40.74), (-74.02, 40.74), (-74.02, 40.75), (-74.03, 40.75), (-74.03, 40.74)]),
-            Polygon([(-74.04, 40.76), (-74.03, 40.76), (-74.03, 40.77), (-74.04, 40.77), (-74.04, 40.76)]),
-            Polygon([(-74.05, 40.78), (-74.04, 40.78), (-74.04, 40.79), (-74.05, 40.79), (-74.05, 40.78)]),
-            Polygon([(-74.06, 40.80), (-74.05, 40.80), (-74.05, 40.81), (-74.06, 40.81), (-74.06, 40.80)]),
-            Polygon([(-74.07, 40.82), (-74.06, 40.82), (-74.06, 40.83), (-74.07, 40.83), (-74.07, 40.82)]),
-        ])
+        avoid_polygons = MultiPolygon(
+            [
+                Polygon(
+                    [
+                        (-74.02, 40.72),
+                        (-74.01, 40.72),
+                        (-74.01, 40.73),
+                        (-74.02, 40.73),
+                        (-74.02, 40.72),
+                    ]
+                ),
+                Polygon(
+                    [
+                        (-74.03, 40.74),
+                        (-74.02, 40.74),
+                        (-74.02, 40.75),
+                        (-74.03, 40.75),
+                        (-74.03, 40.74),
+                    ]
+                ),
+                Polygon(
+                    [
+                        (-74.04, 40.76),
+                        (-74.03, 40.76),
+                        (-74.03, 40.77),
+                        (-74.04, 40.77),
+                        (-74.04, 40.76),
+                    ]
+                ),
+                Polygon(
+                    [
+                        (-74.05, 40.78),
+                        (-74.04, 40.78),
+                        (-74.04, 40.79),
+                        (-74.05, 40.79),
+                        (-74.05, 40.78),
+                    ]
+                ),
+                Polygon(
+                    [
+                        (-74.06, 40.80),
+                        (-74.05, 40.80),
+                        (-74.05, 40.81),
+                        (-74.06, 40.81),
+                        (-74.06, 40.80),
+                    ]
+                ),
+                Polygon(
+                    [
+                        (-74.07, 40.82),
+                        (-74.06, 40.82),
+                        (-74.06, 40.83),
+                        (-74.07, 40.83),
+                        (-74.07, 40.82),
+                    ]
+                ),
+            ]
+        )
 
         result = get_safer_ors_route(self.departure, self.destination, avoid_polygons)
 
@@ -841,7 +948,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     @patch("django.db.connection.cursor")
     @patch("requests.post")
     def test_process_route_with_crime_data(
-            self, mock_post, mock_cursor, mock_polyline_decode
+        self, mock_post, mock_cursor, mock_polyline_decode
     ):
         """Test the process_route_with_crime_data function"""
         # Mock polyline decode to return coordinates
@@ -894,7 +1001,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     @patch("django.db.connection.cursor")
     @patch("requests.post")
     def test_process_route_error_in_intermediate_route(
-            self, mock_post, mock_cursor, mock_polyline_decode
+        self, mock_post, mock_cursor, mock_polyline_decode
     ):
         """Test process_route_with_crime_data when intermediate route fails"""
         # Mock polyline decode
@@ -924,13 +1031,21 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     @patch("django.db.connection.cursor")
     @patch("requests.post")
     def test_process_route_with_two_phase_hotspots(
-            self, mock_post, mock_cursor, mock_polyline_decode
+        self, mock_post, mock_cursor, mock_polyline_decode
     ):
         """Test process_route_with_crime_data with two phases of hotspot detection"""
         # First decode for initial route, second for intermediate route
         mock_polyline_decode.side_effect = [
-            [[-74.0060, 40.7128], [-75.0000, 40.5000], [-118.2437, 34.0522]],  # Initial route
-            [[-74.0060, 40.7128], [-76.0000, 41.0000], [-118.2437, 34.0522]]  # Intermediate route
+            [
+                [-74.0060, 40.7128],
+                [-75.0000, 40.5000],
+                [-118.2437, 34.0522],
+            ],  # Initial route
+            [
+                [-74.0060, 40.7128],
+                [-76.0000, 41.0000],
+                [-118.2437, 34.0522],
+            ],  # Intermediate route
         ]
 
         # Phase 1 and Phase 2 hotspots
@@ -965,7 +1080,9 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         result = process_route_with_crime_data(self.mock_initial_route)
 
         # Should return the final route that avoids all hotspots
-        self.assertEqual(result["routes"][0]["geometry"], "final_route_with_all_hotspots_avoided")
+        self.assertEqual(
+            result["routes"][0]["geometry"], "final_route_with_all_hotspots_avoided"
+        )
 
         # Verify we called cursor.execute twice (once for each phase)
         self.assertEqual(mock_cursor_instance.fetchall.call_count, 2)
@@ -979,7 +1096,9 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     @patch("polyline.decode")
     @patch("django.db.connection.cursor")
     @patch("map.views.get_safer_ors_route")
-    def test_process_route_no_hotspots(self, mock_get_safer, mock_cursor, mock_polyline_decode):
+    def test_process_route_no_hotspots(
+        self, mock_get_safer, mock_cursor, mock_polyline_decode
+    ):
         """Test process_route_with_crime_data when no hotspots are found"""
         # Mock polyline decode
         mock_polyline_decode.return_value = [[-74.0060, 40.7128], [-118.2437, 34.0522]]

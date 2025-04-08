@@ -1,4 +1,3 @@
-import math
 import os
 from django.http import JsonResponse
 from rest_framework import generics, status
@@ -16,10 +15,9 @@ import requests
 from django.db import connection
 import polyline
 from shapely import geometry
-from shapely.geometry import Point, Polygon, MultiPolygon, LineString
+from shapely.geometry import Point, MultiPolygon
 from shapely.ops import transform
 import pyproj
-import json
 
 
 def heatmap_data(request):
@@ -191,7 +189,9 @@ def process_route_with_crime_data(initial_route):
     destination = decoded_coords[-1]
 
     # Create LineString for initial route
-    linestring_coords = ", ".join([f"{coord[0]} {coord[1]}" for coord in decoded_coords])
+    linestring_coords = ", ".join(
+        [f"{coord[0]} {coord[1]}" for coord in decoded_coords]
+    )
     initial_linestring = f"LINESTRING({linestring_coords})"
 
     # Phase 1: Get the first set of crime hotspots along the initial route
@@ -215,12 +215,16 @@ def process_route_with_crime_data(initial_route):
     intermediate_coords = polyline.decode(intermediate_polyline, geojson=True)
 
     # Create LineString for intermediate route
-    intermediate_linestring_coords = ", ".join([f"{coord[0]} {coord[1]}" for coord in intermediate_coords])
+    intermediate_linestring_coords = ", ".join(
+        [f"{coord[0]} {coord[1]}" for coord in intermediate_coords]
+    )
     intermediate_linestring = f"LINESTRING({intermediate_linestring_coords})"
 
     # Phase 2: Get additional crime hotspots along the intermediate route
     # Use a different query that excludes already identified hotspots
-    phase2_hotspots = get_additional_hotspots(intermediate_linestring, phase1_hotspots, limit=7)
+    phase2_hotspots = get_additional_hotspots(
+        intermediate_linestring, phase1_hotspots, limit=7
+    )
     print(f"Found {len(phase2_hotspots)} additional hotspots along intermediate route")
 
     # Combine all hotspots
@@ -249,19 +253,25 @@ def get_crime_hotspots(linestring, limit=10):
         list: List of hotspot dictionaries
     """
     query = """
-        SELECT
-            ST_Y(wkb_geometry) AS latitude,
-            ST_X(wkb_geometry) AS longitude,
-            CMPLNT_NUM,
-            ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) AS distance
-        FROM filtered_grouped_data_centroid
-        WHERE CMPLNT_NUM > 10
-        ORDER BY 
-            -- Balance between proximity and crime intensity
-            (CMPLNT_NUM * 0.7) / (POWER(ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) + 0.001, 1.5))
-            DESC
-        LIMIT %s;
-    """
+            SELECT
+                ST_Y(wkb_geometry) AS latitude,
+                ST_X(wkb_geometry) AS longitude,
+                CMPLNT_NUM,
+                ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) AS distance
+            FROM filtered_grouped_data_centroid
+            WHERE CMPLNT_NUM > 10
+            ORDER BY
+                -- Balance between proximity and crime intensity
+                (
+                    CMPLNT_NUM * 0.7
+                ) / (
+                    POWER(
+                        ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) + 0.001,
+                        1.5
+                    )
+                ) DESC
+            LIMIT %s;
+        """
 
     hotspots = []
     try:
@@ -270,12 +280,14 @@ def get_crime_hotspots(linestring, limit=10):
             for row in cursor.fetchall():
                 latitude, longitude, complaints, distance = row
                 complaints = float(complaints) if complaints is not None else 0.0
-                hotspots.append({
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "complaints": complaints,
-                    "distance": distance,
-                })
+                hotspots.append(
+                    {
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "complaints": complaints,
+                        "distance": distance,
+                    }
+                )
                 print(f"Hotspot with {complaints} complaints at distance {distance}")
     except Exception as e:
         print(f"Error querying the database: {str(e)}")
@@ -283,7 +295,9 @@ def get_crime_hotspots(linestring, limit=10):
     return hotspots
 
 
-def get_additional_hotspots(linestring, existing_hotspots, limit=10, min_distance=0.005):
+def get_additional_hotspots(
+    linestring, existing_hotspots, limit=10, min_distance=0.005
+):
     """
     Query the database to find additional crime hotspots near a route,
     excluding hotspots that are too close to existing ones
@@ -302,7 +316,13 @@ def get_additional_hotspots(linestring, existing_hotspots, limit=10, min_distanc
     for hotspot in existing_hotspots:
         # Convert to postgis ST_DWithin
         lat, lon = hotspot["latitude"], hotspot["longitude"]
-        condition = f"ST_DWithin(wkb_geometry, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), {min_distance})"
+        condition = (
+            "ST_DWithin("
+            f"wkb_geometry, "
+            f"ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), "
+            f"{min_distance}"
+            ")"
+        )
         exclusion_conditions.append(condition)
 
     # Build the WHERE clause
@@ -318,10 +338,16 @@ def get_additional_hotspots(linestring, existing_hotspots, limit=10, min_distanc
             ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) AS distance
         FROM filtered_grouped_data_centroid
         WHERE {where_clause}
-        ORDER BY 
+        ORDER BY
             -- Balance between proximity and crime intensity
-            (CMPLNT_NUM * 0.7) / (POWER(ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) + 0.001, 1.5))
-            DESC
+            (
+                CMPLNT_NUM * 0.7
+            ) / (
+                POWER(
+                    ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) + 0.001,
+                    1.5
+                )
+            ) DESC
         LIMIT %s;
     """
 
@@ -332,13 +358,18 @@ def get_additional_hotspots(linestring, existing_hotspots, limit=10, min_distanc
             for row in cursor.fetchall():
                 latitude, longitude, complaints, distance = row
                 complaints = float(complaints) if complaints is not None else 0.0
-                hotspots.append({
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "complaints": complaints,
-                    "distance": distance,
-                })
-                print(f"Additional hotspot with {complaints} complaints at distance {distance}")
+                hotspots.append(
+                    {
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "complaints": complaints,
+                        "distance": distance,
+                    }
+                )
+                print(
+                    f"Additional hotspot with {complaints} complaints "
+                    f"at distance {distance}"
+                )
     except Exception as e:
         print(f"Error querying additional hotspots: {str(e)}")
 
@@ -359,8 +390,8 @@ def create_avoid_polygons(hotspots, radius=0.3):
     polygon_list = []
 
     # Define projections for NYC area
-    wgs84 = pyproj.CRS('EPSG:4326')  # WGS84 coordinate system
-    utm = pyproj.CRS('EPSG:26918')  # UTM zone 18N (appropriate for NYC)
+    wgs84 = pyproj.CRS("EPSG:4326")  # WGS84 coordinate system
+    utm = pyproj.CRS("EPSG:26918")  # UTM zone 18N (appropriate for NYC)
 
     # Define transformations
     project = pyproj.Transformer.from_crs(wgs84, utm, always_xy=True).transform
@@ -368,9 +399,11 @@ def create_avoid_polygons(hotspots, radius=0.3):
 
     for i, hotspot in enumerate(hotspots):
         # Scale radius based on complaints (crime intensity)
-        scaled_radius = max(0.3, radius * (1 + (hotspot["complaints"] / 50)))
-        print(f"Hotspot {i + 1}: {hotspot['complaints']} complaints, radius {scaled_radius * 1000}m")
-
+        scaled_radius = max(0.3, radius * (1 + (hotspot["complaints"] / 80)))
+        print(
+            f"Hotspot {i + 1}: {hotspot['complaints']} complaints, "
+            f"radius {scaled_radius * 1000}m"
+        )
         # Create point in WGS84
         point = Point(hotspot["longitude"], hotspot["latitude"])
 
@@ -426,7 +459,10 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
         body["options"] = {"avoid_polygons": avoid_geojson}
 
     try:
-        print(f"Sending request to OpenRouteService with {len(avoid_polygons.geoms) if avoid_polygons else 0} polygons")
+        print(
+            f"Sending request to OpenRouteService with "
+            f"{len(avoid_polygons.geoms) if avoid_polygons else 0} polygons"
+        )
         response = requests.post(map_url, json=body, headers=headers)
 
         if not response.ok:
