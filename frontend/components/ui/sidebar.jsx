@@ -48,7 +48,7 @@ function useSidebar() {
 }
 
 function SidebarProvider({
-  defaultOpen = true,
+  defaultOpen = false,
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -122,7 +122,7 @@ function SidebarProvider({
         <div
           data-slot="sidebar-wrapper"
           className={cn(
-            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex w-full",
+            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar w-full",
             className
           )}
           style={{
@@ -165,6 +165,9 @@ function Sidebar({
   }
 
   if (isMobile) {
+    // ❗ Don't even render Sheet if sidebar is not open
+    if (!openMobile) return null;
+  
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetContent
@@ -185,7 +188,7 @@ function Sidebar({
         </SheetContent>
       </Sheet>
     );
-  }
+  }  
 
   return (
     <div

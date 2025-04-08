@@ -296,20 +296,23 @@ function DashboardContent() {
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
   return (
-    <main className="min-h-screen bg-map-bg text-map-text p-4">
-      <div className="max-w-4xl mx-auto">
-        <DashboardHeader />
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white mb-2"></div>
-              <p className="ml-3">Loading route details...</p>
-            </div>
-          }
-        >
-          <DashboardContent />
-        </Suspense>
+    <main className="min-h-[100dvh] w-full overflow-x-hidden bg-map-bg text-map-text pb-24">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-4xl mx-auto">
+          <DashboardHeader />
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white mb-2"></div>
+                <p className="ml-3">Loading route details...</p>
+              </div>
+            }
+          >
+            <DashboardContent />
+          </Suspense>
+        </div>
       </div>
     </main>
+
   );
 }
