@@ -49,9 +49,11 @@ export default function useLikeIconTextWithTooltip(
 
     // Disable the button for 2 seconds
     setIsDisabled(true);
+
     let userHasLiked2 = null; // Moved outside try block
 
     try {
+
       if (
         !userHasLiked &&
         ["Like", "Clap", "Support", "Heart", "Bulb", "Laugh"].includes(
@@ -132,7 +134,6 @@ export default function useLikeIconTextWithTooltip(
       showError("Error: Check console for details.");
       console.error("Error liking the post:", error);
 
-      // Now userHasLiked2 is accessible here
       if (!userHasLiked2) {
         setLikesCount((prevCount) => prevCount + 1);
         setUserHasLiked(true);

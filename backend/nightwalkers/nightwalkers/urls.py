@@ -38,6 +38,8 @@ urlpatterns = [
     path("forum/", include("forum.urls")),
     path("api/", include("map.urls")),
     path("", include("map.urls")),
+    path("api/chats/", include("chat.urls")),
+    path("chats/", include("chat.urls")),
 ]
 
 if settings.DEBUG:

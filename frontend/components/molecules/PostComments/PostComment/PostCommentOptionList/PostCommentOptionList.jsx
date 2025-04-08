@@ -1,3 +1,4 @@
+"use client";
 import Icon from "@/components/atom/Icon/Icon";
 import CustomDialogBox from "@/components/organisms/CustomDialogBox/CustomDialogBox";
 import usePostCommentOptionList from "./usePostCommentOptionList";

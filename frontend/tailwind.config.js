@@ -41,6 +41,10 @@ module.exports = {
           inputfocus: "var(--sidebar-input-focus-ring)",
           labeltext: "var(--sidebar-label-text)",
         },
+        chat: {
+          borderLight: "border-gray-700",
+          borderDark: "border-gray-800",
+        },
         map: {
           bg: "var(--sidebar-bg)",
           darkerbg: "var(--sidebar-group-bg)",
@@ -204,5 +208,9 @@ module.exports = {
     "items-start",
     "items-center",
     "text-forum-subheading",
+    "justify-start",
+    "justify-end",
+    "ml-8",
+    "mr-8",
   ],
 };

@@ -25,6 +25,7 @@ export function DashboardHeader() {
       console.error("Error fetching user data:", error);
     }
   };
+
   return (
     <>
       <div className="flex justify-between items-center mb-8">
