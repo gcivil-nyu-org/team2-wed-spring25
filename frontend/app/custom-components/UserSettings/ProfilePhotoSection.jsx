@@ -95,7 +95,7 @@ const ProfilePhotoSection = () => {
                   <div>
                     <h4 className="font-medium mb-1">Coming Soon</h4>
                     <p className="text-sm text-gray-600">
-                      Profile photo customization is coming soon! You'll be able to upload and edit your profile photo in a future update.
+                      Profile photo customization is coming soon! You&apos;ll be able to upload and edit your profile photo in a future update.
                     </p>
                   </div>
                 </div>

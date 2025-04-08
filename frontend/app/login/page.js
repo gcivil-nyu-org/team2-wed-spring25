@@ -14,22 +14,17 @@ import Link from "next/link";
 import AnimatedBackground from "../custom-components/AnimatedBackground";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Suspense } from "react";
-import Loader from "@/components/molecules/Loader/Loader";
+import { Suspense } from 'react';
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
-          <div className="text-white text-xl">
-            <Loader />
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    }>
       <LoginContent />
     </Suspense>
   );
@@ -37,21 +32,32 @@ export default function LoginPage() {
 export function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { status } = useSession();
+  const { data: session, status, update } = useSession();
+  const redirectAttempted = useRef(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Debug log for session status changes
+  useEffect(() => {
+    console.log("Session status:", status);
+    if (session) {
+      console.log("Session data available:", !!session);
+    }
+  }, [status, session]);
+
   // Get error message from URL if it exists
   useEffect(() => {
     const errorFromParams = searchParams.get("error");
     if (errorFromParams) {
       const errorMessages = {
-        session_expired: "Your session has expired. Please log in again.",
-        CredentialsSignin: "Invalid email or password.",
-        OAuthSignin: "Error signing in with Google.",
-        default: "An error occurred during sign in.",
+        "session_expired": "Your session has expired. Please log in again.",
+        "TokenInvalid": "Your session has expired. Please log in again.",
+        "CredentialsSignin": "Invalid email or password.",
+        "OAuthSignin": "Error signing in with Google.",
+        "default": "An error occurred during sign in."
       };
 
       setError(errorMessages[errorFromParams] || errorMessages.default);
@@ -60,12 +66,31 @@ export function LoginContent() {
 
   // Check if user is already logged in
   useEffect(() => {
-    if (status === "authenticated") {
-      //get user id
-
+    if (status === "authenticated" && !redirectAttempted.current) {
+      redirectAttempted.current = true;
+      console.log("User authenticated, redirecting to home");
       router.replace("/users/home");
     }
   }, [status, router]);
+
+  // Safety timeout to prevent UI getting stuck in loading state
+  useEffect(() => {
+    let timeoutId;
+    
+    if (loading) {
+      timeoutId = setTimeout(() => {
+        console.log("Login timeout - resetting loading state");
+        setLoading(false);
+        if (!error) {
+          setError("Login is taking longer than expected. Refresh and try again.");
+        }
+      }, 15000); // 10 second timeout
+    }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [loading, error]);
 
   const handleOAuthLogin = async (provider) => {
     try {
@@ -91,7 +116,9 @@ export function LoginContent() {
     try {
       setError(null);
       setLoading(true);
+      redirectAttempted.current = false;
 
+      console.log("Attempting credentials login");
       // Using Next-Auth's signIn for credentials
       const result = await signIn("credentials", {
         email,
@@ -99,15 +126,17 @@ export function LoginContent() {
         redirect: false, // Don't redirect automatically so we can handle errors
       });
 
+      console.log("Sign in result:", result);
+
       if (result?.error) {
         // Map known error codes to user-friendly messages
         const errorMessages = {
-          CredentialsSignin: "Invalid email or password",
-          SessionExpired: "Your session expired. Please log in again",
-          RefreshTokenExpired: "Your session has expired. Please log in again",
-          RefreshAccessTokenError: "Authentication error. Please try again",
-          OAuthAccountNotLinked:
-            "Email already in use with a different provider",
+          "CredentialsSignin": "Invalid email or password",
+          "SessionExpired": "Your session expired. Please log in again",
+          "RefreshTokenExpired": "Your session has expired. Please log in again",
+          "TokenInvalid": "Your session has expired. Please log in again",
+          "RefreshAccessTokenError": "Authentication error. Please try again",
+          "OAuthAccountNotLinked": "Email already in use with a different provider",
           // Add other error codes as you encounter them
         };
 
@@ -117,8 +146,18 @@ export function LoginContent() {
         return;
       }
 
-      // Success - redirect to home
-      router.replace("/users/home");
+      // If we get here, login was successful
+      console.log("Login successful, redirecting");
+      
+      // Force refresh the session to ensure we have the latest data
+      if (update) {
+        await update();
+      }
+      
+      // Use the router to navigate to the home page
+      router.push("/users/home");
+      
+      // Don't reset loading state as we're navigating away
     } catch (error) {
       console.error("Login failed:", error);
       setError("An unexpected error occurred");

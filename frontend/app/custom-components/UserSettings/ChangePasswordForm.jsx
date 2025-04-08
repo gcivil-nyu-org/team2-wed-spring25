@@ -278,7 +278,7 @@ const ChangePasswordForm = () => {
           <div className="mt-2 flex items-start">
             <Info className="text-blue-500 mr-2 mt-0.5 flex-shrink-0" size={16} />
             <p className="text-xs text-sidebar-text">
-              Use a strong password that you don't use elsewhere. For the strongest protection, use a mix of letters, numbers, and symbols.
+              Use a strong password that you don&apos;t use elsewhere. For the strongest protection, use a mix of letters, numbers, and symbols.
             </p>
           </div>
 
