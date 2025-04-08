@@ -51,7 +51,6 @@ function DashboardContent() {
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { showError, showWarning, showSuccess } = useNotification();
-  const [successfulRoute, setSuccessfulRoute] = useState(false);
   const [routeName, setRouteName] = useState("");
   const [initialLoad, setInitialLoad] = useState(true);
   const [initialDepartureCoords, setInitialDepartureCoords] = useState(null);
@@ -162,8 +161,6 @@ function DashboardContent() {
 
       // Wait for state to clear
       setTimeout(() => {
-        // Force a complete re-render of map
-        setMapKey((prev) => prev + 1);
 
         // Then set the new values
         setUseCurrentLocation(!!useCurrentLocation);
