@@ -7,7 +7,7 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import LocationSearchForm from "@/app/custom-components/LocationSearchForm";
 import { DashboardHeader } from "../home/page";
 import { useSearchParams } from "next/navigation";
-import { useMediaQuery } from 'react-responsive'; // Import react-responsive
+// import { useMediaQuery } from 'react-responsive'; // Import react-responsive
 
 // Dynamically import the map component with SSR disabled
 const ClientOnlyMap = dynamic(
@@ -62,7 +62,7 @@ function DashboardContent() {
 
   // Used to force map re-renders when needed
   const [mapKey, setMapKey] = useState(1);
-  const isMobile = useMediaQuery({ maxWidth: 767 });
+  // const isMobile = useMediaQuery({ maxWidth: 767 });
 
   // Load coordinates from URL on initial render
   useEffect(() => {
@@ -241,7 +241,7 @@ function DashboardContent() {
           initialDepartureCoords={initialDepartureCoords}
           initialDestinationCoords={initialDestinationCoords}
           routeCalculated={routeCalculated}
-          isMobile={isMobile} // Pass the isMobile prop
+          // isMobile={isMobile} // Pass the isMobile prop
         />
       </div>
       
