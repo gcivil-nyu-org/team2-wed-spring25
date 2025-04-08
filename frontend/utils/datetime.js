@@ -89,4 +89,62 @@ const formatDate = (dateString) => {
   }
 };
 
-export { formatDate };
+const getLastMessageTimeStampAMPM = (timestamp) => {
+  const date = new Date(timestamp);
+
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+
+  // Remove leading zero by converting to number and back
+  const formattedHours = parseInt(hours % 12 || 12).toString();
+  const formattedMinutes = minutes.toString().padStart(2, "0");
+
+  return `${formattedHours}:${formattedMinutes} ${ampm}`;
+};
+
+const getLastMessageTimeStamp = (timestamp) => {
+  const now = new Date();
+  const messageDate = new Date(timestamp);
+
+  // Check if it's today
+  if (
+    messageDate.getDate() === now.getDate() &&
+    messageDate.getMonth() === now.getMonth() &&
+    messageDate.getFullYear() === now.getFullYear()
+  ) {
+    // Return time in 12-hour format (e.g., "2:30 PM")
+    const hours = messageDate.getHours();
+    const minutes = messageDate.getMinutes();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const formattedHours = parseInt(hours % 12 || 12).toString();
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+    return `${formattedHours}:${formattedMinutes} ${ampm}`;
+  }
+
+  // Check if it's within the last 6 days
+  const sixDaysAgo = new Date(now);
+  sixDaysAgo.setDate(now.getDate() - 6);
+
+  if (messageDate > sixDaysAgo) {
+    // Return day name (e.g., "Monday")
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    return days[messageDate.getDay()];
+  }
+
+  // For older dates, return formatted date (e.g., "4/5/2025")
+  const month = messageDate.getMonth() + 1;
+  const day = messageDate.getDate();
+  const year = messageDate.getFullYear();
+  return `${month}/${day}/${year}`;
+};
+
+export { formatDate, getLastMessageTimeStampAMPM, getLastMessageTimeStamp };

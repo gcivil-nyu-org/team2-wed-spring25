@@ -181,6 +181,7 @@ export default function PostDialog({
                   onEmojiClick={(emojiObject) =>
                     handleOnEmojiClick(emojiObject, setPostContent)
                   }
+                  theme="dark"
                 />
               </div>
             )}

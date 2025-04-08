@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db.models import Q
 
 
 class CustomUserManager(BaseUserManager):
@@ -122,6 +123,13 @@ class User(AbstractUser):
         """Returns the count of saved routes for this user"""
         return self.saved_routes.count()
 
+    def get_mutual_follows(self):
+        """
+        Returns all users who follow the current user AND are followed by them.
+        (Uses a single DB query for efficiency)
+        """
+        return User.objects.filter(Q(followers=self) & Q(following=self))
+
 
 class Follow(models.Model):
     # Main user (the one who is following)
@@ -149,3 +157,16 @@ class Follow(models.Model):
 
     def __str__(self):
         return f"{self.main_user} follows {self.following_user}"
+
+
+class ReportIssue(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    reported_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=100, null=False)
+    description = models.TextField(null=False, max_length=500)
+
+    def __str__(self):
+        if self.user:
+            return f"{self.title} by {self.user.first_name}"
+        else:
+            return f"{self.title} by Unknown User"

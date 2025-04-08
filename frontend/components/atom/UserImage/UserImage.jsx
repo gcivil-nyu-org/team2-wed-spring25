@@ -1,3 +1,4 @@
+"use client";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 import Image from "next/image";
 

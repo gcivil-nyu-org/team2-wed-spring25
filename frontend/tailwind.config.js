@@ -34,6 +34,27 @@ module.exports = {
           text: "var(--sidebar-text)",
           border: "var(--sidebar-border2)",
           separator: "var(--sidebar-separator)",
+          inputbg: "var(--sidebar-input-bg)",
+          inputborder: "var(--sidebar-input-border)",
+          inputtext: "var(--sidebar-input-text)",
+          inputplaceholder: "var(--sidebar-input-placeholder)",
+          inputfocus: "var(--sidebar-input-focus-ring)",
+          labeltext: "var(--sidebar-label-text)",
+        },
+        chat: {
+          borderLight: "border-gray-700",
+          borderDark: "border-gray-800",
+        },
+        map: {
+          bg: "var(--sidebar-bg)",
+          darkerbg: "var(--sidebar-group-bg)",
+          text: "var(--sidebar-text)",
+          mapcolor: "var(--map-color)",
+          legendtext: "var(--legend-text)",
+          safety: "var(--safety-color)",
+          safety2: "var(--safety-color-2)",
+          pointer: "var(--pointer-color)",
+          pointer2: "var(--pulse-color)",
         },
         settingheader: {
           headerheight: "var(--header-height)",
@@ -84,6 +105,44 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        "bg-pan": {
+          "0%": {
+            backgroundPosition: "0% 0%",
+            backgroundSize: "120%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+            backgroundSize: "120%",
+          },
+          "100%": {
+            backgroundPosition: "0% 100%",
+            backgroundSize: "120%",
+          },
+        },
+        "bg-pan-mobile": {
+          "0%": {
+            backgroundPosition: "25% 25%",
+            backgroundSize: "230%",
+          },
+          "33%": {
+            backgroundPosition: "75% 40%",
+            backgroundSize: "230%",
+          },
+          "66%": {
+            backgroundPosition: "25% 60%",
+            backgroundSize: "230%",
+          },
+          "100%": {
+            backgroundPosition: "75% 75%",
+            backgroundSize: "230%",
+          },
+        },
+      },
+      animation: {
+        "bg-pan": "bg-pan 35s linear infinite alternate",
+        "bg-pan-mobile": "bg-pan-mobile 70s linear infinite alternate",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
@@ -133,5 +192,9 @@ module.exports = {
     "items-start",
     "items-center",
     "text-forum-subheading",
+    "justify-start",
+    "justify-end",
+    "ml-8",
+    "mr-8",
   ],
 };

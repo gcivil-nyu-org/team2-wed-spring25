@@ -1,3 +1,4 @@
+"use client";
 import UserImage from "@/components/atom/UserImage/UserImage";
 import formatDateAgo from "@/utils/datetime";
 import { getUserFullName } from "@/utils/string";

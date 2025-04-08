@@ -90,7 +90,7 @@ export default function SaveRouteComponent({ departure, destination }) {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="flex items-center gap-2 bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+          className="flex items-center gap-2 bg-white text-map-legendtext border-map-bg hover:bg-map-bg hover:text-map-text"
           type="button"
         >
           <BookmarkPlus size={18} />
@@ -155,7 +155,7 @@ export default function SaveRouteComponent({ departure, destination }) {
                 <Button
                   type="submit"
                   disabled={isLoading || !routeName}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="bg-map-bg hover:bg-map-darkerbg text-white"
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2">

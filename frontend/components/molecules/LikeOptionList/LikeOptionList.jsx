@@ -1,3 +1,4 @@
+"use client";
 import Icon from "@/components/atom/Icon/Icon";
 import useLikeOptionList from "./useLikeOptionList";
 

@@ -125,23 +125,6 @@ describe("RoutingMapComponent", () => {
     expect(getByText("Getting your location...")).toBeInTheDocument();
   });
 
-  it("shows location denied message and retry button", () => {
-    const mockRetryLocation = jest.fn();
-    useUserLocation.mockReturnValue({
-      userLocation: null,
-      isGettingLocation: false,
-      locationDenied: true,
-      retryLocation: mockRetryLocation,
-    });
-
-    const { getByText } = render(
-      <RoutingMapComponent mapboxToken="mock-token" useCurrentLocation={true} />
-    );
-
-    const retryButton = getByText("Enable Location Access");
-    expect(retryButton).toBeInTheDocument();
-  });
-
   it("shows loading message when map is not loaded", () => {
     useUserLocation.mockReturnValue({
       userLocation: null,
@@ -176,5 +159,21 @@ describe("RoutingMapComponent", () => {
       "map_initialization_error"
     );
   });
+});
+
+it("handles location permission denied when useCurrentLocation is true", () => {
+  useUserLocation.mockReturnValue({
+    userLocation: null,
+    isGettingLocation: false,
+    locationDenied: true,
+    retryLocation: jest.fn(),
+  });
+
+  const { getByText } = render(
+    <RoutingMapComponent mapboxToken="mock-token" useCurrentLocation={true} />
+  );
+
+  // Ensure the retry button is displayed when location access is denied
+  expect(getByText("Enable Location Access")).toBeInTheDocument();
 });
 

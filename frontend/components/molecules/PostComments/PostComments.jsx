@@ -1,3 +1,4 @@
+"use client";
 import Loader from "@/components/molecules/Loader/Loader";
 import PostComment from "@/components/molecules/PostComments/PostComment/PostComment";
 import usePostComments from "@/components/molecules/PostComments/usePostComments";
