@@ -178,3 +178,19 @@ describe("RoutingMapComponent", () => {
   });
 });
 
+it("handles location permission denied when useCurrentLocation is true", () => {
+  useUserLocation.mockReturnValue({
+    userLocation: null,
+    isGettingLocation: false,
+    locationDenied: true,
+    retryLocation: jest.fn(),
+  });
+
+  const { getByText } = render(
+    <RoutingMapComponent mapboxToken="mock-token" useCurrentLocation={true} />
+  );
+
+  // Ensure the retry button is displayed when location access is denied
+  expect(getByText("Enable Location Access")).toBeInTheDocument();
+});
+
