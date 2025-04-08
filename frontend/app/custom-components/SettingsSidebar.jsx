@@ -178,7 +178,7 @@ const SettingsSidebar = () => {
               <div className="flex flex-row justify-start items-center ml-3 gap-5 w-[80%]">
                 <Avatar className="h-12 w-12">
                   <AvatarImage
-                    src="https://github.com/shadcn.png"
+                    src={user?.avatar || fallbackUserProfileImage}
                     alt="@shadcn"
                   />
                   <AvatarFallback>CN</AvatarFallback>
