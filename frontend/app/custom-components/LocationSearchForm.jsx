@@ -224,7 +224,7 @@ export default function LocationSearchForm({
         {/* Departure */}
         <div className="flex-1 space-y-1 relative">
           <div className="flex justify-between items-center mb-1">
-            <label htmlFor="departure" className="text-sm font-medium text-map-legendtext">
+            <label htmlFor="departure" className="text-xs sm:text-sm md:text-base font-medium text-map-legendtext">
               Departure
             </label>
             <div className="flex items-center">
@@ -297,8 +297,8 @@ export default function LocationSearchForm({
 
         {/* Destination */}
         <div className="flex-1 space-y-1 relative">
-          <label htmlFor="destination" className="text-sm font-medium text-map-legendtext">
-            Destination
+        <label htmlFor="destination" className="text-xs sm:text-sm md:text-base font-medium text-map-legendtext">
+          Destination
           </label>
           <div className="flex space-x-2">
             <Input
