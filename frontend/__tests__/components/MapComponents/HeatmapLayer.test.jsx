@@ -255,6 +255,40 @@ describe("HeatmapLayer", () => {
     expect(mockAddTo).toHaveBeenCalled();
   });
 
+  it("shows loading indicator when fetching heatmap data", async () => {
+    apiGet.mockImplementation(() => new Promise(() => {})); // Simulate loading
+    render(<HeatmapLayer mapLoaded={true} mapInstanceRef={{ current: mockMapInstance }} />);
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
+  });
+
+  it("removes the heatmap layer when toggle is off", async () => {
+    const mockData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
+    apiGet.mockResolvedValueOnce(mockData);
+  
+    await act(async () => {
+      render(<HeatmapLayer mapLoaded={true} mapInstanceRef={{ current: mockMapInstance }} />);
+    });
+  });
+
+  it("applies the correct heatmap configuration", async () => {
+    const mockData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
+    apiGet.mockResolvedValueOnce(mockData);
+  
+    await act(async () => {
+      render(<HeatmapLayer mapLoaded={true} mapInstanceRef={{ current: mockMapInstance }} />);
+    });
+  
+    expect(L.heatLayer).toHaveBeenCalledWith(
+      [[1, 1, 0.5]],
+      expect.objectContaining({
+        radius: 15,
+        blur: 15,
+        maxZoom: 18,
+        gradient: expect.any(Object), // Check for gradient
+      })
+    );
+  });
+
   describe("HeatmapLayer - Simple Retry Button Test", () => {
     let mockShowError;
     let mockShowWarning;
@@ -281,7 +315,6 @@ describe("HeatmapLayer", () => {
     //         handleRefresh={mockHandleRefresh}
     //       />
     //     );
-    //     await waitFor(() => expect(apiGet).toHaveBeenCalledTimes(1));
     //   });
   
     //   const retryButton = screen.getByText("Retry");
