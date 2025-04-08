@@ -342,8 +342,8 @@ export default function LocationSearchForm({
 
       <Button
         type="submit"
-        disabled={isButtonDisabled()}
-        className="w-full mt-4 bg-map-safety hover:bg-map-safety2 text-map-legendtext"
+        disabled={isButtonDisabled}
+        className="w-full mt-4 bg-map-pointer hover:bg-map-pointer2 text-map-legendtext"
       >
         {getButtonText()}
       </Button>
