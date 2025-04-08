@@ -307,7 +307,7 @@ const RoutingMapComponent = ({
         )}
 
         {/* Optional: Location retry button for when permission is denied */}
-        {locationDenied && !isGettingLocation && (
+        {/* {locationDenied && !isGettingLocation && (
           <div className="absolute top-4 right-4 z-[1000]">
             <button
               onClick={retryLocation}
@@ -316,7 +316,7 @@ const RoutingMapComponent = ({
               Enable Location Access
             </button>
           </div>
-        )}
+        )} */}
 
         {/* Route Renderer Component */}
         {mapLoaded && routeData && (

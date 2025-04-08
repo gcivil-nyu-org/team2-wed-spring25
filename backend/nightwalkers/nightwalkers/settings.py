@@ -93,7 +93,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.gis",
-    # "sslserver",
+    "sslserver",
     "django_extensions",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
