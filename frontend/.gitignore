@@ -40,3 +40,6 @@ next-env.d.ts
 certificates/
 *.pem
 *.key
+
+# Nextauth
+/pages/*
