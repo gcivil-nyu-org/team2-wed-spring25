@@ -82,7 +82,7 @@ body {
 
     /* Sidebar Colors */
     --sidebar-bg:rgb(13, 71, 161); /* blue-900 */
-    --sidebar-group-bg: rgb(21, 101, 192); /* blue-800 */
+    --sidebar-group-bg: rgb(13, 71, 161); /* blue-800 */
     --sidebar-text: rgb(243 244 246); /* gray-100 */
     --sidebar-border2: rgb(120 113 108); /* stone-500 */
     --sidebar-separator: rgb(87 83 78); /* stone-600 */
@@ -95,6 +95,7 @@ body {
       108,
       0.7
     ); /* Semi-transparent border2 */
+    --sidebar-hover-bg:rgb(21, 101, 192); /* Darker background on hover */
     --sidebar-input-focus-ring: rgb(
       120,
       113,
