@@ -29,15 +29,7 @@ export function DashboardHeader() {
   return (
     <>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-white/80">
-            Logged in as: {isLoading ? "Loading..." : user?.email}
-          </span>
-          <Button asChild>
-            <Link href={`forum/`}>Forum</Link>
-          </Button>
-          <Button onClick={testAPI}>TestAPI</Button>
           <SettingPanel />
         </div>
       </div>

@@ -41,4 +41,10 @@ certificates/
 *.pem
 *.key
 
+# Nextauth
+/pages/*
 test.js
+
+test.js
+# Nextauth
+/pages/*

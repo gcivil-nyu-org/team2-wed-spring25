@@ -7,7 +7,8 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import LocationSearchForm from "@/app/custom-components/LocationSearchForm";
 import { DashboardHeader } from "../home/page";
 import { useSearchParams } from "next/navigation";
-
+// import { useMediaQuery } from 'react-responsive'; // Import react-responsive
+import Image from "next/image";
 // Dynamically import the map component with SSR disabled
 const ClientOnlyMap = dynamic(
   () => import("@/app/custom-components/MapComponents/MapComponent.jsx"),
@@ -24,21 +25,21 @@ const ClientOnlyMap = dynamic(
 
 
 // Dashboard header component
-export function MapPage() {
+// export function MapPage() {
 
-  return (
-    <div className="flex justify-between items-center mb-8">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      <div className="flex items-center gap-4">
-        {user && (
-          <span className="text-sm text-map-text/80">
-            Logged in as:
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className="flex justify-between items-center mb-0 mt-0 p-0">
+//       {/* <h1 className="text-3xl font-bold mt-0">Dashboard</h1> */}
+//       <div className="flex items-center gap-4">
+//         {user && (
+//           <span className="text-sm text-map-text/80">
+//             Logged in as:
+//           </span>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
 
 // Inner dashboard component that uses searchParams
 // Update in the DashboardContent component:
@@ -61,6 +62,7 @@ function DashboardContent() {
 
   // Used to force map re-renders when needed
   const [mapKey, setMapKey] = useState(1);
+  // const isMobile = useMediaQuery({ maxWidth: 767 });
 
   // Load coordinates from URL on initial render
   useEffect(() => {
@@ -217,32 +219,43 @@ function DashboardContent() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {routeName && (
-        <div className="bg-white/20 rounded-lg p-4 mb-6 text-center">
-          <h2 className="text-xl font-semibold">{routeName}</h2>
-          <p className="text-sm mt-2">
+    <div className="relative flex flex-col h-screen w-full">
+      {/* {routeName && (
+        <div className="bg-white/20 rounded-md p-4 mb-4 text-center">
+          <h2 className="text-lg font-semibold">{routeName}</h2>
+          <p className="text-sm mt-1 text-map-text/80">
             Click &quot;Get Directions&quot; to calculate the route
           </p>
         </div>
-      )}
+      )} */}
 
-      <div className="bg-white/10 rounded-lg p-4 mb-6">
-        <h2 className="text-xl font-semibold mb-3 text-map-text">Route Planner</h2>
 
-        {/* Location Search Form */}
-        <div className="mb-6">
-          <LocationSearchForm
-            onSearch={handleSearch}
-            isLoading={isLoading}
-            mapboxToken={mapboxToken}
-            initialDepartureCoords={initialDepartureCoords}
-            initialDestinationCoords={initialDestinationCoords}
-            routeCalculated={routeCalculated} // Pass down whether a route has been calculated
+      {/* Search Form Section (Top) */}
+      <div
+        className={`p-0 mb-0 mt-0`}
+      >
+        <h2 className="text-md font-semibold mt-0 mb-0 text-map-text md:text-lg flex items-center ml-2">Travel Safely
+          <Image
+          className="mx-0 ml-2"
+          src="/owl-logo.svg"
+          width={24}
+          height={24}
+          alt="Nightwalkers Logo"
           />
-        </div>
-
-        {/* Map Container */}
+        </h2>
+        <LocationSearchForm
+          onSearch={handleSearch}
+          isLoading={isLoading}
+          mapboxToken={mapboxToken}
+          initialDepartureCoords={initialDepartureCoords}
+          initialDestinationCoords={initialDestinationCoords}
+          routeCalculated={routeCalculated}
+          // isMobile={isMobile} // Pass the isMobile prop
+        />
+      </div>
+      
+      {/* Map Section (Center, takes remaining height) */}
+      <div className="w-full flex-grow pb-20 mb-0">
         {mapboxToken && readyToRender && (
           <ClientOnlyMap
             key={mapKey}
@@ -254,48 +267,15 @@ function DashboardContent() {
         )}
       </div>
 
-      {/* Instructions */}
-      <div className="bg-white/10 rounded-lg p-4 mb-6">
-        <h2 className="text-xl font-semibold mb-3 text-map-text">
-          How to Use This Map
-        </h2>
-        <ul className="list-disc pl-5 space-y-1 text-map-text/90">
-          <li>
-            Check &quot;Use current location&quot; if you want to use your
-            current location as the starting point
-          </li>
-          <li>
-            Or enter your departure address and click &quot;Search&quot; to find
-            locations
-          </li>
-          <li>
-            Enter your destination address and click &quot;Search&quot; to find
-            locations
-          </li>
-          <li>Select locations from the suggestions to set your points</li>
-          <li>Click &quot;Get Directions&quot; to calculate your route</li>
-          <li>
-            The app will plan a walking route, avoiding high-crime areas when
-            possible
-          </li>
-          <li>
-            You can share routes by copying the URL after planning a route
-          </li>
-        </ul>
-        <p className="text-sm text-map-text/80 mt-4">
-          Note: Location services must be enabled in your browser when using
-          &quot;Current Location&quot; as your starting point.
-        </p>
-      </div>
     </div>
   );
 }
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
   return (
-    <main className="min-h-screen bg-map-bg text-map-text p-4">
-      <div className="max-w-4xl mx-auto">
-        <DashboardHeader />
+    <main className="min-h-screen bg-map-bg text-map-text p-0 overflow-y-auto mt-0"> {/* Added overflow-y-auto */}
+      {/* <div className="flex flex-col h-screen mt-0"> Changed h-full to h-screen */}
+      <DashboardHeader />
         <Suspense
           fallback={
             <div className="flex items-center justify-center h-64">
@@ -306,7 +286,7 @@ export default function Dashboard() {
         >
           <DashboardContent />
         </Suspense>
-      </div>
+      {/* </div> */}
     </main>
   );
 }
