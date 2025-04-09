@@ -35,7 +35,7 @@ const ProfileContent = () => {
       <div className="p-6 size-full flex flex-col gap-6">
         {/* Profile Photo Section */}
         <div>
-          <h2 className="mb-4">Profile Photo</h2>
+          <h2 id="display" className="mb-4">Profile Photo</h2>
           <ProfilePhotoSection />
         </div>
 
@@ -57,7 +57,7 @@ const ProfileContent = () => {
 
         {/* Location Section */}
         <div>
-          <h2 id="location" className="mb-4">
+          <h2 id="locationsettings" className="mb-4">
             Location
           </h2>
           <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text">
