@@ -21,6 +21,23 @@ const ChatHome = () => {
     listOfUsersTyping,
   } = useChat();
 
+  if (
+    chatUserList === null ||
+    chatUserList === undefined ||
+    chatUserList.length === 0
+  ) {
+    return (
+      <main className="bg-bg-forum w-screen max-w-screen h-screen max-h-screen flex justify-center items-center">
+        <div className="w-full h-full max-w-4xl bg-bg-post flex justify-center items-center px-5">
+          <h1 className="text-center text-2xl text-forum-subheading font-bold">
+            You don't have any chats yet. You can only chat with your mutual
+            followers.
+          </h1>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="bg-bg-forum w-screen max-w-screen h-screen max-h-screen flex justify-center items-center">
       {isLoading ? (

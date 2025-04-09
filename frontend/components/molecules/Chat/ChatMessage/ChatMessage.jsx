@@ -134,7 +134,7 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
                 className=""
               />
             </button>
-            {isSettingsOpen && (
+            {false && (
               <div ref={settingsRef} className="z-10 chatBackgroundDark w-40 ">
                 <ul className="my-2 w-full">
                   {messageSettings.map((setting) => (
