@@ -28,7 +28,7 @@ const ClientOnlyMap = dynamic(
 export function MapPage() {
 
   return (
-    <div className="flex justify-between items-center mb-8">
+    <div className="flex justify-between items-center mb-0 mt-0 p-0">
       <h1 className="text-3xl font-bold">Dashboard</h1>
       <div className="flex items-center gap-4">
         {user && (
@@ -220,20 +220,20 @@ function DashboardContent() {
 
   return (
     <div className="relative flex flex-col h-screen w-full">
-      {routeName && (
+      {/* {routeName && (
         <div className="bg-white/20 rounded-md p-4 mb-4 text-center">
           <h2 className="text-lg font-semibold">{routeName}</h2>
           <p className="text-sm mt-1 text-map-text/80">
             Click &quot;Get Directions&quot; to calculate the route
           </p>
         </div>
-      )}
+      )} */}
 
       {/* Search Form Section (Top) */}
       <div
-        className={`bg-white/10 rounded-md p-2 mb-2 md:mb-4`}
+        className={`rounded-md p-0 mb-0 mt-0`}
       >
-        <h2 className="text-sm font-semibold mb-1 text-map-text md:text-lg">Find Your Route</h2>
+        <h2 className="text-md font-semibold mt-0 mb-0 text-map-text md:text-lg">Find Your Route</h2>
         <LocationSearchForm
           onSearch={handleSearch}
           isLoading={isLoading}
@@ -264,8 +264,8 @@ function DashboardContent() {
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
   return (
-    <main className="min-h-screen bg-map-bg text-map-text p-0 overflow-y-auto"> {/* Added overflow-y-auto */}
-      <div className="flex flex-col h-screen"> {/* Changed h-full to h-screen */}
+    <main className="min-h-screen bg-map-bg text-map-text p-0 overflow-y-auto mt-0"> {/* Added overflow-y-auto */}
+      <div className="flex flex-col h-screen mt-0"> {/* Changed h-full to h-screen */}
       <DashboardHeader />
         <Suspense
           fallback={
