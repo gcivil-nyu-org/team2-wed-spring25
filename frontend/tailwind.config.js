@@ -40,6 +40,7 @@ module.exports = {
           inputplaceholder: "var(--sidebar-input-placeholder)",
           inputfocus: "var(--sidebar-input-focus-ring)",
           labeltext: "var(--sidebar-label-text)",
+          hover: "var(--sidebar-hover-bg)",
         },
         chat: {
           borderLight: "border-gray-700",

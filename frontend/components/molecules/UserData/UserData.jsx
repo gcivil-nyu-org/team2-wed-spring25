@@ -35,16 +35,16 @@ export default function UserData({
           <h3 className="text-xl font-semibold text-forum-heading">
             {/* take 18 characters of the name */}
             {getUserFullName(
-              isLoading ? "Uknown" : user?.first_name,
-              isLoading ? "Uknown" : user?.last_name
+              isLoading ? "Unknown" : user?.first_name,
+              isLoading ? "Unknown" : user?.last_name
             ).length > 14
               ? getUserFullName(
-                  isLoading ? "Uknown" : user?.first_name,
-                  isLoading ? "Uknown" : user?.last_name
+                  isLoading ? "Unknown" : user?.first_name,
+                  isLoading ? "Unknown" : user?.last_name
                 ).substring(0, 14) + ".."
               : getUserFullName(
-                  isLoading ? "Uknown" : user?.first_name,
-                  isLoading ? "Uknown" : user?.last_name
+                  isLoading ? "Unknown" : user?.first_name,
+                  isLoading ? "Unknown" : user?.last_name
                 )}
           </h3>
           {/* show random heading */}
@@ -68,7 +68,6 @@ export default function UserData({
         </div>
         <div className="flex justify-between mt-1">
           <p>Total Posts</p>
-          {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
           {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
         </div>
         <div className="flex justify-between mt-1">

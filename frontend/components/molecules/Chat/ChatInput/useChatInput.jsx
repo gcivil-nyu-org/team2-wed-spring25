@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { useEmojiPicker } from "@/hooks/useEmojiPicker";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 
 export default function useChatInput(selectedUser, setChatUserList) {
   const [rows, setRows] = useState(1);
@@ -9,6 +10,7 @@ export default function useChatInput(selectedUser, setChatUserList) {
   const { send, connectionStatus, handleUserTyping } = useWebSocket();
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
+  const { showError } = useNotification();
   const {
     emojiPickerRef,
     showEmojiPicker,
@@ -55,6 +57,12 @@ export default function useChatInput(selectedUser, setChatUserList) {
     });
 
     setMessageContent("");
+    handleInput(); // Reset textarea height after sending
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto"; // or your initial height
+      setRows(1);
+    }
   };
 
   const handleInput = () => {
@@ -95,8 +103,24 @@ export default function useChatInput(selectedUser, setChatUserList) {
   };
 
   const handleChange = (e) => {
+    if (e.target.value.length > 500) {
+      showError("Message content exceeds 500 characters limit.");
+      return;
+    }
     setMessageContent(e.target.value);
     handleTypingActivity(); // Track typing activity
+
+    // Call handleInput to adjust height whenever content changes
+    handleInput();
+
+    // If message is empty, reset to single row
+    if (!e.target.value.trim()) {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        textarea.style.height = "auto"; // or your initial height
+        setRows(1);
+      }
+    }
   };
 
   return {

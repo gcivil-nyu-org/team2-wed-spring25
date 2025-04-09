@@ -16,6 +16,8 @@ addons:
 env:
   global:
     - DJANGO_DATABASE_URL=postgres://postgres@localhost:5432/test_db
+    - COVERALLS_PARALLEL=true
+    - COVERALLS_SERVICE_NAME=travis-ci
   jobs:
     - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
@@ -44,7 +46,7 @@ install:
   # Install GDAL via pip (ensure it matches the system-installed version)
   # - pip install GDAL==3.4.0 --no-cache-dir  # Specify a newer version of GDAL
   - pip install -r backend/nightwalkers/requirements.txt
-  - pip install black flake8 coverage coveralls
+  - pip install black flake8 coverage coveralls PyYAML
 
   # Install Node.js and frontend dependencies
   - nvm install 22.9 # Install Node.js 22 (or the version your Next.js app requires)
@@ -65,21 +67,36 @@ before_script:
 
 # Run checks and tests
 script:
+  - export COVERALLS_PARALLEL=true
   - pwd
 
   - black --check backend/nightwalkers/
   - flake8 backend/nightwalkers/
 
+  # Backend tests and coverage
   - coverage run --source=$BASE_PATH $BASE_PATH/manage.py test $BASE_PATH --keepdb
-  - coverage report # Print coverage report
-  - coverage xml # Generate coverage XML for coveralls
+  - coverage report
+  - coverage xml
+  - COVERALLS_FLAG_NAME=backend COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls --service=travis-pro < coverage.xml
 
+  # Frontend tests and coverage
+  - cd $FRONTEND_PATH
+  - npm run test -- --coverage --coverageReporters=json-summary --coverageReporters=lcov --coverageReporters=text
+  # Create branch-specific badges directory
+  - |
+    if [ "$TRAVIS_BRANCH" = "main" ]; then
+      mkdir -p public/badges/main
+      npx jest-coverage-badges --output ./public/badges/main
+    elif [ "$TRAVIS_BRANCH" = "develop" ]; then
+      mkdir -p public/badges/develop
+      npx jest-coverage-badges --output ./public/badges/develop
+    else
+      mkdir -p public/badges
+      npx jest-coverage-badges --output ./public/badges
+    fi
+  - cd ..
   # Frontend build
-  - cd $FRONTEND_PATH && npm run build && cd .. # Build the Next.js app
-
-# Report coverage to coveralls
-after_success:
-  - coveralls --service=travis-pro
+  - cd $FRONTEND_PATH && npm run build && cd ..
 
 # Deploy to Render and Netlify upon successful tests for the main and develop branches
 deploy:
@@ -94,3 +111,7 @@ notifications:
   email:
     on_success: never
     on_failure: always
+
+after_script:
+  - curl -k https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN -d "payload[build_num]=$TRAVIS_BUILD_NUMBER&payload[status]=done"
+  - COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls --finish
