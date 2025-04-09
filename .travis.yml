@@ -83,8 +83,8 @@ script:
   - npm run test -- --coverage --coverageReporters=lcov --coverageReporters=text
   # Debug what's in the coverage directory
   - ls -la coverage/
-  # Try using coveralls directly with service name and explicit job flag
-  - COVERALLS_SERVICE_NAME=travis-ci COVERALLS_FLAG_NAME=frontend coveralls < coverage/lcov.info
+  # Use the same format as backend coverage submission
+  - COVERALLS_FLAG_NAME=frontend COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls --service=travis-pro < coverage/lcov.info
   - cd ..
 
   # Frontend build
