@@ -23,7 +23,8 @@ export default function Forums({ settingsType = "" }) {
 
   return (
     <div
-      className={`w-full flex flex-row justify-center items-start py-4 bg-bg-forum`}
+      className={`w-full flex flex-row justify-center items-start py-4 ${settingsType ? "bg-sidebar-bg" : "bg-bg-forum"
+        }`}
     >
       {!settingsType && (
         <div className="flex-col hidden  xsm:flex lg:w-2/6 xl:flex xl:flex-col xl:items-center max-w-[225px] ">
@@ -59,9 +60,8 @@ export default function Forums({ settingsType = "" }) {
         {
           <div
             ref={loaderRef}
-            className={`flex justify-center items-center h-[50vh] ${
-              hasMore ? "visible" : "hidden"
-            }`}
+            className={`flex justify-center items-center h-[50vh] ${hasMore ? "visible" : "hidden"
+              }`}
           >
             <Loader />
           </div>
