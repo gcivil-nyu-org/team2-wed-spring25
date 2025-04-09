@@ -1,6 +1,5 @@
 import UserImage from "@/components/atom/UserImage/UserImage";
 import { getLastMessageTimeStamp } from "@/utils/datetime";
-
 import { getUserFullName } from "@/utils/string";
 import useChatSidebar from "./useChatSidebar";
 
@@ -18,13 +17,15 @@ const ChatSidebar = ({
   });
 
   return (
-    <section className="w-full relative borderLightR h-full">
-      <div className="sticky top-0 bg-bg-post block z-10">
-        <h2 className="text-xl font-normal text-forum-heading py-3 mx-4 ">
+    <section className="w-full h-full flex flex-col borderLightR">
+      <div className="sticky top-0 bg-bg-post z-10 shadow-sm">
+        <h2 className="text-xl font-normal text-forum-heading py-3 mx-4">
           Chats
         </h2>
       </div>
-      <div className="">
+      
+      {/* Scrollable chat list - takes remaining height */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
         {chatUserList.map((chatUser) => {
           const user = chatUser.user;
           return (
