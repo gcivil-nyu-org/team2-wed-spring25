@@ -232,7 +232,7 @@ function DashboardContent() {
 
       {/* Search Form Section (Top) */}
       <div
-        className={`rounded-md p-0 mb-4 mt-0`}
+        className={`p-0 mb-0 mt-0`}
       >
         <h2 className="text-md font-semibold mt-0 mb-0 text-map-text md:text-lg flex items-center ml-2">Travel Safely
           <Image
@@ -255,7 +255,7 @@ function DashboardContent() {
       </div>
       
       {/* Map Section (Center, takes remaining height) */}
-      <div className="w-full flex-grow pb-20">
+      <div className="w-full flex-grow pb-20 mb-0">
         {mapboxToken && readyToRender && (
           <ClientOnlyMap
             key={mapKey}
