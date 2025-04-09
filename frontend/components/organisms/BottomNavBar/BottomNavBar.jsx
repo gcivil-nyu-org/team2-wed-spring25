@@ -1,12 +1,14 @@
-'use client';
+"use client";
 
-import { useRouter, usePathname } from 'next/navigation';
-import { useSidebar } from '@/components/ui/sidebar';
+import { useRouter, usePathname } from "next/navigation";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
+  House,
   LayoutList,
   MapPinned,
+  MessageCircleMore,
   Settings,
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function BottomNavBar() {
   const router = useRouter();
@@ -17,18 +19,33 @@ export default function BottomNavBar() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-[52px] bg-black text-white z-[1002] border-t border-gray-800 flex justify-around items-center shadow-md">
-      
+      {/* Home */}
+      <button
+        onClick={() => router.push("/users/home")}
+        aria-label="Home"
+        className="flex items-center justify-center"
+      >
+        <div
+          className={`rounded-full p-2 transition-all duration-200 ${
+            isActive("/users/home")
+              ? "bg-white/10 text-white scale-110"
+              : "text-gray-400"
+          }`}
+        >
+          <House className="w-6 h-6" />
+        </div>
+      </button>
       {/* Forum */}
       <button
-        onClick={() => router.push('/users/forum')}
+        onClick={() => router.push("/users/forum")}
         aria-label="Forum"
         className="flex items-center justify-center"
       >
         <div
           className={`rounded-full p-2 transition-all duration-200 ${
-            isActive('/users/forum')
-              ? 'bg-white/10 text-white scale-110'
-              : 'text-gray-400'
+            isActive("/users/forum")
+              ? "bg-white/10 text-white scale-110"
+              : "text-gray-400"
           }`}
         >
           <LayoutList className="w-6 h-6" />
@@ -37,18 +54,35 @@ export default function BottomNavBar() {
 
       {/* Map */}
       <button
-        onClick={() => router.push('/users/map')}
+        onClick={() => router.push("/users/map")}
         aria-label="Map"
         className="flex items-center justify-center"
       >
         <div
           className={`rounded-full p-2 transition-all duration-200 ${
-            isActive('/users/map')
-              ? 'bg-white/10 text-white scale-110'
-              : 'text-gray-400'
+            isActive("/users/map")
+              ? "bg-white/10 text-white scale-110"
+              : "text-gray-400"
           }`}
         >
           <MapPinned className="w-6 h-6" />
+        </div>
+      </button>
+
+      {/* Chat */}
+      <button
+        onClick={() => router.push("/users/chat")}
+        aria-label="Chat"
+        className="flex items-center justify-center"
+      >
+        <div
+          className={`rounded-full p-2 transition-all duration-200 ${
+            isActive("/users/chat")
+              ? "bg-white/10 text-white scale-110"
+              : "text-gray-400"
+          }`}
+        >
+          <MessageCircleMore className="w-6 h-6" />
         </div>
       </button>
 
@@ -60,9 +94,9 @@ export default function BottomNavBar() {
       >
         <div
           className={`rounded-full p-2 transition-all duration-200 ${
-            isActive('/users/settings')
-              ? 'bg-white/10 text-white scale-110'
-              : 'text-gray-400 hover:text-white'
+            isActive("/users/settings")
+              ? "bg-white/10 text-white scale-110"
+              : "text-gray-400 hover:text-white"
           }`}
         >
           <Settings className="w-6 h-6" />
