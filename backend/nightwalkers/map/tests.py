@@ -505,7 +505,10 @@ class RouteViewAPITestCase(BaseTestCase):
         response = self.api_client.post(self.url, invalid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("departure", response.data["details"])
-        self.assertIn("within New York City boundaries", str(response.data["details"]["departure"][0]))
+        self.assertIn(
+            "within New York City boundaries",
+            str(response.data["details"]["departure"][0]),
+        )
 
     @patch("requests.post")
     def test_destination_outside_nyc_boundaries(self, mock_post):
@@ -523,11 +526,15 @@ class RouteViewAPITestCase(BaseTestCase):
         response = self.api_client.post(self.url, invalid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("destination", response.data["details"])
-        self.assertIn("within New York City boundaries", str(response.data["details"]["destination"][0]))
+        self.assertIn(
+            "within New York City boundaries",
+            str(response.data["details"]["destination"][0]),
+        )
 
     @patch("requests.post")
     def test_both_coordinates_outside_nyc_boundaries(self, mock_post):
-        """Test that both departure and destination coordinates outside NYC boundaries fail validation"""
+        """Test that both departure and
+        destination coordinates outside NYC boundaries fail validation"""
         # Authenticate user
         self.api_client.force_authenticate(user=self.user1)
 
@@ -557,8 +564,14 @@ class RouteViewAPITestCase(BaseTestCase):
 
         # Coordinates at the edge of NYC boundaries
         edge_data = {
-            "departure": [NYC_BOUNDS["sw"][0] + 0.001, NYC_BOUNDS["sw"][1] + 0.001],  # Just inside SW corner
-            "destination": [NYC_BOUNDS["ne"][0] - 0.001, NYC_BOUNDS["ne"][1] - 0.001],  # Just inside NE corner
+            "departure": [
+                NYC_BOUNDS["sw"][0] + 0.001,
+                NYC_BOUNDS["sw"][1] + 0.001,
+            ],  # Just inside SW corner
+            "destination": [
+                NYC_BOUNDS["ne"][0] - 0.001,
+                NYC_BOUNDS["ne"][1] - 0.001,
+            ],  # Just inside NE corner
             "saved_route": False,
         }
 
@@ -573,7 +586,10 @@ class RouteViewAPITestCase(BaseTestCase):
 
         # Coordinates just outside NYC boundaries
         outside_data = {
-            "departure": [NYC_BOUNDS["sw"][0] - 0.001, NYC_BOUNDS["sw"][1] - 0.001],  # Just outside SW corner
+            "departure": [
+                NYC_BOUNDS["sw"][0] - 0.001,
+                NYC_BOUNDS["sw"][1] - 0.001,
+            ],  # Just outside SW corner
             "destination": [40.6782, -73.9442],  # Brooklyn coordinates
             "saved_route": False,
         }
@@ -586,7 +602,7 @@ class RouteViewAPITestCase(BaseTestCase):
     @patch("polyline.decode")
     @patch("django.db.connection.cursor")
     def test_safer_route_generation_failure(
-            self, mock_cursor, mock_polyline_decode, mock_post
+        self, mock_cursor, mock_polyline_decode, mock_post
     ):
         """Test fallback when safer route generation fails"""
         # Setup mock for OpenRouteService
@@ -625,7 +641,7 @@ class RouteViewAPITestCase(BaseTestCase):
     @patch("polyline.decode")
     @patch("map.views.process_route_with_crime_data")
     def test_successful_safer_route_generation(
-            self, mock_process, mock_decode, mock_post
+        self, mock_process, mock_decode, mock_post
     ):
         """Test successful generation of a safer route"""
         # Setup sequential mocks for initial and safer route
@@ -1076,7 +1092,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     @patch("django.db.connection.cursor")
     @patch("requests.post")
     def test_process_route_with_crime_data(
-            self, mock_post, mock_cursor, mock_polyline_decode
+        self, mock_post, mock_cursor, mock_polyline_decode
     ):
         """Test the process_route_with_crime_data function"""
         # Mock polyline decode to return coordinates
@@ -1129,7 +1145,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     @patch("django.db.connection.cursor")
     @patch("requests.post")
     def test_process_route_error_in_intermediate_route(
-            self, mock_post, mock_cursor, mock_polyline_decode
+        self, mock_post, mock_cursor, mock_polyline_decode
     ):
         """Test process_route_with_crime_data when intermediate route fails"""
         # Mock polyline decode
@@ -1159,7 +1175,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     @patch("django.db.connection.cursor")
     @patch("requests.post")
     def test_process_route_with_two_phase_hotspots(
-            self, mock_post, mock_cursor, mock_polyline_decode
+        self, mock_post, mock_cursor, mock_polyline_decode
     ):
         """Test process_route_with_crime_data with two phases of hotspot detection"""
         # First decode for initial route, second for intermediate route
@@ -1225,7 +1241,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     @patch("django.db.connection.cursor")
     @patch("map.views.get_safer_ors_route")
     def test_process_route_no_hotspots(
-            self, mock_get_safer, mock_cursor, mock_polyline_decode
+        self, mock_get_safer, mock_cursor, mock_polyline_decode
     ):
         """Test process_route_with_crime_data when no hotspots are found"""
         # Mock polyline decode
@@ -1277,14 +1293,26 @@ class NYCBoundaryValidationTestCase(TestCase):
         self.assertTrue(is_within_nyc(NYC_BOUNDS["ne"][0], NYC_BOUNDS["ne"][1]))
 
         # Just inside boundaries
-        self.assertTrue(is_within_nyc(NYC_BOUNDS["sw"][0] + 0.0001, NYC_BOUNDS["sw"][1] + 0.0001))
-        self.assertTrue(is_within_nyc(NYC_BOUNDS["ne"][0] - 0.0001, NYC_BOUNDS["ne"][1] - 0.0001))
+        self.assertTrue(
+            is_within_nyc(NYC_BOUNDS["sw"][0] + 0.0001, NYC_BOUNDS["sw"][1] + 0.0001)
+        )
+        self.assertTrue(
+            is_within_nyc(NYC_BOUNDS["ne"][0] - 0.0001, NYC_BOUNDS["ne"][1] - 0.0001)
+        )
 
         # Just outside boundaries
-        self.assertFalse(is_within_nyc(NYC_BOUNDS["sw"][0] - 0.0001, NYC_BOUNDS["sw"][1]))
-        self.assertFalse(is_within_nyc(NYC_BOUNDS["sw"][0], NYC_BOUNDS["sw"][1] - 0.0001))
-        self.assertFalse(is_within_nyc(NYC_BOUNDS["ne"][0] + 0.0001, NYC_BOUNDS["ne"][1]))
-        self.assertFalse(is_within_nyc(NYC_BOUNDS["ne"][0], NYC_BOUNDS["ne"][1] + 0.0001))
+        self.assertFalse(
+            is_within_nyc(NYC_BOUNDS["sw"][0] - 0.0001, NYC_BOUNDS["sw"][1])
+        )
+        self.assertFalse(
+            is_within_nyc(NYC_BOUNDS["sw"][0], NYC_BOUNDS["sw"][1] - 0.0001)
+        )
+        self.assertFalse(
+            is_within_nyc(NYC_BOUNDS["ne"][0] + 0.0001, NYC_BOUNDS["ne"][1])
+        )
+        self.assertFalse(
+            is_within_nyc(NYC_BOUNDS["ne"][0], NYC_BOUNDS["ne"][1] + 0.0001)
+        )
 
     def test_serializer_validation_methods_directly(self):
         """Test the RouteInputSerializer validation methods directly"""
@@ -1295,8 +1323,12 @@ class NYCBoundaryValidationTestCase(TestCase):
 
         # Test valid NYC coordinates
         valid_nyc_coords = [40.7128, -74.0060]  # Manhattan
-        self.assertEqual(serializer.validate_departure(valid_nyc_coords), valid_nyc_coords)
-        self.assertEqual(serializer.validate_destination(valid_nyc_coords), valid_nyc_coords)
+        self.assertEqual(
+            serializer.validate_departure(valid_nyc_coords), valid_nyc_coords
+        )
+        self.assertEqual(
+            serializer.validate_destination(valid_nyc_coords), valid_nyc_coords
+        )
 
         # Test invalid coordinates
         invalid_coords = [42.7128, -73.9566]  # Outside NYC
@@ -1314,31 +1346,27 @@ class NYCBoundaryValidationTestCase(TestCase):
         data = {
             "route_id": 1,
             "departure": [40.7128, -74.0060],
-            "destination": [40.7580, -73.9855]
+            "destination": [40.7580, -73.9855],
         }
         serializer = RouteInputSerializer()
         validated_data = serializer.validate(data)
         self.assertEqual(validated_data, data)
 
         # Test with only route_id (should pass)
-        data_with_route_id = {
-            "route_id": 1
-        }
+        data_with_route_id = {"route_id": 1}
         validated_data = serializer.validate(data_with_route_id)
         self.assertEqual(validated_data, data_with_route_id)
 
         # Test with only coordinates (should pass)
         data_with_coords = {
             "departure": [40.7128, -74.0060],
-            "destination": [40.7580, -73.9855]
+            "destination": [40.7580, -73.9855],
         }
         validated_data = serializer.validate(data_with_coords)
         self.assertEqual(validated_data, data_with_coords)
 
         # Test with neither route_id nor complete coordinates (should fail)
-        invalid_data = {
-            "departure": [40.7128, -74.0060]
-        }
+        invalid_data = {"departure": [40.7128, -74.0060]}
         with self.assertRaises(serializers.ValidationError):
             serializer.validate(invalid_data)
 
@@ -1346,7 +1374,7 @@ class NYCBoundaryValidationTestCase(TestCase):
         invalid_save_data = {
             "departure": [40.7128, -74.0060],
             "destination": [40.7580, -73.9855],
-            "save_route": True
+            "save_route": True,
         }
         with self.assertRaises(serializers.ValidationError):
             serializer.validate(invalid_save_data)
@@ -1356,7 +1384,7 @@ class NYCBoundaryValidationTestCase(TestCase):
             "departure": [40.7128, -74.0060],
             "destination": [40.7580, -73.9855],
             "save_route": True,
-            "route_name": "My Test Route"
+            "route_name": "My Test Route",
         }
         validated_data = serializer.validate(valid_save_data)
         self.assertEqual(validated_data, valid_save_data)
