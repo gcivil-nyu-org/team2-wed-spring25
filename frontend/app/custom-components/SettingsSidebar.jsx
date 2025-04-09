@@ -139,10 +139,10 @@ const SettingsSidebar = () => {
   if (typeof window !== "undefined") {
     user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
   }
-  if (!user) {
-    showError("Please login to get settings. User not found.");
-    return null; // or handle the case when user is not found
-  }
+  // if (!user) {
+  //   showError("Please login to get settings. User not found.");
+  //   return null; // or handle the case when user is not found
+  // }
 
   return (
 
