@@ -21,6 +21,14 @@ const ChatHome = () => {
     listOfUsersTyping,
   } = useChat();
 
+  if (isLoading) {
+    return (
+      <main className="bg-bg-forum w-screen max-w-screen h-screen max-h-screen flex justify-center items-center">
+        <Loader />
+      </main>
+    );
+  }
+
   if (
     chatUserList === null ||
     chatUserList === undefined ||
@@ -39,7 +47,7 @@ const ChatHome = () => {
   }
 
   return (
-    <main className="bg-bg-forum w-screen max-w-screen h-screen max-h-screen flex justify-center items-center">
+    <main className="bg-bg-forum w-screen max-w-screen h-screen max-h-screen flex justify-center items-center pb-16">
       {isLoading ? (
         <Loader />
       ) : (
