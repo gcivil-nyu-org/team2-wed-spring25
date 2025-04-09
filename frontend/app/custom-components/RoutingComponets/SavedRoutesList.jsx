@@ -214,7 +214,7 @@ const SavedRoutesList = ({ homepage }) => {
           </div>
         ) : (
           <>
-            <div class="w-full mb-2 text-left text-sm text-muted-foreground">
+            <div className="w-full mb-2 text-left text-sm text-muted-foreground">
               Bookmarked routes
             </div>
             {pagination.results.slice(0, 5).map((route) => (
@@ -223,7 +223,7 @@ const SavedRoutesList = ({ homepage }) => {
                 className="size-full p-2 border-b border-muted-foreground flex justify-between items-center hover:cursor-pointer hover:bg-stone-900 hover:border-stone-400"
                 onClick={() => goToRoute(route)}
               >
-                <span class="flex gap-2">
+                <span className="flex gap-2">
                   <h3 className="font-medium">{route.name}</h3>
                 </span>
                 <p className="text-sm text-gray-500">
