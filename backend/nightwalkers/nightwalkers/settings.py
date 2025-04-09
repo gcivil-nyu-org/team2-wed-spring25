@@ -232,8 +232,7 @@ SIMPLE_JWT = {
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GDAL_LIBRARY_PATH = os.getenv("GDAL_LIBRARY_PATH")
-GEOS_LIBRARY_PATH = os.getenv("GEOS_LIBRARY_PATH")
+
 
 # Add this at the bottom
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
