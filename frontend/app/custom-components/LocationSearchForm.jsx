@@ -215,7 +215,7 @@ export default function LocationSearchForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white shadow-md space-y-4 md:pt-4 md:pb-4 md:pl-4 md:pr-4 sm:pt-3 sm:pb-3 sm:pl-3 sm:pr-3 pt-2 pb-2 pl-2 pr-2">
+    <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white/20 shadow-md space-y-4 md:pt-4 md:pb-4 md:pl-4 md:pr-4 sm:pt-3 sm:pb-3 sm:pl-3 sm:pr-3 pt-2 pb-2 pl-2 pr-2">
       {formError && (
         <div className="p-2 bg-red-50 text-red-700 text-sm rounded border border-red-200">{formError}</div>
       )}
@@ -224,11 +224,11 @@ export default function LocationSearchForm({
         {/* Departure */}
         <div className="flex-1 space-y-1 relative">
           <div className="flex justify-between items-center mb-1">
-            <label htmlFor="departure" className="text-xs sm:text-sm md:text-base font-medium text-map-legendtext">
+            <label htmlFor="departure" className="text-xs sm:text-sm md:text-base font-medium text-map-text">
               Departure
             </label>
             <div className="flex items-center">
-              <label htmlFor="useCurrentLocation" className="text-xs text-map-legendtext mr-2">
+              <label htmlFor="useCurrentLocation" className="text-xs text-map-text mr-2">
                 Use current location
               </label>
               <input
@@ -245,7 +245,7 @@ export default function LocationSearchForm({
                 }}
 
                 disabled={isGettingLocation}
-                className="h-4 w-4 text-map-legendtext border-gray-300 rounded"
+                className="h-4 w-4 text-map-legendtext border-gray-300 rounded bg-blue-50"
               />
               {isGettingLocation && (
                 <div className="ml-2 w-4 h-4 border-2 border-t-transparent border-map-bg rounded-full animate-spin"></div>
@@ -264,13 +264,13 @@ export default function LocationSearchForm({
                 setInputsModified(true);
               }}
               disabled={useCurrentLocation}
-              className={`text-map-legendtext flex-1 text-sm md:text-base sm:text-xs ${useCurrentLocation ? "bg-gray-100" : ""} p-2 sm:p-1.5`}
+              className={`text-map-legendtext flex-1 text-sm md:text-base sm:text-xs ${useCurrentLocation ? "bg-gray-100" : "bg-white/80"} p-2 sm:p-1.5`}
             />
             <Button
               type="button"
               variant="outline"
               disabled={departure.length < 3 || isGettingLocation}
-              className="text-sm md:text-base sm:text-xs p-2 sm:p-1.5"
+              className="text-sm md:text-base sm:text-xs p-2 sm:p-1.5 text-map-legendtext"
               onClick={() => fetchSuggestions(departure, setDepartureSuggestions, setShowDepartureSuggestions, lastDepartureSearch)}
             >
               Search
@@ -297,7 +297,7 @@ export default function LocationSearchForm({
 
         {/* Destination */}
         <div className="flex-1 space-y-1 relative">
-        <label htmlFor="destination" className="text-xs sm:text-sm md:text-base font-medium text-map-legendtext">
+        <label htmlFor="destination" className="text-xs sm:text-sm md:text-base font-medium text-map-text">
           Destination
           </label>
           <div className="flex space-x-2">
@@ -310,13 +310,13 @@ export default function LocationSearchForm({
                 setDestinationCoords(null);
                 setInputsModified(true);
               }}
-              className={`flex-1 text-map-legendtext text-sm md:text-base sm:text-xs p-2 sm:p-1.5`}
+              className={`flex-1 text-map-legendtext text-sm md:text-base sm:text-xs p-2 sm:p-1.5 bg-white/80`}
             />
             <Button
               type="button"
               variant="outline"
               disabled={destination.length < 3}
-              className="text-sm md:text-base sm:text-xs p-2 sm:p-1.5"
+              className="text-sm md:text-base sm:text-xs p-2 sm:p-1.5 text-map-legendtext"
               onClick={() => fetchSuggestions(destination, setDestinationSuggestions, setShowDestinationSuggestions, lastDestinationSearch)}
             >
               Search
