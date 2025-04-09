@@ -4,6 +4,7 @@ import { getLastMessageTimeStampAMPM } from "@/utils/datetime";
 import Image from "next/image";
 import Loader from "../../Loader/Loader";
 import useChatMessage from "./useChatMessage";
+import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 
 const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
   const { currentUserId, isSettingsOpen, handleSettingsClick, settingsRef } =
@@ -11,7 +12,7 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
   if (currentUserId === null) {
     return <Loader />;
   }
-
+  const { showError } = useNotification();
   const messageSettings = [
     {
       id: 1,
@@ -34,7 +35,7 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
       title: "Copy",
       onClick: () => {
         setOpenSettingsId(null);
-        console.log("Copy clicked");
+        handleCopy();
       },
     },
     {
@@ -71,13 +72,42 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
     },
     {
       id: 8,
+      title: "Edit",
+      onClick: () => {
+        setOpenSettingsId(null);
+        handleEdit();
+      },
+    },
+    {
+      id: 9,
       title: "Delete",
       onClick: () => {
         setOpenSettingsId(null);
-        console.log("Delete clicked");
+        handleDelete();
       },
     },
   ];
+
+  const handleCopy = async () => {
+    try {
+      console.log(message);
+
+      await navigator.clipboard.writeText(message.content);
+    } catch (error) {
+      console.log("Error copying message:", error);
+
+      showError("Failed", "Failed to copy message", "copy_message_error");
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+    } catch (error) {
+      console.log("Error deleting message:", error);
+
+      showError("Failed", "Failed to delete message", "delete_message_error");
+    }
+  };
 
   return (
     <div
@@ -91,38 +121,37 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
         }`}
       >
         <div className={`relative group hover:cursor-text`}>
-          {currentUserId == message.sender_id && (
-            <div className="absolute top-0 right-0 flex flex-col items-end">
-              <button
-                className=" opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent to-bg-forum translate-x-3 group-hover:translate-x-0 transition-all duration-300 "
-                onClick={handleSettingsClick}
-              >
-                <Image
-                  src={"/icons/down-arrow.svg"}
-                  alt="arrow"
-                  height={24}
-                  width={24}
-                  className=""
-                />
-              </button>
-              {isSettingsOpen && (
-                <div className="z-10 chatBackgroundDark w-36" ref={settingsRef}>
-                  <ul className="my-2 w-full">
-                    {messageSettings.map((setting) => (
-                      <li className="w-full" key={setting.id}>
-                        <button
-                          className="text-sm text-left w-full text-forum-heading chatHoverDark px-6 py-3"
-                          onClick={setting.onClick}
-                        >
-                          {setting.title}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
+          <div className="absolute top-0 right-0 flex flex-col items-end">
+            <button
+              className=" opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent to-bg-forum translate-x-3 group-hover:translate-x-0 transition-all duration-300 "
+              onClick={handleSettingsClick}
+            >
+              <Image
+                src={"/icons/down-arrow.svg"}
+                alt="arrow"
+                height={24}
+                width={24}
+                className=""
+              />
+            </button>
+            {false && (
+              <div ref={settingsRef} className="z-10 chatBackgroundDark w-40 ">
+                <ul className="my-2 w-full">
+                  {messageSettings.map((setting) => (
+                    <li className="w-full">
+                      <button
+                        key={setting.id}
+                        className="text-sm text-left w-full text-forum-heading chatHoverDark px-6 py-3"
+                        onClick={setting.onClick}
+                      >
+                        {setting.title}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
           <div className={`flex `}>
             <p>{message.content}</p>
           </div>
