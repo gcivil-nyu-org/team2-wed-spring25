@@ -12,7 +12,7 @@ const RoutesSidebar = () => {
         >
           Saved Routes
         </Link>
-        <Link
+        {/* <Link
           href="/users/settings/routes/preferences"
           className="px-4 py-2 hover:bg-sidebar-border"
         >
@@ -23,7 +23,7 @@ const RoutesSidebar = () => {
           className="px-4 py-2 hover:bg-sidebar-border"
         >
           Route History
-        </Link>
+        </Link> */}
       </nav>
     </>
   );
