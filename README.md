@@ -17,3 +17,14 @@
 **- npm run build
 
 - npm run dev
+
+# Backend Coverage
+
+[![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/team2-wed-spring25/badge.svg?branch=travis-jest)](https://coveralls.io/github/gcivil-nyu-org/team2-wed-spring25?branch=travis-jest)
+
+# Frontend Coverage
+
+![Statements](./frontend/coverage/badges/badge-statements.svg)
+![Branches](./frontend/coverage/badges/badge-branches.svg)
+![Functions](./frontend/coverage/badges/badge-functions.svg)
+![Lines](./frontend/coverage/badges/badge-lines.svg)
