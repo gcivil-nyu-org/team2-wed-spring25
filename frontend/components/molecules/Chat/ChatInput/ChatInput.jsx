@@ -45,20 +45,6 @@ const ChatInput = ({ selectedUser, setChatUserList }) => {
             size={"lg"}
           />
         </button>
-        {/* <textarea
-          ref={textareaRef}
-          className="flex-1 bg-transparent outline-none resize-none text-forum-heading py-2 px-4 
-        overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-transparent"
-          placeholder="Write a message..."
-          rows={rows}
-          onInput={handleInput}
-          style={{
-            minHeight: "1.5rem", // Adjust this value based on your font size
-            maxHeight: "4.5rem", // Approximately 3 rows, adjust as needed
-          }}
-          value={messageContent}
-          onChange={(e) => setMessageContent(e.target.value)}
-        /> */}
         <textarea
           ref={textareaRef}
           className="flex-1 bg-transparent outline-none resize-none text-forum-heading py-2 px-4 

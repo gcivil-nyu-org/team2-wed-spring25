@@ -69,7 +69,6 @@ export default function UserData({
         <div className="flex justify-between mt-1">
           <p>Total Posts</p>
           {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
-          {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
         </div>
         <div className="flex justify-between mt-1">
           <p>Followers</p>
