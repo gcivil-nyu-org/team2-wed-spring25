@@ -21,8 +21,8 @@
 - npm run build
 - npm run dev
 
-<!-- Test Locally - uncomment and run npm run make-badges and push on your branch 
+<!-- Test Locally - uncomment and run npm run make-badges and push on your branch  -->
 ![Statements](./frontend/public/badges/badge-statements.svg)
 ![Branches](./frontend/public/badges/badge-branches.svg)
 ![Functions](./frontend/public/badges/badge-functions.svg)
-![Lines](./frontend/public/badges/badge-lines.svg) -->
+![Lines](./frontend/public/badges/badge-lines.svg)
