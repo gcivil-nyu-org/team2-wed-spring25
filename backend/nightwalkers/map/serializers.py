@@ -19,6 +19,22 @@ class SavedRouteSerializer(serializers.ModelSerializer):
         return SavedRoute.objects.create(user=user, **validated_data)
 
 
+NYC_BOUNDS = {
+    "sw": [40.4957, -74.2557],  # Southwest corner
+    "ne": [40.9176, -73.7002],  # Northeast corner
+}
+
+
+def is_within_nyc(lat, lng):
+    """Check if coordinates are within NYC boundaries"""
+    return (
+        lat >= NYC_BOUNDS["sw"][0]
+        and lat <= NYC_BOUNDS["ne"][0]
+        and lng >= NYC_BOUNDS["sw"][1]
+        and lng <= NYC_BOUNDS["ne"][1]
+    )
+
+
 class RouteInputSerializer(serializers.Serializer):
     route_id = serializers.IntegerField(required=False, allow_null=True)
     departure = serializers.ListField(
@@ -36,16 +52,40 @@ class RouteInputSerializer(serializers.Serializer):
     save_route = serializers.BooleanField(required=False, default=False)
     route_name = serializers.CharField(required=False, max_length=50)
 
+    def validate_departure(self, value):
+        """Validate that departure coordinates are within NYC bounds"""
+        if value is not None:
+            lat, lng = value
+            if not is_within_nyc(lat, lng):
+                raise serializers.ValidationError(
+                    "Departure coordinates must be within New York City boundaries."
+                )
+        return value
+
+    def validate_destination(self, value):
+        """Validate that destination coordinates are within NYC bounds"""
+        if value is not None:
+            lat, lng = value
+            if not is_within_nyc(lat, lng):
+                raise serializers.ValidationError(
+                    "Destination coordinates must be within New York City boundaries."
+                )
+        return value
+
     def validate(self, data):
+        # Keep your original validation logic
         route_id = data.get("route_id")
         departure = data.get("departure")
         destination = data.get("destination")
+
         if route_id is None and (not departure or not destination):
             raise serializers.ValidationError(
                 "Departure and destination coordinates are required or saved route"
             )
-        if data.get("saved_route") and not data.get("route_name"):
+
+        if data.get("save_route") and not data.get("route_name"):
             raise serializers.ValidationError("No route name was passed")
+
         return data
 
 

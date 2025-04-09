@@ -3,9 +3,19 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import LocationSearchForm from "@/app/custom-components/LocationSearchForm";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { ArrowUp } from "lucide-react";
+
+// NYC boundary constants
+const NYC_BOUNDS = {
+  sw: [40.4957, -74.2557],
+  ne: [40.9176, -73.7002],
+};
+
+const isWithinNYC = ([lat, lng]) =>
+  lat >= NYC_BOUNDS.sw[0] && lat <= NYC_BOUNDS.ne[0] &&
+  lng >= NYC_BOUNDS.sw[1] && lng <= NYC_BOUNDS.ne[1];
 
 // Dynamically import the map component with SSR disabled
 const ClientOnlyMap = dynamic(
@@ -22,6 +32,9 @@ const ClientOnlyMap = dynamic(
 
 function DashboardContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  
   const [mapboxToken, setMapboxToken] = useState("");
   const [departureCoords, setDepartureCoords] = useState(null);
   const [destinationCoords, setDestinationCoords] = useState(null);
@@ -33,15 +46,12 @@ function DashboardContent() {
   const [initialDepartureCoords, setInitialDepartureCoords] = useState(null);
   const [initialDestinationCoords, setInitialDestinationCoords] = useState(null);
   const [readyToRender, setReadyToRender] = useState(false);
-  const [routeCalculated, setRouteCalculated] = useState(false); // Track if a route has been calculated
+  const [routeCalculated, setRouteCalculated] = useState(false);
 
-  // Create a ref for the main container
   const containerRef = useRef(null);
-
-  // Used to force map re-renders when needed
   const [mapKey, setMapKey] = useState(1);
 
-  // Load coordinates from URL on initial render
+  // Load coordinates from URL on initial render with strict NYC validation
   useEffect(() => {
     if (initialLoad) {
       // Get coordinates from URL parameters
@@ -51,22 +61,37 @@ function DashboardContent() {
       const destLon = searchParams.get("dest_lon");
       const name = searchParams.get("name");
 
-      // Only set coordinates if they exist in the URL
+      // Check if we have parameters to validate
       if (depLat && depLon && destLat && destLon) {
         const departure = [parseFloat(depLat), parseFloat(depLon)];
         const destination = [parseFloat(destLat), parseFloat(destLon)];
-
-        setInitialDepartureCoords(departure);
-        setInitialDestinationCoords(destination);
-
-        if (name) {
-          setRouteName(decodeURIComponent(name));
+        
+        // Strict validation: Both must be within NYC, or clear all
+        if (isWithinNYC(departure) && isWithinNYC(destination)) {
+          // Both coordinates are valid - set them
+          setInitialDepartureCoords(departure);
+          setInitialDestinationCoords(destination);
+          
+          if (name) {
+            setRouteName(decodeURIComponent(name));
+          }
+        } else {
+          // Either coordinate is outside NYC - clear the URL using Next.js router
+          console.log("Coordinates outside NYC bounds, clearing URL parameters");
+          
+          // Use Next.js router to navigate to the same page without query parameters
+          router.replace(pathname);
+          
+          // Don't set any initial coordinates
+          setInitialDepartureCoords(null);
+          setInitialDestinationCoords(null);
+          setRouteName("");
         }
       }
 
       setInitialLoad(false);
     }
-  }, [initialLoad, searchParams]);
+  }, [initialLoad, searchParams, router, pathname]);
 
   useEffect(() => {
     // Get the Mapbox API key safely
@@ -161,17 +186,19 @@ function DashboardContent() {
           setIsLoading(false);
           setRouteCalculated(true); // Mark that a route has been successfully calculated
 
-          // Update URL with the current coordinates
-          const url = new URL(window.location.href);
+          // Update URL with the current coordinates using Next.js router
+          const params = new URLSearchParams();
           if (departureCoordinates) {
-            url.searchParams.set("dep_lat", departureCoordinates[0]);
-            url.searchParams.set("dep_lon", departureCoordinates[1]);
+            params.set("dep_lat", departureCoordinates[0]);
+            params.set("dep_lon", departureCoordinates[1]);
           }
           if (destinationCoordinates) {
-            url.searchParams.set("dest_lat", destinationCoordinates[0]);
-            url.searchParams.set("dest_lon", destinationCoordinates[1]);
+            params.set("dest_lat", destinationCoordinates[0]);
+            params.set("dest_lon", destinationCoordinates[1]);
           }
-          window.history.replaceState({}, "", url.toString());
+          
+          // Use router.replace to update URL without adding to history
+          router.replace(`${pathname}?${params.toString()}`);
 
           showSuccess(
             "Route planning started",
@@ -238,20 +265,11 @@ function DashboardContent() {
 export default function Dashboard() {
   const mainElementRef = useRef(null);
 
-  // Simple scroll to top function - no complexity
+  // Simple scroll to top function
   const scrollToTop = () => {
-    // Just set the scroll position directly - no smooth behavior
     window.scrollTo(0, 0);
-
-    // Also try these as direct fallbacks
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-
-    // Try to find the main scrollable element and scroll it
-    const mainElement = document.getElementById('dashboard-main');
-    if (mainElement) {
-      mainElement.scrollTop = 0;
-    }
   };
 
   return (
@@ -273,7 +291,7 @@ export default function Dashboard() {
         </Suspense>
       </main>
 
-      {/* Always visible scroll button - no conditions */}
+      {/* Always visible scroll button */}
       <button
         onClick={scrollToTop}
         className="fixed bottom-16 left-6 bg-map-bg hover:bg-blue-700 p-3 rounded-full shadow-lg text-white z-[9999] flex items-center justify-center w-12 h-12 opacity-90 transition-all duration-300 hover:scale-110"
