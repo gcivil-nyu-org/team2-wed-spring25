@@ -17,6 +17,7 @@ env:
   global:
     - DJANGO_DATABASE_URL=postgres://postgres@localhost:5432/test_db
     - COVERALLS_PARALLEL=true
+    - COVERALLS_SERVICE_NAME=travis-ci
   jobs:
     - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
@@ -44,7 +45,7 @@ install:
   # Install GDAL via pip (ensure it matches the system-installed version)
   # - pip install GDAL==3.4.0 --no-cache-dir  # Specify a newer version of GDAL
   - pip install -r backend/nightwalkers/requirements.txt
-  - pip install black flake8 coverage coveralls
+  - pip install black flake8 coverage coveralls PyYAML
 
   # Install Node.js and frontend dependencies
   - nvm install 22.9 # Install Node.js 22 (or the version your Next.js app requires)
