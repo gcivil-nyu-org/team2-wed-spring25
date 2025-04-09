@@ -1,3 +1,4 @@
+"use client";
 import UserImage from "@/components/atom/UserImage/UserImage";
 import PostDialog from "@/components/organisms/PostDialog/PostDialog";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";

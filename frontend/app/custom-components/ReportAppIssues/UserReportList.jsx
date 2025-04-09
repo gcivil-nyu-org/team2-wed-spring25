@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { authAPI } from '@/utils/fetch/fetch';
-import { AlertCircle, ClipboardList, Clock, AlertTriangle } from 'lucide-react';
+import { AlertCircle, ClipboardList, Clock } from 'lucide-react';
 import { formatDateAgoShort } from '@/utils/datetime';
 
 const UserReportsList = () => {
@@ -10,29 +10,36 @@ const UserReportsList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchReports = async () => {
-      setIsLoading(true);
-      try {
-        const data = await authAPI.authenticatedGet('/report-app-issue/');
-        setReports(data);
-        setError(null);
-      } catch (err) {
-        setError(err.message || 'Failed to load reports');
-        console.error('Error fetching reports:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchReports();
+  // Extract fetchReports into a callback so it can be reused for retry
+  const fetchReports = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await authAPI.authenticatedGet('/report-app-issue/');
+      setReports(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to load reports');
+      console.error('Error fetching reports:', err);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
+
+  // Handle retry - just calls fetchReports again instead of page reload
+  const handleRetry = () => {
+    fetchReports();
+  };
 
   // Loading skeleton component
   const ReportSkeleton = () => (
     <>
       {[1, 2, 3].map((index) => (
-        <div key={index} className="animate-pulse border rounded-lg p-4 mb-4">
+        <div key={index} className="animate-pulse border rounded-lg p-4 mb-4" data-testid="report-skeleton">
           <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
           <div className="h-3 bg-gray-200 rounded w-1/4 mb-3"></div>
           <div className="h-10 bg-gray-200 rounded w-full"></div>
@@ -43,20 +50,12 @@ const UserReportsList = () => {
 
   // Empty state component
   const EmptyState = () => (
-    <div className="text-center py-12 border border-dashed rounded-lg bg-gray-50">
-      <ClipboardList className="mx-auto h-12 w-12 text-gray-400" />
-      <h3 className="mt-4 text-lg font-medium text-gray-900">No reports yet</h3>
-      <p className="mt-2 text-sm text-gray-500">
-        You haven't submitted any bug reports. When you do, they'll appear here.
+    <div className="text-center py-12 border rounded-lg bg-sidebar-bg border-sidebar-border w-full">
+      <ClipboardList className="mx-auto h-12 w-12 text-sidebar-text" />
+      <h3 className="mt-4 text-lg font-medium text-sidebar-text">No reports yet</h3>
+      <p className="mt-2 text-sm text-sidebar-text">
+        You haven&apos;t submitted any bug reports. When you do, they&apos;ll appear here.
       </p>
-      {/* <div className="mt-6">
-        <button
-          onClick={() => window.location.href = '/report-issue'}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Report an Issue
-        </button>
-      </div> */}
     </div>
   );
 
@@ -74,8 +73,9 @@ const UserReportsList = () => {
           </div>
           <div className="mt-4">
             <button
-              onClick={() => window.location.reload()}
+              onClick={handleRetry}
               className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              data-testid="retry-button"
             >
               Retry
             </button>
@@ -154,22 +154,13 @@ const UserReportsList = () => {
   };
 
   return (
-    <div className="max-w-3xl py-6">
+    <div className="w-full py-6">
       <div className="md:flex md:items-center md:justify-between mb-6">
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-sidebar-text sm:text-3xl sm:truncate">
+          <h2 id="myreports" className="text-2xl font-bold leading-7 text-sidebar-text sm:text-3xl sm:truncate">
             My Reports
           </h2>
-          
         </div>
-        {/* <div className="mt-4 flex md:mt-0 md:ml-4">
-          <button
-            onClick={() => window.location.href = '/report-issue'}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            New Report
-          </button>
-        </div> */}
       </div>
 
       {isLoading ? (

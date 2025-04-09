@@ -1,4 +1,4 @@
-import Loader from "@/components/molecules/Loader/Loader";
+"use client";
 import UserPost from "../UserPost/UserPost";
 
 export default function UserPosts({

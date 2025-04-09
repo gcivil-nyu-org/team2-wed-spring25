@@ -1,3 +1,4 @@
+"use client";
 import useCustomTextInput from "./useCustomTextInput";
 
 export default function CustomTextInput({

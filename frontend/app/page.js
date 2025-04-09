@@ -9,12 +9,12 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
-      <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
+      <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-map-bg via-map-darkerbg to-map-bg overflow-hidden">
         {/* Animated Background */}
         <AnimatedBackground />
 
         {/* Radial Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/50 to-blue-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-map-bg/50 to-map-bg/80"></div>
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 pt-20">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">

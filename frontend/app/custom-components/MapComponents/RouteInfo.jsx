@@ -59,7 +59,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
     <Card className="w-full">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg text-map-legendtext">Route Information</CardTitle>
+          <CardTitle className="text-lg sm:text-md md:text-base text-map-legendtext">Route Information</CardTitle>
           <div className="flex items-center gap-2">
             <Button
               variant={activeRoute === "initial" ? "default" : "outline"}
@@ -71,7 +71,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
                 color: activeRoute === "initial" ? "black" : "lightblue",
                 border: activeRoute === "initial" ? "none" : "1px solid lightblue",
               }}                        >
-              Standard Route
+              Standard
             </Button>
             <Button
               variant={activeRoute === "safer" ? "default" : "outline"}
@@ -84,7 +84,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
                 border: activeRoute === "safer" ? "none" : "1px solid lightgreen",
               }}            
             >
-              Safer Route
+              Safer
             </Button>
           </div>
         </div>
@@ -98,7 +98,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
                 <Clock className="h-4 w-4 mr-2 text-gray-500" />
                 <span className="text-sm font-medium">Duration</span>
               </div>
-              <div className="text-lg font-semibold">
+              <div className="text-lg sm:text-md font-semibold">
                 {formatDuration(currentRouteData?.duration)}
               </div>
             </div>
@@ -107,7 +107,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
                 <Navigation className="h-4 w-4 mr-2 text-gray-500" />
                 <span className="text-sm font-medium">Distance</span>
               </div>
-              <div className="text-lg font-semibold">
+              <div className="text-lg sm:text-md font-semibold">
                 {formatDistance(currentRouteData?.distance)}
               </div>
             </div>

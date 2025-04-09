@@ -1,3 +1,4 @@
+"use client";
 import { getUserFullName } from "@/utils/string";
 import Loader from "../Loader/Loader";
 import UserImage from "@/components/atom/UserImage/UserImage";
@@ -34,16 +35,16 @@ export default function UserData({
           <h3 className="text-xl font-semibold text-forum-heading">
             {/* take 18 characters of the name */}
             {getUserFullName(
-              user?.first_name || "Unknown",
-              user?.last_name || "Unknown"
+              isLoading ? "Unknown" : user?.first_name,
+              isLoading ? "Unknown" : user?.last_name
             ).length > 14
               ? getUserFullName(
-                  user?.first_name || "Unknown",
-                  user?.last_name || "Unknown"
+                  isLoading ? "Unknown" : user?.first_name,
+                  isLoading ? "Unknown" : user?.last_name
                 ).substring(0, 14) + ".."
               : getUserFullName(
-                  user?.first_name || "Unknown",
-                  user?.last_name || "Unknown"
+                  isLoading ? "Unknown" : user?.first_name,
+                  isLoading ? "Unknown" : user?.last_name
                 )}
           </h3>
           {/* show random heading */}
@@ -69,7 +70,6 @@ export default function UserData({
           <p>Total Posts</p>
           {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
           {!isLoading ? <p>{userSideCardData.total_posts}</p> : <p>...</p>}
-
         </div>
         <div className="flex justify-between mt-1">
           <p>Followers</p>
