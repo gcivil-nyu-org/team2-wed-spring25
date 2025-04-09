@@ -234,7 +234,7 @@ function DashboardContent() {
       <div
         className={`p-0 mb-0 mt-0`}
       >
-        <h2 className="text-md font-semibold mt-0 mb-0 text-map-text md:text-lg flex items-center ml-2">Travel Safely
+        <h2 className="text-lg font-semibold mt-0 mb-0 text-map-text flex items-center ml-2">Travel Safely
           <Image
           className="mx-0 ml-2"
           src="/owl-logo.svg"
