@@ -19,7 +19,8 @@ env:
     - COVERALLS_PARALLEL=true
     - COVERALLS_SERVICE_NAME=travis-ci
   jobs:
-    - BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
+    - TEST_SUITE=backend BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
+    - TEST_SUITE=frontend BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend"
 
 before_install:
   - sudo apt-get update -qq
@@ -83,8 +84,9 @@ script:
   - npm run test -- --coverage --coverageReporters=lcov --coverageReporters=text
   # Debug what's in the coverage directory
   - ls -la coverage/
-  # Use the same format as backend coverage submission
-  - COVERALLS_FLAG_NAME=frontend COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls --service=travis-pro < coverage/lcov.info
+  # Use node coveralls package explicitly
+  - npm install coveralls
+  - node ./node_modules/.bin/coveralls < coverage/lcov.info --verbose
   - cd ..
 
   # Frontend build
