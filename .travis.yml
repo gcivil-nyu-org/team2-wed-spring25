@@ -80,7 +80,7 @@ script:
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
-  - npm run test -- --coverage --coverageReporters=lcov --coverageReporters=text --coverageReporters=json-summary
+  - npm run test -- --coverage --coverageReporters=json-summary --coverageReporters=lcov --coverageReporters=text
   - npm run make-badges
   - cd ..
 
