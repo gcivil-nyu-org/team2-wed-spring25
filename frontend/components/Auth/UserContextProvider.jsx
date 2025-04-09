@@ -37,7 +37,7 @@ export function UserProvider({
   useEffect(() => {    
     if (userDetails) {
       try {
-        console.log("Storing user in localStorage");
+        // console.log("Storing user in localStorage");
         localStorage.setItem("user", JSON.stringify(userDetails));
       } catch (err) {
         console.error("[UserProvider] Error syncing user to localStorage:", err);
@@ -75,7 +75,7 @@ export function UserProvider({
 
     return () => {
       if (timeoutId) {
-        console.log("Clearing loading timeout");
+        // console.log("Clearing loading timeout");
         clearTimeout(timeoutId);
       }
     };
@@ -120,10 +120,6 @@ export function UserProvider({
       if (session.djangoUser &&
           session.djangoUser.id &&
           session.djangoUser.email) {
-        console.log("Using user details from session", { 
-          id: session.djangoUser.id,
-          email: session.djangoUser.email 
-        });
         
         setUserDetails(session.djangoUser);
         setIsLoading(false);
@@ -139,13 +135,13 @@ export function UserProvider({
               if (freshData && freshData.id && freshData.email) {
                 // Check if data is actually different
                 const isDataDifferent = JSON.stringify(freshData) !== JSON.stringify(session.djangoUser);
-                console.log("Is data different?", { isDataDifferent });
+                // console.log("Is data different?", { isDataDifferent });
                 
                 if (isDataDifferent) {
                   console.log("Updating user details from background refresh", freshData);
                   setUserDetails(freshData);
                 } else {
-                  console.log("No changes needed from background refresh");
+                  // console.log("No changes needed from background refresh");
                 }
               } else {
                 console.warn("[UserProvider] Background refresh returned invalid data:", freshData);            
@@ -163,9 +159,9 @@ export function UserProvider({
 
       // Otherwise fetch fresh user details
       try {
-        console.log("Fetching fresh user details");
+        // console.log("Fetching fresh user details");
         const response = await authAPI.authenticatedGet("/users/me/");
-        console.log("Fresh user details response", response);
+        // console.log("Fresh user details response", response);
         
         // Handle different response formats
         const userData = response.user ? response.user : response;
@@ -207,14 +203,14 @@ export function UserProvider({
       setIsLoading(true);
       setLoadingMessage("Refreshing user details...");
       
-      console.log("Fetching updated user details");
+      // console.log("Fetching updated user details");
       const response = await authAPI.authenticatedGet("/users/me/");
-      console.log("User details refresh response", response);
+      // console.log("User details refresh response", response);
       
       // Handle different response formats
       const userData = response.user ? response.user : response;
       
-      console.log("Processed user data", userData);
+      // console.log("Processed user data", userData);
       
       if (userData && userData.id && userData.email) {
         setUserDetails(userData);
@@ -260,7 +256,7 @@ export function UserProvider({
 
   // Ensure we only render children when we have user details
   if (!userDetails && status === "authenticated") {
-    console.log("Missing user details despite authenticated status");
+    // console.log("Missing user details despite authenticated status");
     return <LoadingSpinner message="Verifying user details..." />;
   }
 

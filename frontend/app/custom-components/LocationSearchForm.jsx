@@ -215,7 +215,7 @@ export default function LocationSearchForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white/20 shadow-md space-y-4 md:pt-4 md:pb-4 md:pl-4 md:pr-4 sm:pt-3 sm:pb-3 sm:pl-3 sm:pr-3 pt-2 pb-2 pl-2 pr-2">
+    <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white/20 shadow-md space-y-4 md:pt-4 md:pb-4 md:pl-4 md:pr-4 sm:pt-3 sm:pb-3 sm:pl-3 sm:pr-3 pt-2 pb-2 pl-2 pr-2 rounded-md mx-1">
       {formError && (
         <div className="p-2 bg-red-50 text-red-700 text-sm rounded border border-red-200">{formError}</div>
       )}
