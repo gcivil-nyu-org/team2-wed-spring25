@@ -81,7 +81,10 @@ script:
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
   - npm run test -- --coverage --coverageReporters=json-summary --coverageReporters=lcov --coverageReporters=text
-  - npm run make-badges
+  # Create badges directory if it doesn't exist
+  - mkdir -p public/badges
+  # Generate badges in public directory
+  - npx jest-coverage-badges --output ./public/badges
   - cd ..
 
   # Frontend build

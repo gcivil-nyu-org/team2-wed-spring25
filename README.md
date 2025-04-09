@@ -24,7 +24,7 @@
 
 # Frontend Coverage
 
-![Statements](./frontend/coverage/badges/badge-statements.svg)
-![Branches](./frontend/coverage/badges/badge-branches.svg)
-![Functions](./frontend/coverage/badges/badge-functions.svg)
-![Lines](./frontend/coverage/badges/badge-lines.svg)
+![Statements](./frontend/public/badges/badge-statements.svg)
+![Branches](./frontend/public/badges/badge-branches.svg)
+![Functions](./frontend/public/badges/badge-functions.svg)
+![Lines](./frontend/public/badges/badge-lines.svg)

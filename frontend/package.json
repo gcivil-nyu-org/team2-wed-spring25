@@ -11,7 +11,7 @@
     "test:coverage": "jest --coverage",
     "lint": "next lint",
     "dev:all": "concurrently \"python /Users/naliniramanathan/projects/se_1/team2-wed-spring25/backend/nightwalkers/manage.py runserver\" \"next dev --experimental-https\"",
-    "make-badges": "jest-coverage-badges --output ./coverage/badges"
+    "make-badges": "jest-coverage-badges --output ./public/badges"
   },
   "dependencies": {
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
