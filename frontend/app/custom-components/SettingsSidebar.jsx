@@ -98,7 +98,7 @@ const SettingsSidebar = () => {
   let contextUser = null;
   try {
     const { user } = useUser();
-    console.log("User context available:", user);
+    // console.log("User context available:", user);
     contextUser = user;
   } catch (error) {
     console.log("User context not available, falling back to localStorage");

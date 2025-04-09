@@ -1,14 +1,12 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { useState, useEffect, useRef, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import LocationSearchForm from "@/app/custom-components/LocationSearchForm";
-import { DashboardHeader } from "../home/page";
 import { useSearchParams } from "next/navigation";
-// import { useMediaQuery } from 'react-responsive'; // Import react-responsive
 import Image from "next/image";
+import { ArrowUp } from "lucide-react";
+
 // Dynamically import the map component with SSR disabled
 const ClientOnlyMap = dynamic(
   () => import("@/app/custom-components/MapComponents/MapComponent.jsx"),
@@ -22,28 +20,6 @@ const ClientOnlyMap = dynamic(
   }
 );
 
-
-
-// Dashboard header component
-// export function MapPage() {
-
-//   return (
-//     <div className="flex justify-between items-center mb-0 mt-0 p-0">
-//       {/* <h1 className="text-3xl font-bold mt-0">Dashboard</h1> */}
-//       <div className="flex items-center gap-4">
-//         {user && (
-//           <span className="text-sm text-map-text/80">
-//             Logged in as:
-//           </span>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// Inner dashboard component that uses searchParams
-// Update in the DashboardContent component:
-
 function DashboardContent() {
   const searchParams = useSearchParams();
   const [mapboxToken, setMapboxToken] = useState("");
@@ -55,14 +31,15 @@ function DashboardContent() {
   const [routeName, setRouteName] = useState("");
   const [initialLoad, setInitialLoad] = useState(true);
   const [initialDepartureCoords, setInitialDepartureCoords] = useState(null);
-  const [initialDestinationCoords, setInitialDestinationCoords] =
-    useState(null);
+  const [initialDestinationCoords, setInitialDestinationCoords] = useState(null);
   const [readyToRender, setReadyToRender] = useState(false);
   const [routeCalculated, setRouteCalculated] = useState(false); // Track if a route has been calculated
 
+  // Create a ref for the main container
+  const containerRef = useRef(null);
+
   // Used to force map re-renders when needed
   const [mapKey, setMapKey] = useState(1);
-  // const isMobile = useMediaQuery({ maxWidth: 767 });
 
   // Load coordinates from URL on initial render
   useEffect(() => {
@@ -198,8 +175,7 @@ function DashboardContent() {
 
           showSuccess(
             "Route planning started",
-            `Planning route from ${
-              useCurrentLocation ? "your current location" : departure
+            `Planning route from ${useCurrentLocation ? "your current location" : departure
             } to ${destination}`,
             "route_planning"
           );
@@ -219,28 +195,17 @@ function DashboardContent() {
   };
 
   return (
-    <div className="relative flex flex-col h-screen w-full">
-      {/* {routeName && (
-        <div className="bg-white/20 rounded-md p-4 mb-4 text-center">
-          <h2 className="text-lg font-semibold">{routeName}</h2>
-          <p className="text-sm mt-1 text-map-text/80">
-            Click &quot;Get Directions&quot; to calculate the route
-          </p>
-        </div>
-      )} */}
-
-
+    <div ref={containerRef} className="relative flex flex-col h-screen w-full">
       {/* Search Form Section (Top) */}
-      <div
-        className={`p-0 mb-0 mt-0`}
-      >
-        <h2 className="text-lg font-semibold mt-0 mb-0 text-map-text flex items-center ml-2">Travel Safely
+      <div className="p-0 mb-0 mt-0">
+        <h2 className="text-lg font-semibold mt-0 mb-0 text-map-text flex items-center ml-2">
+          Travel Safely
           <Image
-          className="mx-0 ml-2"
-          src="/owl-logo.svg"
-          width={24}
-          height={24}
-          alt="Nightwalkers Logo"
+            className="mx-0 ml-2"
+            src="/owl-logo.svg"
+            width={24}
+            height={24}
+            alt="Nightwalkers Logo"
           />
         </h2>
         <LocationSearchForm
@@ -250,10 +215,9 @@ function DashboardContent() {
           initialDepartureCoords={initialDepartureCoords}
           initialDestinationCoords={initialDestinationCoords}
           routeCalculated={routeCalculated}
-          // isMobile={isMobile} // Pass the isMobile prop
         />
       </div>
-      
+
       {/* Map Section (Center, takes remaining height) */}
       <div className="w-full flex-grow pb-20 mb-0">
         {mapboxToken && readyToRender && (
@@ -266,16 +230,37 @@ function DashboardContent() {
           />
         )}
       </div>
-
     </div>
   );
 }
+
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
+  const mainElementRef = useRef(null);
+
+  // Simple scroll to top function - no complexity
+  const scrollToTop = () => {
+    // Just set the scroll position directly - no smooth behavior
+    window.scrollTo(0, 0);
+
+    // Also try these as direct fallbacks
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // Try to find the main scrollable element and scroll it
+    const mainElement = document.getElementById('dashboard-main');
+    if (mainElement) {
+      mainElement.scrollTop = 0;
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-map-bg text-map-text p-0 overflow-y-auto mt-0"> {/* Added overflow-y-auto */}
-      {/* <div className="flex flex-col h-screen mt-0"> Changed h-full to h-screen */}
-      <DashboardHeader />
+    <>
+      <main
+        ref={mainElementRef}
+        className="min-h-screen bg-map-bg text-map-text p-0 overflow-y-auto mt-0 pt-3"
+        id="dashboard-main"
+      >
         <Suspense
           fallback={
             <div className="flex items-center justify-center h-64">
@@ -286,7 +271,17 @@ export default function Dashboard() {
         >
           <DashboardContent />
         </Suspense>
-      {/* </div> */}
-    </main>
+      </main>
+
+      {/* Always visible scroll button - no conditions */}
+      <button
+        onClick={scrollToTop}
+        className="fixed bottom-16 left-6 bg-map-bg hover:bg-blue-700 p-3 rounded-full shadow-lg text-white z-[9999] flex items-center justify-center w-12 h-12 opacity-90 transition-all duration-300 hover:scale-110"
+        aria-label="Scroll to top"
+        type="button"
+      >
+        <ArrowUp size={24} />
+      </button>
+    </>
   );
 }
