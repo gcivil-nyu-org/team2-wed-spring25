@@ -5,10 +5,6 @@ import BottomNavBar from "@/components/organisms/BottomNavBar/BottomNavBar";
 
 const SettingPanel = () => {
   const [open, setOpen] = useState(false);
-  
-  useEffect(() => {
-    console.log(open)
-  }, [open]);
 
   return (
     <SidebarProvider open={open} onOpenChange={setOpen}>
