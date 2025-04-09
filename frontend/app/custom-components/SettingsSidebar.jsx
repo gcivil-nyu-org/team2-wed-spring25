@@ -38,7 +38,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getUserFullName } from "@/utils/string";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
-
+import { useNotification } from "./ToastComponent/NotificationContext";
 
 const items = [
   {
@@ -60,7 +60,7 @@ const items = [
     title: "Report a Bug",
     url: "/users/settings/profile#report",
     icon: Flag,
-  }
+  },
 ];
 const routeItems = [
   {
@@ -113,25 +113,24 @@ const SettingsSidebar = () => {
   } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
+  const { showError } = useNotification();
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
 
       // Sign out using Next-Auth
       await signOut({
-        redirect: false // Don't redirect automatically
+        redirect: false, // Don't redirect automatically
       });
-      localStorage.removeItem('user');
+      localStorage.removeItem("user");
       // Manual redirect after signOut completes
       router.push("/login");
       router.refresh(); // Force refresh to clear any cached pages
-
     } catch (error) {
       console.error("Logout error:", error);
       router.push("/login");
     } finally {
       setIsLoggingOut(false);
-      
     }
   };
   let user = null;
@@ -145,7 +144,6 @@ const SettingsSidebar = () => {
   }
 
   return (
-
     <Sidebar side="right" collapsible="offcanvas">
       <SidebarContent>
         {/* Header */}
@@ -185,10 +183,10 @@ const SettingsSidebar = () => {
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
                 <span>
-                {getUserFullName(
-                  user?.first_name || "Unknown",
-                  user?.last_name || "Unknown"
-                )}
+                  {getUserFullName(
+                    user?.first_name || "Unknown",
+                    user?.last_name || "Unknown"
+                  )}
                 </span>
               </div>
             </Link>
