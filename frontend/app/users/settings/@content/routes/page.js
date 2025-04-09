@@ -23,12 +23,12 @@ const RoutesContent = () => {
           <h2 id="saved">Saved Routes</h2>
           <SavedRoutesList />
         </div>
-        <div>
+        {/* <div>
           <h2 id="preferences">Route Preferences</h2>
         </div>
         <div>
           <h2 id="history">Route History</h2>
-        </div>
+        </div> */}
       </div>
     </div>
   );
