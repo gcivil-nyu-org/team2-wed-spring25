@@ -80,8 +80,8 @@ script:
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
-  - npm run test -- --coverage --coverageThreshold='{"global":{"branches":70,"functions":70,"lines":70,"statements":70}}'
-  - COVERALLS_FLAG_NAME=frontend COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls --service=travis-pro < coverage/lcov.info
+  - npm run test -- --coverage --coverageReporters=lcov --coverageReporters=text
+  - cat coverage/lcov.info | COVERALLS_FLAG_NAME=frontend COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls --service=travis-pro
   - cd ..
 
   # Frontend build

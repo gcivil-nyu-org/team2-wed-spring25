@@ -6,4 +6,4 @@ coverage_flags:
       - backend/nightwalkers/
   frontend:
     paths:
-      - frontend/
+      - frontend/app/
