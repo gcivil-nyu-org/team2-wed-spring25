@@ -8,7 +8,7 @@ import LocationSearchForm from "@/app/custom-components/LocationSearchForm";
 import { DashboardHeader } from "../home/page";
 import { useSearchParams } from "next/navigation";
 // import { useMediaQuery } from 'react-responsive'; // Import react-responsive
-
+import Image from "next/image";
 // Dynamically import the map component with SSR disabled
 const ClientOnlyMap = dynamic(
   () => import("@/app/custom-components/MapComponents/MapComponent.jsx"),
@@ -25,21 +25,21 @@ const ClientOnlyMap = dynamic(
 
 
 // Dashboard header component
-export function MapPage() {
+// export function MapPage() {
 
-  return (
-    <div className="flex justify-between items-center mb-0 mt-0 p-0">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      <div className="flex items-center gap-4">
-        {user && (
-          <span className="text-sm text-map-text/80">
-            Logged in as:
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className="flex justify-between items-center mb-0 mt-0 p-0">
+//       {/* <h1 className="text-3xl font-bold mt-0">Dashboard</h1> */}
+//       <div className="flex items-center gap-4">
+//         {user && (
+//           <span className="text-sm text-map-text/80">
+//             Logged in as:
+//           </span>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
 
 // Inner dashboard component that uses searchParams
 // Update in the DashboardContent component:
@@ -229,11 +229,20 @@ function DashboardContent() {
         </div>
       )} */}
 
+
       {/* Search Form Section (Top) */}
       <div
-        className={`rounded-md p-0 mb-0 mt-0`}
+        className={`rounded-md p-0 mb-4 mt-0`}
       >
-        <h2 className="text-md font-semibold mt-0 mb-0 text-map-text md:text-lg">Find Your Route</h2>
+        <h2 className="text-md font-semibold mt-0 mb-0 text-map-text md:text-lg flex items-center ml-2">Travel Safely
+          <Image
+          className="mx-0 ml-2"
+          src="/owl-logo.svg"
+          width={24}
+          height={24}
+          alt="Nightwalkers Logo"
+          />
+        </h2>
         <LocationSearchForm
           onSearch={handleSearch}
           isLoading={isLoading}
@@ -265,7 +274,7 @@ function DashboardContent() {
 export default function Dashboard() {
   return (
     <main className="min-h-screen bg-map-bg text-map-text p-0 overflow-y-auto mt-0"> {/* Added overflow-y-auto */}
-      <div className="flex flex-col h-screen mt-0"> {/* Changed h-full to h-screen */}
+      {/* <div className="flex flex-col h-screen mt-0"> Changed h-full to h-screen */}
       <DashboardHeader />
         <Suspense
           fallback={
@@ -277,7 +286,7 @@ export default function Dashboard() {
         >
           <DashboardContent />
         </Suspense>
-      </div>
+      {/* </div> */}
     </main>
   );
 }
