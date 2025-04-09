@@ -1,8 +1,8 @@
 import ChatHeader from "@/components/molecules/Chat/ChatHeader/ChatHeader";
 import ChatMessage from "@/components/molecules/Chat/ChatMessage/ChatMessage";
 import ChatInput from "@/components/molecules/Chat/ChatInput/ChatInput";
-import Image from "next/image";
 import useChatUser from "./useChatUser";
+import { ChevronLeft } from "lucide-react";
 
 const ChatUser = ({
   selectedUser,
@@ -10,22 +10,37 @@ const ChatUser = ({
   messagesEndRef,
   onlineUsers,
   chatUserList,
+  setIsSidebarOpen,
   handleUserTyping,
   listOfUsersTyping,
 }) => {
   const { openSettingsId, setOpenSettingsId, messagesContainerRef } =
     useChatUser();
+
   return (
-    <div className="w-full md:w-3/5 flex flex-col">
-      <ChatHeader
-        selectedUser={chatUserList.find(
-          (user) => user.user.id === selectedUser.user.id
-        )}
-        onlineUsers={onlineUsers}
-        listOfUsersTyping={listOfUsersTyping}
-      />
+    <div className="w-full h-full flex flex-col">
+      {/* Header with Back Button */}
+      <div className="flex items-center bg-bg-post chatBackgroundDark">
+        <button
+          className="md:hidden p-1 m-1 rounded flex items-center justify-center text-forum-subheading hover:text-forum-heading transition-colors"
+          onClick={() => setIsSidebarOpen(true)}
+        >
+          <ChevronLeft size={24} />
+        </button>
+        <div className="flex-1">
+          <ChatHeader
+            selectedUser={chatUserList.find(
+              (user) => user.user.id === selectedUser.user.id
+            )}
+            onlineUsers={onlineUsers}
+            listOfUsersTyping={listOfUsersTyping}
+          />
+        </div>
+      </div>
+      
+      {/* Messages Container - Use flex-1 to take available space */}
       <div
-        className={`flex-1 overflow-y-auto scrollbar-hide`}
+        className="flex-1 overflow-y-auto scrollbar-hide"
         style={{
           backgroundImage: 'url("/images/topography.svg")',
           backgroundSize: "cover",
@@ -46,18 +61,20 @@ const ChatUser = ({
           })}
         {listOfUsersTyping.includes(selectedUser.user.id.toString()) && (
           <div className="ml-4">
-            <Image
-              src={"/icons/typing-animation.gif"}
+            <img
+              src="/icons/typing-animation.gif"
               alt="typing animation"
               width={60}
               height={60}
-              unoptimized={true}
+              className="unoptimized"
             />
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="mt-4">
+      
+      {/* Input Container - Fixed at bottom with proper spacing for navbar */}
+      <div className="mt-auto px-2 mb-4">
         <ChatInput
           selectedUser={selectedUser}
           setChatUserList={setChatUserList}
