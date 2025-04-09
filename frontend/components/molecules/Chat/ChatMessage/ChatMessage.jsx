@@ -7,12 +7,12 @@ import useChatMessage from "./useChatMessage";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 
 const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
+  const { showError } = useNotification();
   const { currentUserId, isSettingsOpen, handleSettingsClick, settingsRef } =
     useChatMessage(message, openSettingsId, setOpenSettingsId);
   if (currentUserId === null) {
     return <Loader />;
   }
-  const { showError } = useNotification();
   const messageSettings = [
     {
       id: 1,
@@ -111,14 +111,12 @@ const Message = ({ message, openSettingsId, setOpenSettingsId }) => {
 
   return (
     <div
-      className={`flex my-2 mx-6 ${
-        currentUserId == message.sender_id ? "justify-end" : "justify-start"
-      }`}
+      className={`flex my-2 mx-6 ${currentUserId == message.sender_id ? "justify-end" : "justify-start"
+        }`}
     >
       <div
-        className={`text-forum-subheading px-2 py-1.5 bg-bg-forum rounded-lg flex ${
-          currentUserId == message.sender_id ? "ml-8" : "mr-8"
-        }`}
+        className={`text-forum-subheading px-2 py-1.5 bg-bg-forum rounded-lg flex ${currentUserId == message.sender_id ? "ml-8" : "mr-8"
+          }`}
       >
         <div className={`relative group hover:cursor-text`}>
           <div className="absolute top-0 right-0 flex flex-col items-end">
