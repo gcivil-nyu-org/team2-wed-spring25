@@ -19,22 +19,6 @@ export default function BottomNavBar() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-[52px] bg-black text-white z-[1002] border-t border-gray-800 flex justify-around items-center shadow-md">
-      {/* Home */}
-      <button
-        onClick={() => router.push("/users/home")}
-        aria-label="Home"
-        className="flex items-center justify-center"
-      >
-        <div
-          className={`rounded-full p-2 transition-all duration-200 ${
-            isActive("/users/home")
-              ? "bg-white/10 text-white scale-110"
-              : "text-gray-400"
-          }`}
-        >
-          <House className="w-6 h-6" />
-        </div>
-      </button>
       {/* Forum */}
       <button
         onClick={() => router.push("/users/forum")}
@@ -51,24 +35,6 @@ export default function BottomNavBar() {
           <LayoutList className="w-6 h-6" />
         </div>
       </button>
-
-      {/* Map */}
-      <button
-        onClick={() => router.push("/users/map")}
-        aria-label="Map"
-        className="flex items-center justify-center"
-      >
-        <div
-          className={`rounded-full p-2 transition-all duration-200 ${
-            isActive("/users/map")
-              ? "bg-white/10 text-white scale-110"
-              : "text-gray-400"
-          }`}
-        >
-          <MapPinned className="w-6 h-6" />
-        </div>
-      </button>
-
       {/* Chat */}
       <button
         onClick={() => router.push("/users/chat")}
@@ -85,7 +51,38 @@ export default function BottomNavBar() {
           <MessageCircleMore className="w-6 h-6" />
         </div>
       </button>
-
+      {/* Home */}
+      <button
+        onClick={() => router.push("/users/home")}
+        aria-label="Home"
+        className="flex items-center justify-center"
+      >
+        <div
+          className={`rounded-full p-2 transition-all duration-200 ${
+            isActive("/users/home")
+              ? "bg-white/10 text-white scale-110"
+              : "text-gray-400"
+          }`}
+        >
+          <House className="w-6 h-6" />
+        </div>
+      </button>
+      {/* Map */}
+      <button
+        onClick={() => router.push("/users/map")}
+        aria-label="Map"
+        className="flex items-center justify-center"
+      >
+        <div
+          className={`rounded-full p-2 transition-all duration-200 ${
+            isActive("/users/map")
+              ? "bg-white/10 text-white scale-110"
+              : "text-gray-400"
+          }`}
+        >
+          <MapPinned className="w-6 h-6" />
+        </div>
+      </button>
       {/* Settings */}
       <button
         onClick={toggleSidebar}
