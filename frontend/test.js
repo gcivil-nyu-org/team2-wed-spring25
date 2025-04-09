@@ -1,5 +1,7 @@
 const WebSocket = require("ws");
-const ws = new WebSocket(`wss://localhost:8001/ws/chat/1/`, {
+const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+  const wsUrl = `${protocol}${process.env.NEXT_PUBLIC_WEB_SOCKET}/ws/chat/${userId}/`;
+const ws = new WebSocket(wsUrl, {
   rejectUnauthorized: false, // For self-signed certs
 });
 

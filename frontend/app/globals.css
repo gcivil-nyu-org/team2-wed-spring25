@@ -81,8 +81,8 @@ body {
     --radius: 0.5rem;
 
     /* Sidebar Colors */
-    --sidebar-bg: rgb(68 64 60); /* stone-700 */
-    --sidebar-group-bg: rgb(41 37 36); /* stone-800 */
+    --sidebar-bg:rgb(13, 71, 161); /* blue-900 */
+    --sidebar-group-bg: rgb(21, 101, 192); /* blue-800 */
     --sidebar-text: rgb(243 244 246); /* gray-100 */
     --sidebar-border2: rgb(120 113 108); /* stone-500 */
     --sidebar-separator: rgb(87 83 78); /* stone-600 */
@@ -115,8 +115,8 @@ body {
     /* Map-Specific Colors */
     --map-color: rgb(243, 244, 246); /* gray-100 */
     --legend-text: rgb(68 64 60); /* stone-700 */
-    --pulse-color: rgb(120, 113, 108, 0.873); /* violet-500 */
-    --pointer-color: rgb(120 113 108);
+    --pulse-color: rgba(7, 143, 197, 0.873); /* violet-500 */
+    --pointer-color: rgb(9, 166, 228);
     --safety-color: rgb(101, 249, 155); /* green-500 */
     --safety-color-2: rgb(29, 215, 97); /* green-500 */
   }

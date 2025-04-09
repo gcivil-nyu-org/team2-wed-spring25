@@ -4,7 +4,6 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import * as Switch from "@radix-ui/react-switch";
-import * as Form from "@radix-ui/react-form";
 import ReportAppIssueForm from "@/app/custom-components/ReportAppIssues/ReportAppIssueForm";
 import UserReportsList from "@/app/custom-components/ReportAppIssues/UserReportList";
 import {
@@ -13,12 +12,14 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import ChangeNamesForm from "@/app/custom-components/UserSettings/ChangeNamesForm";
+import ChangePasswordForm from "@/app/custom-components/UserSettings/ChangePasswordForm";
+import ProfilePhotoSection from "@/app/custom-components/UserSettings/ProfilePhotoSection";
 
 const ProfileContent = () => {
   const [location, setLocation] = useState(true);
+
   return (
     <div className="h-auto w-full mb-12 overflow-y-scroll">
       <div className="lg:h-header h-mobileheader flex items-center ml-8">
@@ -32,89 +33,31 @@ const ProfileContent = () => {
       </div>
       <Separator orientation="horizontal" />
       <div className="p-6 size-full flex flex-col gap-6">
+        {/* Profile Photo Section */}
         <div>
-          <h2 className="mb-4">Change Photo</h2>
+          <h2 id="display" className="mb-4">Profile Photo</h2>
+          <ProfilePhotoSection />
         </div>
+
+        {/* Profile Names Section */}
         <div>
-          <h2 id="passsword" className="mb-4">
+          <h2 id="profile" className="mb-4">
+            Profile Information
+          </h2>
+          <ChangeNamesForm />
+        </div>
+
+        {/* Password Section */}
+        <div>
+          <h2 id="password" className="mb-4">
             Change Password
           </h2>
-          <Form.Root className="bg-sidebar-bg border border-sidebar-border rounded-md text-sidebar-text">
-            <Form.Field className="FormField" name="oldpass">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Form.Label className="FormLabel">
-                  Confirm Old Password:
-                </Form.Label>
-                <Form.Message className="FormMessage" match="valueMissing">
-                  Confirm old password
-                </Form.Message>
-                <Form.Message className="FormMessage" match="typeMismatch">
-                  Your password does not match
-                </Form.Message>
-              </div>
-              <Form.Control asChild>
-                <input className="Input" type="oldpass" required />
-              </Form.Control>
-            </Form.Field>
-            <Form.Field className="FormField" name="newpass">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Form.Label className="FormLabel">
-                  New Password:
-                </Form.Label>
-                <Form.Message className="FormMessage" match="valueMissing">
-                  Enter a new password
-                </Form.Message>
-                <Form.Message className="FormMessage" match="typeMismatch">
-                  Your password does not match
-                </Form.Message>
-              </div>
-              <Form.Control asChild>
-                <input className="Input" type="oldpass" required />
-              </Form.Control>
-            </Form.Field>
-            <Form.Field className="FormField" name="oldpass">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Form.Label className="FormLabel">
-                  Confirm Old Password:
-                </Form.Label>
-                <Form.Message className="FormMessage" match="valueMissing">
-                  Confirm old password
-                </Form.Message>
-                <Form.Message className="FormMessage" match="typeMismatch">
-                  Your password does not match
-                </Form.Message>
-              </div>
-              <Form.Control asChild>
-                <input className="Input" type="oldpass" required />
-              </Form.Control>
-            </Form.Field>
-            <Form.Submit asChild>
-              <Button className="bg-sidebar-border" style={{ marginTop: 10 }}>
-                Change Password
-              </Button>
-            </Form.Submit>
-          </Form.Root>
+          <ChangePasswordForm />
         </div>
+
+        {/* Location Section */}
         <div>
-          <h2 id="location" className="mb-4">
+          <h2 id="locationsettings" className="mb-4">
             Location
           </h2>
           <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text">
@@ -130,19 +73,19 @@ const ProfileContent = () => {
                 id="location-switch"
                 checked={location}
                 onCheckedChange={setLocation}
-                className={`${
-                  location ? "bg-indigo-600" : "bg-sidebar-border"
-                } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
+                className={`${location ? "bg-indigo-600" : "bg-sidebar-border"
+                  } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
               >
                 <Switch.Thumb
-                  className={`${
-                    location ? "translate-x-6" : "translate-x-1"
-                  } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                  className={`${location ? "translate-x-6" : "translate-x-1"
+                    } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                 />
               </Switch.Root>
             </CardContent>
           </Card>
         </div>
+
+        {/* Privacy Section */}
         <div>
           <h2 id="privacy" className="mb-4">
             Privacy
@@ -157,22 +100,22 @@ const ProfileContent = () => {
             </CardHeader>
             <CardContent>
               <Switch.Root
-                id="location-switch"
-                checked={location}
+                id="privacy-switch"
+                checked={location} // You might want to use a separate state variable for this
                 onCheckedChange={setLocation}
-                className={`${
-                  location ? "bg-indigo-600" : "bg-sidebar-border"
-                } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
+                className={`${location ? "bg-indigo-600" : "bg-sidebar-border"
+                  } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
               >
                 <Switch.Thumb
-                  className={`${
-                    location ? "translate-x-6" : "translate-x-1"
-                  } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                  className={`${location ? "translate-x-6" : "translate-x-1"
+                    } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                 />
               </Switch.Root>
             </CardContent>
           </Card>
         </div>
+
+        {/* Report Section */}
         <div>
           <h2 id="report" className="mb-4">
             Report a Bug

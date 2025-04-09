@@ -53,24 +53,8 @@ module.exports = {
           legendtext: "var(--legend-text)",
           safety: "var(--safety-color)",
           safety2: "var(--safety-color-2)",
-        },
-        map: {
-          bg: "var(--sidebar-bg)",
-          darkerbg: "var(--sidebar-group-bg)",
-          text: "var(--sidebar-text)",
-          mapcolor: "var(--map-color)",
-          legendtext: "var(--legend-text)",
-          safety: "var(--safety-color)",
-          safety2: "var(--safety-color-2)",
-        },
-        map: {
-          bg: "var(--sidebar-bg)",
-          darkerbg: "var(--sidebar-group-bg)",
-          text: "var(--sidebar-text)",
-          mapcolor: "var(--map-color)",
-          legendtext: "var(--legend-text)",
-          safety: "var(--safety-color)",
-          safety2: "var(--safety-color-2)",
+          pointer: "var(--pointer-color)",
+          pointer2: "var(--pulse-color)",
         },
         settingheader: {
           headerheight: "var(--header-height)",
@@ -120,6 +104,44 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "bg-pan": {
+          "0%": {
+            backgroundPosition: "0% 0%",
+            backgroundSize: "120%",
+          },
+          "50%": {
+            backgroundPosition: "100% 50%",
+            backgroundSize: "120%",
+          },
+          "100%": {
+            backgroundPosition: "0% 100%",
+            backgroundSize: "120%",
+          },
+        },
+        "bg-pan-mobile": {
+          "0%": {
+            backgroundPosition: "25% 25%",
+            backgroundSize: "230%",
+          },
+          "33%": {
+            backgroundPosition: "75% 40%",
+            backgroundSize: "230%",
+          },
+          "66%": {
+            backgroundPosition: "25% 60%",
+            backgroundSize: "230%",
+          },
+          "100%": {
+            backgroundPosition: "75% 75%",
+            backgroundSize: "230%",
+          },
+        },
+      },
+      animation: {
+        "bg-pan": "bg-pan 35s linear infinite alternate",
+        "bg-pan-mobile": "bg-pan-mobile 70s linear infinite alternate",
       },
     },
   },

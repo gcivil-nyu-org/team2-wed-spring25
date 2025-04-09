@@ -10,7 +10,13 @@ const ProfileSidebar = () => {
           href="/users/settings/profile#display"
           className="px-4 py-2 hover:bg-sidebar-border"
         >
-          Change Display
+          Profile Photo
+        </Link>
+        <Link
+          href="/users/settings/profile#profile"
+          className="px-4 py-2 hover:bg-sidebar-border"
+        >
+          Profile Information
         </Link>
         <Link
           href="/users/settings/profile#password"
@@ -35,6 +41,12 @@ const ProfileSidebar = () => {
           className="px-4 py-2 hover:bg-sidebar-border"
         >
           Report a Bug
+        </Link>
+        <Link
+          href="/users/settings/profile#myreports"
+          className="px-4 py-2 hover:bg-sidebar-border"
+        >
+          My Reports
         </Link>
       </nav>
     </>

@@ -35,6 +35,7 @@ export default function ForumPage() {
 
     // Check immediately
     checkAndConnect();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return <Forums />;
 }
