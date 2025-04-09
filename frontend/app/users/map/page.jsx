@@ -246,7 +246,7 @@ function DashboardContent() {
       </div>
       
       {/* Map Section (Center, takes remaining height) */}
-      <div className="w-full h-full">
+      <div className="w-full flex-grow pb-20">
         {mapboxToken && readyToRender && (
           <ClientOnlyMap
             key={mapKey}
@@ -264,7 +264,7 @@ function DashboardContent() {
 // The main Dashboard component with Suspense boundary
 export default function Dashboard() {
   return (
-    <main className="min-h-screen bg-map-bg text-map-text p-0">
+    <main className="min-h-screen bg-map-bg text-map-text p-0 overflow-y-auto"> {/* Added overflow-y-auto */}
       <div className="flex flex-col h-screen"> {/* Changed h-full to h-screen */}
       <DashboardHeader />
         <Suspense
