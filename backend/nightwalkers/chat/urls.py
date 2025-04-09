@@ -12,5 +12,5 @@ urlpatterns = [
         views.read_user_messages,
         name="read_user_messages",
     ),
-    path("<uuid:chat_uuid>/<id:message_id>", views.get_chat, name="get_chat"),
+    # path("<uuid:chat_uuid>/<id:message_id>", views.get_chat, name="get_chat"),
 ]
