@@ -82,12 +82,19 @@ script:
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
   - npm run test -- --coverage --coverageReporters=json-summary --coverageReporters=lcov --coverageReporters=text
-  # Create badges directory if it doesn't exist
-  - mkdir -p public/badges
-  # Generate badges in public directory
-  - npx jest-coverage-badges --output ./public/badges
+  # Create branch-specific badges directory
+  - |
+    if [ "$TRAVIS_BRANCH" = "main" ]; then
+      mkdir -p public/badges/main
+      npx jest-coverage-badges --output ./public/badges/main
+    elif [ "$TRAVIS_BRANCH" = "develop" ]; then
+      mkdir -p public/badges/develop
+      npx jest-coverage-badges --output ./public/badges/develop
+    else
+      mkdir -p public/badges
+      npx jest-coverage-badges --output ./public/badges
+    fi
   - cd ..
-
   # Frontend build
   - cd $FRONTEND_PATH && npm run build && cd ..
 
