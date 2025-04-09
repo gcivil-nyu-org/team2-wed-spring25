@@ -17,6 +17,8 @@ env:
   global:
     - DJANGO_DATABASE_URL=postgres://postgres@localhost:5432/test_db
     - COVERALLS_PARALLEL=true
+    - COVERALLS_FLAG_NAME=backend
+    - COVERALLS_FLAG_NAME=frontend
     - COVERALLS_SERVICE_NAME=travis-ci
   jobs:
     - TEST_SUITE=backend BASE_PATH="backend/nightwalkers" FRONTEND_PATH="frontend" COVERALLS_JOB_NAME="backend"
