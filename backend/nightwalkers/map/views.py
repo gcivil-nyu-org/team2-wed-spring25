@@ -59,7 +59,14 @@ class RouteViewAPI(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+
+        # This will now validate both the existing rules and NYC bounds
+        if not serializer.is_valid():
+            return Response(
+                {"error": "Invalid route parameters", "details": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         validated_data = serializer.validated_data
 
         departure_lat, departure_lon = validated_data.get("departure")
@@ -366,10 +373,7 @@ def get_additional_hotspots(
                         "distance": distance,
                     }
                 )
-                print(
-                    f"Additional hotspot with {complaints} complaints "
-                    f"at distance {distance}"
-                )
+
     except Exception as e:
         print(f"Error querying additional hotspots: {str(e)}")
 
@@ -400,10 +404,6 @@ def create_avoid_polygons(hotspots, radius=0.3):
     for i, hotspot in enumerate(hotspots):
         # Scale radius based on complaints (crime intensity)
         scaled_radius = max(0.3, radius * (1 + (hotspot["complaints"] / 80)))
-        print(
-            f"Hotspot {i + 1}: {hotspot['complaints']} complaints, "
-            f"radius {scaled_radius * 1000}m"
-        )
         # Create point in WGS84
         point = Point(hotspot["longitude"], hotspot["latitude"])
 
@@ -419,7 +419,6 @@ def create_avoid_polygons(hotspots, radius=0.3):
     # Create MultiPolygon from all polygons
     if polygon_list:
         multi_poly = MultiPolygon(polygon_list)
-        print(f"Created avoidance MultiPolygon with {len(polygon_list)} polygons")
         return multi_poly
     else:
         print("No polygon areas created for avoidance")
@@ -459,10 +458,6 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
         body["options"] = {"avoid_polygons": avoid_geojson}
 
     try:
-        print(
-            f"Sending request to OpenRouteService with "
-            f"{len(avoid_polygons.geoms) if avoid_polygons else 0} polygons"
-        )
         response = requests.post(map_url, json=body, headers=headers)
 
         if not response.ok:

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { authAPI } from "@/utils/fetch/fetch";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,6 +33,11 @@ const SavedRoutesList = ({ homepage }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [routeToDelete, setRouteToDelete] = useState(null);
   const { showError, showSuccess } = useNotification();
+  
+  // Track routes that are on cooldown
+  const [cooldowns, setCooldowns] = useState({});
+  // Store timeouts to clear them when component unmounts
+  const timeoutRefs = useRef({});
 
   const fetchRoutes = async (page = 1) => {
     setIsLoading(true);
@@ -54,9 +59,19 @@ const SavedRoutesList = ({ homepage }) => {
     }
   };
 
-  // Handle toggling favorite status
+  // Handle toggling favorite status with cooldown
   const toggleFavorite = async (routeId, isFavorite) => {
+    // Check if this route is currently on cooldown
+    if (cooldowns[routeId]) {
+      // If on cooldown, show a message and do nothing
+      showError("Please wait before toggling favorite status again");
+      return;
+    }
+
     try {
+      // Set this route on cooldown immediately (before the API call)
+      setCooldowns(prev => ({ ...prev, [routeId]: true }));
+
       await authAPI.authenticatedPatch("/update-route/", {
         id: routeId,
         favorite: isFavorite,
@@ -69,10 +84,31 @@ const SavedRoutesList = ({ homepage }) => {
           route.id === routeId ? { ...route, favorite: isFavorite } : route
         ),
       }));
+      
       showSuccess(
         isFavorite ? "Route added to favorites" : "Route removed from favorites"
       );
+
+      // Set a timeout to remove the cooldown after 2 seconds
+      const timeoutId = setTimeout(() => {
+        setCooldowns(prev => {
+          const newCooldowns = { ...prev };
+          delete newCooldowns[routeId];
+          return newCooldowns;
+        });
+        delete timeoutRefs.current[routeId];
+      }, 2000); // 2 second cooldown
+
+      // Store the timeout reference so we can clear it if needed
+      timeoutRefs.current[routeId] = timeoutId;
+
     } catch (e) {
+      // If the request fails, remove the cooldown
+      setCooldowns(prev => {
+        const newCooldowns = { ...prev };
+        delete newCooldowns[routeId];
+        return newCooldowns;
+      });
       showError("Failed to update route");
     }
   };
@@ -149,6 +185,13 @@ const SavedRoutesList = ({ homepage }) => {
 
   useEffect(() => {
     fetchRoutes();
+    
+    // Clean up all timeouts when component unmounts
+    return () => {
+      Object.values(timeoutRefs.current).forEach(timeoutId => {
+        clearTimeout(timeoutId);
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -314,6 +357,8 @@ const SavedRoutesList = ({ homepage }) => {
                           ? "Remove from favorites"
                           : "Add to favorites"
                       }
+                      disabled={cooldowns[route.id]}
+                      className={cooldowns[route.id] ? "opacity-50 cursor-not-allowed" : ""}
                     >
                       {route.favorite ? (
                         <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />

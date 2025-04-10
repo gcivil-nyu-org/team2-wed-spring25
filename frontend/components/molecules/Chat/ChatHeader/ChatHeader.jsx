@@ -23,7 +23,7 @@ const ChatHeader = ({ selectedUser, onlineUsers, listOfUsersTyping }) => {
             listOfUsersTyping.includes(user.id.toString()) ? (
               <span className="text-forum-heading">typing...</span>
             ) : (
-              "Onine"
+              "Online"
             )
           ) : (
             "Offline"
