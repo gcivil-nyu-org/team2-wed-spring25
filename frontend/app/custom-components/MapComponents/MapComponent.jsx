@@ -311,7 +311,7 @@ const RoutingMapComponent = ({
           <div className="absolute top-4 right-4 z-[1000]">
             <button
               onClick={retryLocation}
-              className="bg-map-bg text-white px-3 py-2 rounded-md text-sm shadow-md hover:bg-map-darkerbg transition-colors"
+              className="bg-map-pointer2 text-white px-3 py-2 rounded-md text-sm shadow-md hover:bg-sidebar-hover transition-colors"
             >
               Enable Location Access
             </button>
