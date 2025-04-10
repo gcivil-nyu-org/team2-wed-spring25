@@ -32,7 +32,6 @@ export default function useChat() {
       }
     };
     fetchChatUserList();
-    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
