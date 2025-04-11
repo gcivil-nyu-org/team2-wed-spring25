@@ -1,38 +1,24 @@
-import { apiGet } from "@/utils/fetch/fetch";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useChatStore } from "@/stores/useChatStore";
+import { useShallow } from "zustand/shallow";
 
 export default function useChat() {
-  const [isLoading, setIsLoading] = useState(true);
-  const {
-    initializeConnection,
-    connectionStatus,
-    onlineUsers,
-    chatUserList,
-    setChatUserList,
-    selectedUser,
-    setSelectedUser,
-    listOfUsersTyping,
-    handleUserTyping,
-  } = useWebSocket();
+  const { initializeConnection, connectionStatus, handleUserTyping } =
+    useWebSocket();
+  const { isLoading } = useChatStore(
+    useShallow((state) => ({
+      isLoading: state.isLoading,
+    }))
+  );
+  const { chatUserList, selectedUser } = useChatStore(
+    useShallow((state) => ({
+      chatUserList: state.chatUserList,
+      selectedUser: state.selectedUser,
+    }))
+  );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef(null);
-  useEffect(() => {
-    const fetchChatUserList = async () => {
-      try {
-        const user = JSON.parse(localStorage.getItem("user"));
-
-        const response = await apiGet(`/chats/${user.id}`);
-
-        setChatUserList(response.data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchChatUserList();
-  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return; // Server-side guard
@@ -69,15 +55,12 @@ export default function useChat() {
 
   return {
     isLoading,
-    onlineUsers,
-    chatUserList,
-    setChatUserList,
     selectedUser,
-    setSelectedUser,
     messagesEndRef,
     isSidebarOpen,
     setIsSidebarOpen,
-    listOfUsersTyping,
+
     handleUserTyping,
+    chatUserList,
   };
 }

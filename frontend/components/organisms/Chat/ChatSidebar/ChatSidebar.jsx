@@ -3,18 +3,8 @@ import { getLastMessageTimeStamp } from "@/utils/datetime";
 import { getUserFullName } from "@/utils/string";
 import useChatSidebar from "./useChatSidebar";
 
-const ChatSidebar = ({
-  chatUserList,
-  setSelectedUser,
-  onlineUsers,
-  setChatUserList,
-  setIsSidebarOpen,
-  listOfUsersTyping,
-}) => {
-  const { handleUserSelect } = useChatSidebar({
-    setSelectedUser,
-    setChatUserList,
-  });
+const ChatSidebar = ({ setIsSidebarOpen }) => {
+  const { handleUserSelect, chatUserList } = useChatSidebar();
 
   return (
     <section className="w-full h-full flex flex-col borderLightR">
@@ -23,7 +13,7 @@ const ChatSidebar = ({
           Chats
         </h2>
       </div>
-      
+
       {/* Scrollable chat list - takes remaining height */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         {chatUserList.map((chatUser) => {

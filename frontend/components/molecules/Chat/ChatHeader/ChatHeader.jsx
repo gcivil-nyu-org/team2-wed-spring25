@@ -4,8 +4,8 @@ import UserImage from "@/components/atom/UserImage/UserImage";
 import { getUserFullName } from "@/utils/string";
 import useChatHeader from "./useChatHeader";
 
-const ChatHeader = ({ selectedUser, onlineUsers, listOfUsersTyping }) => {
-  const { user, isUserOnline } = useChatHeader(selectedUser, onlineUsers);
+const ChatHeader = ({ selectedUser, listOfUsersTyping }) => {
+  const { user, isUserOnline } = useChatHeader(selectedUser);
   return (
     <div
       key={user.id}

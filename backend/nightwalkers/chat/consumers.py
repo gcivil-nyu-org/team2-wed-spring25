@@ -95,6 +95,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.handle_mark_messages_read(data)
         elif data["type"] == "typing_status":
             await self.handle_typing_status(data)
+        elif data["type"] == "user_disconnect":
+            await self.disconnect("close_code")
 
     async def handle_chat_message(self, data):
         recipient_id = data["recipient_id"]

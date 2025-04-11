@@ -36,6 +36,7 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useUser } from "@/components/Auth/UserContextProvider";
+import { useWebSocket } from "@/contexts/WebSocketContext";
 
 const items = [
   { title: "Profile", url: "/users/settings/profile", icon: UserRound },
@@ -93,7 +94,7 @@ const SettingsSidebar = () => {
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
-
+  const { disconnectWebSocket } = useWebSocket();
   // Try to use the user context first
   let contextUser = null;
   try {
@@ -120,6 +121,7 @@ const SettingsSidebar = () => {
     try {
       setIsLoggingOut(true);
       await signOut({ redirect: false });
+      disconnectWebSocket();
       localStorage.removeItem("user");
       router.push("/login");
       router.refresh();
