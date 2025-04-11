@@ -1,7 +1,8 @@
 // contexts/WebSocketContext.jsx
 "use client";
+import { useChatStore } from "@/stores/useChatStore";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-
+import { useShallow } from "zustand/shallow";
 const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children }) => {
@@ -9,11 +10,21 @@ export const WebSocketProvider = ({ children }) => {
   const [connectionStatus, setConnectionStatus] = useState("disconnected");
   const [retryCount, setRetryCount] = useState(0);
   const [userId, setUserId] = useState(null);
-  const [onlineUsers, setOnlineUsers] = useState([]); // New state for online users
-  const [chatUserList, setChatUserList] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [listOfUsersTyping, setListOfUsersTyping] = useState([]);
+  const {
+    setChatUserList,
+    setOnlineUsers,
+    setListOfUsersTyping,
+    selectedUser,
+  } = useChatStore(
+    useShallow((state) => ({
+      setChatUserList: state.setChatUserList,
+      setOnlineUsers: state.setOnlineUsers,
+      setListOfUsersTyping: state.setListOfUsersTyping,
+      selectedUser: state.selectedUser,
+    }))
+  );
   const selectedUserRef = useRef(selectedUser);
+
   const initializeConnection = (newUserId) => {
     console.log("Initializing connection with userId:", newUserId);
 
@@ -29,7 +40,18 @@ export const WebSocketProvider = ({ children }) => {
 
   const cleanupConnection = () => {
     if (ws.current) {
-      ws.current.close();
+      // Remove all event listeners to prevent memory leaks
+      ws.current.onopen = null;
+      ws.current.onclose = null;
+      ws.current.onerror = null;
+      ws.current.onmessage = null;
+
+      // Close if not already closed
+      if (
+        [WebSocket.CONNECTING, WebSocket.OPEN].includes(ws.current.readyState)
+      ) {
+        ws.current.close();
+      }
       ws.current = null;
     }
   };
@@ -74,6 +96,28 @@ export const WebSocketProvider = ({ children }) => {
     }
   };
 
+  const disconnectWebSocket = () => {
+    try {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        // Send a graceful disconnect message if needed
+        send({
+          type: "user_disconnect",
+          user_id: userId,
+          timestamp: new Date().toISOString(),
+        });
+
+        // Close the connection properly
+        ws.current.close(1000, "User logged out"); // 1000 = normal closure
+      }
+      cleanupConnection();
+      setConnectionStatus("disconnected");
+      setUserId(null);
+      console.log("WebSocket disconnected gracefully");
+    } catch (error) {
+      console.error("Error during WebSocket disconnect:", error);
+    }
+  };
+
   const setupWebSocket = () => {
     if (!userId) return;
 
@@ -111,56 +155,53 @@ export const WebSocketProvider = ({ children }) => {
 
       if (data.type === "status") {
         // Update single user status
-
-        setOnlineUsers((prev) => {
-          const userExists = prev.some((user) => user.id === data.user_id);
-          if (data.is_online && !userExists) {
-            return [...prev, { id: data.user_id }];
-          } else if (!data.is_online) {
-            return prev.filter((user) => user.id !== data.user_id);
-          }
-          return prev;
-        });
+        const onlineUsers = useChatStore.getState().onlineUsers;
+        const userExists = onlineUsers.some((user) => user.id === data.user_id);
+        if (data.is_online && !userExists) {
+          setOnlineUsers([...onlineUsers, { id: data.user_id }]);
+        } else if (!data.is_online) {
+          setOnlineUsers(
+            onlineUsers.filter((user) => user.id !== data.user_id)
+          );
+        }
       }
 
       if (data.type === "chat_message") {
         // Update UI (e.g., add message to chat window)
+        const chatUserList = useChatStore.getState().chatUserList;
+        const updatedChatUserList = chatUserList.map((chat) => {
+          if (chat.user.id == data.sender_id) {
+            const isSelected =
+              selectedUserRef.current?.user?.id == data.sender_id;
 
-        setChatUserList((prev) => {
-          const updatedList = prev.map((chat) => {
-            if (chat.user.id == data.sender_id) {
-              const isSelected =
-                selectedUserRef.current?.user?.id == data.sender_id;
-
-              // if the current user is selected, mark the messages as read immediately
-              if (isSelected) {
-                send({
-                  type: "mark_messages_read",
-                  sender_id: data.sender_id,
-                  chat_uuid: chat.chat_uuid,
-                  current_user_id: userId,
-                });
-              }
-              return {
-                ...chat,
-                unread_count: !isSelected ? chat.unread_count + 1 : 0,
-                messages: [
-                  ...chat.messages,
-                  {
-                    id: data.message_id,
-                    sender_id: data.sender_id,
-                    content: data.message,
-                    timestamp: data.timestamp,
-                    read: false,
-                  },
-                ],
-              };
+            // if the current user is selected, mark the messages as read immediately
+            if (isSelected) {
+              send({
+                type: "mark_messages_read",
+                sender_id: data.sender_id,
+                chat_uuid: chat.chat_uuid,
+                current_user_id: userId,
+              });
             }
-            return chat;
-          });
-
-          return updatedList;
+            return {
+              ...chat,
+              unread_count: !isSelected ? chat.unread_count + 1 : 0,
+              messages: [
+                ...chat.messages,
+                {
+                  id: data.message_id,
+                  sender_id: data.sender_id,
+                  content: data.message,
+                  timestamp: data.timestamp,
+                  read: false,
+                },
+              ],
+            };
+          }
+          return chat;
         });
+
+        setChatUserList(updatedChatUserList);
       }
 
       if (data.type === "message_delivery") {
@@ -170,40 +211,39 @@ export const WebSocketProvider = ({ children }) => {
 
       if (data.type === "messages_read") {
         const { chat_uuid, reader_id } = data;
-
-        setChatUserList((prev) => {
-          return prev.map((chat) => {
-            if (chat.chat_uuid == chat_uuid) {
-              return {
-                ...chat,
-                messages: chat.messages.map((message) => {
-                  if (message.sender_id != reader_id) {
-                    return { ...message, read: true };
-                  }
-                  return message;
-                }),
-              };
-            }
-            return chat;
-          });
+        const chatUserList = useChatStore.getState().chatUserList;
+        const updatedChatUserList = chatUserList.map((chat) => {
+          if (chat.chat_uuid == chat_uuid) {
+            return {
+              ...chat,
+              messages: chat.messages.map((message) => {
+                if (message.sender_id != reader_id) {
+                  return { ...message, read: true };
+                }
+                return message;
+              }),
+            };
+          }
+          return chat;
         });
+        console.log(
+          "Updated chat user list after messages read:",
+          updatedChatUserList
+        );
+
+        setChatUserList(updatedChatUserList);
       }
 
       if (data.type === "typing") {
         const { sender_id, is_typing, chat_uuid } = data;
-        setListOfUsersTyping((prev) => {
-          // Create a new Set for immutability
-          const newSet = new Set(prev);
-
-          if (is_typing) {
-            newSet.add(sender_id);
-          } else {
-            newSet.delete(sender_id);
-          }
-
-          // Convert back to array for state
-          return Array.from(newSet);
-        });
+        const listOfUsersTyping = useChatStore.getState().listOfUsersTyping;
+        const newSet = new Set(listOfUsersTyping);
+        if (is_typing) {
+          newSet.add(sender_id);
+        } else {
+          newSet.delete(sender_id);
+        }
+        setListOfUsersTyping(Array.from(newSet));
       }
     };
   };
@@ -226,15 +266,9 @@ export const WebSocketProvider = ({ children }) => {
         initializeConnection,
         connectionStatus,
         send,
-        onlineUsers,
-        setOnlineUsers,
-        chatUserList,
-        setChatUserList,
         handleUserSelection,
-        selectedUser,
-        setSelectedUser,
-        listOfUsersTyping,
         handleUserTyping,
+        disconnectWebSocket,
       }}
     >
       {children}

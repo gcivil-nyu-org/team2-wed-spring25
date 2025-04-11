@@ -1,8 +1,16 @@
 import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useChatStore } from "@/stores/useChatStore";
 import { apiPost } from "@/utils/fetch/fetch";
-export default function useChatSidebar({ setSelectedUser, setChatUserList }) {
+import { useShallow } from "zustand/shallow";
+export default function useChatSidebar() {
   const { handleUserSelection } = useWebSocket();
-
+  const { setChatUserList, setSelectedUser } = useChatStore(
+    useShallow((state) => ({
+      setChatUserList: state.setChatUserList,
+      setSelectedUser: state.setSelectedUser,
+    }))
+  );
+  const chatUserList = useChatStore((state) => state.chatUserList);
   const handleUserSelect = async (chat) => {
     try {
       setSelectedUser(chat);
@@ -12,20 +20,19 @@ export default function useChatSidebar({ setSelectedUser, setChatUserList }) {
       await apiPost(`/chats/${chat.chat_uuid}/read/${chat.user.id}/`);
 
       //update the chat user list to set unread count to 0 for the selected user
-      setChatUserList((prev) => {
-        return prev.map((chatUser) => {
-          if (chatUser.user.id == chat.user.id) {
-            return {
-              ...chatUser,
-              unread_count: 0,
-              messages: chatUser.messages.map((message) => {
-                return { ...message, read: true };
-              }),
-            };
-          }
-          return chatUser;
-        });
+      const updatedChatUserList = chatUserList.map((chatUser) => {
+        if (chatUser.user.id == chat.user.id) {
+          return {
+            ...chatUser,
+            unread_count: 0,
+            messages: chatUser.messages.map((message) => {
+              return { ...message, read: true };
+            }),
+          };
+        }
+        return chatUser;
       });
+      setChatUserList(updatedChatUserList);
 
       handleUserSelection(chat.chat_uuid, chat.user.id);
     } catch (error) {
@@ -33,5 +40,5 @@ export default function useChatSidebar({ setSelectedUser, setChatUserList }) {
     }
   };
 
-  return { handleUserSelect };
+  return { handleUserSelect, chatUserList };
 }

@@ -2,8 +2,11 @@ import { useRef, useState } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useChatStore } from "@/stores/useChatStore";
+import { useShallow } from "zustand/shallow";
+import { useAuthStore } from "@/stores/useAuthStore";
 
-export default function useChatInput(selectedUser, setChatUserList) {
+export default function useChatInput() {
   const [rows, setRows] = useState(1);
   const [messageContent, setMessageContent] = useState("");
   const textareaRef = useRef(null);
@@ -17,8 +20,15 @@ export default function useChatInput(selectedUser, setChatUserList) {
     handleClickOnEmojiPicker,
     handleOnEmojiClick,
   } = useEmojiPicker();
-  const user = JSON.parse(localStorage.getItem("user"));
-  const senderId = user.id; // Assuming you have the sender's ID from local storage
+  const { setChatUserList, selectedUser } = useChatStore(
+    useShallow((state) => ({
+      setChatUserList: state.setChatUserList,
+      selectedUser: state.selectedUser,
+    }))
+  );
+  const chatUserList = useChatStore((state) => state.chatUserList);
+  const user = useAuthStore((state) => state.user);
+  const senderId = user?.id; // Assuming you have the sender's ID from local storage
   const handleSend = () => {
     if (!messageContent.trim()) return;
 
@@ -35,26 +45,25 @@ export default function useChatInput(selectedUser, setChatUserList) {
     send(chatMessage);
 
     //also add the message to the chat user list
-    setChatUserList((prev) => {
-      return prev.map((chat) => {
-        if (chat.user.id == selectedUser.user.id) {
-          return {
-            ...chat,
-            messages: [
-              ...chat.messages,
-              {
-                id: Date.now(),
-                sender_id: senderId,
-                content: chatMessage.content,
-                timestamp: chatMessage.timestamp,
-                read: false,
-              },
-            ],
-          };
-        }
-        return chat;
-      });
+    const updatedChatUserList = chatUserList.map((chat) => {
+      if (chat.user.id == selectedUser.user.id) {
+        return {
+          ...chat,
+          messages: [
+            ...chat.messages,
+            {
+              id: Date.now(),
+              sender_id: senderId,
+              content: chatMessage.content,
+              timestamp: chatMessage.timestamp,
+              read: false,
+            },
+          ],
+        };
+      }
+      return chat;
     });
+    setChatUserList(updatedChatUserList);
 
     setMessageContent("");
     handleInput(); // Reset textarea height after sending
@@ -140,5 +149,6 @@ export default function useChatInput(selectedUser, setChatUserList) {
     typingTimeoutRef,
     handleTypingActivity,
     handleUserTyping,
+    selectedUser,
   };
 }

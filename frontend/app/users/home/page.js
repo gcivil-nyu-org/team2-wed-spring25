@@ -13,19 +13,10 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import SavedRoutesList from "@/app/custom-components/RoutingComponets/SavedRoutesList";
+import { useEffect } from "react";
 
 // Dashboard header component
 export function DashboardHeader() {
-  const { user, isLoading } = useUser();
-  const testAPI = async () => {
-    try {
-      const response = await authAPI.authenticatedGet("users/me");
-      console.log(response);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
-
   return (
     <>
       <div className="flex justify-between items-center mb-3">
@@ -39,6 +30,7 @@ export function DashboardHeader() {
 
 export default function Dashboard() {
   const { user, isLoading } = useUser();
+
   return (
     <div className="min-h-screen text-white font-sans">
       <div className="mx-auto">

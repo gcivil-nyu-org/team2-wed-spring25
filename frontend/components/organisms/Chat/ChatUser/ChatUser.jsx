@@ -3,19 +3,25 @@ import ChatMessage from "@/components/molecules/Chat/ChatMessage/ChatMessage";
 import ChatInput from "@/components/molecules/Chat/ChatInput/ChatInput";
 import useChatUser from "./useChatUser";
 import { ChevronLeft } from "lucide-react";
+import { useEffect } from "react";
 
-const ChatUser = ({
-  selectedUser,
-  setChatUserList,
-  messagesEndRef,
-  onlineUsers,
-  chatUserList,
-  setIsSidebarOpen,
-  handleUserTyping,
-  listOfUsersTyping,
-}) => {
-  const { openSettingsId, setOpenSettingsId, messagesContainerRef } =
-    useChatUser();
+const ChatUser = ({ messagesEndRef, setIsSidebarOpen, handleUserTyping }) => {
+  const {
+    openSettingsId,
+    setOpenSettingsId,
+    messagesContainerRef,
+    chatUserList,
+    listOfUsersTyping,
+    selectedUser,
+  } = useChatUser();
+
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.style.overflow = openSettingsId
+        ? "hidden"
+        : "auto";
+    }
+  }, [openSettingsId]);
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -32,12 +38,11 @@ const ChatUser = ({
             selectedUser={chatUserList.find(
               (user) => user.user.id === selectedUser.user.id
             )}
-            onlineUsers={onlineUsers}
             listOfUsersTyping={listOfUsersTyping}
           />
         </div>
       </div>
-      
+
       {/* Messages Container - Use flex-1 to take available space */}
       <div
         className="flex-1 overflow-y-auto scrollbar-hide"
@@ -72,14 +77,10 @@ const ChatUser = ({
         )}
         <div ref={messagesEndRef} />
       </div>
-      
+
       {/* Input Container - Fixed at bottom with proper spacing for navbar */}
       <div className="mt-auto px-2 mb-4">
-        <ChatInput
-          selectedUser={selectedUser}
-          setChatUserList={setChatUserList}
-          handleUserTyping={handleUserTyping}
-        />
+        <ChatInput handleUserTyping={handleUserTyping} />
       </div>
     </div>
   );

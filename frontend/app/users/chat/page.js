@@ -9,16 +9,12 @@ import { useEffect } from "react";
 const ChatHome = () => {
   const {
     isLoading,
-    onlineUsers,
     chatUserList,
-    setChatUserList,
     selectedUser,
-    setSelectedUser,
     messagesEndRef,
     isSidebarOpen,
     setIsSidebarOpen,
     handleUserTyping,
-    listOfUsersTyping,
   } = useChat();
 
   // Show sidebar by default on mobile when no user is selected
@@ -28,10 +24,10 @@ const ChatHome = () => {
         setIsSidebarOpen(true);
       }
     };
-    
+
     // Set initial state
     handleResize();
-    
+
     // Listen for window resize
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -81,14 +77,9 @@ const ChatHome = () => {
               <Loader />
             ) : (
               <ChatSidebar
-                chatUserList={chatUserList}
-                setSelectedUser={setSelectedUser}
-                onlineUsers={onlineUsers}
-                setChatUserList={setChatUserList}
                 setIsSidebarOpen={() => {
                   setIsSidebarOpen(false);
                 }}
-                listOfUsersTyping={listOfUsersTyping}
               />
             )}
           </div>
@@ -103,27 +94,15 @@ const ChatHome = () => {
                     <Loader />
                   </div>
                 ) : (
-                  <ChatSidebar
-                    chatUserList={chatUserList}
-                    setSelectedUser={setSelectedUser}
-                    onlineUsers={onlineUsers}
-                    setChatUserList={setChatUserList}
-                    setIsSidebarOpen={setIsSidebarOpen}
-                    listOfUsersTyping={listOfUsersTyping}
-                  />
+                  <ChatSidebar setIsSidebarOpen={setIsSidebarOpen} />
                 )}
               </div>
             ) : selectedUser ? (
               /* Chat area when user is selected */
               <ChatUser
-                selectedUser={selectedUser}
-                setChatUserList={setChatUserList}
                 messagesEndRef={messagesEndRef}
-                onlineUsers={onlineUsers}
-                chatUserList={chatUserList}
                 setIsSidebarOpen={setIsSidebarOpen}
                 handleUserTyping={handleUserTyping}
-                listOfUsersTyping={listOfUsersTyping}
               />
             ) : (
               /* No user selected message - Only shown on desktop when sidebar is visible */
