@@ -4,8 +4,7 @@ import { useChatStore } from "@/stores/useChatStore";
 import { useShallow } from "zustand/shallow";
 
 export default function useChat() {
-  const { initializeConnection, connectionStatus, handleUserTyping } =
-    useWebSocket();
+  const { handleUserTyping } = useWebSocket();
   const { isLoading } = useChatStore(
     useShallow((state) => ({
       isLoading: state.isLoading,
@@ -19,31 +18,6 @@ export default function useChat() {
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return; // Server-side guard
-
-    const checkAndConnect = () => {
-      try {
-        const userData = localStorage.getItem("user");
-
-        if (userData) {
-          const userId = JSON.parse(userData).id;
-
-          // Only initialize if not already connected
-          if (connectionStatus !== "connected") {
-            initializeConnection(userId);
-          }
-        }
-      } catch (error) {
-        console.error("Connection initialization error:", error);
-      }
-    };
-
-    // Check immediately
-    checkAndConnect();
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

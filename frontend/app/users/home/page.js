@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/card";
 import SavedRoutesList from "@/app/custom-components/RoutingComponets/SavedRoutesList";
 import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 // Dashboard header component
 export function DashboardHeader() {
@@ -30,7 +33,32 @@ export function DashboardHeader() {
 
 export default function Dashboard() {
   const { user, isLoading } = useUser();
+  const { status } = useSession();
+  const { initializeConnection, connectionStatus } = useWebSocket();
 
+  useEffect(() => {
+    if (typeof window === "undefined") return; // Server-side guard
+
+    const checkAndConnect = () => {
+      try {
+        console.log("User status:", status); // Debugging line
+
+        const userId = useAuthStore.getState().user.id;
+        console.log("User ID:", userId); // Debugging line
+
+        // Only initialize if not already connected
+        if (connectionStatus !== "connected") {
+          console.log("Initializing WebSocket connection..."); // Debugging line
+
+          initializeConnection(userId);
+        }
+      } catch (error) {
+        console.error("Connection initialization error:", error);
+      }
+    };
+
+    checkAndConnect();
+  }, []);
   return (
     <div className="min-h-screen text-white font-sans">
       <div className="mx-auto">

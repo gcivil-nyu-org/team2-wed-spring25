@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useChatStore } from "@/stores/useChatStore";
+import { useForumStore } from "@/stores/useForumStore";
 
 // Create the context
 const UserContext = createContext(null);
@@ -37,6 +38,7 @@ export function UserProvider({
   const setInitialChatUserList = useChatStore(
     (state) => state.setInitialChatUserList
   );
+
   // Maximum time to wait for user details before showing an error
   const MAX_LOADING_TIME = 10000; // 10 seconds
 
