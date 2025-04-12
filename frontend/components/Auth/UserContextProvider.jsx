@@ -38,6 +38,9 @@ export function UserProvider({
   const setInitialChatUserList = useChatStore(
     (state) => state.setInitialChatUserList
   );
+  const setInitialUserPosts = useForumStore(
+    (state) => state.setInitialUserPosts
+  );
 
   // Maximum time to wait for user details before showing an error
   const MAX_LOADING_TIME = 10000; // 10 seconds
@@ -50,6 +53,7 @@ export function UserProvider({
         localStorage.setItem("user", JSON.stringify(userDetails));
         setUser(userDetails);
         setInitialChatUserList(userDetails.id);
+        setInitialUserPosts(userDetails.id, "");
       } catch (err) {
         console.error(
           "[UserProvider] Error syncing user to localStorage:",

@@ -4,14 +4,16 @@ import Loader from "../Loader/Loader";
 import UserImage from "@/components/atom/UserImage/UserImage";
 import Image from "next/image";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
+import { useShallow } from "zustand/shallow";
+import { useForumStore } from "@/stores/useForumStore";
 
-export default function UserData({
-  isLoading,
-  user,
-  userHeading,
-  isUserDataCardLoading,
-  userSideCardData,
-}) {
+export default function UserData({ isLoading, user, userHeading }) {
+  const { userSideCardData, isUserDataCardLoading } = useForumStore(
+    useShallow((state) => ({
+      userSideCardData: state.userSideCardData,
+      isUserDataCardLoading: state.isUserDataCardLoading,
+    }))
+  );
   return (
     <div className="text-text-forum-heading">
       <div className="relative  rounded-lg max-h-[210px] pb-4 w-full bg-bg-post">

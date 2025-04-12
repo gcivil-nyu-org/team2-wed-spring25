@@ -10,13 +10,12 @@ const PostFooterIconList = ({
   handleClickOnComment,
   setShowReportUserDialog,
   setLikesCount,
-  setPosts,
   post,
   isReported,
   setIsReported,
 }) => {
   const { userHasLiked, setUserHasLiked, likeType, setLikeType, handleRepost } =
-    usePostFooterIconList(post, setPosts);
+    usePostFooterIconList(post);
   const { showError } = useNotification();
   useEffect(() => {
     setIsReported(post.is_reported);

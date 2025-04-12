@@ -4,7 +4,7 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import { apiPost } from "@/utils/fetch/fetch";
 import { useEffect, useRef, useState } from "react";
 
-export default function useUserPostBottom(post, setPosts) {
+export default function useUserPostBottom(post) {
   const [showCommentSection, setShowCommentSection] = useState(false);
   const [showReportUserDialog, setShowReportUserDialog] = useState(false);
   const [disableYesButton, setDisableYesButton] = useState(false);

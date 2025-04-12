@@ -13,8 +13,6 @@ import { closeDark, emojiDark, imagePickerDark } from "@/public/icons";
 
 export default function PostDialog({
   onClick,
-  setPosts,
-  posts_count,
   is_edit = false,
   post_id = 0,
   image_urls = null,
@@ -47,7 +45,6 @@ export default function PostDialog({
     isLoading,
     postDialogRef,
   } = usePostDialog(
-    setPosts,
     onClick,
     is_edit,
     post_id,

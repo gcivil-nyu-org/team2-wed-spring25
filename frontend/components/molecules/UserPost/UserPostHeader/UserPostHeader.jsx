@@ -14,7 +14,6 @@ export default function UserPostHeader({
   post_user_id,
   is_following_author,
   user_karma,
-  setPosts,
   post_id,
   image_urls,
   content,
@@ -34,7 +33,7 @@ export default function UserPostHeader({
     handleDeletePost,
     isPostDialogOpen,
     setIsPostDialogOpen,
-  } = useUserPostHeader(post_user_id, setPosts, post_id);
+  } = useUserPostHeader(post_user_id, post_id);
   return (
     <div className="flex flex-row px-4 pt-3">
       {
@@ -54,8 +53,6 @@ export default function UserPostHeader({
         <PostDialog
           onClick={() => setIsPostDialogOpen(false)}
           is_edit={true}
-          setPosts={setPosts}
-          posts_count={0} //never used inside the component
           post_id={post_id}
           image_urls={image_urls}
           content={content}

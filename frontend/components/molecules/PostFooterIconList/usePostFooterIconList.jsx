@@ -1,13 +1,21 @@
 "use client";
 
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useForumStore } from "@/stores/useForumStore";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useState } from "react";
+import { useShallow } from "zustand/shallow";
 
-export default function usePostFooterIconList(post, setPosts) {
+export default function usePostFooterIconList(post) {
   const [userHasLiked, setUserHasLiked] = useState(post.user_has_liked);
   const [likeType, setLikeType] = useState(post.like_type);
   const { showError, showWarning, showSuccess } = useNotification();
+  const { userPosts, setUserPosts } = useForumStore(
+    useShallow((state) => ({
+      userPosts: state.userPosts,
+      setUserPosts: state.setUserPosts,
+    }))
+  );
   const handleRepost = async () => {
     let user = null;
     if (typeof window !== "undefined") {
@@ -58,14 +66,9 @@ export default function usePostFooterIconList(post, setPosts) {
           avatar_url: user?.avatar ? user.avatar : null,
         },
       };
-      setPosts((prevPosts) => {
-        //add new repost at start, but remove the old one iwth same id
-        //first filter out the old repost
-        const newPosts = prevPosts.filter((p) => p.id !== post.id);
-        //add new repost at start
-        newPosts.unshift(newRepost);
-        return newPosts;
-      });
+      const updatedUserPosts = userPosts.filter((p) => p.id !== post.id);
+      updatedUserPosts.unshift(newRepost);
+      setUserPosts(updatedUserPosts);
 
       // Scroll to the top of the page
       window.scrollTo({ top: 0, behavior: "smooth" });

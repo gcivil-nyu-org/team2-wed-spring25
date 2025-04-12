@@ -10,7 +10,6 @@ export default function UserPostButtons({
   getLikesCount,
   getCommentsCount,
   setLikesCount,
-  setPosts,
   post,
   handleClickOnComment,
   setShowReportUserDialog,
@@ -40,7 +39,6 @@ export default function UserPostButtons({
           handleClickOnComment={handleClickOnComment}
           setShowReportUserDialog={setShowReportUserDialog}
           setLikesCount={setLikesCount}
-          setPosts={setPosts}
           post={post}
           isReported={isReported}
           setIsReported={setIsReported}

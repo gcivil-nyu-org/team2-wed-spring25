@@ -8,7 +8,6 @@ import UserPosts from "@/components/organisms/Forum/UserPosts/UserPosts";
 export default function Forums({ settingsType = "" }) {
   const {
     isLoading,
-    isLoadingMore,
     isOpen,
     userPosts,
     handleClick,
@@ -17,14 +16,13 @@ export default function Forums({ settingsType = "" }) {
     hasMore,
     loaderRef,
     userHeading,
-    isUserDataCardLoading,
-    userSideCardData,
   } = useForum(settingsType);
 
   return (
     <div
-      className={`w-full flex flex-row justify-center items-start py-4 ${settingsType ? "bg-sidebar-bg" : "bg-bg-forum"
-        }`}
+      className={`w-full flex flex-row justify-center items-start py-4 ${
+        settingsType ? "bg-sidebar-bg" : "bg-bg-forum"
+      }`}
     >
       {!settingsType && (
         <div className="flex-col hidden  xsm:flex lg:w-2/6 xl:flex xl:flex-col xl:items-center max-w-[225px] ">
@@ -32,8 +30,6 @@ export default function Forums({ settingsType = "" }) {
             isLoading={isLoading}
             user={user}
             userHeading={userHeading}
-            isUserDataCardLoading={isUserDataCardLoading}
-            userSideCardData={userSideCardData}
           />
         </div>
       )}
@@ -47,26 +43,19 @@ export default function Forums({ settingsType = "" }) {
             user={user}
           />
         )}
-        {!isLoading && (
-          <UserPosts
-            userPosts={userPosts}
-            setUserPosts={setUserPosts}
-            hasMore={hasMore}
-            loaderRef={loaderRef}
-            isLoadingMore={isLoadingMore}
-          />
-        )}
+        {!isLoading && <UserPosts userPosts={userPosts} />}
         {/* Always render the loader div, but hide it if there are no more posts */}
         {
           <div
             ref={loaderRef}
-            className={`flex justify-center items-center h-[50vh] ${hasMore ? "visible" : "hidden"
-              }`}
+            className={`flex justify-center items-center h-[50vh] ${
+              isLoading || hasMore ? "visible" : "hidden"
+            }`}
           >
             <Loader />
           </div>
         }
-        {!hasMore && (
+        {!hasMore && !isLoading && (
           <p className="text-center text-forum-heading2 text-lg mt-8 mb-10">
             No more posts to show
           </p>

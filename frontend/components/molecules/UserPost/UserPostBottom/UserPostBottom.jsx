@@ -9,7 +9,6 @@ export default function UserPostBottom({
   commentsCount,
   setLikesCount,
   setCommentsCount,
-  setPosts,
   post,
   disableYesButton,
 }) {
@@ -24,7 +23,7 @@ export default function UserPostBottom({
     handleShowReportUserDialogRef,
     isReported,
     setIsReported,
-  } = useUserPostBottom(post, setPosts);
+  } = useUserPostBottom(post);
   return (
     <div className="mx-3">
       <CustomDialogBox
@@ -46,7 +45,6 @@ export default function UserPostBottom({
         getLikesCount={getLikesCount}
         getCommentsCount={getCommentsCount}
         setLikesCount={setLikesCount}
-        setPosts={setPosts}
         post={post}
         handleClickOnComment={handleClickOnComment}
         setShowReportUserDialog={setShowReportUserDialog}

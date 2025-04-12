@@ -8,10 +8,9 @@ import UserImage from "@/components/atom/UserImage/UserImage";
 import { getUserFullName } from "@/utils/string";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 
-export default function UserPost({ post, setPosts }) {
+export default function UserPost({ post }) {
   const { commentsCount, setCommentsCount, likesCount, setLikesCount } =
     useUserPost(post.likes_count, post.comments_count);
-
   return (
     <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-bg-post border-dark relative">
       {post.is_repost && (
@@ -39,7 +38,6 @@ export default function UserPost({ post, setPosts }) {
         date_created={post.date_created}
         post_user_id={post.user_id}
         is_following_author={post.is_following_author}
-        setPosts={setPosts}
         user_karma={post.user_karma}
         post_id={post.id}
         image_urls={post.image_urls}
@@ -56,7 +54,6 @@ export default function UserPost({ post, setPosts }) {
         likesCount={likesCount}
         setCommentsCount={setCommentsCount}
         setLikesCount={setLikesCount}
-        setPosts={setPosts}
         post={post}
       />
     </div>

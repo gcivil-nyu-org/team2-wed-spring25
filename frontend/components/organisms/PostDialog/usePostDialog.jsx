@@ -1,12 +1,13 @@
 "use client";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useForumStore } from "@/stores/useForumStore";
 import { apiPost } from "@/utils/fetch/fetch";
 import { getUserFullName } from "@/utils/string";
 import uploadImage from "@/utils/uploadImage";
 import { useEffect, useRef, useState } from "react";
+import { useShallow } from "zustand/shallow";
 
 export const usePostDialog = (
-  setPosts,
   onClick,
   is_edit,
   post_id,
@@ -21,7 +22,12 @@ export const usePostDialog = (
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
   const { showError } = useNotification();
   const postDialogRef = useRef(null); // Ref for the post dialog container
-
+  const { userPosts, setUserPosts } = useForumStore(
+    useShallow((state) => ({
+      userPosts: state.userPosts,
+      setUserPosts: state.setUserPosts,
+    }))
+  );
   const handleSubmit = async (selectedImage, onClick) => {
     // Input validation
     if (postContent.trim() === "" && !selectedImage) {
@@ -100,19 +106,18 @@ export const usePostDialog = (
       };
 
       if (!is_edit) {
-        setPosts((prev) => [newPost, ...prev]);
+        setUserPosts([newPost, ...userPosts]);
       } else {
-        setPosts((prev) =>
-          prev.map((post) =>
-            post.id === post_id
-              ? {
-                  ...post,
-                  content: postContent,
-                  image_urls: imageUrl ? [imageUrl] : [],
-                }
-              : post
-          )
+        const updatedUserPosts = userPosts.map((post) =>
+          post.id === post_id
+            ? {
+                ...post,
+                content: postContent,
+                image_urls: imageUrl ? [imageUrl] : [],
+              }
+            : post
         );
+        setUserPosts(updatedUserPosts);
       }
 
       // Reset the form

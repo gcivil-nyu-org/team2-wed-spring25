@@ -2,7 +2,5 @@
 import Forums from "@/components/organisms/Forum/Forum";
 
 export default function ForumPage() {
-  return (
-      <Forums settingsType={"posts"} />
-  );
+  return <Forums settingsType={"posts"} />;
 }
