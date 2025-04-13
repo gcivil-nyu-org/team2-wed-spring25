@@ -105,10 +105,6 @@ INSTALLED_APPS = [
 ]
 
 
-# Current command to run https server:
-# python manage.py runserver_plus
-# --cert-file ../../certs/localhost+1.pem
-# --key-file ../../certs/localhost+1-key.pem
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -127,7 +123,7 @@ ROOT_URLCONF = "nightwalkers.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],  # Add this line
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
