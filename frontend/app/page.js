@@ -14,7 +14,7 @@ export default function Home() {
         <AnimatedBackground />
 
         {/* Radial Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-map-bg/50 to-map-bg/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-blue-900/10 to-blue-900/30"></div>
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 pt-20">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
