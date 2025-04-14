@@ -8,76 +8,60 @@ import AnimatedBackground from "./custom-components/AnimatedBackground";
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Hero Section */}
-      <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-map-bg via-map-darkerbg to-map-bg overflow-hidden">
-        {/* Animated Background */}
-        <AnimatedBackground />
+      <div className="relative h-screen w-full text-white overflow-y-auto">
+        {/* Background */}
+        <div className="absolute inset-0 z-0">
+          {/* Mobile: full dark bg */}
+          <div className="block md:hidden h-full w-full bg-[#0d1b2a]" />
+          {/* Desktop: split bg with left light for phone, right dark for text */}
+          <div className="hidden md:grid grid-cols-3 h-full w-full">
+            <div className="bg-[#1b263b]" />        {/* Left: phone bg */}
+            <div className="col-span-2 bg-[#0d1b2a]" /> {/* Right: text bg */}
+          </div>
+        </div>
 
-        {/* Radial Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-map-bg/50 to-map-bg/80"></div>
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 pt-20">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-            {/* Left side - Hero Text */}
-            <div className="text-center lg:text-left lg:w-1/2 space-y-6">
-              <Image
-                className="mx-auto lg:mx-0 h-auto"
-                src="/owl-logo.svg"
-                width={64}
-                height={64}
-                alt="Nightwalkers Logo"
-              />
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-400/20 rounded-full text-blue-200 backdrop-blur-sm animate-float">
-                <Shield className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  Safe Navigation for Everyone
-                </span>
-              </div>
+        <div className="relative z-10 h-full w-full flex flex-col-reverse md:flex-row-reverse items-center justify-center px-6 py-8 md:py-0">
+          {/* Text Content */}
+          <div className="w-full md:w-2/3 space-y-6 flex flex-col justify-center items-center md:items-start md:pl-16">
+            <Image
+              src="/owl-logo.svg"
+              width={64}
+              height={64}
+              alt="Logo"
+              className="animate-float mt-4 md:mt-0 hidden md:block [@media(max-height:500px)]:hidden"
+            />
 
-              <h1 className="text-4xl lg:text-6xl font-bold text-white">
-                Navigate Safely with{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-200">
-                  Nightwalkers
-                </span>
-              </h1>
-
-              <p className="text-lg text-blue-100 max-w-xl">
-                Using real-time data and community insights to provide the
-                safest routes for your journey.
-              </p>
+            <div className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-full text-blue-200 text-sm">
+              <Shield className="w-4 h-4" />
+              Safe Navigation for Everyone
             </div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-center md:text-left">
+              Navigate Safely with <span className="text-blue-300">Nightwalkers</span>
+            </h1>
+            <p className="text-blue-100 text-base max-w-xl text-center md:text-left">
+              Real-time data and community insights help you avoid unsafe areas and walk confidently at night.
+            </p>
+            <div className="flex flex-col gap-4 w-full max-w-xs">
+              <Link href="/login">
+                <Button className="w-full bg-white text-blue-800 font-semibold hover:bg-blue-100 transition">Sign In</Button>
+              </Link>
+              <Link href="/register">
+                <Button className="w-full border border-white text-white hover:bg-white/10 transition">Create Account</Button>
+              </Link>
+            </div>
+          </div>
 
-            {/* Right side - Auth Card */}
-            <Card className="w-full lg:w-96 bg-white/10 backdrop-blur-md border-white/20">
-              <CardContent className="p-8">
-                <div className="">
-                  <div className="text-center">
-                    <h2 className="text-2xl font-semibold text-white mb-2">
-                      Join Nightwalkers
-                    </h2>
-                    <p className="text-blue-200 text-sm">
-                      Access safe navigation and community alerts
-                    </p>
-                  </div>
-                  <Link href="/login" className="">
-                    <Button
-                      size="lg"
-                      className="w-full bg-white text-blue-600 mt-3 hover:bg-blue-50 font-semibold transition-colors duration-300"
-                    >
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link href={`/register`}>
-                    <Button
-                      size="lg"
-                      className="w-full mt-3 text-white border-white/50 hover:bg-white/10 transition-colors duration-300"
-                    >
-                      Create Account
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Phone Image */}
+          <div className="w-full md:w-1/3 flex justify-center md:items-center mt-8 md:mt-0 h-auto md:h-full">
+            <div className="relative h-[40vh] sm:h-[45vh] md:h-[60vh] lg:h-[75vh] aspect-[9/18] max-h-[90vh]">
+              <Image
+                src="/images/landing-phone.png"
+                alt="Nightwalkers App Preview"
+                fill
+                className="rounded-2xl object-cover"
+              />
+            </div>
           </div>
         </div>
       </div>
