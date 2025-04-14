@@ -105,7 +105,6 @@ INSTALLED_APPS = [
 ]
 
 
-
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -160,6 +159,16 @@ DATABASES = {
         # Improves performance by reusing connections
     )
 }
+# For my test on linux leave the lines below please
+# if 'test' in sys.argv:
+#     DATABASES['default'] = {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'nightwalkers',
+#         'USER': 'alex',
+#         'PASSWORD': 'alex1006',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

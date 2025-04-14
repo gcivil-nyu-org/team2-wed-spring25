@@ -47,7 +47,9 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     avatar_url = models.URLField(blank=True, null=True, max_length=1024)
     karma = models.IntegerField(default=0)
-    is_banned = models.BooleanField(default=False, verbose_name="Is the user banned", null=True, blank=True)
+    is_banned = models.BooleanField(
+        default=False, verbose_name="Is the user banned", null=True, blank=True
+    )
 
     # Many-to-Many relationship for followers/following
     following = models.ManyToManyField(
