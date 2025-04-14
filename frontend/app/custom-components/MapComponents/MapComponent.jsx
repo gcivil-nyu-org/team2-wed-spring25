@@ -331,7 +331,7 @@ const RoutingMapComponent = ({
       </div>
 
       <div
-        className={`absolute pt-2 px-2 bottom-[52px] z-[1001] w-full bg-[#424d5c] transition-all duration-300 ease-in-out ${
+        className={`absolute mt-2 px-2 bottom-[52px] z-[1001] w-full bg-[#424d5c] transition-all duration-300 ease-in-out ${
           showRouteInfoPanel ? "translate-y-0" : "translate-y-full"
         }`}
       >
