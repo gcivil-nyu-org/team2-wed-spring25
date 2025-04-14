@@ -234,7 +234,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   return (
     <>
       {/* Heatmap Toggle */}
-      <div className="absolute bottom-4 left-4 z-[499] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
+      <div className="absolute bottom-[60px] left-4 z-[499] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
         <label
           className="text-sm font-medium text-map-legendtext"
           htmlFor="heatmap-switch"

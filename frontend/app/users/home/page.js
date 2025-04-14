@@ -62,7 +62,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="flex flex-col align-center items-center w-full">
               <Button
-                className="bg-stone-900 border border-sidebar-border rounded-md p-2 mb-4 w-[60%] hover:border-stone-400 flex flex-col align-center items-center"
+                className="bg-stone-900 border border-sidebar-border rounded-md p-2 mb-4 w-[100%] md:w-[80%] hover:border-stone-400 flex flex-col align-center items-center"
                 asChild
               >
                 <Link href="/users/map">Begin Routing</Link>

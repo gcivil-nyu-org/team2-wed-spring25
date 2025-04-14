@@ -183,11 +183,11 @@ const SettingsSidebar = () => {
     <Sidebar
       side="right"
       collapsible="offcanvas"
-      className="bg-sidebar-bg border-l border-sidebar-border overflow-y-auto"
+      className="border-l border-sidebar-border overflow-y-auto"
     >
-      <SidebarContent className="p-0">
+      <SidebarContent className="bg-sidebar-group p-0">
         {/* Header */}
-        <SidebarHeader className="border-b border-sidebar-border border-opacity-30 bg-sidebar-bg shadow-sm sticky top-0 z-50">
+        <SidebarHeader className="border-b border-sidebar-border border-opacity-30 shadow-sm sticky top-0 z-50">
           <div className="relative flex justify-center items-center py-0">
             <div
               className="absolute left-4 cursor-pointer text-sidebar-text hover:text-white transition-colors duration-200"
@@ -208,7 +208,7 @@ const SettingsSidebar = () => {
         {/* User Banner - Fixed to use a div instead of SidebarGroup/SidebarMenuButton */}
         <div className="mt-4 mb-1 mx-3">
           <div
-            className="w-full relative bg-sidebar-bg border border-sidebar-border border-opacity-30 rounded-lg p-3 cursor-pointer hover:bg-sidebar-hover transition-colors"
+            className="w-full relative border border-sidebar-border border-opacity-30 rounded-lg p-3 cursor-pointer hover:bg-sidebar-hover transition-colors"
             onClick={() => handleNavigate("/users/settings/profile")}
           >
             <div className="absolute inset-0 flex justify-center items-center rounded-lg z-10 bg-sidebar-bg opacity-0 hover:opacity-90 transition-opacity duration-300">
@@ -261,7 +261,7 @@ const SettingsSidebar = () => {
               <SidebarMenuButton
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className={`rounded-md py-3 px-4 bg-red-700 hover:bg-red-800 transition-colors duration-100 text-white w-full ${
+                className={`rounded-md py-3 px-4 bg-red-600 hover:bg-red-800 transition-colors duration-100 text-white w-full ${
                   isLoggingOut ? "opacity-70 cursor-not-allowed" : ""
                 }`}
               >
