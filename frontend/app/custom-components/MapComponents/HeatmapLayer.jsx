@@ -82,11 +82,11 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       console.error("Error fetching heatmap data:", err);
       
       if (retryCount < 2) { // Reduced from 3 to 2 retries
-        // showWarning(
-        //   "Loading crime data...",
-        //   "Retrying to load crime heatmap data",
-        //   "heatmap_retry"
-        // );
+        showWarning(
+          "Loading crime data...",
+          "Retrying to load crime heatmap data",
+          "heatmap_retry"
+        );
         setRetryCount((prev) => prev + 1);
         // Retry after delay - with cleanup of loading states
         setTimeout(() => {
@@ -234,7 +234,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   return (
     <>
       {/* Heatmap Toggle */}
-      <div className="absolute bottom-4 left-4 z-[499] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
+      <div className="absolute bottom-[60px] left-4 z-[499] bg-white p-2 rounded-md shadow-md flex items-center gap-2">
         <label
           className="text-sm font-medium text-map-legendtext"
           htmlFor="heatmap-switch"

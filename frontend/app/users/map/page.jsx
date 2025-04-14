@@ -271,7 +271,7 @@ export default function Dashboard() {
     <>
       <main
         ref={mainElementRef}
-        className="min-h-screen bg-map-bg text-map-text overflow-y-hidden"
+        className="min-h-screen bg-map-bg text-map-text overflow-y-auto"
         id="dashboard-main"
       >
         <Suspense
