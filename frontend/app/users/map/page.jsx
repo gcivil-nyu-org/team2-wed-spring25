@@ -14,8 +14,10 @@ const NYC_BOUNDS = {
 };
 
 const isWithinNYC = ([lat, lng]) =>
-  lat >= NYC_BOUNDS.sw[0] && lat <= NYC_BOUNDS.ne[0] &&
-  lng >= NYC_BOUNDS.sw[1] && lng <= NYC_BOUNDS.ne[1];
+  lat >= NYC_BOUNDS.sw[0] &&
+  lat <= NYC_BOUNDS.ne[0] &&
+  lng >= NYC_BOUNDS.sw[1] &&
+  lng <= NYC_BOUNDS.ne[1];
 
 // Dynamically import the map component with SSR disabled
 const ClientOnlyMap = dynamic(
@@ -34,7 +36,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const [mapboxToken, setMapboxToken] = useState("");
   const [departureCoords, setDepartureCoords] = useState(null);
   const [destinationCoords, setDestinationCoords] = useState(null);
@@ -44,7 +46,8 @@ function DashboardContent() {
   const [routeName, setRouteName] = useState("");
   const [initialLoad, setInitialLoad] = useState(true);
   const [initialDepartureCoords, setInitialDepartureCoords] = useState(null);
-  const [initialDestinationCoords, setInitialDestinationCoords] = useState(null);
+  const [initialDestinationCoords, setInitialDestinationCoords] =
+    useState(null);
   const [readyToRender, setReadyToRender] = useState(false);
   const [routeCalculated, setRouteCalculated] = useState(false);
 
@@ -65,23 +68,25 @@ function DashboardContent() {
       if (depLat && depLon && destLat && destLon) {
         const departure = [parseFloat(depLat), parseFloat(depLon)];
         const destination = [parseFloat(destLat), parseFloat(destLon)];
-        
+
         // Strict validation: Both must be within NYC, or clear all
         if (isWithinNYC(departure) && isWithinNYC(destination)) {
           // Both coordinates are valid - set them
           setInitialDepartureCoords(departure);
           setInitialDestinationCoords(destination);
-          
+
           if (name) {
             setRouteName(decodeURIComponent(name));
           }
         } else {
           // Either coordinate is outside NYC - clear the URL using Next.js router
-          console.log("Coordinates outside NYC bounds, clearing URL parameters");
-          
+          console.log(
+            "Coordinates outside NYC bounds, clearing URL parameters"
+          );
+
           // Use Next.js router to navigate to the same page without query parameters
           router.replace(pathname);
-          
+
           // Don't set any initial coordinates
           setInitialDepartureCoords(null);
           setInitialDestinationCoords(null);
@@ -165,7 +170,6 @@ function DashboardContent() {
 
       // Wait for state to clear
       setTimeout(() => {
-
         // Then set the new values
         setUseCurrentLocation(!!useCurrentLocation);
 
@@ -196,13 +200,14 @@ function DashboardContent() {
             params.set("dest_lat", destinationCoordinates[0]);
             params.set("dest_lon", destinationCoordinates[1]);
           }
-          
+
           // Use router.replace to update URL without adding to history
           router.replace(`${pathname}?${params.toString()}`);
 
           showSuccess(
             "Route planning started",
-            `Planning route from ${useCurrentLocation ? "your current location" : departure
+            `Planning route from ${
+              useCurrentLocation ? "your current location" : departure
             } to ${destination}`,
             "route_planning"
           );
@@ -222,19 +227,16 @@ function DashboardContent() {
   };
 
   return (
-    <div ref={containerRef} className="relative flex flex-col h-screen w-full">
+    <div ref={containerRef} className="relative">
       {/* Search Form Section (Top) */}
-      <div className="p-0 mb-0 mt-0">
-        <h2 className="text-lg font-semibold mt-0 mb-0 text-map-text flex items-center ml-2">
-          Travel Safely
-          <Image
+      {/* <Image
             className="mx-0 ml-2"
             src="/owl-logo.svg"
             width={24}
             height={24}
             alt="Nightwalkers Logo"
-          />
-        </h2>
+          /> */}
+      <div className="bg-[#424d5c] absolute top-0 left-0 z-[1001] w-full">
         <LocationSearchForm
           onSearch={handleSearch}
           isLoading={isLoading}
@@ -246,7 +248,7 @@ function DashboardContent() {
       </div>
 
       {/* Map Section (Center, takes remaining height) */}
-      <div className="w-full flex-grow pb-20 mb-0">
+      <div>
         {mapboxToken && readyToRender && (
           <ClientOnlyMap
             key={mapKey}
@@ -265,18 +267,11 @@ function DashboardContent() {
 export default function Dashboard() {
   const mainElementRef = useRef(null);
 
-  // Simple scroll to top function
-  const scrollToTop = () => {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  };
-
   return (
     <>
       <main
         ref={mainElementRef}
-        className="min-h-screen bg-map-bg text-map-text p-0 overflow-y-auto mt-0 pt-3"
+        className="min-h-screen bg-map-bg text-map-text overflow-y-hidden"
         id="dashboard-main"
       >
         <Suspense
@@ -290,16 +285,6 @@ export default function Dashboard() {
           <DashboardContent />
         </Suspense>
       </main>
-
-      {/* Always visible scroll button */}
-      <button
-        onClick={scrollToTop}
-        className="fixed bottom-16 left-6 bg-map-bg hover:bg-blue-700 p-3 rounded-full shadow-lg text-white z-[9999] flex items-center justify-center w-12 h-12 opacity-90 transition-all duration-300 hover:scale-110"
-        aria-label="Scroll to top"
-        type="button"
-      >
-        <ArrowUp size={24} />
-      </button>
     </>
   );
 }

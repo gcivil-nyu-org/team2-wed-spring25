@@ -82,11 +82,11 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       console.error("Error fetching heatmap data:", err);
       
       if (retryCount < 2) { // Reduced from 3 to 2 retries
-        showWarning(
-          "Loading crime data...",
-          "Retrying to load crime heatmap data",
-          "heatmap_retry"
-        );
+        // showWarning(
+        //   "Loading crime data...",
+        //   "Retrying to load crime heatmap data",
+        //   "heatmap_retry"
+        // );
         setRetryCount((prev) => prev + 1);
         // Retry after delay - with cleanup of loading states
         setTimeout(() => {

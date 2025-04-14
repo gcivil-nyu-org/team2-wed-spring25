@@ -289,7 +289,7 @@ const RoutingMapComponent = ({
           destination={destinationCoords}
         />
       )}
-      <div className="relative w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
+      <div className="relative w-full h-[100vh] rounded-lg overflow-hidden shadow-lg">
         <HeatmapLayer {...{ mapLoaded, mapInstanceRef }} />
         {/* Display critical error in the UI if map can't load */}
         {mapCriticalError && <MapCriticalErrorMsg />}
