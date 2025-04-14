@@ -1,5 +1,6 @@
 "use client";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useForumStore } from "@/stores/useForumStore";
 import { apiDelete, apiPost } from "@/utils/fetch/fetch";
 import throttle from "@/utils/throttle";
@@ -20,27 +21,20 @@ export default function useUserPostHeader(post_user_id, post_id) {
       userPosts: state.userPosts,
     }))
   );
+  const user = useAuthStore((state) => state.user);
   // Move user retrieval inside the effect or handler functions
   // instead of at the top level with early returns
   const [userId, setUserId] = useState(null);
 
   // Use an effect to load the user ID once on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
-      if (user) {
-        setUserId(user.id);
-      }
+    if (user) {
+      setUserId(user.id);
     }
   }, []);
 
   const throttledHandleOnFollow = throttle(async (val) => {
     try {
-      // Check for user inside the function
-      let user = null;
-      if (typeof window !== "undefined") {
-        user = JSON.parse(localStorage.getItem("user"));
-      }
       if (!user) {
         showError("Please login to follow a user. User not found.");
         return;

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
+import { useAuthStore } from "@/stores/useAuthStore";
 export default function usePostCommentInput(
   post_id,
   setCommentsCount,
@@ -28,7 +29,7 @@ export default function usePostCommentInput(
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Disable button during API call
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
   const { showError, showSuccess } = useNotification();
-
+  const user = useAuthStore((state) => state.user);
   const handleCommentSubmit = async () => {
     // Input validation
 
@@ -47,16 +48,6 @@ export default function usePostCommentInput(
     try {
       setIsButtonDisabled(true); // Disable the button
       setIsLoading(true); // Show loading spinner
-      let userString = null;
-      if (typeof window !== "undefined") {
-        userString = localStorage.getItem("user"); // Retrieve the user from localStorage
-      }
-      let user = null;
-      if (userString) {
-        user = JSON.parse(userString); // Parse the user object
-      } else {
-        showError("Please login to comment. User not found.");
-      }
 
       if (!user) {
         showError("Please login to comment. User not found.");

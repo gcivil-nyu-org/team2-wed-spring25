@@ -1,6 +1,7 @@
 "use client";
 
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useForumStore } from "@/stores/useForumStore";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useState } from "react";
@@ -16,11 +17,8 @@ export default function usePostFooterIconList(post) {
       setUserPosts: state.setUserPosts,
     }))
   );
+  const user = useAuthStore((state) => state.user);
   const handleRepost = async () => {
-    let user = null;
-    if (typeof window !== "undefined") {
-      user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
-    }
     if (!user) {
       showError("Please login to repost. User not found.");
       return;
@@ -33,10 +31,7 @@ export default function usePostFooterIconList(post) {
     // repost
     try {
       // const response
-      user = null;
-      if (typeof window !== "undefined") {
-        user = JSON.parse(localStorage.getItem("user"));
-      }
+
       if (!user) {
         showError("Please login to repost. User not found.");
         return;

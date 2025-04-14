@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -235,6 +236,7 @@ function Sidebar({
 function SidebarTrigger({ className, onClick, children, ...props }) {
   const { toggleSidebar } = useSidebar();
 
+  const user = useAuthStore((state) => state.user);
   const handleClick = (event) => {
     onClick?.(event);
     toggleSidebar();
@@ -256,10 +258,6 @@ function SidebarTrigger({ className, onClick, children, ...props }) {
   }
 
   // fallback for avatar use case
-  let user = null;
-  if (typeof window !== "undefined") {
-    user = JSON.parse(localStorage.getItem("user"));
-  }
 
   return (
     <Avatar

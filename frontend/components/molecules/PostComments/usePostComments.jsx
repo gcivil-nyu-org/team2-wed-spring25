@@ -1,5 +1,6 @@
 "use client";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { apiGet } from "@/utils/fetch/fetch";
 import { useState, useEffect } from "react";
 
@@ -17,11 +18,9 @@ export default function usePostComments(
   const [page, setPage] = useState(1); // Track the current page
   const [hasMore, setHasMore] = useState(true); // Track if more comments are available
   const { showError } = useNotification(); // Notification context to show error messages
-
+  const user = useAuthStore((state) => state.user);
   const fetchPostComments = async (page = 1) => {
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-
       if (!user) {
         showError("Please login to view comments. User not found.");
         return;

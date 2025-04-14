@@ -1,6 +1,7 @@
 "use client";
 
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,7 +12,7 @@ export default function useUserPostBottom(post) {
   const [isReported, setIsReported] = useState(false);
   const { showError, showSuccess } = useNotification();
   const handleShowReportUserDialogRef = useRef(null);
-
+  const user = useAuthStore((state) => state.user);
   const getCommentsCount = (comments_count) => {
     if (comments_count === 0) {
       return (
@@ -65,10 +66,7 @@ export default function useUserPostBottom(post) {
         showError("Post is already reported by you.");
         return;
       }
-      let user = null;
-      if (typeof window !== "undefined") {
-        user = JSON.parse(localStorage.getItem("user"));
-      }
+
       if (!user) {
         showError("Please login to report a post. User not found.");
         return;

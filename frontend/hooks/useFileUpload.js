@@ -12,7 +12,9 @@ export const useFileUpload = (is_edit, image_urls) => {
   );
 
   const handleOpenImageSelector = () => {
-    fileInputRef.current.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   const handleRemoveImage = () => {

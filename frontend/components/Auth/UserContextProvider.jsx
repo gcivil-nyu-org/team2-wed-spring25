@@ -53,7 +53,7 @@ export function UserProvider({
         localStorage.setItem("user", JSON.stringify(userDetails));
         setUser(userDetails);
         setInitialChatUserList(userDetails.id);
-        setInitialUserPosts(userDetails.id, "");
+        // setInitialUserPosts(userDetails.id, "");
       } catch (err) {
         console.error(
           "[UserProvider] Error syncing user to localStorage:",

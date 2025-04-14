@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useEffect, useRef, useState } from "react";
 
 export default function useChatMessage(
@@ -8,13 +9,10 @@ export default function useChatMessage(
   const [currentUserId, setCurrentUserId] = useState(null);
   const settingsRef = useRef(null);
   const isSettingsOpen = openSettingsId === message.id;
-
+  const user = useAuthStore((state) => state.user);
   useEffect(() => {
     // Only access localStorage after component mounts (client-side)
-    const user =
-      typeof window !== "undefined"
-        ? JSON.parse(localStorage.getItem("user"))
-        : null;
+
     setCurrentUserId(user?.id || null);
   }, []);
 

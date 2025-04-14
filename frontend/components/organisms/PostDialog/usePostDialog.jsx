@@ -1,5 +1,6 @@
 "use client";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useForumStore } from "@/stores/useForumStore";
 import { apiPost } from "@/utils/fetch/fetch";
 import { getUserFullName } from "@/utils/string";
@@ -22,6 +23,7 @@ export const usePostDialog = (
   const [isLoading, setIsLoading] = useState(false); // Loading state for visual feedback
   const { showError } = useNotification();
   const postDialogRef = useRef(null); // Ref for the post dialog container
+  const user = useAuthStore((state) => state.user);
   const { userPosts, setUserPosts } = useForumStore(
     useShallow((state) => ({
       userPosts: state.userPosts,
@@ -44,17 +46,6 @@ export const usePostDialog = (
     try {
       setIsButtonDisabled(true); // Disable the button
       setIsLoading(true); // Show loading spinner
-      let userString = null;
-      if (typeof window !== "undefined") {
-        userString = localStorage.getItem("user"); // Retrieve the user from localStorage
-      }
-
-      let user = null;
-      if (userString) {
-        user = JSON.parse(userString); // Parse the user object
-      } else {
-        console.log("No user data found in localStorage");
-      }
 
       if (!user) {
         showError("Please login to post.");

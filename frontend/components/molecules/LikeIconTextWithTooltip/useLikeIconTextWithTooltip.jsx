@@ -1,5 +1,6 @@
 "use client";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useState, useEffect, useRef } from "react";
 
@@ -17,7 +18,7 @@ export default function useLikeIconTextWithTooltip(
   const { showError } = useNotification(); // Notification context to show error messages
   const hoverTimeoutRef = useRef(null); // Ref to store the timeout ID
   const [isDisabled, setIsDisabled] = useState(false); // State to track if the button is disabled
-
+  const user = useAuthStore((state) => state.user);
   const handleMouseEnter = () => {
     // Clear any existing timeout to avoid hiding the tooltip prematurely
     if (hoverTimeoutRef.current) {
@@ -53,7 +54,6 @@ export default function useLikeIconTextWithTooltip(
     let userHasLiked2 = null; // Moved outside try block
 
     try {
-
       if (
         !userHasLiked &&
         ["Like", "Clap", "Support", "Heart", "Bulb", "Laugh"].includes(
@@ -80,26 +80,6 @@ export default function useLikeIconTextWithTooltip(
       }
 
       setTooltipVisible(false);
-
-      let userString = null;
-      if (typeof window !== "undefined") {
-        userString = localStorage.getItem("user"); // Retrieve the string
-      }
-
-      let user = null;
-      if (userString) {
-        try {
-          user = JSON.parse(userString); // Parse the string into a JSON object
-        } catch (e) {
-          console.error("Failed to parse user data:", e);
-          showError("Invalid user data. Please log in again.");
-          return;
-        }
-      } else {
-        showError("Please login to like the post. User not found.");
-        console.error("No user data found in localStorage");
-        return;
-      }
 
       if (!user || !user.id) {
         showError("Please login to like the post. User not found.");

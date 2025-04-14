@@ -10,6 +10,7 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import { getUserFullName } from "@/utils/string";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 import { closeDark, emojiDark, imagePickerDark } from "@/public/icons";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function PostDialog({
   onClick,
@@ -54,11 +55,7 @@ export default function PostDialog({
     original_post_id
   );
   const { showError } = useNotification();
-  let user = null;
-
-  if (typeof window !== "undefined") {
-    user = JSON.parse(localStorage.getItem("user")); // Retrieve the user from localStorage
-  }
+  const user = useAuthStore((state) => state.user);
   if (!user) {
     showError("Please login to post. User not found.");
     return null; // or handle the case when user is not found

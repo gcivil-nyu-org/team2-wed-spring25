@@ -5,6 +5,7 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import userHeadings from "@/constants/headers";
 import { useForumStore } from "@/stores/useForumStore";
 import { useShallow } from "zustand/shallow";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function useForum(settingsType) {
   const {
@@ -23,6 +24,7 @@ export default function useForum(settingsType) {
     isLoadingMore,
     setIsLoadingMore,
     setIsLoading,
+    setUserSideCardData,
   } = useForumStore(
     useShallow((state) => ({
       isLoading: state.isLoading,
@@ -40,6 +42,7 @@ export default function useForum(settingsType) {
       isLoadingMore: state.isLoadingMore,
       setIsLoadingMore: state.setIsLoadingMore,
       setIsLoading: state.setIsLoading,
+      setUserSideCardData: state.setUserSideCardData,
     }))
   );
 
@@ -55,16 +58,26 @@ export default function useForum(settingsType) {
     setIsOpen(!isOpen);
   };
 
-  let userData = null;
-  if (typeof window !== "undefined") {
-    userData = localStorage.getItem("user");
-  }
-  const user = JSON.parse(userData);
-
+  let user = useAuthStore((state) => state.user);
   useEffect(() => {
     const fetchInitialPosts = async () => {
       try {
         setIsLoading(true);
+        if (!user || !user.id) {
+          //get it from localStorage if user is not available
+          user = JSON.parse(localStorage.getItem("user")) || null;
+        }
+        if (!user || !user.id) {
+          console.error("User not found or user ID is missing");
+          return;
+        }
+        console.log(
+          "Fetching initial posts for user:",
+          user?.id,
+          "with settingsType:",
+          settingsType
+        );
+
         const response = await apiGet(
           `/forum/posts?user_id=${user?.id}&offset=0&limit=${limit}&settings_type=${settingsType}` // Pass settingsType to the API
         );
@@ -73,6 +86,8 @@ export default function useForum(settingsType) {
           setHasMore(response.has_more); // Update hasMore based on the response
           console.log("Fetched initial user posts:", response.posts);
         }
+        const data = await apiGet(`/forum/user_data?user_id=${user.id}`);
+        setUserSideCardData(data || null);
       } catch (error) {
         console.error("Error fetching initial posts:", error);
       } finally {
@@ -91,6 +106,15 @@ export default function useForum(settingsType) {
 
     try {
       setIsLoadingMore(true);
+      if (!user || !user.id) {
+        user = JSON.parse(localStorage.getItem("user")) || null;
+      }
+      if (!user || !user.id) {
+        console.error(
+          "User not found or user ID is missing from load more posts"
+        );
+        return;
+      }
       const newOffset = offset + limit;
       const response = await apiGet(
         `/forum/posts?user_id=${user?.id}&offset=${newOffset}&limit=${limit}&settings_type=${settingsType}` // Pass settingsType to the API

@@ -3,6 +3,7 @@ import Icon from "@/components/atom/Icon/Icon";
 import CustomDialogBox from "@/components/organisms/CustomDialogBox/CustomDialogBox";
 import usePostCommentOptionList from "./usePostCommentOptionList";
 import { deleteDark, editDark, ellipsisDark, reportDark } from "@/public/icons";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function PostCommentOptionList({
   isCommentOptionListVisible,
@@ -25,7 +26,7 @@ export default function PostCommentOptionList({
     setComments,
     setCommentsCount
   );
-  let user = JSON.parse(localStorage.getItem("user"));
+  let user = useAuthStore((state) => state.user);
 
   return (
     <div className="flex flex-col justify-start items-end relative bottom-1">

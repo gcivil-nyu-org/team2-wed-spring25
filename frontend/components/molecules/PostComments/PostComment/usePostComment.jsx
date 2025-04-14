@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
 import reportCategories from "@/constants/reportCategories";
+import { useAuthStore } from "@/stores/useAuthStore";
 export default function usePostComment(
   comment,
   post_id,
@@ -33,7 +34,7 @@ export default function usePostComment(
   const hoverTimeoutRef2 = useRef(null);
   const dropdownRef = useRef(null);
   const reportCategoryDialogRef = useRef(null);
-
+  const user = useAuthStore((state) => state.user);
   // const
   const handleMouseEnter = () => {
     // Clear any existing timeout to avoid hiding the tooltip prematurely
@@ -86,19 +87,6 @@ export default function usePostComment(
         userHasLiked2 = false;
       }
       setTooltipVisible(false);
-      let userString = null;
-      if (typeof window !== "undefined") {
-        userString = localStorage.getItem("user"); // Retrieve the string
-      }
-
-      let user = null;
-      if (userString) {
-        user = JSON.parse(userString); // Parse the string into a JSON object
-        // Use the JSON object
-      } else {
-        showError("Please login to like the post. User not found.");
-        console.error("No user data found in localStorage");
-      }
 
       if (!user) {
         showError("Please login to like the post. User not found.");
@@ -139,10 +127,7 @@ export default function usePostComment(
     //it takes the user_id, comment_id, and reason for reporting
     try {
       setIsReportedCommentLoading(true);
-      let user = null;
-      if (typeof window !== "undefined") {
-        user = JSON.parse(localStorage.getItem("user"));
-      }
+
       if (!user) {
         showError("Please login to report a comment. User not found.");
         return;
