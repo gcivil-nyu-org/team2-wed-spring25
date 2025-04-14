@@ -8,7 +8,7 @@ const RouteRenderer = ({
   routeData,
   activeRoute,
   setActiveRoute,
-  showWarning
+  showWarning,
 }) => {
   const { showError } = useNotification();
   const initialRouteRef = useRef(null);
@@ -19,13 +19,16 @@ const RouteRenderer = ({
 
   // Define consistent colors
   const INITIAL_ROUTE_COLOR = "#3B82F6"; // Blue
-  const SAFER_ROUTE_COLOR = "#10b981";   // Green
+  const SAFER_ROUTE_COLOR = "#10b981"; // Green
 
   // Clear existing routes and markers
   const clearRoutes = () => {
     if (!mapInstance) return;
 
-    if (initialRouteRef.current && mapInstance.hasLayer(initialRouteRef.current)) {
+    if (
+      initialRouteRef.current &&
+      mapInstance.hasLayer(initialRouteRef.current)
+    ) {
       mapInstance.removeLayer(initialRouteRef.current);
       initialRouteRef.current = null;
     }
@@ -115,7 +118,7 @@ const RouteRenderer = ({
       const departureMarker = L.marker(departureCoord, {
         icon: departureIcon,
       }).addTo(mapInstance);
-      
+
       const destinationMarker = L.marker(destinationCoord, {
         icon: destinationIcon,
       }).addTo(mapInstance);
@@ -130,7 +133,7 @@ const RouteRenderer = ({
           opacity: activeRoute === "initial" ? 1.0 : 0.7,
           dashArray: activeRoute === "initial" ? null : "5, 5",
           lineCap: "round",
-          lineJoin: "round"
+          lineJoin: "round",
         }).addTo(mapInstance);
 
         initialRouteRef.current.on("click", () => {
@@ -146,7 +149,7 @@ const RouteRenderer = ({
           opacity: activeRoute === "safer" ? 1.0 : 0.7,
           dashArray: activeRoute === "safer" ? null : "5, 5",
           lineCap: "round",
-          lineJoin: "round"
+          lineJoin: "round",
         }).addTo(mapInstance);
 
         saferRouteRef.current.on("click", () => {
@@ -157,7 +160,16 @@ const RouteRenderer = ({
       // Add a legend
       const legend = L.control({ position: "bottomright" });
       legend.onAdd = function () {
-        const div = L.DomUtil.create("div", "bg-white shadow-md rounded-md p-2");
+        const wrapper = L.DomUtil.create("div", "");
+        wrapper.style.position = "absolute";
+        wrapper.style.bottom = "52px";
+        wrapper.style.right = "0";
+
+        const div = L.DomUtil.create(
+          "div",
+          "bg-white shadow-md rounded-md p-2",
+          wrapper
+        );
         div.innerHTML = `
           <div class="text-sm font-medium text-map-legendtext">Routes</div>
           <div class="flex items-center mt-1">
@@ -175,7 +187,7 @@ const RouteRenderer = ({
               : ""
           }
         `;
-        return div;
+        return wrapper;
       };
       legend.addTo(mapInstance);
       legendRef.current = legend;
@@ -186,7 +198,6 @@ const RouteRenderer = ({
         mapInstance.setView(departureCoord, 16);
         initialRenderRef.current = false;
       }
-
     } catch (error) {
       console.error("Error creating routes:", error);
       showError(
@@ -222,7 +233,7 @@ const RouteRenderer = ({
       }
     } catch (error) {
       console.error("Error updating route styles:", error);
-      
+
       if (showWarning) {
         showWarning(
           "Route display issue",

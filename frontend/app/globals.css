@@ -81,8 +81,8 @@ body {
     --radius: 0.5rem;
 
     /* Sidebar Colors */
-    --sidebar-bg:rgb(13, 71, 161); /* blue-900 */
-    --sidebar-group-bg: rgb(13, 71, 161); /* blue-800 */
+    --sidebar-bg:rgb(68 64 60); /* stone700 */
+    --sidebar-group-bg: rgb(41 37 36); /* stone800 */
     --sidebar-text: rgb(243 244 246); /* gray-100 */
     --sidebar-border2: rgb(120 113 108); /* stone-500 */
     --sidebar-separator: rgb(87 83 78); /* stone-600 */
