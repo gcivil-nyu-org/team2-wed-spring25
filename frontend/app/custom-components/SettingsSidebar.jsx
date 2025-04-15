@@ -9,8 +9,7 @@ import {
   Settings,
   LogOut,
   MapPinPlus,
-  MapPinCheck,
-  MapPinned,
+  NotebookPen,
   ArrowRight,
   ChevronRight,
   SquarePen,
@@ -53,16 +52,6 @@ const routeItems = [
     title: "Saved Routes",
     url: "/users/settings/routes#saved",
     icon: MapPinPlus,
-  },
-  {
-    title: "Route Preferences",
-    url: "/users/settings/routes#preferences",
-    icon: MapPinCheck,
-  },
-  {
-    title: "Route History",
-    url: "/users/settings/routes#history",
-    icon: MapPinned,
   },
 ];
 
@@ -248,6 +237,9 @@ const SettingsSidebar = () => {
 
         {/* Menu Sections */}
         {renderMenuGroup("Account", items)}
+        {renderMenuGroup("Report History", [
+          { title: "Reports", url: "/users/settings/reportlog", icon: NotebookPen },
+        ])}
         {renderMenuGroup("Route Management", routeItems)}
         {renderMenuGroup("Forum History", forumItems)}
         {renderMenuGroup("General", [
