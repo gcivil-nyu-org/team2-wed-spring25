@@ -18,8 +18,8 @@ const RouteRenderer = ({
   const initialRenderRef = useRef(true);
 
   // Define consistent colors
-  const INITIAL_ROUTE_COLOR = "#3B82F6"; // Blue
-  const SAFER_ROUTE_COLOR = "#10b981"; // Green
+  const INITIAL_ROUTE_COLOR = "#0098fa"; // Blue
+  const SAFER_ROUTE_COLOR = "#74fac8"; // Green
 
   // Clear existing routes and markers
   const clearRoutes = () => {

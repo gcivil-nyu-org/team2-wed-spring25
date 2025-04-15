@@ -1,0 +1,26 @@
+[run]
+source = backend/nightwalkers
+omit =
+    */admin.py
+    */apps.py
+    */migrations/*
+    */tests/*
+    */wsgi.py
+    */asgi.py
+    manage.py
+    */settings/*
+    */urls.py
+    */templates/admin/*
+    */static/admin/*
+    */templatetags/admin_*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+    # Admin-related code blocks
+    @admin\..*
+    class.*Admin\(.*\):
