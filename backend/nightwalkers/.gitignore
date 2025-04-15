@@ -8,3 +8,4 @@ logfile
 .DS_Store
 **/.DS_Store
 *.crt
+*.xml
