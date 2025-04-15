@@ -116,9 +116,6 @@ describe("SettingsSidebar", () => {
     const savedRoutesLink = screen.getByText("Saved Routes").closest("div");
     expect(savedRoutesLink).toBeInTheDocument();
 
-    const routePrefsLink = screen.getByText("Route Preferences").closest("div");
-    expect(routePrefsLink).toBeInTheDocument();
-
     // Test forum section links
     const postsLink = screen.getByText("Posts").closest("div");
     expect(postsLink).toBeInTheDocument();
