@@ -102,6 +102,7 @@ INSTALLED_APPS = [
     "map",
     "channels",
     "chat",
+    'making_data',
 ]
 
 
