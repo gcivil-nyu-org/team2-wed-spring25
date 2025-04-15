@@ -51,7 +51,8 @@ export default function Dashboard() {
             id="bgkd-overlay"
             className="absolute inset-0 bg-black/50 backdrop-blur-[1.4px] z-10"
           />
-          <Card className="relative w-[80%] md:w-[30%] z-20 px-4 py-6 gap-4 bg-gradient-to-tr from-sidebar-group to-stone-800 border-[2px] border-sidebar-border rounded-lg text-sidebar-text flex flex-col align-center items-center">
+          <Card className="relative w-[80%] md:w-[30%] z-20 px-4 py-6 gap-4 bg-sidebar-group border-[2px] border-sidebar-border rounded-lg text-sidebar-text flex flex-col align-center items-center">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-blue-900/10 to-blue-900/30 pointer-events-none"></div>
             <CardHeader className="w-full flex flex-col align-center items-center">
               <CardTitle className="text-xl text-center font-medium">
                 Nightwalkers

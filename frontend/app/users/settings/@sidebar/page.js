@@ -14,6 +14,12 @@ const DefaultSidebar = () => {
           Account
         </Link>
         <Link
+          href="/users/settings/reportlog"
+          className="px-4 py-2 hover:bg-sidebar-border"
+        >
+          Report History
+        </Link>
+        <Link
           href="/users/settings/routes"
           className="px-4 py-2 hover:bg-sidebar-border"
         >

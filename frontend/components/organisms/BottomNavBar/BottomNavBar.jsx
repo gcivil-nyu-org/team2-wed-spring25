@@ -13,15 +13,20 @@ import {
 export default function BottomNavBar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, setOpen } = useSidebar();
 
   const isActive = (path) => pathname.startsWith(path);
 
+  const handleNavigation = (path) => {
+    router.push(path);
+    setOpen(false);
+  };
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-[52px] bg-black text-white z-[1002] border-t border-gray-800 flex justify-around items-center shadow-md">
+    <nav className="fixed bottom-0 left-0 right-0 h-[52px] bg-[#1c2735] text-white z-[1002] border-t border-gray-800 flex justify-around items-center shadow-md">
       {/* Forum */}
       <button
-        onClick={() => router.push("/users/forum")}
+        onClick={() => handleNavigation("/users/forum")}
         aria-label="Forum"
         className="flex items-center justify-center"
       >
@@ -37,7 +42,7 @@ export default function BottomNavBar() {
       </button>
       {/* Chat */}
       <button
-        onClick={() => router.push("/users/chat")}
+        onClick={() => handleNavigation("/users/chat")}
         aria-label="Chat"
         className="flex items-center justify-center"
       >
@@ -53,7 +58,7 @@ export default function BottomNavBar() {
       </button>
       {/* Home */}
       <button
-        onClick={() => router.push("/users/home")}
+        onClick={() => handleNavigation("/users/home")}
         aria-label="Home"
         className="flex items-center justify-center"
       >
@@ -69,7 +74,7 @@ export default function BottomNavBar() {
       </button>
       {/* Map */}
       <button
-        onClick={() => router.push("/users/map")}
+        onClick={() => handleNavigation("/users/map")}
         aria-label="Map"
         className="flex items-center justify-center"
       >

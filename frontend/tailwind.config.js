@@ -18,7 +18,7 @@ module.exports = {
       },
       colors: {
         bg: {
-          forum: "black",
+          forum: "var(--sidebar-mid)",
           post: "#1b1f23", // Dark background for posts in the forum
         },
         forum: {
@@ -31,6 +31,7 @@ module.exports = {
         sidebar: {
           bg: "var(--sidebar-bg)",
           group: "var(--sidebar-group-bg)",
+          midbg: "var(--sidebar-mid)",
           text: "var(--sidebar-text)",
           border: "var(--sidebar-border2)",
           separator: "var(--sidebar-separator)",

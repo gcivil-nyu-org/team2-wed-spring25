@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Nightwalkers administration{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">Nightwalkers administration</a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* Only customize the header background color */
+    #header {
+        background: #2c3e50;  /* Dark blue-gray */
+        color: #ffffff;
+    }
+
+    /* Fix the site name color to ensure it's visible */
+    #site-name a {
+        color: #ffffff !important;
+    }
+
+    /* Make module h2 headers match the top header color */
+    .module h2, .module caption, .inline-group h2 {
+        background: #2c3e50;
+    }
+    .theme-toggle svg.theme-icon-when-auto,
+    .theme-toggle svg.theme-icon-when-dark,
+    .theme-toggle svg.theme-icon-when-light {
+        color: #2c3e50;
+    }
+</style>
+{% endblock %}

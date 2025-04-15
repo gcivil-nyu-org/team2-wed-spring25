@@ -105,11 +105,6 @@ INSTALLED_APPS = [
 ]
 
 
-# Current command to run https server:
-# python manage.py runserver_plus
-# --cert-file ../../certs/localhost+1.pem
-# --key-file ../../certs/localhost+1-key.pem
-
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -127,7 +122,7 @@ ROOT_URLCONF = "nightwalkers.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],  # Add this line
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -164,6 +159,16 @@ DATABASES = {
         # Improves performance by reusing connections
     )
 }
+# For my test on linux leave the lines below please
+# if 'test' in sys.argv:
+#     DATABASES['default'] = {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'nightwalkers',
+#         'USER': 'alex',
+#         'PASSWORD': 'alex1006',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
