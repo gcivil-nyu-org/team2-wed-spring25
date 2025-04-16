@@ -1259,11 +1259,14 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
     def test_process_route_phase2_fallback(self):
         """Test process_route_with_crime_data fallback to Phase 1 when Phase 2 fails"""
         # Mock polyline decode to return coordinates
-        with patch('polyline.decode') as mock_polyline_decode:
-            mock_polyline_decode.return_value = [[-74.0060, 40.7128], [-118.2437, 34.0522]]
+        with patch("polyline.decode") as mock_polyline_decode:
+            mock_polyline_decode.return_value = [
+                [-74.0060, 40.7128],
+                [-118.2437, 34.0522],
+            ]
 
             # Mock cursor for crime data - for phase 1 and phase 2 hotspots
-            with patch('django.db.connection.cursor') as mock_cursor:
+            with patch("django.db.connection.cursor") as mock_cursor:
                 mock_cursor_instance = MagicMock()
                 # Phase 1 hotspots
                 mock_cursor_instance.fetchall.side_effect = [
@@ -1280,7 +1283,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
                 mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
 
                 # Mock ORS responses - success for phase 1, error for phase 2
-                with patch('requests.post') as mock_post:
+                with patch("requests.post") as mock_post:
                     # Phase 1 successful response
                     phase1_response = MagicMock()
                     phase1_response.ok = True
@@ -1292,7 +1295,10 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
                     phase2_response = MagicMock()
                     phase2_response.ok = False
                     phase2_response.status_code = 404
-                    phase2_response.text = """{"error":{"code":2009,"message":"Route could not be found"}}"""
+                    phase2_response.text = """{"error":{
+                        "code":2009,
+                        "message":"Route could not be found"
+                    }}"""
 
                     # Set up mock to return phase1 success then phase2 error
                     mock_post.side_effect = [phase1_response, phase2_response]
@@ -1301,7 +1307,9 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
                     result = process_route_with_crime_data(self.mock_initial_route)
 
                     # Verify we got the Phase 1 route as fallback
-                    self.assertEqual(result["routes"][0]["geometry"], "phase1_route_polyline")
+                    self.assertEqual(
+                        result["routes"][0]["geometry"], "phase1_route_polyline"
+                    )
 
                     # Verify metadata was added
                     self.assertIn("metadata", result)
@@ -1329,11 +1337,12 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
                 "longitude": -74.0300,
                 "complaints": 100,  # High complaints (max scaling)
                 "distance": 0.03,
-            }
+            },
         ]
 
-        # Patch the transform function to control the output and allow us to test the radii
-        with patch('map.views.transform') as mock_transform:
+        # Patch the transform function to
+        # control the output and allow us to test the radii
+        with patch("map.views.transform") as mock_transform:
             # Mock Point objects for the return values of transform
             point_mock = Point(1, 1)
 
@@ -1395,15 +1404,19 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         )
 
         # Mock ORS response with error
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             mock_response = MagicMock()
             mock_response.ok = False
             mock_response.status_code = 404
-            mock_response.text = """{"error":{"code":2009,"message":"Route could not be found"}}"""
+            mock_response.text = (
+                """{"error":{"code":2009,"message":"Route could not be found"}}"""
+            )
             mock_post.return_value = mock_response
 
             # Call function
-            result = get_safer_ors_route(self.departure, self.destination, avoid_polygons)
+            result = get_safer_ors_route(
+                self.departure, self.destination, avoid_polygons
+            )
 
             # Verify we get an error response instead of a fallback
             self.assertIn("error", result)
@@ -1413,14 +1426,21 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
             self.assertEqual(mock_post.call_count, 1)
 
     def test_metadata_in_routes(self):
-        """Test that metadata is properly added to routes with direct function patching"""
+        """Test that metadata is properly
+        added to routes with direct function patching"""
         # Directly patch the hotspot-returning functions instead of the cursor
-        with patch('map.views.get_crime_hotspots') as mock_get_hotspots, \
-                patch('map.views.get_additional_hotspots') as mock_get_additional_hotspots, \
-                patch('polyline.decode') as mock_polyline_decode, \
-                patch('requests.post') as mock_post:
+        with patch("map.views.get_crime_hotspots") as mock_get_hotspots, patch(
+            "map.views.get_additional_hotspots"
+        ) as mock_get_additional_hotspots, patch(
+            "polyline.decode"
+        ) as mock_polyline_decode, patch(
+            "requests.post"
+        ) as mock_post:
             # Setup polyline decode mock
-            mock_polyline_decode.return_value = [[-74.0060, 40.7128], [-118.2437, 34.0522]]
+            mock_polyline_decode.return_value = [
+                [-74.0060, 40.7128],
+                [-118.2437, 34.0522],
+            ]
 
             # Define hotspot data
             phase1_hotspots = [
@@ -1442,8 +1462,12 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
             ]
 
             # Setup direct function mocks - this approach is more reliable
-            mock_get_hotspots.return_value = phase1_hotspots  # Return exactly 1 hotspot in phase 1
-            mock_get_additional_hotspots.return_value = phase2_hotspots  # Return 1 hotspot in phase 2
+            mock_get_hotspots.return_value = (
+                phase1_hotspots  # Return exactly 1 hotspot in phase 1
+            )
+            mock_get_additional_hotspots.return_value = (
+                phase2_hotspots  # Return 1 hotspot in phase 2
+            )
 
             # Test case 1: Both phase 1 and phase 2 succeed
             # Mock successful responses for both phases
@@ -1467,7 +1491,9 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
             # Verify Phase 2 metadata
             self.assertIn("metadata", result)
             self.assertEqual(result["metadata"]["phase"], "Phase 2")
-            self.assertEqual(result["metadata"]["avoided_hotspots"], 2)  # Total hotspots (1+1)
+            self.assertEqual(
+                result["metadata"]["avoided_hotspots"], 2
+            )  # Total hotspots (1+1)
 
             # Reset the mocks for the next test
             mock_post.reset_mock()
@@ -1490,7 +1516,10 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
             # Verify Phase 1 metadata is present in fallback
             self.assertIn("metadata", result)
             self.assertEqual(result["metadata"]["phase"], "Phase 1")
-            self.assertEqual(result["metadata"]["avoided_hotspots"], 1)  # Should be 1 hotspot
+            self.assertEqual(
+                result["metadata"]["avoided_hotspots"], 1
+            )  # Should be 1 hotspot
+
 
 class NYCBoundaryValidationTestCase(TestCase):
     """Test cases specifically for NYC boundary validation logic"""

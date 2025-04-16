@@ -448,8 +448,6 @@ def create_avoid_polygons(hotspots, base_radius=0.10):
         simplified = buffer_wgs84.simplify(0.0002)
         polygon_list.append(simplified)
 
-        print(f"Hotspot {i}: {hotspot['complaints']} complaints, radius: {scaled_radius * 1000:.0f}m")
-
     # Create MultiPolygon from all polygons
     if polygon_list:
         multi_poly = MultiPolygon(polygon_list)
@@ -457,6 +455,7 @@ def create_avoid_polygons(hotspots, base_radius=0.10):
     else:
         print("No polygon areas created for avoidance")
         return None
+
 
 def get_safer_ors_route(departure, destination, avoid_polygons):
     """
@@ -490,7 +489,7 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
         # Safe way to get polygon count, works with all Shapely versions
         try:
             # Try accessing the geoms attribute (newer Shapely versions)
-            if hasattr(avoid_polygons, 'geoms'):
+            if hasattr(avoid_polygons, "geoms"):
                 polygons = list(avoid_polygons.geoms)
                 poly_count = len(polygons)
             # Try iterating (older Shapely versions)
@@ -499,12 +498,6 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
                 poly_count = len(polygons)
 
             print(f"Using {poly_count} polygons for avoidance")
-
-            # Log a few polygon details
-            for i in range(min(3, poly_count)):
-                if hasattr(polygons[i], 'exterior'):
-                    coords_count = len(polygons[i].exterior.coords)
-                    print(f"Polygon {i}: Area={polygons[i].area:.8f}, Coords count={coords_count}")
 
             if poly_count > 3:
                 print(f"... and {poly_count - 3} more polygons")
@@ -520,6 +513,7 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
 
             # Log total geojson size
             import json
+
             geojson_str = json.dumps(avoid_geojson)
             print(f"Avoid polygons GeoJSON size: {len(geojson_str)} bytes")
 
@@ -529,7 +523,7 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
             return {"error": f"Error converting polygons to GeoJSON: {str(e)}"}
 
     # Log request details
-    print(f"Request to ORS API:")
+    print("Request to ORS API:")
     print(f"- Departure: {departure}")
     print(f"- Destination: {destination}")
 
@@ -544,7 +538,10 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
             # Log error details and return the error (no fallback)
             error_text = response.text[:500] if response.text else "No error text"
             print(f"Error response body: {error_text}")
-            return {"error": f"OpenRouteService API error: {response.status_code} - {error_text}"}
+            return {
+                "error": f"OpenRouteService API error: "
+                f"{response.status_code} - {error_text}"
+            }
 
         return response.json()
 
