@@ -85,8 +85,14 @@ script:
   - npm install coveralls --save-dev
   # Run tests with coverage
   - npm run test -- --config=jest.config.js --coverage --coverageReporters=lcov,text
-  # Use node coveralls with flag name
-  - cat ./coverage/lcov-report/lcov.info | ./node_modules/.bin/coveralls --flag-name=frontend
+  # Debug: Find lcov.info location
+  - |
+    echo "Looking for lcov.info file..."
+    find . -name "lcov.info"
+    ls -la coverage/
+    ls -la coverage/lcov-report/ || true
+  # Use node coveralls with flag name (using correct path)
+  - cat ./coverage/lcov.info | ./node_modules/.bin/coveralls --flag-name=frontend || cat ./coverage/lcov-report/lcov.info | ./node_modules/.bin/coveralls --flag-name=frontend
   - cd ..
 
 # Deploy to Render and Netlify upon successful tests for the main and develop branches
