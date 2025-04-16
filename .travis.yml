@@ -109,6 +109,7 @@ before_deploy:
 deploy:
   provider: script
   script: ./deploy.sh
+  edge: true
   cleanup: false
   on:
     all_branches: true
