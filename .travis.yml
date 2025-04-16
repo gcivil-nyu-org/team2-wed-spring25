@@ -81,8 +81,12 @@ script:
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
+  # Install coveralls as dev dependency if not already in package.json
+  - npm install coveralls --save-dev
+  # Run tests with coverage
   - npm run test -- --config=jest.config.js --coverage --coverageReporters=lcov,text
-  - COVERALLS_FLAG_NAME=frontend coveralls --service=travis-pro < coverage/lcov.info
+  # Use node coveralls with flag name
+  - cat ./coverage/lcov-report/lcov.info | ./node_modules/.bin/coveralls --flag-name=frontend
   - cd ..
 
 # Deploy to Render and Netlify upon successful tests for the main and develop branches
