@@ -47,7 +47,7 @@ install:
   # - pip install GDAL==3.4.0 --no-cache-dir  # Specify a newer version of GDAL
   - pip install -r backend/nightwalkers/requirements.txt
   - pip install black flake8 coverage coveralls PyYAML
-  
+
   # Install Node.js and frontend dependencies
   - nvm install 22.9 # Install Node.js 22 (or the version your Next.js app requires)
   - npm install -g npm@10.8 # Update npm to the latest version
@@ -81,28 +81,35 @@ script:
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
-  # Install coveralls as dev dependency if not already in package.json
-  - npm install coveralls --save-dev
-  # Run tests with coverage (fixed reporters syntax)
-  - npm run test -- --config=jest.config.js --coverage --coverageDirectory=./coverage --coverageReporters='["lcov","text"]'
-  # Debug: Find and verify lcov file
+  - npm run test:coverage
+  - npx jest-coverage-badges --output ./coverage/badges
+  # Clone badges repo and set up directory structure
   - |
-    echo "Looking for lcov.info file..."
-    find . -type f -name "lcov.info"
-    if [ -f "./coverage/lcov.info" ]; then
-      echo "Found lcov.info, checking content..."
-      head -n 5 ./coverage/lcov.info
-      # Send to coveralls if file exists and has content
-      if [ -s "./coverage/lcov.info" ]; then
-        echo "Sending coverage to Coveralls..."
-        ./node_modules/.bin/coveralls --flag-name=frontend < ./coverage/lcov.info
-      else
-        echo "lcov.info is empty!"
-        exit 1
-      fi
+    if [ "$TRAVIS_BRANCH" = "main" ] || [ "$TRAVIS_BRANCH" = "develop" ] || [ "$TRAVIS_BRANCH" = "travis-jest" ]; then
+      echo "Updating badges for $TRAVIS_BRANCH branch"
+      # Clone the repository
+      git clone https://${BADGES_GITHUB_TOKEN}@github.com/${BADGES_GITHUB_USERNAME}/${BADGES_GITHUB_REPO}.git
+      cd ${BADGES_GITHUB_REPO}
+      
+      # Create the directory structure if it doesn't exist
+      mkdir -p badges/main
+      mkdir -p badges/develop
+      mkdir -p badges/travis-jest
+      
+      # Copy the new badges to the appropriate directory
+      cp -r ../coverage/badges/* badges/$TRAVIS_BRANCH/
+      
+      # Configure git
+      git config user.email "travis@travis-ci.org"
+      git config user.name "Travis CI"
+      
+      # Add and commit changes
+      git add badges/
+      git commit -m "Update coverage badges for $TRAVIS_BRANCH [skip ci]"
+      git push origin main
+      cd ..
     else
-      echo "lcov.info not found!"
-      exit 1
+      echo "Skipping badge updates for branch: $TRAVIS_BRANCH"
     fi
   - cd ..
 
