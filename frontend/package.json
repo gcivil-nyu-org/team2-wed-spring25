@@ -84,5 +84,13 @@
   },
   "overrides": {
     "inflight": "npm:lru-cache@^7.14.1"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [
+      "lcov",
+      "text"
+    ],
+    "coverageDirectory": "coverage"
   }
 }

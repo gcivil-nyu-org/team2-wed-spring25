@@ -82,7 +82,11 @@ script:
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
   - npm run test -- --coverage --coverageReporters=lcov --coverageReporters=text
-  - COVERALLS_FLAG_NAME=frontend coveralls --service=travis-pro < coverage/lcov.info
+  # Debug: Check if coverage file exists and its contents
+  - ls -la coverage/lcov.info
+  - head -n 10 coverage/lcov.info
+  # Try sending with explicit path and debug flag
+  - COVERALLS_FLAG_NAME=frontend COVERALLS_DEBUG=1 coveralls --service=travis-pro -v < coverage/lcov.info
   - cd ..
 
   # Frontend build
