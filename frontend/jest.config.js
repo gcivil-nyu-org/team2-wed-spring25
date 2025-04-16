@@ -45,10 +45,10 @@ const config = {
   coverageThreshold: {
     // Keep stricter thresholds for local development
     global: {
-      branches: 50,
-      functions: 50,
-      lines: 50,
-      statements: 50,
+      branches: 85,
+      functions: 85,
+      lines: 85,
+      statements: 85,
     },
   },
 
