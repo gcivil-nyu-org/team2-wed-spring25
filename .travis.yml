@@ -47,6 +47,7 @@ install:
   # - pip install GDAL==3.4.0 --no-cache-dir  # Specify a newer version of GDAL
   - pip install -r backend/nightwalkers/requirements.txt
   - pip install black flake8 coverage coveralls PyYAML
+  
   # Install Node.js and frontend dependencies
   - nvm install 22.9 # Install Node.js 22 (or the version your Next.js app requires)
   - npm install -g npm@10.8 # Update npm to the latest version
