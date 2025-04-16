@@ -108,3 +108,33 @@ def delete_message(request, message_id):
         return JsonResponse({"error": "Message not found"}, status=404)
     except Exception as e:
         return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+@csrf_exempt
+def edit_message(request, message_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST method is allowed"}, status=405)
+
+    try:
+        # get new content from request body
+        import json
+
+        body = json.loads(request.body)
+        if "content" not in body:
+            return JsonResponse({"error": "Content is required"}, status=400)
+        
+        message = Message.objects.get(id=message_id)
+        message.content = body["content"]
+        message.save()
+
+        return JsonResponse(
+            {
+                "status": "success",
+                "message": "Message edited successfully",
+            },
+            status=200,
+        )
+
+    except Message.DoesNotExist:
+        return JsonResponse({"error": "Message not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)

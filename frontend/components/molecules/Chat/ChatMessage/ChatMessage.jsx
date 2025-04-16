@@ -1,13 +1,17 @@
 "use client"; // Ensures this only runs on client-side
-
+import clsx from "clsx";
 import {
   getLastMessageTimeStampAMPM,
+  isMessageSentWithin15Mins,
   isMessageSentWithin2Days,
 } from "@/utils/datetime";
 import Image from "next/image";
 import Loader from "../../Loader/Loader";
 import useChatMessage from "./useChatMessage";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { useEffect, useLayoutEffect } from "react";
+import Icon from "@/components/atom/Icon/Icon";
+import ChatInput from "../ChatInput/ChatInput";
 
 const Message = ({
   message,
@@ -15,6 +19,7 @@ const Message = ({
   setOpenSettingsId,
   setChatUserList,
   selectedUser,
+  messagesContainerRef,
 }) => {
   const { showError } = useNotification();
   const {
@@ -29,6 +34,10 @@ const Message = ({
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     deleteMessage,
+    settingsDivDirection,
+    setSettingsDivDirection,
+    isEditDialogOpen,
+    setIsEditDialogOpen,
   } = useChatMessage(
     message,
     openSettingsId,
@@ -36,9 +45,50 @@ const Message = ({
     setChatUserList,
     selectedUser
   );
+
+  useLayoutEffect(() => {
+    if (messagesContainerRef.current && settingsRef.current && isSettingsOpen) {
+      const container = messagesContainerRef.current.getBoundingClientRect();
+      const settings = settingsRef.current.getBoundingClientRect();
+
+      const isOverlapping =
+        settings.top < container.top ||
+        settings.bottom > container.bottom ||
+        settings.left < container.left ||
+        settings.right > container.right;
+
+      //set the direction of the settings div based on the position of the message and the container
+      //  setSettingsDivDirection,
+      let direction = "left-bottom"; // Default direction
+      if (settings.bottom > container.bottom) {
+        if (settings.left < container.left) {
+          direction = "right-top"; // Right top
+        } else {
+          direction = "left-top"; // Left top
+        }
+      } else {
+        if (settings.left < container.left) {
+          direction = "right-bottom"; // Right bottom
+        } else {
+          direction = "left-bottom"; // Left bottom
+        }
+      }
+      console.log("Settings div direction:", direction);
+
+      setSettingsDivDirection(direction);
+    }
+  }, [isSettingsOpen]);
+  const settingsClasses = clsx("absolute z-10 chatBackgroundDark w-40", {
+    "top-6": settingsDivDirection === "left-bottom",
+    "bottom-6": settingsDivDirection === "left-top",
+    "left-6 bottom-2": settingsDivDirection === "right-top",
+    "left-6 bottom-6": settingsDivDirection === "right-bottom",
+  });
+
   if (currentUserId === null) {
     return <Loader />;
   }
+
   const messageSettings = [
     // {
     //   id: 1,
@@ -100,7 +150,12 @@ const Message = ({
       id: 8,
       title: "Edit",
       onClick: () => {
-        setOpenSettingsId(null);
+        if (isMessageSentWithin15Mins(message.timestamp) === false) {
+          showError(
+            "You can only edit messages sent within the last 15 minutes."
+          );
+          return;
+        }
         handleEdit();
       },
     },
@@ -120,6 +175,65 @@ const Message = ({
         currentUserId == message.sender_id ? "justify-end" : "justify-start"
       }`}
     >
+      {isEditDialogOpen && (
+        <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-30 z-20 flex justify-center items-center">
+          <div className="bg-bg-forum rounded-lg z-30 flex flex-col w-screen sm:w-96">
+            <div className="flex gap-4 items-center px-6 py-4 ">
+              <Icon
+                width={28}
+                height={28}
+                src="/icons/close-dark.svg"
+                onClick={() => {
+                  setIsEditDialogOpen(false);
+                  console.log("Edit dialog closed");
+                }}
+                alt={"Close icon"}
+              />
+              <h2 className="text-white text-lg hover:cursor-default">
+                Edit message
+              </h2>
+            </div>
+            <div className="bg-black flex-1 flex  justify-center items-center">
+              <div className="bg-bg-forum inline-flex flex-col px-3 py-1 rounded-md my-12">
+                <div className=" ">
+                  <p className="text-white">{message.content}</p>
+                </div>
+                <div className="flex justify-end items-center">
+                  <p className="pl-6 text-xs chatSubtext leading-none">
+                    {getLastMessageTimeStampAMPM(message.timestamp)}
+                  </p>
+                  {message.sender_id == currentUserId && (
+                    <Image
+                      src={
+                        message.read
+                          ? "/icons/message_seen.svg"
+                          : "/icons/message_unseen.svg"
+                      }
+                      width={23}
+                      height={23}
+                      alt="Message status"
+                      className="pl-2"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+            <div>
+              <ChatInput
+                selectedUser={selectedUser}
+                setChatUserList={setChatUserList}
+                isEdit={true}
+                messageId={message.id}
+                initialContent={message.content}
+                closeEditDialog={() => {
+                  setIsEditDialogOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {isDeleteDialogOpen && (
         <div className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-30 z-20 flex justify-center items-center">
           <div className="bg-bg-forum rounded-lg p-6 gap-8 z-30 flex flex-col w-screen sm:w-96">
@@ -173,8 +287,8 @@ const Message = ({
               />
             </button>
             {isSettingsOpen && (
-              <div ref={settingsRef} className="z-10 chatBackgroundDark w-40 ">
-                <ul className="my-2 w-full">
+              <div ref={settingsRef} className={`${settingsClasses}`}>
+                <ul className="my-2 w-full overflow-auto">
                   {messageSettings.map((setting) => (
                     <li className="w-full">
                       <button

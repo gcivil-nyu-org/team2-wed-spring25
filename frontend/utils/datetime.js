@@ -160,9 +160,21 @@ const isMessageSentWithin2Days = (timestamp) => {
   return messageDate >= twoDaysAgo;
 };
 
+const isMessageSentWithin15Mins = (timestamp) => {
+  const now = new Date();
+  const messageDate = new Date(timestamp);
+
+  const fifteenMinsAgo = new Date(now);
+  fifteenMinsAgo.setMinutes(now.getMinutes() - 15);
+  fifteenMinsAgo.setSeconds(0); // reset seconds to zero
+
+  return messageDate >= fifteenMinsAgo;
+};
+
 export {
   formatDate,
   getLastMessageTimeStampAMPM,
   getLastMessageTimeStamp,
   isMessageSentWithin2Days,
+  isMessageSentWithin15Mins,
 };

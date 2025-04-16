@@ -11,6 +11,8 @@ export default function useChatMessage(
   const [currentUserId, setCurrentUserId] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [settingsDivDirection, setSettingsDivDirection] =
+    useState("left-bottom");
   const settingsRef = useRef(null);
   const isSettingsOpen = openSettingsId === message.id;
 
@@ -47,7 +49,7 @@ export default function useChatMessage(
 
       showError("Failed", "Failed to edit message", "edit_message_error");
     } finally {
-      setIsEditDialogOpen(false);
+      // setIsEditDialogOpen(false);
     }
   };
 
@@ -79,8 +81,8 @@ export default function useChatMessage(
   }, [isSettingsOpen, setOpenSettingsId, settingsRef]);
 
   const handleSettingsClick = () => {
-    console.log("message settings clicked: ", message);
-
+    // console.log("message settings clicked: ", message);
+    setSettingsDivDirection("left-bottom"); // Reset to default direction
     setOpenSettingsId(isSettingsOpen ? null : message.id);
   };
 
@@ -122,5 +124,9 @@ export default function useChatMessage(
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     deleteMessage,
+    settingsDivDirection,
+    setSettingsDivDirection,
+    isEditDialogOpen,
+    setIsEditDialogOpen,
   };
 }

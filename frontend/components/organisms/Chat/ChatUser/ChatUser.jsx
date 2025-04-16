@@ -50,7 +50,9 @@ const ChatUser = ({
         {chatUserList
           .find((user) => user.user.id === selectedUser.user.id)
           .messages.map((message) => {
-            console.log("Rendering message:", message);
+            {
+              /* console.log("Rendering message:", message); */
+            }
             if (message.is_deleted == "everyone") {
               return null; // Skip rendering deleted messages for everyone
             }
@@ -68,6 +70,7 @@ const ChatUser = ({
                 setOpenSettingsId={setOpenSettingsId}
                 setChatUserList={setChatUserList}
                 selectedUser={selectedUser}
+                messagesContainerRef={messagesContainerRef}
               />
             );
           })}
