@@ -97,7 +97,10 @@ script:
   - cd ..
   # Frontend build
   - cd $FRONTEND_PATH && npm run build && cd ..
-
+  
+before_deploy:
+  - rvm install 3.1
+  - rvm use 3.1
 # Deploy to Render and Netlify upon successful tests for the main and develop branches
 deploy:
   provider: script
