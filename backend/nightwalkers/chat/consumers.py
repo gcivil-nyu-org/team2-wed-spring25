@@ -153,7 +153,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         chat, created = Chat.objects.get_or_create(user1=user1, user2=user2)
 
         # Create message
-        return Message.objects.create(chat=chat, sender=self.user, content=content)
+        return Message.objects.create(chat=chat, sender=self.user, content=content, is_deleted="no")
 
     @database_sync_to_async
     def is_user_online(self, user_id):
