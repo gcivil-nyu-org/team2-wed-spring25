@@ -97,6 +97,8 @@ script:
   - cd ..
   # Frontend build
   - cd $FRONTEND_PATH && npm run build && cd ..
+  
+before_deploy:
   - ruby -v
   - which ruby
   - which rvm
