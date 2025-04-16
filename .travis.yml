@@ -97,10 +97,10 @@ script:
   - cd ..
   # Frontend build
   - cd $FRONTEND_PATH && npm run build && cd ..
-  - echo "Ruby version: $(ruby -v)"
+  - ruby -v
   - which ruby
   - which rvm
-  - echo "RVM current: $(rvm current)"
+  - rvm current
 # Deploy to Render and Netlify upon successful tests for the main and develop branches
 deploy:
   provider: script
