@@ -7,10 +7,15 @@ import useUserPost from "./useUserPost";
 import UserImage from "@/components/atom/UserImage/UserImage";
 import { getUserFullName } from "@/utils/string";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
+import { ChevronsDown } from "lucide-react";
+import { useState } from "react";
 
 export default function UserPost({ post, setPosts }) {
   const { commentsCount, setCommentsCount, likesCount, setLikesCount } =
     useUserPost(post.likes_count, post.comments_count);
+  const [showHiddenContent, setShowHiddenContent] = useState(false);
+
+  const hasLowKarma = post.user_karma < 11;
 
   return (
     <div className="flex flex-col rounded-lg w-full font-sans mb-2 bg-bg-post border-dark relative">
@@ -47,18 +52,34 @@ export default function UserPost({ post, setPosts }) {
         is_repost={post.is_repost}
         original_post_id={post.original_post_id}
       />
-      <UserPostBody
-        image_urls={post.image_urls ?? [fallbackUserProfileImage]}
-        content={post.content}
-      />
-      <UserPostBottom
-        commentsCount={commentsCount}
-        likesCount={likesCount}
-        setCommentsCount={setCommentsCount}
-        setLikesCount={setLikesCount}
-        setPosts={setPosts}
-        post={post}
-      />
+
+      {hasLowKarma && !showHiddenContent ? (
+        <div className="flex flex-col items-center justify-center p-4 text-forum-subheading2 text-center">
+          <p>User has insufficient karma, post contents are hidden by default</p>
+          <button
+            onClick={() => setShowHiddenContent(true)}
+            className="flex items-center gap-2 mt-2 text-forum-subheading hover:text-forum-subheading2 transition-colors"
+          >
+            <span>Show Content</span>
+            <ChevronsDown className="w-5 h-5" />
+          </button>
+        </div>
+      ) : (
+        <>
+          <UserPostBody
+            image_urls={post.image_urls ?? [fallbackUserProfileImage]}
+            content={post.content}
+          />
+          <UserPostBottom
+            commentsCount={commentsCount}
+            likesCount={likesCount}
+            setCommentsCount={setCommentsCount}
+            setLikesCount={setLikesCount}
+            setPosts={setPosts}
+            post={post}
+          />
+        </>
+      )}
     </div>
   );
 }

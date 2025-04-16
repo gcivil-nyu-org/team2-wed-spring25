@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import * as Switch from "@radix-ui/react-switch";
 import ReportAppIssueForm from "@/app/custom-components/ReportAppIssues/ReportAppIssueForm";
-import UserReportsList from "@/app/custom-components/ReportAppIssues/UserReportList";
 import {
   Card,
   CardHeader,
@@ -121,7 +120,6 @@ const ProfileContent = () => {
             Report a Bug
           </h2>
           <ReportAppIssueForm />
-          <UserReportsList />
         </div>
       </div>
     </div>

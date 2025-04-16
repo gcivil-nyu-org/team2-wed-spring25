@@ -100,10 +100,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-map-bg via-map-darkerbg to-map-bg overflow-hidden">
       <AnimatedBackground />
 
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/50 to-blue-900/80"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-blue-900/10 to-blue-900/30"></div>
 
       <div className="relative z-10 w-full max-w-md p-4">
         <Card className="w-full bg-white/10 backdrop-blur-lg border-white/20">

@@ -33,6 +33,16 @@ const SettingsContent = () => {
             </CardHeader>
           </Card>
         </Link>
+        <Link href="/users/settings/reportlog">
+          <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text hover:bg-sidebar-separator">
+            <CardHeader>
+              <CardTitle>Report History</CardTitle>
+              <CardDescription>
+                View reports you've made
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
         <Link href="/users/settings/routes">
           <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text hover:bg-sidebar-separator">
             <CardHeader>

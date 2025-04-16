@@ -1,16 +1,16 @@
 import React from "react";
 import Link from "next/link";
 
-const RoutesSidebar = () => {
+const ReportsSidebar = () => {
   return (
     <>
       {/* Routes-specific Navigation */}
       <nav className="flex flex-col w-full text-center">
         <Link
-          href="/users/settings/routes"
+          href="/users/settings/reportlog"
           className="px-4 py-2 hover:bg-sidebar-border"
         >
-          Saved Routes
+          Reports
         </Link>
         {/* <Link
           href="/users/settings/routes/preferences"
@@ -29,4 +29,4 @@ const RoutesSidebar = () => {
   );
 };
 
-export default RoutesSidebar;
+export default ReportsSidebar;

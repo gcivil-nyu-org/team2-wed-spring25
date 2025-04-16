@@ -1,0 +1,284 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_urls %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <!-- Use jQuery from CDN instead of static files -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            console.log("Document ready, preparing to load messages");
+
+            // Store user IDs for styling
+            var user1Id = {{ chat.user1.id }};
+            var user2Id = {{ chat.user2.id }};
+            var user1Name = "{{ chat.user1.get_full_name }}";
+            var user2Name = "{{ chat.user2.get_full_name }}";
+
+            function loadMessages(page) {
+                var url = "{% url 'admin:chat_messages_json' chat.id %}?page=" + page;
+                console.log("Attempting to load messages from: " + url);
+
+                // Show loading indicator
+                $('#message-list').html('<p>Loading messages...</p>');
+
+                $.getJSON(url)
+                    .done(function(data) {
+                        console.log("Data received:", data);
+                        var messageList = $('#message-list');
+                        messageList.empty();
+
+                        if (!data.messages || data.messages.length === 0) {
+                            messageList.html("<p>No messages found in this chat.</p>");
+                            return;
+                        }
+
+                        // Sort messages chronologically (oldest first)
+                        var sortedMessages = data.messages.sort(function(a, b) {
+                            return new Date(a.timestamp) - new Date(b.timestamp);
+                        });
+
+                        // Group consecutive messages from the same sender
+                        var currentSenderId = null;
+                        var messageGroups = [];
+                        var currentGroup = [];
+
+                        $.each(sortedMessages, function(index, msg) {
+                            if (currentSenderId !== msg.sender_id) {
+                                if (currentGroup.length > 0) {
+                                    messageGroups.push(currentGroup);
+                                }
+                                currentGroup = [msg];
+                                currentSenderId = msg.sender_id;
+                            } else {
+                                currentGroup.push(msg);
+                            }
+                        });
+
+                        if (currentGroup.length > 0) {
+                            messageGroups.push(currentGroup);
+                        }
+
+                        // Render message groups
+                        $.each(messageGroups, function(index, group) {
+                            var senderId = group[0].sender_id;
+                            var senderName = group[0].sender_name;
+                            var isUser1 = (senderId == user1Id);
+
+                            var groupClass = isUser1 ? "message-group-left" : "message-group-right";
+                            var senderClass = isUser1 ? "user1" : "user2";
+
+                            var groupHtml = '<div class="message-group ' + groupClass + '">';
+                            groupHtml += '<div class="sender-name ' + senderClass + '">' + senderName + '</div>';
+
+                            $.each(group, function(i, msg) {
+                                groupHtml += '<div class="message-bubble ' + senderClass + '">';
+                                groupHtml += '<div class="message-content">' + msg.content + '</div>';
+                                groupHtml += '<div class="message-time">' + msg.timestamp + '</div>';
+                                groupHtml += '</div>';
+                            });
+
+                            groupHtml += '</div>';
+                            messageList.append(groupHtml);
+                        });
+
+                        // Scroll to bottom
+                        var messageContainer = document.getElementById('message-list');
+                        messageContainer.scrollTop = messageContainer.scrollHeight;
+
+                        updatePagination(data.pagination);
+                    })
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                        console.error("Error loading messages:", textStatus, errorThrown);
+                        console.log("Response:", jqXHR.responseText);
+                        $('#message-list').html('<p>Error loading messages: ' + textStatus + '</p>');
+                    });
+            }
+
+            function updatePagination(pagination) {
+                var paginationDiv = $('#pagination');
+                paginationDiv.empty();
+
+                if (pagination.total_pages <= 1) {
+                    return;
+                }
+
+                paginationDiv.append('<span>Pages: </span>');
+
+                for (var i = 1; i <= pagination.total_pages; i++) {
+                    var pageLink = $('<a href="#" class="page-link">' + i + '</a>');
+                    if (i === pagination.current_page) {
+                        pageLink.addClass('current-page');
+                    }
+
+                    pageLink.on('click', function() {
+                        loadMessages($(this).text());
+                        return false;
+                    });
+
+                    paginationDiv.append(pageLink);
+                    paginationDiv.append(' ');
+                }
+            }
+
+            // Load first page on document ready
+            loadMessages(1);
+        });
+    </script>
+    <style>
+        #content-main {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        #message-list {
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .message-group {
+            margin-bottom: 20px;
+            max-width: 80%;
+            clear: both;
+        }
+
+        .message-group-left {
+            float: left;
+        }
+
+        .message-group-right {
+            float: right;
+        }
+
+        .sender-name {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .sender-name.user1 {
+            text-align: left;
+            color: #1e88e5;
+        }
+
+        .sender-name.user2 {
+            text-align: right;
+            color: #43a047;
+        }
+
+        .message-bubble {
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 5px;
+            position: relative;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        .message-bubble.user1 {
+            border: 1px solid #bbdefb;
+            border-radius: 12px 12px 12px 0;
+        }
+
+        .message-bubble.user2 {
+            border: 1px solid #c8e6c9;
+            border-radius: 12px 12px 0 12px;
+            text-align: right;
+        }
+
+        .message-content {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .user2 .message-time {
+            text-align: right;
+        }
+
+        #pagination {
+            margin-top: 20px;
+            text-align: center;
+            clear: both;
+            padding-top: 20px;
+        }
+
+        .page-link {
+            margin-right: 5px;
+            padding: 5px 10px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .current-page {
+            background-color: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        /* User legend */
+        .user-legend {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .user-item {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .user-item.user1 .color-dot {
+            background-color: #1e88e5;
+        }
+
+        .user-item.user2 .color-dot {
+            background-color: #43a047;
+        }
+
+        .color-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+        <h1>{{ title }}</h1>
+
+        <div class="user-legend">
+            <div class="user-item user1">
+                <span class="color-dot"></span>
+                <span class="user-name">{{ chat.user1.get_full_name }}</span>
+            </div>
+            <div class="user-item user2">
+                <span class="color-dot"></span>
+                <span class="user-name">{{ chat.user2.get_full_name }}</span>
+            </div>
+        </div>
+        
+        <div id="message-list">
+            <!-- Messages will be loaded here with JavaScript -->
+        </div>
+        
+        <div id="pagination">
+            <!-- Pagination links will be added here -->
+        </div>
+    </div>
+{% endblock %}
