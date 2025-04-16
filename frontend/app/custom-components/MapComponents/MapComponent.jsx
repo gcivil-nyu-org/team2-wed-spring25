@@ -5,9 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import { authAPI } from "@/utils/fetch/fetch";
 import { useNotification } from "../ToastComponent/NotificationContext";
-import {
-  enhanceTurnInstructions,
-} from "../RoutingComponets/RouteHandler";
+import { enhanceTurnInstructions } from "../RoutingComponets/RouteHandler";
 import SaveRouteComponent from "../RoutingComponets/SaveRoute";
 import "@/styles/map_styles.css";
 import HeatmapLayer from "./HeatmapLayer";
@@ -16,6 +14,7 @@ import MapRenderMsg from "./MapRenderMsg";
 import useUserLocation from "@/hooks/useUserLocation";
 import RouteInfo from "./RouteInfo";
 import RouteRenderer from "./RouteRender";
+import { ChevronsDown, ChevronsUp } from "lucide-react";
 
 const RoutingMapComponent = ({
   mapboxToken,
@@ -28,17 +27,19 @@ const RoutingMapComponent = ({
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapInstanceRef = useRef(null);
   const mapInitializedRef = useRef(false);
-  const { userLocation, isGettingLocation, locationDenied, retryLocation } = useUserLocation({
-    departureCoords,
-    mapInitializedRef,
-    mapInstanceRef
-  });
+  const { userLocation, isGettingLocation, locationDenied, retryLocation } =
+    useUserLocation({
+      departureCoords,
+      mapInitializedRef,
+      mapInstanceRef,
+    });
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
   const [routeDetails, setRouteDetails] = useState(null);
   const [routeData, setRouteData] = useState(null); // Store the raw route data
   const [activeRoute, setActiveRoute] = useState("initial"); // 'initial' or 'safer'
   const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
   const [successfulRoute, setSuccessfulRoute] = useState(false);
+  const [showRouteInfoPanel, setShowRouteInfoPanel] = useState(true);
 
   // Initialize map when we have location
   useEffect(() => {
@@ -171,10 +172,8 @@ const RoutingMapComponent = ({
       if (useCurrentLocation) {
         // If using current location, we need to wait until userLocation is set
         if (userLocation) {
-
           fetchRouteData(userLocation, destinationCoords);
         } else {
-
           // The userLocation will be set by the geolocation logic elsewhere in the component
         }
       } else if (departureCoords) {
@@ -215,18 +214,21 @@ const RoutingMapComponent = ({
         requestData
       );
 
-
       // Extract route summary for display
       // If extractRouteSummary isn't working correctly, let's create the routeInfo manually
       let routeInfo = {};
 
       // Manual parsing of initial route data
-      if (response.initial_route && response.initial_route.routes && response.initial_route.routes.length > 0) {
+      if (
+        response.initial_route &&
+        response.initial_route.routes &&
+        response.initial_route.routes.length > 0
+      ) {
         const initialRoute = response.initial_route.routes[0];
         routeInfo.initial = {
           distance: initialRoute.summary?.distance || 0,
           duration: initialRoute.summary?.duration || 0,
-          instructions: initialRoute.segments?.[0]?.steps || []
+          instructions: initialRoute.segments?.[0]?.steps || [],
         };
 
         // Enhance turn instructions
@@ -238,12 +240,16 @@ const RoutingMapComponent = ({
       }
 
       // Manual parsing of safer route data
-      if (response.safer_route && response.safer_route.routes && response.safer_route.routes.length > 0) {
+      if (
+        response.safer_route &&
+        response.safer_route.routes &&
+        response.safer_route.routes.length > 0
+      ) {
         const saferRoute = response.safer_route.routes[0];
         routeInfo.safer = {
           distance: saferRoute.summary?.distance || 0,
           duration: saferRoute.summary?.duration || 0,
-          instructions: saferRoute.segments?.[0]?.steps || []
+          instructions: saferRoute.segments?.[0]?.steps || [],
         };
 
         // Enhance turn instructions
@@ -283,13 +289,7 @@ const RoutingMapComponent = ({
 
   return (
     <div className="space-y-4">
-      {successfulRoute && (
-        <SaveRouteComponent
-          departure={useCurrentLocation ? userLocation : departureCoords}
-          destination={destinationCoords}
-        />
-      )}
-      <div className="relative w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
+      <div className="relative w-full h-[100vh] rounded-lg overflow-hidden shadow-lg">
         <HeatmapLayer {...{ mapLoaded, mapInstanceRef }} />
         {/* Display critical error in the UI if map can't load */}
         {mapCriticalError && <MapCriticalErrorMsg />}
@@ -311,7 +311,7 @@ const RoutingMapComponent = ({
           <div className="absolute top-4 right-4 z-[1000]">
             <button
               onClick={retryLocation}
-              className="bg-map-bg text-white px-3 py-2 rounded-md text-sm shadow-md hover:bg-map-darkerbg transition-colors"
+              className="bg-map-pointer text-white px-3 py-2 rounded-md text-sm shadow-md hover:bg-map-pointer2 transition-colors"
             >
               Enable Location Access
             </button>
@@ -330,9 +330,39 @@ const RoutingMapComponent = ({
         )}
       </div>
 
-      {/* Route information panel */}
-      {routeDetails && (
-        <RouteInfo {...{ routeDetails, activeRoute, setActiveRoute }} />
+      <div
+        className={`absolute mt-2 px-2 bottom-[52px] z-[1001] w-full bg-[#424d5c] transition-all duration-300 ease-in-out ${
+          showRouteInfoPanel ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        {/* Route information panel */}
+        {successfulRoute && (
+          <SaveRouteComponent
+            departure={useCurrentLocation ? userLocation : departureCoords}
+            destination={destinationCoords}
+          />
+        )}
+        {routeDetails && (
+          <RouteInfo {...{ routeDetails, activeRoute, setActiveRoute }} />
+        )}
+
+        {successfulRoute && routeDetails && (
+          <div
+            onClick={() => setShowRouteInfoPanel(!showRouteInfoPanel)}
+            className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-map-pointer border border-[#414976]"
+          >
+            <ChevronsDown className="m-1 hover:text-[#ffffff] cursor-pointer" />
+          </div>
+        )}
+      </div>
+
+      {!showRouteInfoPanel && (
+        <div
+          onClick={() => setShowRouteInfoPanel(true)}
+          className="absolute bottom-[64px] left-1/2 transform -translate-x-1/2 translate-y-1/2 z-[1001] rounded-t-2xl bg-map-pointer2 border border-[#414976]"
+        >
+          <ChevronsUp className="m-1 hover:text-[#ffffff] cursor-pointer" />
+        </div>
       )}
     </div>
   );

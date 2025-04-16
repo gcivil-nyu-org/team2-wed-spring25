@@ -56,10 +56,10 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
   const hasSaferRoute = routeDetails?.safer?.distance > 0;
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-2">
+    <Card className="w-full bg-transparent border-0">
+      <CardHeader className="px-6 py-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg sm:text-md md:text-base text-map-legendtext">Route Information</CardTitle>
+          <CardTitle className="text-lg sm:text-md md:text-base text-white">Route Information</CardTitle>
           <div className="flex items-center gap-2">
             <Button
               variant={activeRoute === "initial" ? "default" : "outline"}
@@ -117,7 +117,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
           <div>
             <button
               onClick={() => setShowInstructions(!showInstructions)}
-              className="flex w-full items-center justify-between p-2 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+              className="flex w-full items-center justify-between p-2 bg-white hover:bg-gray-200 rounded transition-colors"
             >
               <span className="font-medium">Turn-by-turn directions</span>
               {showInstructions ? (
@@ -132,7 +132,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
                 {currentRouteData.instructions.map((step, index) => (
                   <div
                     key={index}
-                    className="p-3 flex items-start hover:bg-gray-50"
+                    className="bg-white p-3 flex items-start hover:bg-gray-50"
                   >
                     <CornerDownRight className="h-4 w-4 mr-2 mt-1 flex-shrink-0 text-gray-500" />
                     <div className="flex-1">

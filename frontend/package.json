@@ -11,10 +11,12 @@
     "test:coverage": "jest --coverage",
     "lint": "next lint",
     "dev:all": "concurrently \"python /Users/naliniramanathan/projects/se_1/team2-wed-spring25/backend/nightwalkers/manage.py runserver\" \"next dev --experimental-https\"",
-    "make-badges": "jest-coverage-badges --output ./public/badges"
+    "make-badges": "jest-coverage-badges --output ./public/badges",
+    "dev:insecure": "NODE_TLS_REJECT_UNAUTHORIZED=0 next dev --experimental-https"
   },
   "dependencies": {
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
+    "@headlessui/react": "^2.2.1",
     "@hookform/resolvers": "^4.1.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-avatar": "^1.1.3",
