@@ -81,16 +81,17 @@ script:
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
-  # Debug: Check current directory
-  - pwd
-  # Run tests with explicit coverage path
-  - npm run test -- --coverage --coverageDirectory ./coverage --coverageReporters=lcov,text
-  # Debug: List all files to find coverage
-  - ls -la
-  - ls -la coverage || true
-  # Try to find the coverage file
+  # Remove any conflicting Jest config from package.json if it exists
+  - |
+    if grep -q "\"jest\":" package.json; then
+      echo "Removing Jest config from package.json..."
+      sed -i '/"jest": {/,/}/d' package.json
+    fi
+  # Run tests with explicit config file
+  - npm run test -- --config=jest.config.js --coverage
+  # Debug: Find coverage file
   - find . -name "lcov.info"
-  # Once we find it, send to Coveralls
+  # Send to Coveralls
   - |
     LCOV_FILE=$(find . -name "lcov.info")
     if [ -f "$LCOV_FILE" ]; then
