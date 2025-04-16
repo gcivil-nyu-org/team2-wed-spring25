@@ -112,11 +112,21 @@ script:
       echo "Skipping badge updates for branch: $TRAVIS_BRANCH"
     fi
   - cd ..
-
+  # Frontend build
+  - cd $FRONTEND_PATH && npm run build && cd ..
+  
+before_deploy:
+  - ruby -v
+  - which ruby
+  - which rvm
+  - rvm current
+  - rvm use 3.3.5
+  - gem install dpl -v 1.10.16
 # Deploy to Render and Netlify upon successful tests for the main and develop branches
 deploy:
   provider: script
   script: ./deploy.sh
+  edge: true
   cleanup: false
   on:
     all_branches: true

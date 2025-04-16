@@ -207,7 +207,7 @@ class ChatAdmin(admin.ModelAdmin):
             return format_html(
                 '<div style="margin-bottom: 10px;"><strong><a href="{}">{}</a></strong>'
                 " - {}</div>"
-                '<div style="padding: 10px; background-color: #f5f5f5; '
+                '<div style="padding: 10px; '
                 'border-radius: 5px;">{}</div>',
                 sender_url,
                 sender_name,
