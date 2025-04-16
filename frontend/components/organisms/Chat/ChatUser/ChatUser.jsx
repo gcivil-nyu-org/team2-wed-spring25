@@ -37,7 +37,7 @@ const ChatUser = ({
           />
         </div>
       </div>
-      
+
       {/* Messages Container - Use flex-1 to take available space */}
       <div
         className="flex-1 overflow-y-auto scrollbar-hide"
@@ -50,12 +50,27 @@ const ChatUser = ({
         {chatUserList
           .find((user) => user.user.id === selectedUser.user.id)
           .messages.map((message) => {
+            {
+              /* console.log("Rendering message:", message); */
+            }
+            if (message.is_deleted == "everyone") {
+              return null; // Skip rendering deleted messages for everyone
+            }
+            if (
+              message.is_deleted == "self" &&
+              message.sender_id !== selectedUser.user.id
+            ) {
+              return null; // Skip rendering messages deleted by others
+            }
             return (
               <ChatMessage
                 key={message.id}
                 message={message}
                 openSettingsId={openSettingsId}
                 setOpenSettingsId={setOpenSettingsId}
+                setChatUserList={setChatUserList}
+                selectedUser={selectedUser}
+                messagesContainerRef={messagesContainerRef}
               />
             );
           })}
@@ -72,7 +87,7 @@ const ChatUser = ({
         )}
         <div ref={messagesEndRef} />
       </div>
-      
+
       {/* Input Container - Fixed at bottom with proper spacing for navbar */}
       <div className="mt-auto px-2 mb-4">
         <ChatInput

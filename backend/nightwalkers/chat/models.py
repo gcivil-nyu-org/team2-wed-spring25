@@ -45,6 +45,7 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
+    is_deleted = models.TextField(default="no")  # no, self, everyone
 
     class Meta:
         ordering = ["timestamp"]

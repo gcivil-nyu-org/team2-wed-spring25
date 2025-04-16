@@ -99,7 +99,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def handle_chat_message(self, data):
         recipient_id = data["recipient_id"]
         content = data["content"]
-
+        print("data:", data)
         # Save message to database
         message = await self.save_message(recipient_id, content)
         # Check if recipient is online
@@ -127,6 +127,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "message_id": str(message.id),
                     "status": "delivered" if is_online else "stored",
                     "timestamp": str(message.timestamp),
+                    "old_message_id": data.get("message_id", None),
+                    "chat_uuid": data.get("chat_uuid", None),
                 }
             )
         )
