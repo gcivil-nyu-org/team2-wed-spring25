@@ -160,6 +160,17 @@ DATABASES = {
         # Improves performance by reusing connections
     )
 }
+
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'se_1_test',
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': os.getenv('POSTGRES_PORT'),
+    }
+
 # For my test on linux leave the lines below please
 # if 'test' in sys.argv:
 #     DATABASES['default'] = {
