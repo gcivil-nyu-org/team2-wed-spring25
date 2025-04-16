@@ -81,29 +81,24 @@ script:
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
-  # Remove any conflicting Jest config from package.json if it exists
-  - |
-    if grep -q "\"jest\":" package.json; then
-      echo "Removing Jest config from package.json..."
-      sed -i '/"jest": {/,/}/d' package.json
-    fi
-  # Run tests with explicit config file
-  - npm run test -- --config=jest.config.js --coverage
+  # Run tests with explicit config file, no need to modify package.json
+  - npm run test -- --config=jest.config.js --coverage --coverageReporters=lcov,text --coverageDirectory=./coverage
   # Debug: Find coverage file
-  - find . -name "lcov.info"
-  # Send to Coveralls
   - |
+    echo "Looking for coverage file..."
+    find . -name "lcov.info"
     LCOV_FILE=$(find . -name "lcov.info")
     if [ -f "$LCOV_FILE" ]; then
       echo "Found coverage file at: $LCOV_FILE"
+      echo "Sending to Coveralls..."
       COVERALLS_FLAG_NAME=frontend COVERALLS_DEBUG=1 coveralls --service=travis-pro -v < "$LCOV_FILE"
     else
       echo "No lcov.info file found!"
       exit 1
     fi
-  - cd ..
   # Frontend build
-  - cd $FRONTEND_PATH && npm run build && cd ..
+  - npm run build
+  - cd ..
 
 # Deploy to Render and Netlify upon successful tests for the main and develop branches
 deploy:
