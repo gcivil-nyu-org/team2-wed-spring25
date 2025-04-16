@@ -91,6 +91,10 @@
       "lcov",
       "text"
     ],
-    "coverageDirectory": "coverage"
+    "coverageDirectory": "./coverage",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/.next/"
+    ]
   }
 }

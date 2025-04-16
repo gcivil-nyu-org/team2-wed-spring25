@@ -81,14 +81,26 @@ script:
 
   # Frontend tests and coverage
   - cd $FRONTEND_PATH
-  - npm run test -- --coverage --coverageReporters=lcov --coverageReporters=text
-  # Debug: Check if coverage file exists and its contents
-  - ls -la coverage/lcov.info
-  - head -n 10 coverage/lcov.info
-  # Try sending with explicit path and debug flag
-  - COVERALLS_FLAG_NAME=frontend COVERALLS_DEBUG=1 coveralls --service=travis-pro -v < coverage/lcov.info
+  # Debug: Check current directory
+  - pwd
+  # Run tests with explicit coverage path
+  - npm run test -- --coverage --coverageDirectory ./coverage --coverageReporters=lcov,text
+  # Debug: List all files to find coverage
+  - ls -la
+  - ls -la coverage || true
+  # Try to find the coverage file
+  - find . -name "lcov.info"
+  # Once we find it, send to Coveralls
+  - |
+    LCOV_FILE=$(find . -name "lcov.info")
+    if [ -f "$LCOV_FILE" ]; then
+      echo "Found coverage file at: $LCOV_FILE"
+      COVERALLS_FLAG_NAME=frontend COVERALLS_DEBUG=1 coveralls --service=travis-pro -v < "$LCOV_FILE"
+    else
+      echo "No lcov.info file found!"
+      exit 1
+    fi
   - cd ..
-
   # Frontend build
   - cd $FRONTEND_PATH && npm run build && cd ..
 
