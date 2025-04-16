@@ -83,8 +83,8 @@ script:
   - cd $FRONTEND_PATH
   # Install coveralls as dev dependency if not already in package.json
   - npm install coveralls --save-dev
-  # Run tests with explicit coverage settings
-  - npm run test -- --config=jest.config.js --coverage --coverageDirectory=./coverage --coverageReporters=lcov,text
+  # Run tests with coverage (fixed reporters syntax)
+  - npm run test -- --config=jest.config.js --coverage --coverageDirectory=./coverage --coverageReporters='["lcov","text"]'
   # Debug: Find and verify lcov file
   - |
     echo "Looking for lcov.info file..."
