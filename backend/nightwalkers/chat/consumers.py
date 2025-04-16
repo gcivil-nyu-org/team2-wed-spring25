@@ -127,8 +127,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "message_id": str(message.id),
                     "status": "delivered" if is_online else "stored",
                     "timestamp": str(message.timestamp),
-                    "old_message_id": data['message_id'] if 'message_id' in data else None,
-                    "chat_uuid": data['chat_uuid'] if 'chat_uuid' in data else None,
+                    "old_message_id": data.get("message_id", None),
+                    "chat_uuid": data.get("chat_uuid", None),
                 }
             )
         )

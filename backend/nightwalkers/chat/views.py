@@ -109,6 +109,7 @@ def delete_message(request, message_id):
     except Exception as e:
         return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
 
+
 @csrf_exempt
 def edit_message(request, message_id):
     if request.method != "POST":
@@ -121,7 +122,7 @@ def edit_message(request, message_id):
         body = json.loads(request.body)
         if "content" not in body:
             return JsonResponse({"error": "Content is required"}, status=400)
-        
+
         message = Message.objects.get(id=message_id)
         message.content = body["content"]
         message.save()
