@@ -73,3 +73,38 @@ def read_user_messages(request, chat_uuid, sender_id):
         return JsonResponse({"error": "Chat not found"}, status=404)
     except Exception as e:
         return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+
+@csrf_exempt
+def delete_message(request, message_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST method is allowed"}, status=405)
+
+    try:
+        # get delete type from request body
+        import json
+
+        body = json.loads(request.body)
+        if "delete_type" not in body:
+            return JsonResponse({"error": "Delete type is required"}, status=400)
+        message = Message.objects.get(id=message_id)
+        delete_type = body["delete_type"]
+        if delete_type not in ["no", "self", "everyone"]:
+            return JsonResponse({"error": "Invalid delete type"}, status=400)
+
+        # Update the message's is_deleted field based on delete_type
+        message.is_deleted = delete_type
+        message.save()
+
+        return JsonResponse(
+            {
+                "status": "success",
+                "message": "Message deleted successfully",
+            },
+            status=200,
+        )
+
+    except Message.DoesNotExist:
+        return JsonResponse({"error": "Message not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)

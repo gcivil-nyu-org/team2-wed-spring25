@@ -147,4 +147,22 @@ const getLastMessageTimeStamp = (timestamp) => {
   return `${month}/${day}/${year}`;
 };
 
-export { formatDate, getLastMessageTimeStampAMPM, getLastMessageTimeStamp };
+const isMessageSentWithin2Days = (timestamp) => {
+  const now = new Date();
+  const messageDate = new Date(timestamp);
+
+  const twoDaysAgo = new Date(now);
+  twoDaysAgo.setDate(now.getDate() - 2);
+  twoDaysAgo.setHours(0, 0, 0, 0); // reset to midnight
+  console.log(messageDate, twoDaysAgo);
+  console.log(messageDate >= twoDaysAgo);
+
+  return messageDate >= twoDaysAgo;
+};
+
+export {
+  formatDate,
+  getLastMessageTimeStampAMPM,
+  getLastMessageTimeStamp,
+  isMessageSentWithin2Days,
+};
