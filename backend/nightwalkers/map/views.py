@@ -1,5 +1,4 @@
 import os
-from django.http import JsonResponse
 from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -18,39 +17,115 @@ from shapely import geometry
 from shapely.geometry import Point, MultiPolygon
 from shapely.ops import transform
 import pyproj
+import json
 
+class HeatmapDataView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
 
-def heatmap_data(request):
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """SELECT ST_Y(wkb_geometry) AS latitude,
-                ST_X(wkb_geometry) AS longitude,
-                CMPLNT_NUM
-                FROM filtered_grouped_data_centroid;"""
-            )
+    def get(self, request, *args, **kwargs):
+        try:
+            # Get the data type from query parameters (1 = primary, 2 = secondary)
+            data_type = request.query_params.get("type", "1")
 
-            heatmap_points = []
-            for row in cursor.fetchall():
-                latitude, longitude, complaints = row
-                try:
-                    complaints = float(complaints) if complaints is not None else 0.0
-                except (ValueError, TypeError):
-                    complaints = 0.0
-
-                heatmap_points.append(
+            # Validate data_type parameter
+            if data_type not in ["1", "2", "primary", "secondary"]:
+                return Response(
                     {
-                        "latitude": latitude,
-                        "longitude": longitude,
-                        "intensity": complaints,
-                    }
+                        "error": "Invalid type parameter"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        return JsonResponse(heatmap_points, safe=False)
+            is_primary = data_type in ["1", "primary"]
+            operator_sql = ">=" if is_primary else "<"
+            threshold = 5
 
-    except Exception as error:
-        print("Error while fetching data from PostgreSQL", error)
-        return JsonResponse([], safe=False)
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f"""SELECT ST_Y(wkb_geometry) AS latitude,
+                    ST_X(wkb_geometry) AS longitude,
+                    CMPLNT_NUM
+                    FROM filtered_grouped_data_centroid
+                    WHERE CMPLNT_NUM {operator_sql} %s;""",
+                    [threshold],
+                )
+
+                heatmap_points = []
+                for row in cursor.fetchall():
+                    latitude, longitude, complaints = row
+                    try:
+                        complaints = (
+                            float(complaints) if complaints is not None else 0.0
+                        )
+                    except (ValueError, TypeError):
+                        complaints = 0.0
+
+                    heatmap_points.append(
+                        {
+                            "latitude": latitude,
+                            "longitude": longitude,
+                            "intensity": complaints,
+                        }
+                    )
+
+            return Response(heatmap_points)
+
+        except Exception as error:
+            print("Error while fetching data from PostgreSQL: %s", error)
+            return Response([], status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SaveRouteAPIView(generics.GenericAPIView):
+    serializer_class = SavedRouteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        print(request.data)
+        serializer = self.get_serializer(
+            data=request.data, context={"user": request.user}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class RoutesPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 50
+
+
+class RetrieveSavedRoutesListAPIView(generics.ListAPIView):
+    serializer_class = SavedRouteSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = RoutesPagination
+
+    def get_queryset(self):
+        return SavedRoute.objects.filter(user=self.request.user).order_by(
+            "-favorite", "-created_at"
+        )
+
+
+class UpdateSavedRouteAPIView(generics.UpdateAPIView):
+    serializer_class = SavedRouteUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SavedRoute.objects.filter(user=self.request.user)
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        print(self.request.data)
+        obj = queryset.get(id=self.request.data["id"])
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+
+class DeleteSavedRouteAPIView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SavedRoute.objects.filter(user=self.request.user)
 
 
 class RouteViewAPI(generics.GenericAPIView):
@@ -120,59 +195,6 @@ class RouteViewAPI(generics.GenericAPIView):
             return {"error": f"Error processing route request: {str(e)}"}
         except Exception as e:
             return {"error": f"Error processing route request: {str(e)}"}
-
-
-class SaveRouteAPIView(generics.GenericAPIView):
-    serializer_class = SavedRouteSerializer
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        print(request.data)
-        serializer = self.get_serializer(
-            data=request.data, context={"user": request.user}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class RoutesPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = "page_size"
-    max_page_size = 50
-
-
-class RetrieveSavedRoutesListAPIView(generics.ListAPIView):
-    serializer_class = SavedRouteSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = RoutesPagination
-
-    def get_queryset(self):
-        return SavedRoute.objects.filter(user=self.request.user).order_by(
-            "-favorite", "-created_at"
-        )
-
-
-class UpdateSavedRouteAPIView(generics.UpdateAPIView):
-    serializer_class = SavedRouteUpdateSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return SavedRoute.objects.filter(user=self.request.user)
-
-    def get_object(self):
-        queryset = self.get_queryset()
-        print(self.request.data)
-        obj = queryset.get(id=self.request.data["id"])
-        self.check_object_permissions(self.request, obj)
-        return obj
-
-
-class DeleteSavedRouteAPIView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return SavedRoute.objects.filter(user=self.request.user)
 
 
 def process_route_with_crime_data(initial_route):
@@ -287,7 +309,7 @@ def get_crime_hotspots(linestring, limit=10):
                 CMPLNT_NUM,
                 ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) AS distance
             FROM filtered_grouped_data_centroid
-            WHERE CMPLNT_NUM > 10
+            WHERE CMPLNT_NUM >= 5
             ORDER BY
                 -- Balance between proximity and crime intensity
                 (
@@ -319,84 +341,6 @@ def get_crime_hotspots(linestring, limit=10):
                 print(f"Hotspot with {complaints} complaints at distance {distance}")
     except Exception as e:
         print(f"Error querying the database: {str(e)}")
-
-    return hotspots
-
-
-def get_additional_hotspots(
-    linestring, existing_hotspots, limit=10, min_distance=0.005
-):
-    """
-    Query the database to find additional crime hotspots near a route,
-    excluding hotspots that are too close to existing ones
-
-    Args:
-        linestring (str): WKT format linestring of the route
-        existing_hotspots (list): List of hotspots already identified
-        limit (int): Maximum number of additional hotspots to return
-        min_distance (float): Minimum distance from existing hotspots in degrees
-
-    Returns:
-        list: List of additional hotspot dictionaries
-    """
-    # Create exclusion conditions for existing hotspots
-    exclusion_conditions = []
-    for hotspot in existing_hotspots:
-        # Convert to postgis ST_DWithin
-        lat, lon = hotspot["latitude"], hotspot["longitude"]
-        condition = (
-            "ST_DWithin("
-            f"wkb_geometry, "
-            f"ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), "
-            f"{min_distance}"
-            ")"
-        )
-        exclusion_conditions.append(condition)
-
-    # Build the WHERE clause
-    where_clause = "CMPLNT_NUM > 10"
-    if exclusion_conditions:
-        where_clause += " AND NOT (" + " OR ".join(exclusion_conditions) + ")"
-
-    query = f"""
-        SELECT
-            ST_Y(wkb_geometry) AS latitude,
-            ST_X(wkb_geometry) AS longitude,
-            CMPLNT_NUM,
-            ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) AS distance
-        FROM filtered_grouped_data_centroid
-        WHERE {where_clause}
-        ORDER BY
-            -- Balance between proximity and crime intensity
-            (
-                CMPLNT_NUM * 0.7
-            ) / (
-                POWER(
-                    ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) + 0.001,
-                    1.5
-                )
-            ) DESC
-        LIMIT %s;
-    """
-
-    hotspots = []
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(query, [linestring, linestring, limit])
-            for row in cursor.fetchall():
-                latitude, longitude, complaints, distance = row
-                complaints = float(complaints) if complaints is not None else 0.0
-                hotspots.append(
-                    {
-                        "latitude": latitude,
-                        "longitude": longitude,
-                        "complaints": complaints,
-                        "distance": distance,
-                    }
-                )
-
-    except Exception as e:
-        print(f"Error querying additional hotspots: {str(e)}")
 
     return hotspots
 
@@ -457,6 +401,84 @@ def create_avoid_polygons(hotspots, base_radius=0.10):
         return None
 
 
+def get_additional_hotspots(
+    linestring, existing_hotspots, limit=10, min_distance=0.005
+):
+    """
+    Query the database to find additional crime hotspots near a route,
+    excluding hotspots that are too close to existing ones
+
+    Args:
+        linestring (str): WKT format linestring of the route
+        existing_hotspots (list): List of hotspots already identified
+        limit (int): Maximum number of additional hotspots to return
+        min_distance (float): Minimum distance from existing hotspots in degrees
+
+    Returns:
+        list: List of additional hotspot dictionaries
+    """
+    # Create exclusion conditions for existing hotspots
+    exclusion_conditions = []
+    for hotspot in existing_hotspots:
+        # Convert to postgis ST_DWithin
+        lat, lon = hotspot["latitude"], hotspot["longitude"]
+        condition = (
+            "ST_DWithin("
+            f"wkb_geometry, "
+            f"ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), "
+            f"{min_distance}"
+            ")"
+        )
+        exclusion_conditions.append(condition)
+
+    # Build the WHERE clause
+    where_clause = "CMPLNT_NUM >= 5"
+    if exclusion_conditions:
+        where_clause += " AND NOT (" + " OR ".join(exclusion_conditions) + ")"
+
+    query = f"""
+        SELECT
+            ST_Y(wkb_geometry) AS latitude,
+            ST_X(wkb_geometry) AS longitude,
+            CMPLNT_NUM,
+            ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) AS distance
+        FROM filtered_grouped_data_centroid
+        WHERE {where_clause}
+        ORDER BY
+            -- Balance between proximity and crime intensity
+            (
+                CMPLNT_NUM * 0.7
+            ) / (
+                POWER(
+                    ST_Distance(wkb_geometry, ST_GeomFromText(%s, 4326)) + 0.001,
+                    1.5
+                )
+            ) DESC
+        LIMIT %s;
+    """
+
+    hotspots = []
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query, [linestring, linestring, limit])
+            for row in cursor.fetchall():
+                latitude, longitude, complaints, distance = row
+                complaints = float(complaints) if complaints is not None else 0.0
+                hotspots.append(
+                    {
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "complaints": complaints,
+                        "distance": distance,
+                    }
+                )
+
+    except Exception as e:
+        print(f"Error querying additional hotspots: {str(e)}")
+
+    return hotspots
+
+
 def get_safer_ors_route(departure, destination, avoid_polygons):
     """
     Get a route from OpenRouteService that avoids specified areas
@@ -510,10 +532,6 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
         # Convert MultiPolygon to GeoJSON
         try:
             avoid_geojson = geometry.mapping(avoid_polygons)
-
-            # Log total geojson size
-            import json
-
             geojson_str = json.dumps(avoid_geojson)
             print(f"Avoid polygons GeoJSON size: {len(geojson_str)} bytes")
 
