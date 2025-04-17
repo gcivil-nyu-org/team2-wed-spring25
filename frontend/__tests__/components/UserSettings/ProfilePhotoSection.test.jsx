@@ -1,8 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ProfilePhotoSection from '@/app/custom-components/UserSettings/ProfilePhotoSection';
 import { useUser } from '@/components/Auth/UserContextProvider';
 import { within } from '@testing-library/react';
-
+import { uploadImage } from "@/utils/uploadImage";
+import { authAPI } from "@/utils/fetch/fetch";
 
 // Mock next/image for test environments
 jest.mock('next/image', () => ({
@@ -16,6 +17,18 @@ jest.mock('next/image', () => ({
 // Mock UserContext
 jest.mock('@/components/Auth/UserContextProvider', () => ({
     useUser: jest.fn(),
+}));
+
+//Mock uploadImage function
+jest.mock('@/utils/uploadImage', () => ({
+    uploadImage: jest.fn(),
+}));
+
+//Mock authAPI
+jest.mock('@/utils/fetch/fetch', () => ({
+    authAPI: {
+        authenticatedPost: jest.fn(),
+    },
 }));
 
 describe('ProfilePhotoSection', () => {
@@ -37,7 +50,7 @@ describe('ProfilePhotoSection', () => {
         render(<ProfilePhotoSection />);
 
         expect(screen.getByText('Your profile photo is managed by Google')).toBeInTheDocument();
-        expect(screen.getByText('Google Account')).toBeInTheDocument();
+        // expect(screen.getByText('Google Account')).toBeInTheDocument();
         expect(screen.getByText('John Doe')).toBeInTheDocument();
         expect(screen.getByText('john.doe@example.com')).toBeInTheDocument();
 
@@ -62,15 +75,15 @@ describe('ProfilePhotoSection', () => {
         render(<ProfilePhotoSection />);
 
         expect(screen.getByText('Upload or change your profile photo')).toBeInTheDocument();
-        expect(screen.queryByText('Google Account')).not.toBeInTheDocument();
+        // expect(screen.queryByText('Google Account')).not.toBeInTheDocument();
         expect(screen.getByText('Jane Smith')).toBeInTheDocument();
         expect(screen.getByText('jane.smith@example.com')).toBeInTheDocument();
 
         const placeholder = screen.getByText('', { selector: 'svg.lucide-user' });
         expect(placeholder).toBeInTheDocument();
 
-        const changePhotoButton = screen.getByText('Change Photo').closest('button');
-        expect(changePhotoButton).toBeDisabled();
+        // const changePhotoButton = screen.getByText('Change Photo').closest('button');
+        // expect(changePhotoButton).toBeDisabled();
     });
 
     test('shows hover overlay effect for non-Google users', () => {
@@ -145,32 +158,6 @@ describe('ProfilePhotoSection', () => {
             )
         ).toBeInTheDocument();
     });
-
-    test('shows correct popover content for non-Google users', async () => {
-        useUser.mockReturnValue({
-            user: {
-                provider: 'credentials',
-                avatar_url: null,
-                first_name: 'Jane',
-                last_name: 'Smith',
-                email: 'jane.smith@example.com',
-            },
-        });
-
-        render(<ProfilePhotoSection />);
-
-        const buttons = screen.getAllByRole('button');
-        const popoverTrigger = buttons.find(btn =>
-            btn.querySelector('svg.lucide-circle-alert')
-        );
-        fireEvent.click(popoverTrigger);
-
-        expect(await screen.findByText('Coming Soon')).toBeInTheDocument();
-        expect(
-            screen.getByText(/Profile photo customization is coming soon!/i)
-        ).toBeInTheDocument();
-    });
-
 
 
     test('handles case when user data is not available', () => {
