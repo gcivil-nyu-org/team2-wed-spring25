@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from .models import ReportIssue
 from .serializers import UserSerializer, UserReportSerializer
 from django.contrib.auth import authenticate
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 User = get_user_model()  # noqa: F811
@@ -33,7 +34,6 @@ def get_standard_response(user):
         "refresh": tokens["refresh"],
         "user": UserSerializer(user).data,
     }
-
 
 class GoogleAuthView(APIView):
     permission_classes = (AllowAny,)
@@ -329,6 +329,57 @@ class ChangeUserNamesView(APIView):
         return Response(
             {
                 "success": "Names updated successfully",
+                "user": UserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class UploadProfilePic(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser] # Enable file parsing
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+
+        # Check if user is a Google user (or other provider where upload might not be allowed)
+        if user.provider == "google":
+            return Response(
+                {"error": "Account is managed by google"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        image_file = request.FILES.get('avatar') # 'avatar' should match the name attribute in your file input
+
+        if not image_file:
+            return Response(
+                {"error": "Please select an image file"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Basic file type validation (you might want more robust validation)
+        allowed_types = ['image/jpeg', 'image/png']
+        if image_file.content_type not in allowed_types:
+            return Response(
+                {"error": "Invalid file type. Only JPEG and PNG are allowed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Basic file size validation (adjust as needed)
+        max_size = 2 * 1024 * 1024  # 2MB
+        if image_file.size > max_size:
+            return Response(
+                {"error": "Image file is too large. Maximum size is 2MB."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.avatar = image_file # Assign the uploaded file to the ImageField
+        user.avatar_url = None   # Clear the avatar_url if using local storage
+        user.save()
+
+        return Response(
+            {
+                "success": "Profile picture uploaded successfully",
                 "user": UserSerializer(user).data,
             },
             status=status.HTTP_200_OK,

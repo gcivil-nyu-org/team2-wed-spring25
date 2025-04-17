@@ -6,9 +6,11 @@ from rest_framework import status
 from unittest.mock import patch, MagicMock
 from .serializers import UserSerializer
 from .models import ReportIssue
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
-
 
 class UserModelTests(TestCase):
     """Tests for the custom User model"""
@@ -716,3 +718,128 @@ class UserSerializerTests(TestCase):
         serializer = UserSerializer(instance=self.user)
         # Initially should be 0 as we haven't added any saved routes
         self.assertEqual(serializer.data["total_saved_routes"], 0)
+
+class UploadProfilePicViewTest(APITestCase):
+    def setUp(self):
+        self.upload_photo_url = reverse('upload_profile_pic')
+        self.user = User.objects.create_user(
+            email='test@example.com',
+            first_name='Test',
+            last_name='User',
+            password='testpassword'
+        )
+
+    def generate_test_image(self, size=(100, 100), name='test.jpg', format='JPEG', color='red'):
+        image = Image.new('RGB', size, color=color)
+        temp_file = BytesIO()
+        image.save(temp_file, format=format)
+        temp_file.seek(0)
+        return SimpleUploadedFile(name, temp_file.read(), content_type='image/jpeg')
+
+    def test_upload_new_photo_authenticated(self):
+        """Test uploading a valid photo with authentication."""
+        self.client.force_authenticate(user=self.user)
+        image = self.generate_test_image()
+        response = self.client.post(
+            self.upload_photo_url,
+            {'avatar': image},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('success', response.json())
+        self.assertIn('user', response.json())
+        self.assertIsNotNone(User.objects.get(pk=self.user.id).avatar.name)
+
+    def test_upload_new_photo_unauthenticated(self):
+        """Test uploading a photo without authentication."""
+        image = self.generate_test_image()
+        response = self.client.post(
+            self.upload_photo_url,
+            {'avatar': image},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_upload_new_photo_no_file(self):
+        """Test uploading without providing a photo file."""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(
+            self.upload_photo_url,
+            {},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], 'Please select an image file')
+
+    def test_upload_new_photo_invalid_file_type(self):
+        """Test uploading a file with an invalid content type."""
+        self.client.force_authenticate(user=self.user)
+        # Generate a text file instead of an image
+        text_file = BytesIO(b"This is a text file.")
+        response = self.client.post(
+            self.upload_photo_url,
+            {'avatar': text_file},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], 'Invalid file type. Only JPEG and PNG are allowed.')
+
+    def test_upload_new_photo_large_file(self):
+        """Test uploading a file exceeding the maximum allowed size."""
+        self.client.force_authenticate(user=self.user)
+        large_image = self.generate_test_image(
+            size=(3000, 3000),
+            format='PNG',
+            name='large_test.png'
+        )
+        response = self.client.post(
+            self.upload_photo_url,
+            {'avatar': large_image},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], 'Image file is too large. Maximum size is 2MB.')
+
+    def test_upload_new_photo_google_user(self):
+        """Test uploading a photo for a Google user."""
+        google_user = User.objects.create_user(
+            email='google_user@example.com',
+            first_name='Google',
+            last_name='User',
+            password='testpassword',
+            provider='google'
+        )
+        self.client.force_authenticate(user=google_user)
+        image = self.generate_test_image()
+        response = self.client.post(
+            self.upload_photo_url,
+            {'avatar': image},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], 'Account is managed by google')
+
+    def test_upload_clears_avatar_url(self):
+        """Test that uploading a photo clears the avatar_url."""
+        self.client.force_authenticate(user=self.user)
+        self.user.avatar_url = 'https://example.com/old_avatar.jpg'
+        self.user.save()
+
+        image = self.generate_test_image()
+
+        response = self.client.post(
+            self.upload_photo_url,
+            {'avatar': image},
+            format='multipart'
+        )
+        print(response.status_code)
+        print(response.data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK) # Assert success
+        self.user.refresh_from_db()
+        self.assertIsNone(self.user.avatar_url)
+        self.assertIsNotNone(self.user.avatar.name)
