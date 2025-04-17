@@ -90,7 +90,7 @@ export default function SaveRouteComponent({ departure, destination }) {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="flex items-center bg-map-pointer border-map-bg hover:bg-map-bg hover:text-map-text"
+          className="flex items-center bg-map-pointer border-map-bg hover:bg-map-bg hover:text-map-text mt-2"
           type="button"
         >
           <BookmarkPlus size={18} />

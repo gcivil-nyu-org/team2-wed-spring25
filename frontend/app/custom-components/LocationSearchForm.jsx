@@ -264,7 +264,7 @@ export default function LocationSearchForm({
                 {formError}
               </div>
             )}
-            <div className="absolute left-1/2 transform -translate-x-1/2 translate-y-1/2 bottom-0 rounded-2xl bg-map-pointer border border-[#414976]">
+            <div className="absolute w-[58px] left-1/2 transform -translate-x-1/2 translate-y-1/2 bottom-0 rounded-2xl bg-map-pointer border border-[#414976] flex items-center justify-center">
               <ChevronsUp
                 onClick={() => {
                   toggleSearchForm(false);
@@ -448,7 +448,7 @@ export default function LocationSearchForm({
           onClick={toggleSearchForm}
           className="absolute top-0 left-1/2 transform -translate-x-1/2 rounded-b-2xl bg-map-pointer2 border border-[#414976] border-t-0"
         >
-          <ChevronsDown className="m-1 hover:text-[#ffffff] cursor-pointer" />
+          <ChevronsDown className="m-1 hover:text-[#ffffff] cursor-pointer flex items-center justify-center w-[50px]" />
         </div>
       )}
     </div>

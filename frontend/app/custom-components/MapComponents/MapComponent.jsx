@@ -331,7 +331,7 @@ const RoutingMapComponent = ({
       </div>
 
       <div
-        className={`absolute mt-2 px-2 bottom-[52px] z-[1001] w-full bg-[#424d5c] transition-all duration-300 ease-in-out ${
+        className={`absolute mt-2 mb-2 px-2 bottom-[52px] z-[1001] w-full bg-[#424d5c] transition-all duration-300 ease-in-out ${
           showRouteInfoPanel ? "translate-y-0" : "translate-y-full"
         }`}
       >
@@ -351,7 +351,7 @@ const RoutingMapComponent = ({
             onClick={() => setShowRouteInfoPanel(!showRouteInfoPanel)}
             className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-map-pointer border border-[#414976]"
           >
-            <ChevronsDown className="m-1 hover:text-[#ffffff] cursor-pointer" />
+            <ChevronsDown className="m-1 hover:text-[#ffffff] cursor-pointer w-[50px] flex items-center justify-center" />
           </div>
         )}
       </div>
@@ -361,7 +361,7 @@ const RoutingMapComponent = ({
           onClick={() => setShowRouteInfoPanel(true)}
           className="absolute bottom-[64px] left-1/2 transform -translate-x-1/2 translate-y-1/2 z-[1001] rounded-t-2xl bg-map-pointer2 border border-[#414976]"
         >
-          <ChevronsUp className="m-1 hover:text-[#ffffff] cursor-pointer" />
+          <ChevronsUp className="m-1 hover:text-[#ffffff] cursor-pointer w-[50px] flex items-center justify-center" />
         </div>
       )}
     </div>
