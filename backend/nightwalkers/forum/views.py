@@ -338,17 +338,16 @@ def get_posts(request):
             # so find all the posts made by user that have been reported,
             # then filter the posts and annotate and order by date
 
-            posts = Post.objects.filter(
-                user=user
-            ).annotate(
-                likes_count=Count("likes", distinct=True),
-                comments_count=Count("comments", distinct=True),
-                is_reported=Exists(
-                    ReportPost.objects.filter(post=OuterRef('pk'))
+            posts = (
+                Post.objects.filter(user=user)
+                .annotate(
+                    likes_count=Count("likes", distinct=True),
+                    comments_count=Count("comments", distinct=True),
+                    is_reported=Exists(ReportPost.objects.filter(post=OuterRef("pk"))),
                 )
-            ).filter(
-                is_reported=True
-            ).order_by("-date_created")
+                .filter(is_reported=True)
+                .order_by("-date_created")
+            )
 
         # Prepare the response data
         posts_data = []

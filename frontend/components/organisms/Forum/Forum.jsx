@@ -77,7 +77,7 @@ export default function Forums({ settingsType = "" }) {
       </div>
       {!settingsType && (
         <div className="bg-bg-post rounded-sm h-1/2 hidden xlg:flex xlg:flex-col xlg:justify-center xlg:items-center w-[225px] max-w-[225px] max-h-[210px] animate-pulse">
-          {true ? (
+          {isLoading ? (
             <div className="bg-gray-600 h-8 rounded"></div>
           ) : (
             <h1>Recommendations</h1>

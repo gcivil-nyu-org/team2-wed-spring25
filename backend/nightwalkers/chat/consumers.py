@@ -154,11 +154,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             chat, created = Chat.objects.get_or_create(user1=user1, user2=user2)
 
             # Create message
-            return Message.objects.create(chat=chat, sender=self.user, content=content, is_deleted="no")
+            return Message.objects.create(
+                chat=chat, sender=self.user, content=content, is_deleted="no"
+            )
         except Exception as e:
             print(f"Error saving message: {str(e)}")
             raise e
-        
 
     @database_sync_to_async
     def is_user_online(self, user_id):
