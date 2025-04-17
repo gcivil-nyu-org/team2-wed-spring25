@@ -35,6 +35,7 @@ def get_standard_response(user):
         "user": UserSerializer(user).data,
     }
 
+
 class GoogleAuthView(APIView):
     permission_classes = (AllowAny,)
 
@@ -337,19 +338,21 @@ class ChangeUserNamesView(APIView):
 
 class UploadProfilePic(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser] # Enable file parsing
+    parser_classes = [MultiPartParser, FormParser]  # Enable file parsing
 
     def post(self, request, *args, **kwargs):
         user = request.user
 
-        # Check if user is a Google user (or other provider where upload might not be allowed)
+        # Check if user is a Google user
         if user.provider == "google":
             return Response(
                 {"error": "Account is managed by google"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        image_file = request.FILES.get('avatar') # 'avatar' should match the name attribute in your file input
+        image_file = request.FILES.get(
+            "avatar"
+        )  # 'avatar' should match the name attribute in your file input
 
         if not image_file:
             return Response(
@@ -358,7 +361,7 @@ class UploadProfilePic(APIView):
             )
 
         # Basic file type validation (you might want more robust validation)
-        allowed_types = ['image/jpeg', 'image/png']
+        allowed_types = ["image/jpeg", "image/png"]
         if image_file.content_type not in allowed_types:
             return Response(
                 {"error": "Invalid file type. Only JPEG and PNG are allowed."},
@@ -373,8 +376,8 @@ class UploadProfilePic(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user.avatar = image_file # Assign the uploaded file to the ImageField
-        user.avatar_url = None   # Clear the avatar_url if using local storage
+        user.avatar = image_file  # Assign the uploaded file to the ImageField
+        user.avatar_url = None  # Clear the avatar_url if using local storage
         user.save()
 
         return Response(

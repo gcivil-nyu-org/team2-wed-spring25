@@ -9,7 +9,7 @@ from .views import (
     ReportIssueView,
     ChangePasswordView,
     ChangeUserNamesView,
-    UploadProfilePic
+    UploadProfilePic,
 )
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
@@ -25,5 +25,9 @@ urlpatterns = [
     path("report-app-issue/", ReportIssueView.as_view(), name="report-app-issue"),
     path("user/change-password/", ChangePasswordView.as_view(), name="change-password"),
     path("user/change-names/", ChangeUserNamesView.as_view(), name="change-names"),
-    path('user/change-profile-picture/', UploadProfilePic.as_view(), name='upload_profile_pic'), # For image uploads
+    path(
+        "user/change-profile-picture/",
+        UploadProfilePic.as_view(),
+        name="upload_profile_pic",
+    ),  # For image uploads
 ]
