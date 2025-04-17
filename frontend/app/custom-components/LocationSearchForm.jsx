@@ -1,22 +1,12 @@
-// Refactored LocationSearchForm (cleaner structure, same behavior)
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { v4 as uuidv4 } from "uuid";
 import { ChevronsUp, ChevronsDown } from "lucide-react";
+import { isWithinNYC, NYC_BOUNDS } from "@/hooks/location";
 
-const NYC_BOUNDS = {
-  sw: [40.4957, -74.2557],
-  ne: [40.9176, -73.7002],
-};
-
-const isWithinNYC = ([lat, lng]) =>
-  lat >= NYC_BOUNDS.sw[0] &&
-  lat <= NYC_BOUNDS.ne[0] &&
-  lng >= NYC_BOUNDS.sw[1] &&
-  lng <= NYC_BOUNDS.ne[1];
 
 const formatCoords = ([lat, lng]) => `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
@@ -27,6 +17,11 @@ export default function LocationSearchForm({
   initialDepartureCoords,
   initialDestinationCoords,
   routeCalculated = false,
+  userLocation,
+  canUseCurrentLocation,
+  isGettingLocation,
+  fetchUserLocation,
+  useCurrentLocation: parentUseCurrentLocation = false // Renamed to avoid conflict
 }) {
   const { showError, showWarning, showSuccess } = useNotification();
 
@@ -36,13 +31,10 @@ export default function LocationSearchForm({
   const [destinationCoords, setDestinationCoords] = useState(null);
   const [departureSuggestions, setDepartureSuggestions] = useState([]);
   const [destinationSuggestions, setDestinationSuggestions] = useState([]);
-  const [showDepartureSuggestions, setShowDepartureSuggestions] =
-    useState(false);
-  const [showDestinationSuggestions, setShowDestinationSuggestions] =
-    useState(false);
+  const [showDepartureSuggestions, setShowDepartureSuggestions] = useState(false);
+  const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
   const [showLocationSearchForm, setShowLocationSearchForm] = useState(true);
-  const [useCurrentLocation, setUseCurrentLocation] = useState(false);
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [useCurrentLocation, setUseCurrentLocation] = useState(parentUseCurrentLocation);
   const [formError, setFormError] = useState(null);
   const [inputsModified, setInputsModified] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -50,6 +42,11 @@ export default function LocationSearchForm({
   const initialLoadRef = useRef(false);
   const lastDepartureSearch = useRef("");
   const lastDestinationSearch = useRef("");
+
+  // Sync with parent's useCurrentLocation state
+  useEffect(() => {
+    setUseCurrentLocation(parentUseCurrentLocation);
+  }, [parentUseCurrentLocation]);
 
   const bboxString = `${NYC_BOUNDS.sw[1]},${NYC_BOUNDS.sw[0]},${NYC_BOUNDS.ne[1]},${NYC_BOUNDS.ne[0]}`;
 
@@ -137,9 +134,8 @@ export default function LocationSearchForm({
       const [lng, lat] = data.features[0].geometry.coordinates;
       if (!isWithinNYC([lat, lng])) throw new Error("Location outside NYC");
 
-      const text = `${suggestion.name}${
-        suggestion.place_formatted ? ", " + suggestion.place_formatted : ""
-      }`;
+      const text = `${suggestion.name}${suggestion.place_formatted ? ", " + suggestion.place_formatted : ""
+        }`;
       if (type === "departure") {
         setDeparture(text);
         setDepartureCoords([lat, lng]);
@@ -160,38 +156,19 @@ export default function LocationSearchForm({
     }
   };
 
-  const getCurrentLocation = async () => {
-    if (!navigator.geolocation) {
+  const handleUseCurrentLocation = () => {
+    if (!canUseCurrentLocation) {
+      showWarning("Location unavailable", "Your current location is unavailable or outside NYC.");
       setUseCurrentLocation(false);
-      return showWarning(
-        "Geolocation not supported",
-        "Browser does not support geolocation."
-      );
+      return;
     }
-    setIsGettingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        if (!isWithinNYC([lat, lng])) {
-          setUseCurrentLocation(false);
-          setHasError(true);
-          return showWarning("Outside NYC", "Current location is outside NYC.");
-        }
-        setUseCurrentLocation(true);
-        setDeparture("");
-        setDepartureCoords(null);
-        setInputsModified(true);
-        showSuccess("Using current location");
-      },
-      (err) => {
-        setUseCurrentLocation(false);
-        setHasError(true);
-        showWarning("Location error", err.message);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-    setIsGettingLocation(false);
+
+    fetchUserLocation(); // Refresh location if needed
+    setUseCurrentLocation(true);
+    setDeparture("");
+    setDepartureCoords(null);
+    setInputsModified(true);
+    showSuccess("Using current location");
   };
 
   const handleSubmit = (e) => {
@@ -249,9 +226,8 @@ export default function LocationSearchForm({
 
   return (
     <div
-      className={`transition-all duration-300 ease-in-out ${
-        showLocationSearchForm ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`transition-all duration-300 ease-in-out ${showLocationSearchForm ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       {showLocationSearchForm ? (
         <>
@@ -273,29 +249,31 @@ export default function LocationSearchForm({
               />
             </div>
 
-            <div className="flex items-center m-1">
-              <label
-                htmlFor="useCurrentLocation"
-                className="text-xs text-map-text mr-2"
-              >
-                Use current location
-              </label>
-              <input
-                type="checkbox"
-                id="useCurrentLocation"
-                checked={useCurrentLocation}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    getCurrentLocation(); // try to get location if turning on
-                  } else {
-                    setUseCurrentLocation(false); // turn off and re-enable input
-                    setInputsModified(true);
-                  }
-                }}
-                disabled={isGettingLocation}
-                className="h-4 w-4 text-map-legendtext border-gray-300 rounded bg-blue-50"
-              />
-            </div>
+            {canUseCurrentLocation && (
+              <div className="flex items-center m-1">
+                <label
+                  htmlFor="useCurrentLocation"
+                  className="text-xs text-map-text mr-2"
+                >
+                  Use current location
+                </label>
+                <input
+                  type="checkbox"
+                  id="useCurrentLocation"
+                  checked={useCurrentLocation}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      handleUseCurrentLocation();
+                    } else {
+                      setUseCurrentLocation(false);
+                      setInputsModified(true);
+                    }
+                  }}
+                  disabled={isGettingLocation}
+                  className="h-4 w-4 text-map-legendtext border-gray-300 rounded bg-blue-50"
+                />
+              </div>
+            )}
             <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
               {/* Departure */}
               <div className="flex-1 space-y-1 relative">
@@ -321,9 +299,8 @@ export default function LocationSearchForm({
                       setInputsModified(true);
                     }}
                     disabled={useCurrentLocation}
-                    className={`text-map-legendtext flex-1 text-sm md:text-base sm:text-xs ${
-                      useCurrentLocation ? "bg-gray-100" : "bg-white"
-                    } p-2 sm:p-1.5`}
+                    className={`text-map-legendtext flex-1 text-sm md:text-base sm:text-xs ${useCurrentLocation ? "bg-gray-100" : "bg-white"
+                      } p-2 sm:p-1.5`}
                   />
                   <Button
                     type="button"

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import L from "leaflet";
+import L, { map } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import { authAPI } from "@/utils/fetch/fetch";
@@ -11,28 +11,28 @@ import "@/styles/map_styles.css";
 import HeatmapLayer from "./HeatmapLayer";
 import MapCriticalErrorMsg from "./MapCriticalErrorMsg";
 import MapRenderMsg from "./MapRenderMsg";
-import useUserLocation from "@/hooks/useUserLocation";
 import RouteInfo from "./RouteInfo";
 import RouteRenderer from "./RouteRender";
 import { ChevronsDown, ChevronsUp } from "lucide-react";
+
+// Default location (Washington Square Park)
+const DEFAULT_LOCATION = [40.7308, -73.9974];
 
 const RoutingMapComponent = ({
   mapboxToken,
   departureCoords,
   destinationCoords,
-  useCurrentLocation = false,
+  userLocation,
+  canUseCurrentLocation,
+  isGettingLocation,
+  locationDenied,
+  fetchUserLocation,
 }) => {
   const { showError, showWarning, showSuccess } = useNotification();
   const mapContainerRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapInstanceRef = useRef(null);
   const mapInitializedRef = useRef(false);
-  const { userLocation, isGettingLocation, locationDenied, retryLocation } =
-    useUserLocation({
-      departureCoords,
-      mapInitializedRef,
-      mapInstanceRef,
-    });
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
   const [routeDetails, setRouteDetails] = useState(null);
   const [routeData, setRouteData] = useState(null); // Store the raw route data
@@ -40,14 +40,35 @@ const RoutingMapComponent = ({
   const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
   const [successfulRoute, setSuccessfulRoute] = useState(false);
   const [showRouteInfoPanel, setShowRouteInfoPanel] = useState(true);
+  const [waitingForLocation, setWaitingForLocation] = useState(isGettingLocation && !userLocation);
 
-  // Initialize map when we have location
+  // Helper function to center map on user location
+  const centerMapOnUserLocation = () => {
+    if (mapInstanceRef.current && userLocation && canUseCurrentLocation) {
+      // Center map on user location
+      mapInstanceRef.current.setView(userLocation, 15);
+    }
+  };
+
+  // Wait for user location if using current location
   useEffect(() => {
+    if (userLocation && canUseCurrentLocation && !waitingForLocation) {
+      setWaitingForLocation(false);
+    }
+  }, [userLocation, canUseCurrentLocation, waitingForLocation]);
+
+  // Initialize map only when we have all necessary data
+  useEffect(() => {
+    // Don't initialize map if:
+    // - We're waiting for location
+    // - No container element
+    // - No mapbox token
+    // - Map is already initialized
     if (
+      waitingForLocation ||
       typeof window === "undefined" ||
       !mapContainerRef.current ||
       !mapboxToken ||
-      !userLocation ||
       mapInitializedRef.current
     ) {
       return;
@@ -74,8 +95,15 @@ const RoutingMapComponent = ({
         delete container._leaflet_id;
       }
 
-      // Create map centered on user location
+      // Determine map center based on priority:
+      // 1. Explicit departure coordinates
+      // 2. Valid user location if using current location
+      // 3. Default to Washington Square Park
+      const mapCenter = departureCoords || 
+        (canUseCurrentLocation && userLocation ? 
+          userLocation : DEFAULT_LOCATION);
 
+      // Create map centered on appropriate location
       const map = L.map(container, {
         maxBounds: [
           [40.4957, -74.2557], // Southwest coordinates (Staten Island)
@@ -85,10 +113,12 @@ const RoutingMapComponent = ({
         minZoom: 11,
         maxZoom: 18,
         bounceAtZoomLimits: true,
-      }).setView(userLocation, 15);
+      }).setView(mapCenter, 15);
+      
       mapInstanceRef.current = map;
       const mapboxNavigationNightId = "mapbox/navigation-night-v1";
       const mapboxUrl = `https://api.mapbox.com/styles/v1/${mapboxNavigationNightId}/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`;
+      
       // Add tile layer
       L.tileLayer(mapboxUrl, {
         attribution:
@@ -101,93 +131,125 @@ const RoutingMapComponent = ({
         accessToken: mapboxToken,
       }).addTo(map);
 
-      // Create user marker icon
-      const userIcon = L.divIcon({
-        className: "custom-user-marker-icon",
-        html: `
-          <div class="user-location-pulse">
-            <div class="user-location-dot"></div>
+      // Only add user marker if using current location AND the location is valid
+      if (canUseCurrentLocation && userLocation && !waitingForLocation) {
+        addUserMarker(map, userLocation);
+      }
+
+      // Only add locate button if location is valid
+      if (canUseCurrentLocation) {
+        // Add locate button
+        const locateButton = L.DomUtil.create("div", "leaflet-control");
+        locateButton.innerHTML = `
+          <div class="bg-white rounded-md shadow-md p-2 cursor-pointer hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-map-legendtext">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="1"></circle>
+            </svg>
           </div>
-        `,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-      });
+        `;
+        locateButton.style.position = "absolute";
+        locateButton.style.left = "10px";
+        locateButton.style.top = "80px";
+        locateButton.style.zIndex = "499";
 
-      // Add user marker
-      map._userMarker = L.marker(userLocation, {
-        icon: userIcon,
-        zIndexOffset: 499,
-      }).addTo(map);
+        // Add locate button to container
+        container.appendChild(locateButton);
 
-      // Add locate button
-      const locateButton = L.DomUtil.create("div", "leaflet-control");
-      locateButton.innerHTML = `
-        <div class="bg-white rounded-md shadow-md p-2 cursor-pointer hover:bg-gray-100">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-map-legendtext">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="12" r="1"></circle>
-          </svg>
-        </div>
-      `;
-      locateButton.style.position = "absolute";
-      locateButton.style.left = "10px";
-      locateButton.style.top = "80px";
-      locateButton.style.zIndex = "499";
-
-      // Add locate button to container
-      container.appendChild(locateButton);
-
-      // Handle locate button click
-      locateButton.addEventListener("click", (e) => {
-        e.stopPropagation();
-        retryLocation(); // Use our retry location function instead of just centering
-      });
+        // Handle locate button click
+        locateButton.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (fetchUserLocation) {
+            fetchUserLocation(); // Get updated location
+            // Center on user location
+            setTimeout(() => centerMapOnUserLocation(), 300);
+          }
+        });
+      }
 
       // Mark map as initialized
-
       setMapLoaded(true);
       mapInitializedRef.current = true;
       setMapCriticalError(null); // Clear any previous errors
     } catch (error) {
       console.error("Error initializing map:", error);
-
-      // Set critical error for UI display
       setMapCriticalError("Failed to initialize map. Please refresh the page.");
       mapInitializedRef.current = false;
-
-      // Also show a toast notification
       showError(
         "Could not initialize map",
         error.message || "Unknown error initializing map",
         "map_initialization_error"
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLocation, mapboxToken, showError]);
+  }, [mapboxToken, departureCoords, userLocation, canUseCurrentLocation, fetchUserLocation, showError, waitingForLocation]);
+
+  // Function to add user marker with pulsing effect
+  const addUserMarker = (map, location) => {
+    // Create user marker icon with pulsing animation
+    const userIcon = L.divIcon({
+      className: "custom-user-marker-icon",
+      html: `
+        <div class="user-location-pulse" style="z-index: 1000; position: relative;">
+          <div class="user-location-dot" style="background-color: #0078FF; width: 16px; height: 16px; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background-color: rgba(0, 120, 255, 0.3); border-radius: 50%; animation: pulse 1.5s infinite; z-index: 999;"></div>
+        </div>
+      `,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+    });
+
+    // Add user marker
+    map._userMarker = L.marker(location, {
+      icon: userIcon,
+      zIndexOffset: 1010,
+    }).addTo(map);
+  };
+
+  // Update user marker position if location changes
+  useEffect(() => {
+    console.log("User location updated:", userLocation);
+    console.log(!!mapInstanceRef.current, !!userLocation, !!canUseCurrentLocation);
+    if (
+      mapInstanceRef.current && 
+      userLocation && 
+      canUseCurrentLocation
+    ) {
+      console.log("Updating user marker position");
+      if (mapInstanceRef.current._userMarker) {
+        // Update existing marker
+        mapInstanceRef.current._userMarker.setLatLng(userLocation);
+      } else {
+        // Add user marker if it doesn't exist
+        addUserMarker(mapInstanceRef.current, userLocation);
+      }
+    } else if (
+      mapInstanceRef.current && 
+      mapInstanceRef.current._userMarker && 
+      (!canUseCurrentLocation)
+    ) {
+      // Remove marker if not using current location or location not valid
+      console.log("Removing user marker");
+      mapInstanceRef.current.removeLayer(mapInstanceRef.current._userMarker);
+      mapInstanceRef.current._userMarker = null;
+    }
+  }, [userLocation, canUseCurrentLocation]);
+
+  // Center map when location becomes available after initialization
+  useEffect(() => {
+    if (userLocation && canUseCurrentLocation && mapInstanceRef.current) {
+      centerMapOnUserLocation();
+    }
+  }, [userLocation, canUseCurrentLocation]);
 
   // Fetch route when coordinates change
   useEffect(() => {
-    if (mapLoaded && destinationCoords) {
-      // Only proceed if we have a destination
-      if (useCurrentLocation) {
-        // If using current location, we need to wait until userLocation is set
-        if (userLocation) {
-          fetchRouteData(userLocation, destinationCoords);
-        } else {
-          // The userLocation will be set by the geolocation logic elsewhere in the component
-        }
-      } else if (departureCoords) {
-        // Using explicit departure coordinates
-        fetchRouteData(departureCoords, destinationCoords);
-      }
+    if (mapLoaded && departureCoords && destinationCoords) {
+      fetchRouteData(departureCoords, destinationCoords);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     mapLoaded,
     departureCoords,
-    destinationCoords,
-    userLocation,
-    useCurrentLocation,
+    destinationCoords
   ]);
 
   // Function to fetch route data from your Django API
@@ -208,14 +270,12 @@ const RoutingMapComponent = ({
       };
 
       // Make API call
-
       const response = await authAPI.authenticatedPost(
         "/get-route/",
         requestData
       );
 
       // Extract route summary for display
-      // If extractRouteSummary isn't working correctly, let's create the routeInfo manually
       let routeInfo = {};
 
       // Manual parsing of initial route data
@@ -276,7 +336,6 @@ const RoutingMapComponent = ({
       setSuccessfulRoute(true);
     } catch (error) {
       console.error("Error fetching route:", error);
-
       showError(
         "Could not calculate route",
         error.message || "Failed to get route. Please try again.",
@@ -286,6 +345,21 @@ const RoutingMapComponent = ({
       setIsLoadingRoute(false);
     }
   };
+
+  // Cleanup function for map
+  useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+          mapInitializedRef.current = false;
+        } catch (e) {
+          console.warn("Error cleaning up map:", e);
+        }
+      }
+    };
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -297,12 +371,14 @@ const RoutingMapComponent = ({
         <div ref={mapContainerRef} className="w-full h-full" />
 
         {/* Map loading states */}
+        {/* Waiting for initial location */}
+        {waitingForLocation && <MapRenderMsg text="Waiting for your location..." />}
         {/* loading location */}
         {isGettingLocation && <MapRenderMsg text="Getting your location..." />}
         {/* loading route */}
         {isLoadingRoute && <MapRenderMsg text="Calculating Safe Route..." />}
         {/* catch all */}
-        {!isGettingLocation && !mapLoaded && !mapCriticalError && (
+        {!isGettingLocation && !mapLoaded && !mapCriticalError && !waitingForLocation && (
           <MapRenderMsg text="Loading map..." />
         )}
 
@@ -310,7 +386,7 @@ const RoutingMapComponent = ({
         {locationDenied && !isGettingLocation && (
           <div className="absolute top-4 right-4 z-[1000]">
             <button
-              onClick={retryLocation}
+              onClick={fetchUserLocation}
               className="bg-map-pointer text-white px-3 py-2 rounded-md text-sm shadow-md hover:bg-map-pointer2 transition-colors"
             >
               Enable Location Access
@@ -338,7 +414,7 @@ const RoutingMapComponent = ({
         {/* Route information panel */}
         {successfulRoute && (
           <SaveRouteComponent
-            departure={useCurrentLocation ? userLocation : departureCoords}
+            departure={userLocation ? userLocation : departureCoords}
             destination={destinationCoords}
           />
         )}
