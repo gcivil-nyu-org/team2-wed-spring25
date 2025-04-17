@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from map.models import SavedRoute
 from .models import Post, Comment, Like, CommentLike, ReportPost, ReportComment
 from accounts.models import Follow
-from django.db.models import Count, OuterRef, Subquery, IntegerField
+from django.db.models import Count, OuterRef, Subquery, IntegerField, Exists
 import json
 
 User = get_user_model()
@@ -333,6 +333,22 @@ def get_posts(request):
                 )
                 .order_by("-date_created")
             )
+        elif settings_type == "flagged_posts":
+            # show all the posts made by user that have been reported
+            # so find all the posts made by user that have been reported,
+            # then filter the posts and annotate and order by date
+
+            posts = Post.objects.filter(
+                user=user
+            ).annotate(
+                likes_count=Count("likes", distinct=True),
+                comments_count=Count("comments", distinct=True),
+                is_reported=Exists(
+                    ReportPost.objects.filter(post=OuterRef('pk'))
+                )
+            ).filter(
+                is_reported=True
+            ).order_by("-date_created")
 
         # Prepare the response data
         posts_data = []
