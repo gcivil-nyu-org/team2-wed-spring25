@@ -86,7 +86,7 @@ const Message = ({
   });
 
   if (currentUserId === null) {
-    return <Loader />;
+    return;
   }
 
   const messageSettings = [

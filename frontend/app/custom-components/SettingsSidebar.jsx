@@ -76,6 +76,11 @@ const forumItems = [
     url: "/users/settings/forum/reports",
     icon: ClipboardX,
   },
+  {
+    title: "Flagged Posts",
+    url: "/users/settings/forum/flagged_posts",
+    icon: ClipboardX,
+  },
 ];
 
 const SettingsSidebar = () => {
@@ -238,7 +243,11 @@ const SettingsSidebar = () => {
         {/* Menu Sections */}
         {renderMenuGroup("Account", items)}
         {renderMenuGroup("Report History", [
-          { title: "Reports", url: "/users/settings/reportlog", icon: NotebookPen },
+          {
+            title: "Reports",
+            url: "/users/settings/reportlog",
+            icon: NotebookPen,
+          },
         ])}
         {renderMenuGroup("Route Management", routeItems)}
         {renderMenuGroup("Forum History", forumItems)}

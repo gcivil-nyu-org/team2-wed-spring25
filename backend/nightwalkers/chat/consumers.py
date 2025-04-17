@@ -138,22 +138,28 @@ class ChatConsumer(AsyncWebsocketConsumer):
         User = get_user_model()
         from .models import Chat, Message  # Move import here
 
-        recipient = User.objects.get(id=recipient_id)
+        try:
+            recipient = User.objects.get(id=recipient_id)
 
-        # always take the user with smalelr id as user1 and the other as user2
-        if self.user.id < recipient.id:
-            user1 = self.user
-            user2 = recipient
-        else:
-            user1 = recipient
-            user2 = self.user
+            # always take the user with smalelr id as user1 and the other as user2
+            if self.user.id < recipient.id:
+                user1 = self.user
+                user2 = recipient
+            else:
+                user1 = recipient
+                user2 = self.user
 
-        # Get or create chat
+            # Get or create chat
 
-        chat, created = Chat.objects.get_or_create(user1=user1, user2=user2)
+            chat, created = Chat.objects.get_or_create(user1=user1, user2=user2)
 
-        # Create message
-        return Message.objects.create(chat=chat, sender=self.user, content=content)
+            # Create message
+            return Message.objects.create(
+                chat=chat, sender=self.user, content=content, is_deleted="no"
+            )
+        except Exception as e:
+            print(f"Error saving message: {str(e)}")
+            raise e
 
     @database_sync_to_async
     def is_user_online(self, user_id):

@@ -4,6 +4,7 @@ import Loader from "@/components/molecules/Loader/Loader";
 import UserData from "@/components/molecules/UserData/UserData";
 import PostInput from "@/components/molecules/PostInput/PostInput";
 import UserPosts from "@/components/organisms/Forum/UserPosts/UserPosts";
+import CustomLoaderPost from "@/components/molecules/CustomLoaderPost/CustomLoaderPost";
 
 export default function Forums({ settingsType = "" }) {
   const {
@@ -23,8 +24,9 @@ export default function Forums({ settingsType = "" }) {
 
   return (
     <div
-      className={`w-full flex flex-row justify-center items-start py-4 ${settingsType ? "bg-sidebar-bg" : "bg-bg-forum"
-        }`}
+      className={`w-full flex flex-row justify-center items-start py-4 ${
+        settingsType ? "bg-sidebar-bg" : "bg-bg-forum"
+      }`}
     >
       {!settingsType && (
         <div className="flex-col hidden  xsm:flex lg:w-2/6 xl:flex xl:flex-col xl:items-center max-w-[225px] ">
@@ -60,10 +62,11 @@ export default function Forums({ settingsType = "" }) {
         {
           <div
             ref={loaderRef}
-            className={`flex justify-center items-center h-[50vh] ${hasMore ? "visible" : "hidden"
-              }`}
+            className={`flex justify-start items-start h-[50vh] ${
+              hasMore ? "visible" : "hidden"
+            }`}
           >
-            <Loader />
+            <CustomLoaderPost />
           </div>
         }
         {!hasMore && (
@@ -73,8 +76,12 @@ export default function Forums({ settingsType = "" }) {
         )}
       </div>
       {!settingsType && (
-        <div className="bg-white rounded-sm h-1/2 hidden xlg:flex xlg:flex-col xlg:justify-center xlg:items-center w-[225px] max-w-[225px] max-h-[210px]">
-          <h1>Recommendations</h1>
+        <div className="bg-bg-post rounded-sm h-1/2 hidden xlg:flex xlg:flex-col xlg:justify-center xlg:items-center w-[225px] max-w-[225px] max-h-[210px] animate-pulse">
+          {isLoading ? (
+            <div className="bg-gray-600 h-8 rounded"></div>
+          ) : (
+            <h1>Recommendations</h1>
+          )}
         </div>
       )}
     </div>

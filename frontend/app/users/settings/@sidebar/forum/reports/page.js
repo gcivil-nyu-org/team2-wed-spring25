@@ -30,6 +30,12 @@ const ForumSidebar = () => {
         >
           Reported
         </Link>
+        <Link
+          href="/users/settings/forum/flagged_posts"
+          className="px-4 py-2 hover:bg-gray-100"
+        >
+          Flagged Posts
+        </Link>
       </nav>
     </>
   );
