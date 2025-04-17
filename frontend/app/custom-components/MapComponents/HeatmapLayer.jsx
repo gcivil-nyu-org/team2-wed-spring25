@@ -517,7 +517,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
               {showLowCrime && (
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full bg-amber-500 mr-1.5"></div>
-                  <span>Low Crime </span>
+                  <span>Low Crime</span>
                 </div>
               )}
             </div>
