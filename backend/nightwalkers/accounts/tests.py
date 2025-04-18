@@ -766,7 +766,7 @@ class UploadProfilePicViewTest(APITestCase):
         response = self.client.post(self.upload_photo_url, {}, format="multipart")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.json())
-        self.assertEqual(response.json()["error"], "Please select an image file")
+        self.assertEqual(response.json()["error"], "Please select an image file.")
 
     def test_upload_new_photo_invalid_file_type(self):
         """Test uploading a file with an invalid content type."""
