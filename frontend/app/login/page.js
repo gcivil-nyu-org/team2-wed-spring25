@@ -170,7 +170,7 @@ export function LoginContent() {
   // If still checking authentication, show loading indicator
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-map-bg via-map-darkerbg to-map-bg">
         <div className="text-white text-xl">Loading...</div>
       </div>
     );
