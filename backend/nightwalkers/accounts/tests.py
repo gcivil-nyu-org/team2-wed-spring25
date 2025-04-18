@@ -787,7 +787,7 @@ class UploadProfilePicViewTest(APITestCase):
         """Test uploading a file exceeding the maximum allowed size."""
         self.client.force_authenticate(user=self.user)
         large_image = self.generate_test_image(
-            size=(3000, 3000), format="PNG", name="large_test.png"
+            size=(30000, 30000), format="PNG", name="large_test.png"
         )
         response = self.client.post(
             self.upload_photo_url, {"avatar": large_image}, format="multipart"
@@ -814,7 +814,7 @@ class UploadProfilePicViewTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.json())
-        self.assertEqual(response.json()["error"], "Account is managed by google")
+        self.assertEqual(response.json()["error"], "Account is managed by Google")
 
     def test_upload_clears_avatar_url(self):
         """Test that uploading a photo clears the avatar_url."""

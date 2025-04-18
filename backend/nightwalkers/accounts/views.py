@@ -380,7 +380,7 @@ class UploadProfilePic(APIView):
 
         else:
             return Response(
-                {"error": "Please upload a file or provide an avatar URL."},
+                {"error": "Please select an image file."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
