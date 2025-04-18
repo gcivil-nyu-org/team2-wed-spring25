@@ -165,4 +165,58 @@ describe('ProfilePhotoSection', () => {
 
         expect(() => render(<ProfilePhotoSection />)).not.toThrow();
     });
+
+    // test('should upload image, update user, and refresh user details', async () => {
+    //     const mockImageUrl = 'https://cloudinary.com/mock-image-url';
+    //     const mockResponse = { status: 200, data: { avatar_url: mockImageUrl } };
+      
+    //     // Mock the necessary functions
+    //     uploadImage.mockResolvedValue(mockImageUrl);  // Ensure this mock is correct
+    //     authAPI.authenticatedPost.mockResolvedValue(mockResponse);
+      
+    //     // Mock the `useUser` hook
+    //     const mockRefreshUserDetails = jest.fn().mockResolvedValue({});
+    //     useUser.mockReturnValue({
+    //       refreshUserDetails: mockRefreshUserDetails,
+    //       user: { avatar_url: '', first_name: 'John', last_name: 'Doe' },  // Mock user data
+    //     });
+      
+    //     // Render the component
+    //     render(<ProfilePhotoSection />);
+      
+    //     // Debug the rendered component to inspect the file input
+    //     screen.debug();
+      
+    //     // Query the div that acts as the clickable area to trigger the file input
+    //     const profilePictureDiv = screen.getByTestId('profile-photo-div');  // Make sure test ID is correct
+      
+    //     // Simulate clicking the div to trigger the file input
+    //     fireEvent.click(profilePictureDiv);
+      
+    //     // Ensure the file input exists and simulate file selection
+    //     const fileInput = screen.getByTestId('profile-photo-input');  // Ensure test ID is correct
+    //     expect(fileInput).toBeInTheDocument();  // Assert that file input is in the DOM
+      
+    //     // Simulate file selection
+    //     const mockFile = new File(['mock file content'], 'mock-avatar.jpg', { type: 'image/jpeg' });
+    //     fireEvent.change(fileInput, { target: { files: [mockFile] } });
+      
+    //     // Add debug logs to see if fileInput change is triggering
+    //     console.log('File input change simulated:', fileInput.files);
+      
+    //     // Use waitFor to ensure async operations are completed
+    //     await waitFor(() => {
+    //       // Check if the uploadImage function was called with the correct file
+    //       expect(uploadImage).toHaveBeenCalledWith(mockFile);
+      
+    //       // Check if the authenticatedPost function was called with the correct URL
+    //       expect(authAPI.authenticatedPost).toHaveBeenCalledWith('/user/change-profile-picture/', {
+    //         avatar_url: mockImageUrl,
+    //       });
+      
+    //       // Check if the refreshUserDetails function was called
+    //       expect(mockRefreshUserDetails).toHaveBeenCalled();
+    //     });
+    // });          
+
 });
