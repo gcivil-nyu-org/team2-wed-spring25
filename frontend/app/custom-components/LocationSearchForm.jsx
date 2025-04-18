@@ -42,6 +42,14 @@ export default function LocationSearchForm() {
   const [inputsModified, setInputsModified] = useState(false);
   const [sessionToken, setSessionToken] = useState(uuidv4());
   const initialLoadDone = useRef(false);
+  
+  // Track last searched terms for anti-spam and caching
+  const [lastDepartureSearch, setLastDepartureSearch] = useState("");
+  const [lastDestinationSearch, setLastDestinationSearch] = useState("");
+  
+  // Add loading states for the search buttons
+  const [isSearchingDeparture, setIsSearchingDeparture] = useState(false);
+  const [isSearchingDestination, setIsSearchingDestination] = useState(false);
 
   // Create bbox string for MapBox API
   const bboxString = `${NYC_BOUNDS.sw[1]},${NYC_BOUNDS.sw[0]},${NYC_BOUNDS.ne[1]},${NYC_BOUNDS.ne[0]}`;
@@ -73,7 +81,13 @@ export default function LocationSearchForm() {
 
   // Close suggestions when clicking outside
   useEffect(() => {
-    const closeSuggestions = () => {
+    const closeSuggestions = (e) => {
+      // Don't close if the click is on a search button
+      if (e.target.closest('button') && 
+         (e.target.closest('button').id === 'search-departure' || 
+          e.target.closest('button').id === 'search-destination')) {
+        return;
+      }
       setShowDepartureSuggestions(false);
       setShowDestinationSuggestions(false);
     };
@@ -81,10 +95,18 @@ export default function LocationSearchForm() {
     return () => document.removeEventListener("click", closeSuggestions);
   }, []);
 
-  // Fetch location suggestions from Mapbox
-  const fetchSuggestions = async (query, setResults, setShow) => {
+  // Fetch suggestions from Mapbox API
+  const fetchSuggestions = async (query, forDeparture = true) => {
+    // Don't do anything for empty or too short queries
     if (!query || query.length < 3 || !mapboxToken) return;
-
+    
+    // Set the appropriate loading state
+    if (forDeparture) {
+      setIsSearchingDeparture(true);
+    } else {
+      setIsSearchingDestination(true);
+    }
+    
     try {
       const res = await fetch(
         `https://api.mapbox.com/search/searchbox/v1/suggest?q=${encodeURIComponent(
@@ -92,12 +114,28 @@ export default function LocationSearchForm() {
         )}&session_token=${sessionToken}&limit=5&country=US&bbox=${bboxString}&types=poi,address,place&access_token=${mapboxToken}`
       );
       const data = await res.json();
-      if (data.suggestions?.length) {
-        setResults(data.suggestions);
-        setShow(true);
+      
+      // Save this as the last search term
+      if (forDeparture) {
+        setLastDepartureSearch(query);
       } else {
-        setResults([]);
-        setShow(false);
+        setLastDestinationSearch(query);
+      }
+      
+      if (data.suggestions?.length) {
+        if (forDeparture) {
+          setDepartureSuggestions(data.suggestions);
+          setShowDepartureSuggestions(true);
+        } else {
+          setDestinationSuggestions(data.suggestions);
+          setShowDestinationSuggestions(true);
+        }
+      } else {
+        if (forDeparture) {
+          setDepartureSuggestions([]);
+        } else {
+          setDestinationSuggestions([]);
+        }
         showWarning(
           "No locations found",
           `No results found for "${query}" in NYC.`
@@ -105,7 +143,41 @@ export default function LocationSearchForm() {
       }
     } catch (err) {
       showError("Search error", err.message || "Location search failed.");
+    } finally {
+      if (forDeparture) {
+        setIsSearchingDeparture(false);
+      } else {
+        setIsSearchingDestination(false);
+      }
     }
+  };
+
+  // Handle departure search button click
+  const handleDepartureSearch = (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    
+    // If we have cached results for this exact query, just show them
+    if (departure === lastDepartureSearch && departureSuggestions.length > 0) {
+      setShowDepartureSuggestions(true);
+      return;
+    }
+    
+    // Otherwise fetch new results
+    fetchSuggestions(departure, true);
+  };
+  
+  // Handle destination search button click
+  const handleDestinationSearch = (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    
+    // If we have cached results for this exact query, just show them
+    if (destination === lastDestinationSearch && destinationSuggestions.length > 0) {
+      setShowDestinationSuggestions(true);
+      return;
+    }
+    
+    // Otherwise fetch new results
+    fetchSuggestions(destination, false);
   };
 
   // Handle selecting a suggestion from the dropdown
@@ -152,11 +224,13 @@ export default function LocationSearchForm() {
       setUseCurrentLocation(true);
       setDeparture("");
       setDepartureCoords(null);
+      setLastDepartureSearch(""); // Reset last search term
       showSuccess("Using current location");
     } else {
       setUseCurrentLocation(false);
       setDeparture("");
       setDepartureCoords(null);
+      setLastDepartureSearch(""); // Reset last search term
     }
     setInputsModified(true);
   };
@@ -178,7 +252,7 @@ export default function LocationSearchForm() {
       departure,
       departureCoordinates: departureCoords,
       destination,
-      destinationCoordinates: destinationCoords, // Fixed this variable name
+      destinationCoordinates: destinationCoords,
       useCurrentLocation,
     });
     
@@ -266,8 +340,10 @@ export default function LocationSearchForm() {
                   value={departure}
                   onChange={(e) => {
                     setDeparture(e.target.value);
-                    setDepartureCoords(null);
-                    setInputsModified(true);
+                    if (e.target.value !== lastDepartureSearch) {
+                      setDepartureCoords(null);
+                      setInputsModified(true);
+                    }
                   }}
                   disabled={useCurrentLocation}
                   className={`text-map-legendtext flex-1 text-sm md:text-base sm:text-xs ${
@@ -275,19 +351,25 @@ export default function LocationSearchForm() {
                   } p-2 sm:p-1.5`}
                 />
                 <Button
+                  id="search-departure"
                   type="button"
                   variant="outline"
-                  disabled={departure.length < 3 || isGettingLocation || useCurrentLocation}
+                  disabled={departure.length < 3 || isGettingLocation || useCurrentLocation || isSearchingDeparture}
                   className="text-sm md:text-base sm:text-xs p-2 sm:p-1.5 text-map-legendtext"
-                  onClick={() => fetchSuggestions(departure, setDepartureSuggestions, setShowDepartureSuggestions)}
+                  onClick={handleDepartureSearch}
                 >
-                  Search
+                  {isSearchingDeparture ? (
+                    <div className="w-4 h-4 border-2 border-t-transparent border-map-bg rounded-full animate-spin"></div>
+                  ) : "Search"}
                 </Button>
               </div>
 
               {/* Departure suggestions dropdown */}
               {showDepartureSuggestions && departureSuggestions.length > 0 && (
-                <div className="absolute z-[2000] mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden">
+                <div 
+                  className="absolute z-[2000] mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="max-h-60 overflow-auto">
                     {departureSuggestions.map((s) => (
                       <div
@@ -314,25 +396,33 @@ export default function LocationSearchForm() {
                   value={destination}
                   onChange={(e) => {
                     setDestination(e.target.value);
-                    setDestinationCoords(null);
-                    setInputsModified(true);
+                    if (e.target.value !== lastDestinationSearch) {
+                      setDestinationCoords(null);
+                      setInputsModified(true);
+                    }
                   }}
                   className="flex-1 text-map-legendtext text-sm md:text-base sm:text-xs p-2 sm:p-1.5 bg-white"
                 />
                 <Button
+                  id="search-destination"
                   type="button"
                   variant="outline"
-                  disabled={destination.length < 3}
+                  disabled={destination.length < 3 || isSearchingDestination}
                   className="text-sm md:text-base sm:text-xs p-2 sm:p-1.5 text-map-legendtext"
-                  onClick={() => fetchSuggestions(destination, setDestinationSuggestions, setShowDestinationSuggestions)}
+                  onClick={handleDestinationSearch}
                 >
-                  Search
+                  {isSearchingDestination ? (
+                    <div className="w-4 h-4 border-2 border-t-transparent border-map-bg rounded-full animate-spin"></div>
+                  ) : "Search"}
                 </Button>
               </div>
 
               {/* Destination suggestions dropdown */}
               {showDestinationSuggestions && destinationSuggestions.length > 0 && (
-                <div className="absolute z-[2000] mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden">
+                <div 
+                  className="absolute z-[2000] mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="max-h-60 overflow-auto">
                     {destinationSuggestions.map((s) => (
                       <div
