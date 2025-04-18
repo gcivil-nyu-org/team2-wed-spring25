@@ -53,7 +53,6 @@ export function useUserLocationWithNYCCheck() {
             setLocationError("Location permission denied");
         } else {
             setLocationDenied(false);
-            setLocationError(error.message || "Could not access your location");
         }
 
         setIsGettingLocation(false);

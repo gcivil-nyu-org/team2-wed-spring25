@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import L, { map } from "leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import { authAPI } from "@/utils/fetch/fetch";
@@ -14,20 +14,25 @@ import MapRenderMsg from "./MapRenderMsg";
 import RouteInfo from "./RouteInfo";
 import RouteRenderer from "./RouteRender";
 import { ChevronsDown, ChevronsUp } from "lucide-react";
+import { useRoute } from "./RouteContext";
 
 // Default location (Washington Square Park)
 const DEFAULT_LOCATION = [40.7308, -73.9974];
 
-const RoutingMapComponent = ({
-  mapboxToken,
-  departureCoords,
-  destinationCoords,
-  userLocation,
-  canUseCurrentLocation,
-  isGettingLocation,
-  locationDenied,
-  fetchUserLocation,
-}) => {
+const RoutingMapComponent = () => {
+  // Get state from context
+  const {
+    mapboxToken,
+    departureCoords,
+    destinationCoords,
+    userLocation,
+    canUseCurrentLocation,
+    isGettingLocation,
+    locationDenied,
+    fetchUserLocation,
+    routeKey
+  } = useRoute();
+  
   const { showError, showWarning, showSuccess } = useNotification();
   const mapContainerRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -41,6 +46,12 @@ const RoutingMapComponent = ({
   const [successfulRoute, setSuccessfulRoute] = useState(false);
   const [showRouteInfoPanel, setShowRouteInfoPanel] = useState(true);
   const [waitingForLocation, setWaitingForLocation] = useState(isGettingLocation && !userLocation);
+  
+  // Track if route has been calculated for these specific coordinates
+  const previousDepartureRef = useRef(null);
+  const previousDestinationRef = useRef(null);
+  const routeCalculatedRef = useRef(false);
+  const [shouldCalculateRoute, setShouldCalculateRoute] = useState(false);
 
   // Helper function to center map on user location
   const centerMapOnUserLocation = () => {
@@ -52,10 +63,20 @@ const RoutingMapComponent = ({
 
   // Wait for user location if using current location
   useEffect(() => {
-    if (userLocation && canUseCurrentLocation && !waitingForLocation) {
+    if (userLocation && canUseCurrentLocation && waitingForLocation) {
       setWaitingForLocation(false);
     }
   }, [userLocation, canUseCurrentLocation, waitingForLocation]);
+
+  // Reset route calculation state when routeKey changes (meaning user wants a new route)
+  useEffect(() => {
+    if (routeKey) {
+      routeCalculatedRef.current = false;
+      previousDepartureRef.current = null;
+      previousDestinationRef.current = null;
+      setShouldCalculateRoute(true);
+    }
+  }, [routeKey]);
 
   // Initialize map only when we have all necessary data
   useEffect(() => {
@@ -171,6 +192,9 @@ const RoutingMapComponent = ({
       setMapLoaded(true);
       mapInitializedRef.current = true;
       setMapCriticalError(null); // Clear any previous errors
+      
+      // Trigger calculation after map is loaded
+      setShouldCalculateRoute(true);
     } catch (error) {
       console.error("Error initializing map:", error);
       setMapCriticalError("Failed to initialize map. Please refresh the page.");
@@ -207,14 +231,11 @@ const RoutingMapComponent = ({
 
   // Update user marker position if location changes
   useEffect(() => {
-    console.log("User location updated:", userLocation);
-    console.log(!!mapInstanceRef.current, !!userLocation, !!canUseCurrentLocation);
     if (
       mapInstanceRef.current && 
       userLocation && 
       canUseCurrentLocation
     ) {
-      console.log("Updating user marker position");
       if (mapInstanceRef.current._userMarker) {
         // Update existing marker
         mapInstanceRef.current._userMarker.setLatLng(userLocation);
@@ -228,29 +249,45 @@ const RoutingMapComponent = ({
       (!canUseCurrentLocation)
     ) {
       // Remove marker if not using current location or location not valid
-      console.log("Removing user marker");
       mapInstanceRef.current.removeLayer(mapInstanceRef.current._userMarker);
       mapInstanceRef.current._userMarker = null;
     }
   }, [userLocation, canUseCurrentLocation]);
 
-  // Center map when location becomes available after initialization
-  useEffect(() => {
-    if (userLocation && canUseCurrentLocation && mapInstanceRef.current) {
-      centerMapOnUserLocation();
-    }
-  }, [userLocation, canUseCurrentLocation]);
+  // Helper function to check if coordinates have meaningfully changed
+  const areCoordinatesDifferent = (coords1, coords2) => {
+    if (!coords1 || !coords2) return true;
+    
+    // Deep comparison of coordinates
+    return JSON.stringify(coords1) !== JSON.stringify(coords2);
+  };
 
-  // Fetch route when coordinates change
+  // Trigger route calculation
   useEffect(() => {
-    if (mapLoaded && departureCoords && destinationCoords) {
-      fetchRouteData(departureCoords, destinationCoords);
+    if (!mapLoaded || !departureCoords || !destinationCoords || !shouldCalculateRoute) {
+      return;
     }
-  }, [
-    mapLoaded,
-    departureCoords,
-    destinationCoords
-  ]);
+
+    // Check if these are new coordinates or we need to recalculate
+    const departureChanged = areCoordinatesDifferent(departureCoords, previousDepartureRef.current);
+    const destinationChanged = areCoordinatesDifferent(destinationCoords, previousDestinationRef.current);
+    
+    // Only fetch a new route if coordinates have changed or we haven't calculated yet
+    if (!routeCalculatedRef.current || departureChanged || destinationChanged) {
+      // Update references to current coordinates
+      previousDepartureRef.current = [...departureCoords];
+      previousDestinationRef.current = [...destinationCoords];
+      
+      // Calculate the route
+      fetchRouteData(departureCoords, destinationCoords);
+      
+      // Mark that we've calculated for these coordinates
+      routeCalculatedRef.current = true;
+    }
+    
+    // Reset the trigger flag
+    setShouldCalculateRoute(false);
+  }, [mapLoaded, departureCoords, destinationCoords, shouldCalculateRoute]);
 
   // Function to fetch route data from your Django API
   const fetchRouteData = async (departure, destination) => {
@@ -341,6 +378,8 @@ const RoutingMapComponent = ({
         error.message || "Failed to get route. Please try again.",
         "route_fetch_error"
       );
+      // Reset route calculated flag to allow retrying
+      routeCalculatedRef.current = false;
     } finally {
       setIsLoadingRoute(false);
     }
