@@ -47,6 +47,10 @@ export default function LocationSearchForm() {
   const [lastDepartureSearch, setLastDepartureSearch] = useState("");
   const [lastDestinationSearch, setLastDestinationSearch] = useState("");
   
+  // Track invalid searches to prevent spam
+  const [invalidDepartureSearch, setInvalidDepartureSearch] = useState("");
+  const [invalidDestinationSearch, setInvalidDestinationSearch] = useState("");
+  
   // Add loading states for the search buttons
   const [isSearchingDeparture, setIsSearchingDeparture] = useState(false);
   const [isSearchingDestination, setIsSearchingDestination] = useState(false);
@@ -126,15 +130,19 @@ export default function LocationSearchForm() {
         if (forDeparture) {
           setDepartureSuggestions(data.suggestions);
           setShowDepartureSuggestions(true);
+          setInvalidDepartureSearch(""); // Clear invalid flag on success
         } else {
           setDestinationSuggestions(data.suggestions);
           setShowDestinationSuggestions(true);
+          setInvalidDestinationSearch(""); // Clear invalid flag on success
         }
       } else {
         if (forDeparture) {
           setDepartureSuggestions([]);
+          setInvalidDepartureSearch(query); // Mark this query as invalid
         } else {
           setDestinationSuggestions([]);
+          setInvalidDestinationSearch(query); // Mark this query as invalid
         }
         showWarning(
           "No locations found",
@@ -142,6 +150,12 @@ export default function LocationSearchForm() {
         );
       }
     } catch (err) {
+      // Mark this query as invalid on error
+      if (forDeparture) {
+        setInvalidDepartureSearch(query);
+      } else {
+        setInvalidDestinationSearch(query);
+      }
       showError("Search error", err.message || "Location search failed.");
     } finally {
       if (forDeparture) {
@@ -340,6 +354,10 @@ export default function LocationSearchForm() {
                   value={departure}
                   onChange={(e) => {
                     setDeparture(e.target.value);
+                    // Clear invalid flag when input changes
+                    if (e.target.value !== invalidDepartureSearch) {
+                      setInvalidDepartureSearch("");
+                    }
                     if (e.target.value !== lastDepartureSearch) {
                       setDepartureCoords(null);
                       setInputsModified(true);
@@ -354,7 +372,13 @@ export default function LocationSearchForm() {
                   id="search-departure"
                   type="button"
                   variant="outline"
-                  disabled={departure.length < 3 || isGettingLocation || useCurrentLocation || isSearchingDeparture}
+                  disabled={
+                    departure.length < 3 || 
+                    isGettingLocation || 
+                    useCurrentLocation || 
+                    isSearchingDeparture ||
+                    departure === invalidDepartureSearch // Disable if query is known to be invalid
+                  }
                   className="text-sm md:text-base sm:text-xs p-2 sm:p-1.5 text-map-legendtext"
                   onClick={handleDepartureSearch}
                 >
@@ -396,6 +420,10 @@ export default function LocationSearchForm() {
                   value={destination}
                   onChange={(e) => {
                     setDestination(e.target.value);
+                    // Clear invalid flag when input changes
+                    if (e.target.value !== invalidDestinationSearch) {
+                      setInvalidDestinationSearch("");
+                    }
                     if (e.target.value !== lastDestinationSearch) {
                       setDestinationCoords(null);
                       setInputsModified(true);
@@ -407,7 +435,11 @@ export default function LocationSearchForm() {
                   id="search-destination"
                   type="button"
                   variant="outline"
-                  disabled={destination.length < 3 || isSearchingDestination}
+                  disabled={
+                    destination.length < 3 || 
+                    isSearchingDestination ||
+                    destination === invalidDestinationSearch // Disable if query is known to be invalid
+                  }
                   className="text-sm md:text-base sm:text-xs p-2 sm:p-1.5 text-map-legendtext"
                   onClick={handleDestinationSearch}
                 >

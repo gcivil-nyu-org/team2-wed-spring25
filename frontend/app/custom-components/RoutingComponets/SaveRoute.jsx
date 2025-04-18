@@ -86,19 +86,18 @@ export default function SaveRouteComponent({ departure, destination }) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      {/* FIX: Don't use asChild here, use a normal trigger button */}
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="flex items-center bg-map-pointer border-map-bg hover:bg-map-bg hover:text-map-text mt-2"
+          className="flex items-center bg-map-pointer border-none hover:bg-blue-600 hover:text-map-text mt-2"
           type="button"
         >
           <BookmarkPlus size={18} />
           Save This Route
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <Card className="border-0 shadow-none">
+      <PopoverContent className="w-80 p-0 bg-[#1f2937] text-white" align="end">
+        <Card className="border-0 shadow-none bg-[#1f2937] text-white">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-bold">Save Route</CardTitle>
             <CardDescription>
@@ -137,15 +136,20 @@ export default function SaveRouteComponent({ departure, destination }) {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 pt-2">
+              <div className="flex items-center  space-x-2 pt-2">
                 <Button
                   type="button"
-                  variant="outline"
-                  className={`${isFavorite ? 'bg-amber-50 text-amber-600 border-amber-200' : 'text-gray-500'} p-2 h-auto`}
+                  variant="ghost"
                   onClick={() => setIsFavorite(!isFavorite)}
+                  className={`p-2 h-auto rounded-md bg-gray-700 hover:bg-gray-600 border border-gray-600`}
                 >
-                  {isFavorite ? <Star size={16} /> : <StarHalf size={16} />}
+                  {isFavorite ? (
+                    <Star size={16} className="text-amber-400" />
+                  ) : (
+                    <StarHalf size={16} className="text-gray-400" />
+                  )}
                 </Button>
+
                 <span className="text-sm">
                   {isFavorite ? 'Favorite route' : 'Mark as favorite'}
                 </span>

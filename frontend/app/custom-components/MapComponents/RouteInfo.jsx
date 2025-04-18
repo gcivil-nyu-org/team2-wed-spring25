@@ -59,7 +59,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
   // New color scheme constants
   const COLORS = {
     standard: {
-      active: "#4dabf7", // bright blue
+      active: "#3B82F6", // bright blue
       text: "#4dabf7", // bright blue
       hover: "rgba(77, 171, 247, 0.15)", // transparent blue
     },
@@ -90,7 +90,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
               disabled={!hasInitialRoute}
               style={{
                 backgroundColor: activeRoute === "initial" ? COLORS.standard.active : "transparent",
-                color: activeRoute === "initial" ? "#000" : COLORS.standard.text,
+                color: activeRoute === "initial" ? "#f5f5f5" : COLORS.standard.text,
                 border: `1px solid ${COLORS.standard.active}`,
                 boxShadow: activeRoute === "initial" ? "0 1px 3px rgba(0,0,0,0.2)" : "none",
               }}
@@ -104,7 +104,7 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
               disabled={!hasSaferRoute}
               style={{
                 backgroundColor: activeRoute === "safer" ? COLORS.safer.active : "transparent",
-                color: activeRoute === "safer" ? "#000" : COLORS.safer.text,
+                color: activeRoute === "safer" ? "#f5f5f5" : COLORS.safer.text,
                 border: `1px solid ${COLORS.safer.text}`,
                 boxShadow: activeRoute === "safer" ? "0 1px 3px rgba(0,0,0,0.2)" : "none",
               }}

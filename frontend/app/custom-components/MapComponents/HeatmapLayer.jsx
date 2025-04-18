@@ -433,9 +433,9 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   return (
     <>
       {/* Heatmap Control */}
-      <div className="absolute bottom-[60px] left-4 z-[499] bg-white p-2 rounded-md shadow-md flex flex-col gap-2">
+      <div className="absolute bottom-[60px] left-4 z-[499] bg-[#1c2735] text-white p-2 rounded-md shadow-md flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-map-legendtext mr-3">Crime Heatmap</span>
+          <span className="text-sm font-medium text-white mr-3">Crime Heatmap</span>
           
           {isLoading && (
             <span className="text-xs text-gray-500 flex items-center">
@@ -457,15 +457,15 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
         </div>
         
         {/* shadcn-style Toggle Group */}
-        <div className="inline-flex items-center justify-center rounded-md bg-gray-50 p-1 shadow-sm" role="group">
+        <div className="inline-flex items-center justify-center rounded-md p-1 shadow-sm space-x-1" role="group">
           {/* OFF Button */}
           <button
             onClick={handleOffClick}
             disabled={!dataLoaded || !hasData}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 ${
               !showingAny 
-                ? "bg-white text-gray-900 shadow-sm" 
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                ? "bg-black text-white shadow-sm" 
+                : "text-white hover:bg-gray-900 hover:text-white"
             } ${
               (!dataLoaded || !hasData) ? "opacity-50 cursor-not-allowed" : ""
             }`}
@@ -480,7 +480,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 ${
               showLowCrime 
                 ? "bg-amber-500 text-white shadow-sm" 
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                : "text-white hover:bg-amber-700 hover:text-gray-900"
             } ${
               (!dataLoaded || !hasData) ? "opacity-50 cursor-not-allowed" : ""
             }`}
@@ -495,7 +495,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 ${
               showHighCrime 
                 ? "bg-red-600 text-white shadow-sm" 
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                : "text-white hover:bg-red-800 "
             } ${
               (!dataLoaded || !hasData) ? "opacity-50 cursor-not-allowed" : ""
             }`}
@@ -505,7 +505,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
         </div>
         
         {/* Legend - Always present with fixed height */}
-        <div className="h-14 mt-2 text-xs font-medium text-black">
+        <div className="h-14 mt-2 text-xs font-medium text-white">
           {showingAny ? (
             <div className="flex flex-col gap-1">
               {showHighCrime && (
