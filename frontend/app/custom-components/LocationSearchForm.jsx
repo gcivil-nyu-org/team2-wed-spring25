@@ -494,7 +494,7 @@ export default function LocationSearchForm() {
       ) : (
         <div
           onClick={toggleSearchForm}
-          className="absolute top-0 left-1/2 transform -translate-x-1/2 rounded-b-2xl bg-map-pointer2 border border-[#414976] border-t-0"
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 rounded-b-2xl bg-map-pointer border border-[#414976] border-t-0"
         >
           <ChevronsDown className="m-1 hover:text-[#ffffff] cursor-pointer flex items-center justify-center w-[50px]" />
         </div>

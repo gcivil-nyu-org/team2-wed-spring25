@@ -118,7 +118,8 @@ body {
     --map-color: rgb(243, 244, 246); /* gray-100 */
     --legend-text: rgb(68 64 60); /* stone-700 */
     --pulse-color: rgba(7, 143, 197, 0.873); /* violet-500 */
-    --pointer-color: #3B82F6;
+    --pointer-color: #2563EB;
+    --pointer-color-2: #1D4ED8; /* blue-500 */
     --safety-color: rgb(101, 249, 155); /* green-500 */
     --safety-color-2: rgb(29, 215, 97); /* green-500 */
   }

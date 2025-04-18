@@ -162,8 +162,8 @@ const RoutingMapComponent = () => {
         // Add locate button
         const locateButton = L.DomUtil.create("div", "leaflet-control");
         locateButton.innerHTML = `
-          <div class="bg-white rounded-md shadow-md p-2 cursor-pointer hover:bg-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-map-legendtext">
+          <div class="bg-[#1c2735] rounded-md shadow-md p-2 cursor-pointer hover:bg-gray-900">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
               <circle cx="12" cy="12" r="10"></circle>
               <circle cx="12" cy="12" r="1"></circle>
             </svg>

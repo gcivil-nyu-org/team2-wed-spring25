@@ -85,13 +85,10 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              className="h-8 px-3 py-1 transition-all duration-200"
+              className={`h-8 px-3 py-1 transition-all duration-200 border-map-pointer text-white ${activeRoute === "initial" ? "bg-map-pointer hover:bg-map-pointer2 hover:text-white" : "bg-transparent hover:text-white hover:bg-transparent"}`}
               onClick={() => setActiveRoute("initial")}
               disabled={!hasInitialRoute}
               style={{
-                backgroundColor: activeRoute === "initial" ? COLORS.standard.active : "transparent",
-                color: activeRoute === "initial" ? "#f5f5f5" : COLORS.standard.text,
-                border: `1px solid ${COLORS.standard.active}`,
                 boxShadow: activeRoute === "initial" ? "0 1px 3px rgba(0,0,0,0.2)" : "none",
               }}
             >
