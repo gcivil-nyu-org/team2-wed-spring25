@@ -15,7 +15,6 @@ from .views import (
     get_additional_hotspots,
     create_avoid_polygons,
     get_safer_ors_route,
-    HeatmapDataView,
 )
 from .serializers import NYC_BOUNDS, is_within_nyc
 
@@ -732,8 +731,8 @@ class HeatmapDataTestCase(BaseTestCase):
         if len(args) > 1:
             self.assertEqual(args[1][0], 7)  # Check threshold value
         # Or if they were passed as keyword arguments
-        elif 'params' in kwargs:
-            self.assertEqual(kwargs['params'][0], 7)  # Check threshold value
+        elif "params" in kwargs:
+            self.assertEqual(kwargs["params"][0], 7)  # Check threshold value
 
         # Test with default (no type parameter should default to primary)
         mock_cursor_instance.execute.reset_mock()
@@ -766,8 +765,8 @@ class HeatmapDataTestCase(BaseTestCase):
         if len(args) > 1:
             self.assertEqual(args[1][0], 7)  # Check threshold value
         # Or if they were passed as keyword arguments
-        elif 'params' in kwargs:
-            self.assertEqual(kwargs['params'][0], 7)  # Check threshold value
+        elif "params" in kwargs:
+            self.assertEqual(kwargs["params"][0], 7)  # Check threshold value
 
         # Test with type=secondary (string version)
         mock_cursor_instance.execute.reset_mock()
@@ -844,6 +843,7 @@ class HeatmapDataTestCase(BaseTestCase):
         self.assertEqual(data[0]["intensity"], 0.0)
         self.assertEqual(data[1]["intensity"], 0.0)
         self.assertEqual(data[2]["intensity"], 0.0)
+
 
 class RouteSafetyFunctionsTestCase(BaseTestCase):
     """Test cases for the route safety processing functions"""

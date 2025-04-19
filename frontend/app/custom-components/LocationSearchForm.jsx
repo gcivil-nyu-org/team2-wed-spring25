@@ -9,7 +9,7 @@ import { useRoute } from "./MapComponents/RouteContext";
 
 export default function LocationSearchForm() {
   const { showError, showWarning, showSuccess } = useNotification();
-  
+
   // Get what we need from context
   const {
     mapboxToken,
@@ -42,15 +42,15 @@ export default function LocationSearchForm() {
   const [inputsModified, setInputsModified] = useState(false);
   const [sessionToken, setSessionToken] = useState(uuidv4());
   const initialLoadDone = useRef(false);
-  
+
   // Track last searched terms for anti-spam and caching
   const [lastDepartureSearch, setLastDepartureSearch] = useState("");
   const [lastDestinationSearch, setLastDestinationSearch] = useState("");
-  
+
   // Track invalid searches to prevent spam
   const [invalidDepartureSearch, setInvalidDepartureSearch] = useState("");
   const [invalidDestinationSearch, setInvalidDestinationSearch] = useState("");
-  
+
   // Add loading states for the search buttons
   const [isSearchingDeparture, setIsSearchingDeparture] = useState(false);
   const [isSearchingDestination, setIsSearchingDestination] = useState(false);
@@ -87,8 +87,8 @@ export default function LocationSearchForm() {
   useEffect(() => {
     const closeSuggestions = (e) => {
       // Don't close if the click is on a search button
-      if (e.target.closest('button') && 
-         (e.target.closest('button').id === 'search-departure' || 
+      if (e.target.closest('button') &&
+        (e.target.closest('button').id === 'search-departure' ||
           e.target.closest('button').id === 'search-destination')) {
         return;
       }
@@ -103,14 +103,14 @@ export default function LocationSearchForm() {
   const fetchSuggestions = async (query, forDeparture = true) => {
     // Don't do anything for empty or too short queries
     if (!query || query.length < 3 || !mapboxToken) return;
-    
+
     // Set the appropriate loading state
     if (forDeparture) {
       setIsSearchingDeparture(true);
     } else {
       setIsSearchingDestination(true);
     }
-    
+
     try {
       const res = await fetch(
         `https://api.mapbox.com/search/searchbox/v1/suggest?q=${encodeURIComponent(
@@ -118,14 +118,14 @@ export default function LocationSearchForm() {
         )}&session_token=${sessionToken}&limit=5&country=US&bbox=${bboxString}&types=poi,address,place&access_token=${mapboxToken}`
       );
       const data = await res.json();
-      
+
       // Save this as the last search term
       if (forDeparture) {
         setLastDepartureSearch(query);
       } else {
         setLastDestinationSearch(query);
       }
-      
+
       if (data.suggestions?.length) {
         if (forDeparture) {
           setDepartureSuggestions(data.suggestions);
@@ -169,27 +169,27 @@ export default function LocationSearchForm() {
   // Handle departure search button click
   const handleDepartureSearch = (e) => {
     e.stopPropagation(); // Prevent event bubbling
-    
+
     // If we have cached results for this exact query, just show them
     if (departure === lastDepartureSearch && departureSuggestions.length > 0) {
       setShowDepartureSuggestions(true);
       return;
     }
-    
+
     // Otherwise fetch new results
     fetchSuggestions(departure, true);
   };
-  
+
   // Handle destination search button click
   const handleDestinationSearch = (e) => {
     e.stopPropagation(); // Prevent event bubbling
-    
+
     // If we have cached results for this exact query, just show them
     if (destination === lastDestinationSearch && destinationSuggestions.length > 0) {
       setShowDestinationSuggestions(true);
       return;
     }
-    
+
     // Otherwise fetch new results
     fetchSuggestions(destination, false);
   };
@@ -205,7 +205,7 @@ export default function LocationSearchForm() {
       if (!isWithinNYC([lat, lng])) throw new Error("Location outside NYC");
 
       const text = `${suggestion.name}${suggestion.place_formatted ? ", " + suggestion.place_formatted : ""}`;
-      
+
       if (type === "departure") {
         setDeparture(text);
         setDepartureCoords([lat, lng]);
@@ -216,7 +216,7 @@ export default function LocationSearchForm() {
         setDestinationCoords([lat, lng]);
         setShowDestinationSuggestions(false);
       }
-      
+
       setInputsModified(true);
     } catch (err) {
       showWarning(
@@ -252,7 +252,7 @@ export default function LocationSearchForm() {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Validate inputs
     if (!useCurrentLocation && !departureCoords) {
       return setFormError("Please select a departure location from suggestions");
@@ -260,7 +260,7 @@ export default function LocationSearchForm() {
     if (!destinationCoords) {
       return setFormError("Please select a destination from suggestions");
     }
-    
+
     // Submit to context
     handleSearch({
       departure,
@@ -269,7 +269,7 @@ export default function LocationSearchForm() {
       destinationCoordinates: destinationCoords,
       useCurrentLocation,
     });
-    
+
     // Generate a new session token for the next search
     setSessionToken(uuidv4());
   };
@@ -278,14 +278,14 @@ export default function LocationSearchForm() {
   const isButtonDisabled = () => {
     // Already calculated and no changes
     if (routeCalculated && !inputsModified) return true;
-    
+
     // Getting location
     if (isGettingLocation) return true;
-    
+
     // Need valid departure and destination
     if (!destinationCoords) return true;
     if (!useCurrentLocation && !departureCoords) return true;
-    
+
     return false;
   };
 
@@ -304,18 +304,19 @@ export default function LocationSearchForm() {
   return (
     <div className={`transition-all duration-300 ease-in-out ${showLocationSearchForm ? "translate-y-0" : "-translate-y-full"}`}>
       {showLocationSearchForm ? (
-        <form onSubmit={handleSubmit} className="relative pb-5 border-b-[1px] border-b-[#2E4965] p-2">
+        <form onSubmit={handleSubmit} className="relative pb-5 border-b-[1px] border-b-[#2E4965] p-2" role="form">
           {/* Error message */}
           {formError && (
             <div className="p-2 bg-red-50 text-red-700 text-sm rounded border border-red-200">
               {formError}
             </div>
           )}
-          
+
           {/* Toggle button */}
-          <div className="absolute w-[58px] left-1/2 transform -translate-x-1/2 translate-y-1/2 bottom-0 rounded-2xl bg-map-pointer border border-[#414976] flex items-center justify-center">
+          <div className="absolute w-[58px] left-1/2 transform -translate-x-1/2 translate-y-1/2 bottom-0 rounded-2xl bg-map-pointer border border-[#414976] flex items-center justify-center" aria-label="Toggle form visibility"
+            onClick={toggleSearchForm}
+          >
             <ChevronsUp
-              onClick={toggleSearchForm}
               className="m-1 hover:text-[#ffffff] cursor-pointer"
             />
           </div>
@@ -336,7 +337,7 @@ export default function LocationSearchForm() {
               />
             </div>
           )}
-          
+
           <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
             {/* Departure input */}
             <div className="flex-1 space-y-1 relative">
@@ -364,18 +365,17 @@ export default function LocationSearchForm() {
                     }
                   }}
                   disabled={useCurrentLocation}
-                  className={`text-map-legendtext flex-1 text-sm md:text-base sm:text-xs ${
-                    useCurrentLocation ? "bg-gray-100" : "bg-white"
-                  } p-2 sm:p-1.5`}
+                  className={`text-map-legendtext flex-1 text-sm md:text-base sm:text-xs ${useCurrentLocation ? "bg-gray-100" : "bg-white"
+                    } p-2 sm:p-1.5`}
                 />
                 <Button
                   id="search-departure"
                   type="button"
                   variant="outline"
                   disabled={
-                    departure.length < 3 || 
-                    isGettingLocation || 
-                    useCurrentLocation || 
+                    departure.length < 3 ||
+                    isGettingLocation ||
+                    useCurrentLocation ||
                     isSearchingDeparture ||
                     departure === invalidDepartureSearch // Disable if query is known to be invalid
                   }
@@ -390,7 +390,7 @@ export default function LocationSearchForm() {
 
               {/* Departure suggestions dropdown */}
               {showDepartureSuggestions && departureSuggestions.length > 0 && (
-                <div 
+                <div
                   className="absolute z-[2000] mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -436,7 +436,7 @@ export default function LocationSearchForm() {
                   type="button"
                   variant="outline"
                   disabled={
-                    destination.length < 3 || 
+                    destination.length < 3 ||
                     isSearchingDestination ||
                     destination === invalidDestinationSearch // Disable if query is known to be invalid
                   }
@@ -451,7 +451,7 @@ export default function LocationSearchForm() {
 
               {/* Destination suggestions dropdown */}
               {showDestinationSuggestions && destinationSuggestions.length > 0 && (
-                <div 
+                <div
                   className="absolute z-[2000] mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -495,6 +495,7 @@ export default function LocationSearchForm() {
         <div
           onClick={toggleSearchForm}
           className="absolute top-0 left-1/2 transform -translate-x-1/2 rounded-b-2xl bg-map-pointer border border-[#414976] border-t-0"
+          aria-label="Toggle form visibility"
         >
           <ChevronsDown className="m-1 hover:text-[#ffffff] cursor-pointer flex items-center justify-center w-[50px]" />
         </div>

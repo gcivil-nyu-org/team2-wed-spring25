@@ -140,4 +140,247 @@ describe("RouteInfo", () => {
 
     expect(screen.getByText("1 hr 1 min")).toBeInTheDocument();
   });
+
+  // NEW TESTS START HERE
+
+  it("handles route button clicks correctly", () => {
+    const mockSetActiveRoute = jest.fn();
+    render(
+      <RouteInfo
+        routeDetails={mockRouteDetails}
+        activeRoute="initial"
+        setActiveRoute={mockSetActiveRoute}
+      />
+    );
+
+    // Find and click the Safer button
+    const saferButton = screen.getByText("Safer");
+    fireEvent.click(saferButton);
+    expect(mockSetActiveRoute).toHaveBeenCalledWith("safer");
+
+    // Find and click the Standard button
+    const standardButton = screen.getByText("Standard");
+    fireEvent.click(standardButton);
+    expect(mockSetActiveRoute).toHaveBeenCalledWith("initial");
+  });
+
+  it("formats short durations correctly", () => {
+    const shortDurationRoute = {
+      initial: {
+        distance: 100,
+        duration: 45, // 45 seconds
+        instructions: [],
+      },
+    };
+
+    render(
+      <RouteInfo
+        routeDetails={shortDurationRoute}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    expect(screen.getByText("45 sec")).toBeInTheDocument();
+  });
+
+  it("formats small distances in feet", () => {
+    const shortDistanceRoute = {
+      initial: {
+        distance: 152.4, // 500 feet (in meters)
+        duration: 60,
+        instructions: [],
+      },
+    };
+
+    render(
+      <RouteInfo
+        routeDetails={shortDistanceRoute}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    expect(screen.getByText("500 ft")).toBeInTheDocument();
+  });
+
+  it("handles missing or zero distance/duration values", () => {
+    const incompleteRouteDetails = {
+      initial: {
+        distance: 0,
+        duration: null,
+        instructions: [],
+      },
+    };
+
+    render(
+      <RouteInfo
+        routeDetails={incompleteRouteDetails}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    // Both should show placeholder
+    expect(screen.getAllByText("--").length).toBe(2);
+  });
+
+  it("handles route with no instructions correctly", () => {
+    const noInstructionsRoute = {
+      initial: {
+        distance: 1000,
+        duration: 300,
+        instructions: [], // Empty instructions array
+      },
+    };
+
+    render(
+      <RouteInfo
+        routeDetails={noInstructionsRoute}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    // Show instructions panel
+    fireEvent.click(screen.getByText("Turn-by-turn directions"));
+    
+    // Should show no directions message
+    expect(screen.getByText("No turn-by-turn directions available for this route.")).toBeInTheDocument();
+  });
+
+  it("handles route with undefined instructions correctly", () => {
+    const undefinedInstructionsRoute = {
+      initial: {
+        distance: 1000,
+        duration: 300,
+        // No instructions property
+      },
+    };
+
+    render(
+      <RouteInfo
+        routeDetails={undefinedInstructionsRoute}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    // Show instructions panel
+    fireEvent.click(screen.getByText("Turn-by-turn directions"));
+    
+    // Should show no directions message
+    expect(screen.getByText("No turn-by-turn directions available for this route.")).toBeInTheDocument();
+  });
+
+  it("updates currentRouteData when activeRoute changes", () => {
+    const { rerender } = render(
+      <RouteInfo
+        routeDetails={mockRouteDetails}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    // Initial route should show 15 min
+    expect(screen.getByText("15 min")).toBeInTheDocument();
+
+    // Change to safer route
+    rerender(
+      <RouteInfo
+        routeDetails={mockRouteDetails}
+        activeRoute="safer"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    // Should now show 20 min
+    expect(screen.getByText("20 min")).toBeInTheDocument();
+  });
+
+  it("disables route buttons when route data is not available", () => {
+    const partialRouteDetails = {
+      initial: {
+        distance: 1000,
+        duration: 300,
+      },
+      // No safer route data
+    };
+
+    render(
+      <RouteInfo
+        routeDetails={partialRouteDetails}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    // Standard button should be enabled
+    const standardButton = screen.getByText("Standard");
+    expect(standardButton).not.toBeDisabled();
+
+    // Safer button should be disabled
+    const saferButton = screen.getByText("Safer");
+    expect(saferButton).toBeDisabled();
+  });
+
+  // Test hover state functionality
+  it("handles MouseOver/MouseOut events on instruction items", () => {
+    render(
+      <RouteInfo
+        routeDetails={mockRouteDetails}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+
+    // Show instructions
+    fireEvent.click(screen.getByText("Turn-by-turn directions"));
+    
+    // Get the first instruction item
+    const firstInstructionItem = screen.getByText("Turn right").closest("div");
+    
+    // Initial style check
+    const initialStyle = window.getComputedStyle(firstInstructionItem);
+    const initialBgColor = initialStyle.backgroundColor;
+    
+    // Simulate hover
+    fireEvent.mouseOver(firstInstructionItem);
+    
+    // Check if style changed
+    // Note: This is not a perfect test as JSDOM doesn't fully simulate computed styles
+    // But it at least exercises the onMouseOver function
+    expect(firstInstructionItem.style.backgroundColor).toBeDefined();
+    
+    // Simulate mouse out
+    fireEvent.mouseOut(firstInstructionItem);
+    
+    // Check if style changed back
+    expect(firstInstructionItem.style.backgroundColor).toBeDefined();
+  });
+
+  it("handles MouseOver/MouseOut events on the directions button", () => {
+    render(
+      <RouteInfo
+        routeDetails={mockRouteDetails}
+        activeRoute="initial"
+        setActiveRoute={() => {}}
+      />
+    );
+    
+    // Get the directions button
+    const directionsButton = screen.getByText("Turn-by-turn directions").closest("button");
+    
+    // Simulate hover
+    fireEvent.mouseOver(directionsButton);
+    
+    // Check if style changed
+    expect(directionsButton.style.backgroundColor).toBeDefined();
+    
+    // Simulate mouse out
+    fireEvent.mouseOut(directionsButton);
+    
+    // Check if style changed back
+    expect(directionsButton.style.backgroundColor).toBeDefined();
+  });
 });

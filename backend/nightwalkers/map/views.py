@@ -19,6 +19,7 @@ from shapely.ops import transform
 import pyproj
 import json
 
+
 class HeatmapDataView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -30,9 +31,7 @@ class HeatmapDataView(generics.GenericAPIView):
             # Validate data_type parameter
             if data_type not in ["1", "2", "primary", "secondary"]:
                 return Response(
-                    {
-                        "error": "Invalid type parameter"
-                    },
+                    {"error": "Invalid type parameter"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 

@@ -5,7 +5,7 @@ from .views import (
     UpdateSavedRouteAPIView,
     DeleteSavedRouteAPIView,
     RetrieveSavedRoutesListAPIView,
-    HeatmapDataView
+    HeatmapDataView,
 )
 
 urlpatterns = [

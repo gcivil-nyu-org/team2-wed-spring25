@@ -205,6 +205,7 @@ const RoutingMapComponent = () => {
         "map_initialization_error"
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapboxToken, departureCoords, userLocation, canUseCurrentLocation, fetchUserLocation, showError, waitingForLocation]);
 
   // Function to add user marker with pulsing effect
@@ -287,6 +288,7 @@ const RoutingMapComponent = () => {
     
     // Reset the trigger flag
     setShouldCalculateRoute(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapLoaded, departureCoords, destinationCoords, shouldCalculateRoute]);
 
   // Function to fetch route data from your Django API
