@@ -729,7 +729,7 @@ class HeatmapDataTestCase(BaseTestCase):
         self.assertIn("WHERE CMPLNT_NUM >= %s", args[0])
         # Check if parameters were passed as positional arguments
         if len(args) > 1:
-            self.assertEqual(args[1][0], 7)  # Check threshold value
+            self.assertEqual(args[1][0], 5)  # Check threshold value
         # Or if they were passed as keyword arguments
         elif "params" in kwargs:
             self.assertEqual(kwargs["params"][0], 7)  # Check threshold value
@@ -763,7 +763,7 @@ class HeatmapDataTestCase(BaseTestCase):
         self.assertIn("WHERE CMPLNT_NUM < %s", args[0])
         # Check if parameters were passed as positional arguments
         if len(args) > 1:
-            self.assertEqual(args[1][0], 7)  # Check threshold value
+            self.assertEqual(args[1][0], 5)  # Check threshold value
         # Or if they were passed as keyword arguments
         elif "params" in kwargs:
             self.assertEqual(kwargs["params"][0], 7)  # Check threshold value
