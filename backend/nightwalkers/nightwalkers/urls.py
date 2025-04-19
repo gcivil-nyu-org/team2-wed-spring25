@@ -40,6 +40,8 @@ urlpatterns = [
     path("", include("map.urls")),
     path("api/chats/", include("chat.urls")),
     path("chats/", include("chat.urls")),
+    path("api/notifications/", include("notifications.urls")),
+    path("notifications/", include("notifications.urls")),
 ]
 
 if settings.DEBUG:

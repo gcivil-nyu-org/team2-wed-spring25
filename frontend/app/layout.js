@@ -4,6 +4,9 @@ import { NotificationProvider } from "@/app/custom-components/ToastComponent/Not
 import ToastNotifications from "./custom-components/ToastComponent/ToastNotification";
 import { Toaster } from "@/components/ui/sonner";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
+import { useNotifications } from "@/hooks/useNotifications";
+import FCMWrapper from "@/contexts/FCMWrapper";
+import { ToastContainer } from "react-toastify";
 
 export const metadata = {
   title: "Nightwalkers",
@@ -23,7 +26,9 @@ export default function RootLayout({ children }) {
           <WebSocketProvider>
             {/* <WebSocketManager /> */}
             <NotificationProvider>
+              <ToastContainer />
               <ToastNotifications />
+              <FCMWrapper />
               {children}
               <Toaster
                 position="top-right"

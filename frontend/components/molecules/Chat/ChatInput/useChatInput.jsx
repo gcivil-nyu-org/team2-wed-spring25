@@ -105,6 +105,23 @@ export default function useChatInput(
       });
     });
 
+    try {
+      console.log(selectedUser.user);
+
+      await apiPost(`/notifications/send/`, {
+        user_id: selectedUser.user.id,
+        title: "New message",
+        body: "You have a new message from " + selectedUser.user.first_name,
+      });
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      showError(
+        "Failed",
+        "Failed to send notification",
+        "send_notification_error"
+      );
+    }
+
     setMessageContent("");
     handleInput(); // Reset textarea height after sending
     const textarea = textareaRef.current;

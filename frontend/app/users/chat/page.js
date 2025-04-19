@@ -28,10 +28,10 @@ const ChatHome = () => {
         setIsSidebarOpen(true);
       }
     };
-    
+
     // Set initial state
     handleResize();
-    
+
     // Listen for window resize
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);

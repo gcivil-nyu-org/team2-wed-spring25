@@ -48,3 +48,5 @@ test.js
 test.js
 # Nextauth
 /pages/*
+
+service_key.json

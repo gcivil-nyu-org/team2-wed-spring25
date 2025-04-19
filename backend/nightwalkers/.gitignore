@@ -9,3 +9,4 @@ logfile
 **/.DS_Store
 *.crt
 *.xml
+firebase-credentials.json

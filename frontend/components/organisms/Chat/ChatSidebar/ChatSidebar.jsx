@@ -28,14 +28,7 @@ const ChatSidebar = ({
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         {chatUserList.map((chatUser) => {
           const user = chatUser.user;
-          console.log(
-            "chatUser",
-            chatUser,
-            "user",
-            user,
-            "onlineUsers",
-            onlineUsers
-          );
+
           return (
             <div
               key={user.id}
