@@ -50,6 +50,9 @@ class User(AbstractUser):
     is_banned = models.BooleanField(
         default=False, verbose_name="Is the user banned", null=True, blank=True
     )
+    fcm_token = models.TextField(
+        blank=True, null=True, verbose_name="Firebase Cloud Messaging Token"
+    )
 
     # Many-to-Many relationship for followers/following
     following = models.ManyToManyField(

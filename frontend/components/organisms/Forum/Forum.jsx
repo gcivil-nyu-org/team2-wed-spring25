@@ -1,6 +1,5 @@
 "use client";
 import useForum from "@/components/organisms/Forum/useForum";
-import Loader from "@/components/molecules/Loader/Loader";
 import UserData from "@/components/molecules/UserData/UserData";
 import PostInput from "@/components/molecules/PostInput/PostInput";
 import UserPosts from "@/components/organisms/Forum/UserPosts/UserPosts";
@@ -80,7 +79,9 @@ export default function Forums({ settingsType = "" }) {
           {isLoading ? (
             <div className="bg-gray-600 h-8 rounded"></div>
           ) : (
-            <h1>Recommendations</h1>
+            <>
+              <h1 className="text-white">Recommendations</h1>
+            </>
           )}
         </div>
       )}

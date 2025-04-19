@@ -4,6 +4,7 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 import json
 
+
 # Add at the top of consumers.py
 online_users = set()
 typing_users = {}
@@ -105,6 +106,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Check if recipient is online
         is_online = await self.is_user_online(recipient_id)
         # print all above
+
 
         if is_online:
             # Send message directly to recipient
