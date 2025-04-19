@@ -1,12 +1,17 @@
 import formatDateAgo, {
   formatDateAgoShort,
   formatDate,
+  getLastMessageTimeStampAMPM,
+  getLastMessageTimeStamp,
+  isMessageSentWithin2Days,
+  isMessageSentWithin15Mins
 } from "@/utils/datetime";
 
 describe("datetime utils", () => {
   // Mock current date for consistent testing
   const NOW = new Date("2024-03-20T12:00:00Z");
   let originalDate;
+  let originalConsoleLog;
 
   beforeEach(() => {
     originalDate = global.Date;
@@ -18,10 +23,15 @@ describe("datetime utils", () => {
         return NOW;
       }
     };
+    
+    // Mock console.log to prevent test output cluttering
+    originalConsoleLog = console.log;
+    console.log = jest.fn();
   });
 
   afterEach(() => {
     global.Date = originalDate;
+    console.log = originalConsoleLog;
   });
 
   describe("formatDateAgo", () => {
@@ -69,6 +79,7 @@ describe("datetime utils", () => {
       expect(formatDateAgo(oneYear)).toBe("1 year ago");
       expect(formatDateAgo(twoYears)).toBe("2 years ago");
     });
+    
   });
 
   describe("formatDateAgoShort", () => {
@@ -140,5 +151,140 @@ describe("datetime utils", () => {
       expect(formatDateAgo(undefined)).toBe("just now");
       expect(formatDateAgoShort(undefined)).toBe("now");
     });
+  });
+  
+  // NEW TESTS FOR PREVIOUSLY UNTESTED FUNCTIONS
+  
+  describe("getLastMessageTimeStampAMPM", () => {
+    it("formats morning time correctly with AM", () => {
+      const morningTime = new Date("2024-03-20T09:30:00");
+      expect(getLastMessageTimeStampAMPM(morningTime)).toBe("9:30 AM");
+    });
+    
+    it("formats afternoon time correctly with PM", () => {
+      const afternoonTime = new Date("2024-03-20T14:45:00");
+      expect(getLastMessageTimeStampAMPM(afternoonTime)).toBe("2:45 PM");
+    });
+    
+    it("formats midnight correctly as 12 AM", () => {
+      const midnight = new Date("2024-03-20T00:00:00");
+      expect(getLastMessageTimeStampAMPM(midnight)).toBe("12:00 AM");
+    });
+    
+    it("formats noon correctly as 12 PM", () => {
+      const noon = new Date("2024-03-20T12:00:00");
+      expect(getLastMessageTimeStampAMPM(noon)).toBe("12:00 PM");
+    });
+    
+    it("pads minutes with leading zero when needed", () => {
+      const timeWithSingleDigitMinute = new Date("2024-03-20T15:05:00");
+      expect(getLastMessageTimeStampAMPM(timeWithSingleDigitMinute)).toBe("3:05 PM");
+    });
+    
+    it("handles single-digit hour without padding", () => {
+      const timeWithSingleDigitHour = new Date("2024-03-20T05:30:00");
+      expect(getLastMessageTimeStampAMPM(timeWithSingleDigitHour)).toBe("5:30 AM");
+    });
+  });
+  
+  describe("getLastMessageTimeStamp", () => {
+    it("formats today's message with time", () => {
+      // Create a time on the same day as NOW
+      const todayTime = new Date(NOW);
+      todayTime.setHours(9, 30, 0, 0); // 9:30 AM
+      
+      expect(getLastMessageTimeStamp(todayTime)).toBe("9:30 AM");
+    });
+    
+    it("formats a message from yesterday with day of week", () => {
+      // NOW is Wednesday (March 20, 2024)
+      const yesterday = new Date(NOW);
+      yesterday.setDate(NOW.getDate() - 1); // Tuesday
+      
+      expect(getLastMessageTimeStamp(yesterday)).toBe("Tuesday");
+    });
+    
+    it("formats a message from 5 days ago with day of week", () => {
+      const fiveDaysAgo = new Date(NOW);
+      fiveDaysAgo.setDate(NOW.getDate() - 5); // Friday
+      
+      expect(getLastMessageTimeStamp(fiveDaysAgo)).toBe("Friday");
+    });
+    
+    it("formats older messages with date format", () => {
+      const sevenDaysAgo = new Date(NOW);
+      sevenDaysAgo.setDate(NOW.getDate() - 7);
+      
+      const month = sevenDaysAgo.getMonth() + 1;
+      const day = sevenDaysAgo.getDate();
+      const year = sevenDaysAgo.getFullYear();
+      const expected = `${month}/${day}/${year}`;
+      
+      expect(getLastMessageTimeStamp(sevenDaysAgo)).toBe(expected);
+    });
+    
+    it("uses correct time format for AM/PM", () => {
+      // Create times on the same day
+      const morningToday = new Date(NOW);
+      morningToday.setHours(8, 15, 0, 0); // 8:15 AM
+      
+      const eveningToday = new Date(NOW);
+      eveningToday.setHours(20, 45, 0, 0); // 8:45 PM
+      
+      expect(getLastMessageTimeStamp(morningToday)).toBe("8:15 AM");
+      expect(getLastMessageTimeStamp(eveningToday)).toBe("8:45 PM");
+    });
+  });
+  
+  describe("isMessageSentWithin2Days", () => {
+    beforeEach(() => {
+      // Set NOW to a specific date (Wednesday, March 20, 2024 at noon)
+      global.Date = class extends Date {
+        constructor(date) {
+          if (date) {
+            return super(date);
+          }
+          return new originalDate("2024-03-20T12:00:00Z");
+        }
+      };
+    });
+    
+    it("returns true for a message sent today", () => {
+      const todayMessage = new Date("2024-03-20T10:00:00Z");
+      expect(isMessageSentWithin2Days(todayMessage)).toBe(true);
+    });
+    
+    it("returns true for a message sent yesterday", () => {
+      const yesterdayMessage = new Date("2024-03-19T15:30:00Z");
+      expect(isMessageSentWithin2Days(yesterdayMessage)).toBe(true);
+    });
+  
+    
+    it("returns false for a message sent more than 2 days ago", () => {
+      const threeDaysAgo = new Date("2024-03-17T12:00:00Z");
+      expect(isMessageSentWithin2Days(threeDaysAgo)).toBe(false);
+    });
+    
+  });
+  
+  describe("isMessageSentWithin15Mins", () => {
+    it("returns true for a message sent just now", () => {
+      const justNow = new Date(NOW);
+      expect(isMessageSentWithin15Mins(justNow)).toBe(true);
+    });
+    
+    it("returns true for a message sent 10 minutes ago", () => {
+      const tenMinsAgo = new Date(NOW);
+      tenMinsAgo.setMinutes(NOW.getMinutes() - 10);
+      expect(isMessageSentWithin15Mins(tenMinsAgo)).toBe(true);
+    });
+    
+    
+    it("returns false for a message sent more than 15 minutes ago", () => {
+      const sixteenMinsAgo = new Date(NOW);
+      sixteenMinsAgo.setMinutes(NOW.getMinutes() - 16);
+      expect(isMessageSentWithin15Mins(sixteenMinsAgo)).toBe(false);
+    });
+    
   });
 });

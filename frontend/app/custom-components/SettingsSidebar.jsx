@@ -87,14 +87,13 @@ const SettingsSidebar = () => {
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
-
-  // Try to use the user context first
-  let contextUser = null;
-  try {
-    const { user } = useUser();
-    // console.log("User context available:", user);
-    contextUser = user;
-  } catch (error) {
+  
+  const userContext = useUser();
+  
+  const contextUser = userContext?.user || null;
+  
+  // Log if context is not available
+  if (!contextUser) {
     console.log("User context not available, falling back to localStorage");
   }
 
@@ -142,8 +141,49 @@ const SettingsSidebar = () => {
   const displayName =
     `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown User";
 
-  // Get avatar URL with fallbacks
-  const avatarUrl = user.avatar || user.avatar_url || null;
+  // Get avatar URL with proper fallbacks - handle Google profile URLs specially
+  let avatarUrl = null;
+  
+  // Debug what avatar values are available
+  console.log("Avatar data:", {
+    contextAvatar: user.avatar,
+    contextAvatarUrl: user.avatar_url,
+    userObject: user
+  });
+  
+  // Check if it's a Google avatar URL
+  const isGoogleAvatar = (url) => {
+    return url && typeof url === 'string' && url.includes('googleusercontent.com');
+  };
+  
+  // First try the direct avatar properties
+  if (user.avatar && typeof user.avatar === 'string') {
+    avatarUrl = user.avatar;
+  } else if (user.avatar_url && typeof user.avatar_url === 'string') {
+    avatarUrl = user.avatar_url;
+  } 
+  // If we have no avatar yet, and we're using localStorage user
+  else if (!contextUser && typeof window !== "undefined") {
+    // Try to extract avatar from localStorage user if needed
+    try {
+      const localUser = JSON.parse(localStorage.getItem("user"));
+      if (localUser && localUser.avatar) {
+        avatarUrl = localUser.avatar;
+      } else if (localUser && localUser.avatar_url) {
+        avatarUrl = localUser.avatar_url;
+      }
+    } catch (error) {
+      console.error("Error parsing user avatar from localStorage", error);
+    }
+  }
+  
+  // For Google profile pictures, ensure they work by adding parameters
+  if (isGoogleAvatar(avatarUrl)) {
+    // Add a cache-busting parameter to force reload
+    avatarUrl = `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
+  }
+  
+  console.log("Final avatar URL:", avatarUrl);
 
   const renderMenuGroup = (label, menuItems) => (
     <SidebarGroup>
@@ -217,9 +257,18 @@ const SettingsSidebar = () => {
                   <AvatarImage
                     src={avatarUrl}
                     alt={displayName}
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
                     onError={(e) => {
                       console.error("Avatar image failed to load", e);
+                      console.log("Failed avatar URL:", avatarUrl);
+                      // Hide the image and show fallback
                       e.target.style.display = "none";
+                      // Try to find the parent Avatar element and add a class
+                      const avatarParent = e.target.closest(".h-14");
+                      if (avatarParent) {
+                        avatarParent.classList.add("avatar-fallback-active");
+                      }
                     }}
                   />
                 ) : (

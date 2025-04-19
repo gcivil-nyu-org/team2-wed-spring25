@@ -77,6 +77,7 @@ const Message = ({
 
       setSettingsDivDirection(direction);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSettingsOpen]);
   const settingsClasses = clsx("absolute z-10 chatBackgroundDark w-40", {
     "top-6": settingsDivDirection === "left-bottom",
@@ -290,9 +291,8 @@ const Message = ({
               <div ref={settingsRef} className={`${settingsClasses}`}>
                 <ul className="my-2 w-full overflow-auto">
                   {messageSettings.map((setting) => (
-                    <li className="w-full">
+                    <li className="w-full" key={setting.id}>
                       <button
-                        key={setting.id}
                         className="text-sm text-left w-full text-forum-heading chatHoverDark px-6 py-3"
                         onClick={setting.onClick}
                       >

@@ -186,9 +186,14 @@ const SavedRoutesList = ({ homepage }) => {
   useEffect(() => {
     fetchRoutes();
     
+    // Store this for cleanup to avoid the React hooks warning
+    // We need to capture timeoutRefs.current here, at effect execution time
+    const currentTimeoutsRef = timeoutRefs;
+    
     // Clean up all timeouts when component unmounts
     return () => {
-      Object.values(timeoutRefs.current).forEach(timeoutId => {
+      // Use the captured ref, not the potentially changed timeoutRefs.current
+      Object.values(currentTimeoutsRef.current).forEach(timeoutId => {
         clearTimeout(timeoutId);
       });
     };
