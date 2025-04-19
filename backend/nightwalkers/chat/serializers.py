@@ -11,7 +11,15 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ["id", "sender", "sender_id", "content", "timestamp", "read"]
+        fields = [
+            "id",
+            "sender",
+            "sender_id",
+            "content",
+            "timestamp",
+            "read",
+            "is_deleted",
+        ]
 
     def get_sender_id(self, obj):
         return obj.sender.id  # Directly access the sender's ID

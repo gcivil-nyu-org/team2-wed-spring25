@@ -3,7 +3,14 @@ import EmojiPicker from "emoji-picker-react";
 import Image from "next/image";
 import useChatInput from "./useChatInput";
 
-const ChatInput = ({ selectedUser, setChatUserList }) => {
+const ChatInput = ({
+  selectedUser,
+  setChatUserList,
+  isEdit = false,
+  messageId = "",
+  initialContent = "",
+  closeEditDialog = () => {},
+}) => {
   const {
     messageContent,
     setMessageContent,
@@ -21,7 +28,14 @@ const ChatInput = ({ selectedUser, setChatUserList }) => {
     typingTimeoutRef,
     handleTypingActivity,
     handleUserTyping,
-  } = useChatInput(selectedUser, setChatUserList);
+  } = useChatInput(
+    selectedUser,
+    setChatUserList,
+    isEdit,
+    messageId,
+    initialContent,
+    closeEditDialog
+  );
   return (
     <div className="flex border-t-2 border-gray-700">
       <div className="bg-gray-600 flex-1 flex rounded-lg m-2 relative">
