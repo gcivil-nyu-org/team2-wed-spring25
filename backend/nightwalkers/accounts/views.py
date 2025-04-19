@@ -334,9 +334,10 @@ class ChangeUserNamesView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 class ChangeFCMTokenView(APIView):
     authentication_classes = []  # Disable all authentication
-    permission_classes = []      # Disable all permission checks
+    permission_classes = []  # Disable all permission checks
 
     def post(self, request):
         try:

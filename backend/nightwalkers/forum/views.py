@@ -781,7 +781,12 @@ def follow_unfollow_user(request, user_id):
                 user_id=post_user.id,
                 title="New Follower",
                 body=f"{main_user.first_name} has followed you!",
-                data={"url": "/messages/123", "type": "follow", "title": "New Follower", "body": f"{main_user.first_name} has followed you!"},
+                data={
+                    "url": "/messages/123",
+                    "type": "follow",
+                    "title": "New Follower",
+                    "body": f"{main_user.first_name} has followed you!",
+                },
             )
 
         if follow:
@@ -940,13 +945,16 @@ def report_post(request, post_id):
         post_owner.karma -= 10
         post_owner.save()
 
-
-
         notification_service.send_to_user(
             user_id=post_owner.id,
             title="Post Reported",
-            body=f"People are reporting your posts",
-            data={"url": "/messages/123", "type": "report", "title": "Post Reported", "body": "People are reporting your post"},
+            body="People are reporting your posts",
+            data={
+                "url": "/messages/123",
+                "type": "report",
+                "title": "Post Reported",
+                "body": "People are reporting your post",
+            },
         )
 
         # Deduct karma from the repost user (if applicable)

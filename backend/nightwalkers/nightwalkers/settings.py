@@ -102,7 +102,7 @@ INSTALLED_APPS = [
     "map",
     "channels",
     "chat",
-    'notifications',
+    "notifications",
 ]
 
 
@@ -244,4 +244,4 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Firebase settings
-FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'firebase-credentials.json')
+FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, "firebase-credentials.json")

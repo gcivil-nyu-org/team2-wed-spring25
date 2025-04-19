@@ -107,7 +107,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         is_online = await self.is_user_online(recipient_id)
         # print all above
 
-
         if is_online:
             # Send message directly to recipient
             await self.channel_layer.group_send(
