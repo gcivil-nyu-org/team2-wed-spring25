@@ -365,6 +365,8 @@ class ChangeFCMTokenView(APIView):
                 {"error": f"An error occurred: {str(e)}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
 class UploadProfilePic(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]  # Support file and JSON
