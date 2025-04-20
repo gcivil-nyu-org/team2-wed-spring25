@@ -96,6 +96,12 @@ const config = {
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
+    // Update SVG mapping to handle the specific path
+    "\\.(svg)$": "<rootDir>/__tests__/mocks/svgMock.js",
+    // Add specific mappings for your icon SVGs
+    "^@/public/icons/(.*)$": "<rootDir>/__tests__/mocks/svgMock.js",
+    "\\.svg$": "<rootDir>/__tests__/mocks/svgMock.js",
+    "./([^/]+)\\.svg$": "<rootDir>/__tests__/mocks/svgMock.js",
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -167,9 +173,11 @@ const config = {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  // testPathIgnorePatterns: [
-  //   "/node_modules/"
-  // ],
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "/.next/",
+    "/__tests__/mocks/",
+  ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],

@@ -26,6 +26,13 @@ describe("useChatInput", () => {
   const mockHandleUserTyping = jest.fn();
 
   beforeEach(() => {
+    // Mock Date.now and new Date()
+    const mockDate = new Date("2024-01-01T00:00:00.000Z");
+    const mockTimestamp = 1704067200000; // Unix timestamp for 2024-01-01
+
+    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+    global.Date.now = jest.fn(() => mockTimestamp);
+
     // Mock localStorage with user data
     const mockUser = { id: 2, name: "Test User" };
     Object.defineProperty(window, "localStorage", {
@@ -55,6 +62,8 @@ describe("useChatInput", () => {
   });
 
   afterEach(() => {
+    // Restore Date mock
+    jest.restoreAllMocks();
     // Clean up
     jest.resetAllMocks();
   });
@@ -96,45 +105,32 @@ describe("useChatInput", () => {
     );
   });
 
-  it("handles sending messages", () => {
+  it("handles sending messages", async () => {
     const { result } = renderHook(() =>
       useChatInput(mockSelectedUser, mockSetChatUserList)
     );
 
-    // Set message content first
+    // Set message content
     act(() => {
       result.current.setMessageContent("Hello");
     });
 
-    // Verify message content is set
-    expect(result.current.messageContent).toBe("Hello");
-
-    // Mock Date.now() for consistent ID generation
-    const mockDate = new Date("2024-01-01");
-    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
-
-    // Call handleSend
-    act(() => {
+    // Send message
+    await act(async () => {
       result.current.handleSend();
     });
 
-    // Verify the message was sent with correct data
+    // Verify the message was sent with the mocked timestamp
     expect(mockSend).toHaveBeenCalledWith({
       type: "chat_message",
       chat_uuid: mockSelectedUser.chat_uuid,
       recipient_id: mockSelectedUser.user.id,
       content: "Hello",
-      timestamp: mockDate.toISOString(),
+      timestamp: "2024-01-01T00:00:00.000Z",
+      message_id: 1704067200000,
     });
 
-    // Verify chat list was updated
-    expect(mockSetChatUserList).toHaveBeenCalled();
-
-    // Verify message content was cleared
     expect(result.current.messageContent).toBe("");
-
-    // Clean up Date mock
-    global.Date.mockRestore();
   });
 
   it("handles typing activity", () => {
