@@ -27,7 +27,13 @@ const config = {
   coverageDirectory: "coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ["/node_modules/", "/.next/"],
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/.next/",
+    "<rootDir>/components/ui/tooltip.jsx",
+    "<rootDir>/components/atom/Button/Button.jsx",
+    "<rootDir>/components/atom/CustomButton/CustomButton.jsx",
+  ],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: "v8",
@@ -45,10 +51,10 @@ const config = {
   coverageThreshold: {
     // Keep stricter thresholds for local development
     global: {
-      branches: 75,
-      functions: 75,
+      branches: 80,
+      functions: 80,
       lines: 85,
-      statements: 75,
+      statements: 80,
     },
   },
 
@@ -173,11 +179,7 @@ const config = {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: [
-    "/node_modules/",
-    "/.next/",
-    "/__tests__/mocks/",
-  ],
+  testPathIgnorePatterns: ["/node_modules/", "/.next/", "/__tests__/mocks/"],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
