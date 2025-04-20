@@ -3,6 +3,7 @@ import ChatMessage from "@/components/molecules/Chat/ChatMessage/ChatMessage";
 import ChatInput from "@/components/molecules/Chat/ChatInput/ChatInput";
 import useChatUser from "./useChatUser";
 import { ChevronLeft } from "lucide-react";
+import Image from "next/image";
 
 const ChatUser = ({
   selectedUser,
@@ -76,7 +77,7 @@ const ChatUser = ({
           })}
         {listOfUsersTyping.includes(selectedUser.user.id.toString()) && (
           <div className="ml-4">
-            <img
+            <Image
               src="/icons/typing-animation.gif"
               alt="typing animation"
               width={60}

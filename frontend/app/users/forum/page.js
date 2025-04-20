@@ -34,6 +34,7 @@ export default function ForumPage() {
     };
 
     checkAndConnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <Forums />;

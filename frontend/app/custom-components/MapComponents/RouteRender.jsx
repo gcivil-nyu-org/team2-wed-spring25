@@ -167,21 +167,21 @@ const RouteRenderer = ({
 
         const div = L.DomUtil.create(
           "div",
-          "bg-white shadow-md rounded-md p-2",
+          "bg-[#1c2735] text-white shadow-md rounded-md p-2",
           wrapper
         );
         div.innerHTML = `
-          <div class="text-sm font-medium text-map-legendtext">Routes</div>
+          <div class="text-sm font-medium text-white">Routes</div>
           <div class="flex items-center mt-1">
             <div class="w-4 h-1" style="background-color: ${INITIAL_ROUTE_COLOR}; margin-right: 0.5rem;"></div>
-            <div class="text-xs text-map-legendtext">Standard Route</div>
+            <div class="text-xs text-white">Standard Route</div>
           </div>
           ${
             saferRouteCoords
               ? `
           <div class="flex items-center mt-1">
             <div class="w-4 h-1" style="background-color: ${SAFER_ROUTE_COLOR}; margin-right: 0.5rem;"></div>
-            <div class="text-xs text-map-legendtext">Safer Route</div>
+            <div class="text-xs text-white">Safer Route</div>
           </div>
           `
               : ""
