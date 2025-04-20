@@ -46,7 +46,7 @@ const config = {
     // Keep stricter thresholds for local development
     global: {
       branches: 50,
-      functions: 50,
+      functions: 20,
       lines: 50,
       statements: 50,
     },

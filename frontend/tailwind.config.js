@@ -56,7 +56,7 @@ module.exports = {
           safety: "var(--safety-color)",
           safety2: "var(--safety-color-2)",
           pointer: "var(--pointer-color)",
-          pointer2: "var(--pulse-color)",
+          pointer2: "var(--pointer-color-2)",
         },
         settingheader: {
           headerheight: "var(--header-height)",
