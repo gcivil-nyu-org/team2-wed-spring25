@@ -15,7 +15,6 @@ from .views import (
     get_additional_hotspots,
     create_avoid_polygons,
     get_safer_ors_route,
-    heatmap_data,
 )
 from .serializers import NYC_BOUNDS, is_within_nyc
 
@@ -667,7 +666,7 @@ class RouteViewAPITestCase(BaseTestCase):
 
 
 class HeatmapDataTestCase(BaseTestCase):
-    """Test cases for the heatmap_data function"""
+    """Test cases for the HeatmapDataView"""
 
     def setUp(self):
         super().setUp()
@@ -680,17 +679,39 @@ class HeatmapDataTestCase(BaseTestCase):
             (40.7431, -73.9712, None),
         ]
 
+    def authenticate(self):
+        """Helper method to authenticate the client"""
+        self.api_client.force_authenticate(user=self.user1)
+
     @patch("django.db.connection.cursor")
-    def test_heatmap_data_success(self, mock_cursor):
-        """Test successful retrieval of heatmap data"""
+    def test_authentication_required(self, mock_cursor):
+        """Test that authentication is required for accessing the endpoint"""
+        # Unauthenticated request should be rejected
+        response = self.api_client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Authenticate and try again
+        self.authenticate()
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = self.mock_data
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.api_client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @patch("django.db.connection.cursor")
+    def test_primary_data_retrieval(self, mock_cursor):
+        """Test retrieval of primary heatmap data (type=1)"""
+        self.authenticate()
+
         # Mock the cursor's fetchall method to return our sample data
         mock_cursor_instance = MagicMock()
         mock_cursor_instance.fetchall.return_value = self.mock_data
         mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
 
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
+        # Test with explicitly setting type=1
+        response = self.api_client.get(f"{self.url}?type=1")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = json.loads(response.content)
         self.assertEqual(len(data), 3)
 
@@ -702,43 +723,106 @@ class HeatmapDataTestCase(BaseTestCase):
         # Verify that None is handled properly
         self.assertEqual(data[2]["intensity"], 0.0)
 
-        # Verify that the SQL query was executed
+        # Verify that the SQL query was executed with the correct WHERE clause
         self.assertTrue(mock_cursor_instance.execute.called)
-        # Check that the expected SQL query was used
-        args, _ = mock_cursor_instance.execute.call_args
-        self.assertIn("SELECT ST_Y(wkb_geometry) AS latitude", args[0])
-        self.assertIn("ST_X(wkb_geometry) AS longitude", args[0])
-        self.assertIn("FROM filtered_grouped_data_centroid", args[0])
+        args, kwargs = mock_cursor_instance.execute.call_args
+        self.assertIn("WHERE CMPLNT_NUM >= %s", args[0])
+        # Check if parameters were passed as positional arguments
+        if len(args) > 1:
+            self.assertEqual(args[1][0], 5)  # Check threshold value
+        # Or if they were passed as keyword arguments
+        elif "params" in kwargs:
+            self.assertEqual(kwargs["params"][0], 7)  # Check threshold value
+
+        # Test with default (no type parameter should default to primary)
+        mock_cursor_instance.execute.reset_mock()
+        response = self.api_client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        args, kwargs = mock_cursor_instance.execute.call_args
+        self.assertIn("WHERE CMPLNT_NUM >= %s", args[0])
+
+    @patch("django.db.connection.cursor")
+    def test_secondary_data_retrieval(self, mock_cursor):
+        """Test retrieval of secondary heatmap data (type=2)"""
+        self.authenticate()
+
+        # Mock the cursor's fetchall method to return our sample data
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = self.mock_data
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        # Test with type=2
+        response = self.api_client.get(f"{self.url}?type=2")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 3)
+
+        # Verify that the SQL query was executed with the correct WHERE clause
+        self.assertTrue(mock_cursor_instance.execute.called)
+        args, kwargs = mock_cursor_instance.execute.call_args
+        self.assertIn("WHERE CMPLNT_NUM < %s", args[0])
+        # Check if parameters were passed as positional arguments
+        if len(args) > 1:
+            self.assertEqual(args[1][0], 5)  # Check threshold value
+        # Or if they were passed as keyword arguments
+        elif "params" in kwargs:
+            self.assertEqual(kwargs["params"][0], 7)  # Check threshold value
+
+        # Test with type=secondary (string version)
+        mock_cursor_instance.execute.reset_mock()
+        response = self.api_client.get(f"{self.url}?type=secondary")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        args, kwargs = mock_cursor_instance.execute.call_args
+        self.assertIn("WHERE CMPLNT_NUM < %s", args[0])
+
+    @patch("django.db.connection.cursor")
+    def test_invalid_type_parameter(self, mock_cursor):
+        """Test handling of invalid type parameter"""
+        self.authenticate()
+
+        response = self.api_client.get(f"{self.url}?type=invalid")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = json.loads(response.content)
+        self.assertIn("error", data)
+
+        # Verify that no database query was executed
+        mock_cursor.assert_not_called()
 
     @patch("django.db.connection.cursor")
     def test_heatmap_data_db_error(self, mock_cursor):
         """Test handling of database errors"""
+        self.authenticate()
+
         # Mock the cursor to raise an exception
         mock_cursor.return_value.__enter__.side_effect = Exception("Database error")
 
-        response = self.client.get(self.url)
+        response = self.api_client.get(self.url)
 
-        self.assertEqual(response.status_code, 200)  # Even on error, returns 200
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         data = json.loads(response.content)
         self.assertEqual(data, [])  # Empty list on error
 
     @patch("django.db.connection.cursor")
     def test_heatmap_data_empty_result(self, mock_cursor):
         """Test handling of empty database results"""
+        self.authenticate()
+
         # Mock the cursor to return an empty result
         mock_cursor_instance = MagicMock()
         mock_cursor_instance.fetchall.return_value = []
         mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
 
-        response = self.client.get(self.url)
+        response = self.api_client.get(self.url)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = json.loads(response.content)
         self.assertEqual(data, [])
 
     @patch("django.db.connection.cursor")
     def test_heatmap_data_invalid_value_handling(self, mock_cursor):
         """Test handling of invalid values in the database results"""
+        self.authenticate()
+
         # Mock cursor to return data with invalid values
         mock_cursor_instance = MagicMock()
         mock_cursor_instance.fetchall.return_value = [
@@ -748,9 +832,9 @@ class HeatmapDataTestCase(BaseTestCase):
         ]
         mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
 
-        response = self.client.get(self.url)
+        response = self.api_client.get(self.url)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = json.loads(response.content)
         self.assertEqual(len(data), 3)
 
@@ -759,32 +843,6 @@ class HeatmapDataTestCase(BaseTestCase):
         self.assertEqual(data[0]["intensity"], 0.0)
         self.assertEqual(data[1]["intensity"], 0.0)
         self.assertEqual(data[2]["intensity"], 0.0)
-
-    @patch("django.db.connection.cursor")
-    def test_heatmap_data_direct_function_call(self, mock_cursor):
-        """Test direct call to heatmap_data function"""
-        # Mock the cursor's fetchall method
-        mock_cursor_instance = MagicMock()
-        mock_cursor_instance.fetchall.return_value = self.mock_data
-        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
-
-        # Create a mock request
-        mock_request = MagicMock()
-
-        # Call the function directly
-        response = heatmap_data(mock_request)
-
-        # Check the response
-        self.assertEqual(response.status_code, 200)
-
-        # Parse the JSON
-        data = json.loads(response.content)
-        self.assertEqual(len(data), 3)
-
-        # Verify data structure
-        self.assertIn("latitude", data[0])
-        self.assertIn("longitude", data[0])
-        self.assertIn("intensity", data[0])
 
 
 class RouteSafetyFunctionsTestCase(BaseTestCase):
@@ -883,7 +941,7 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
 
     def test_create_avoid_polygons(self):
         """Test the create_avoid_polygons function"""
-        result = create_avoid_polygons(self.mock_hotspots, radius=0.1)
+        result = create_avoid_polygons(self.mock_hotspots, base_radius=0.1)
 
         self.assertIsInstance(result, MultiPolygon)
         self.assertEqual(len(result.geoms), 2)
@@ -942,9 +1000,9 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
             }
         ]
 
-        # Get the results from our function
-        low_result = create_avoid_polygons(low_complaint_hotspots, radius=0.1)
-        high_result = create_avoid_polygons(high_complaint_hotspots, radius=0.1)
+        # Get the results from our function - changed 'radius' to 'base_radius'
+        low_result = create_avoid_polygons(low_complaint_hotspots, base_radius=0.1)
+        high_result = create_avoid_polygons(high_complaint_hotspots, base_radius=0.1)
 
         self.assertIsInstance(low_result, MultiPolygon)
         self.assertIsInstance(high_result, MultiPolygon)
@@ -1010,17 +1068,8 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         mock_response = MagicMock()
         mock_response.ok = False
         mock_response.status_code = 413
-
-        # Create a successful response for the second call with reduced polygons
-        mock_success_response = MagicMock()
-        mock_success_response.ok = True
-        mock_success_response.json.return_value = {
-            "routes": [{"geometry": "reduced_polygons_route"}]
-        }
-
-        # Set up mock to return error response first, then success response
-        mock_post.side_effect = [mock_response, mock_success_response]
-
+        mock_response.text = """{"error":{"message":"Payload too large"}}"""
+        mock_post.return_value = mock_response
         # Create polygons with more than 5 elements
         avoid_polygons = MultiPolygon(
             [
@@ -1083,10 +1132,11 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
 
         result = get_safer_ors_route(self.departure, self.destination, avoid_polygons)
 
-        self.assertEqual(result["routes"][0]["geometry"], "reduced_polygons_route")
+        self.assertIn("error", result)
+        self.assertIn("413", result["error"])
 
-        # Verify that it was called twice, first with all polygons, then with reduced
-        self.assertEqual(mock_post.call_count, 2)
+        # Verify only one request was made (no fallback attempt)
+        self.assertEqual(mock_post.call_count, 1)
 
     @patch("polyline.decode")
     @patch("django.db.connection.cursor")
@@ -1263,6 +1313,270 @@ class RouteSafetyFunctionsTestCase(BaseTestCase):
         # Check if get_safer_ors_route was called with None for avoid_polygons
         args, kwargs = mock_get_safer.call_args
         self.assertIsNone(args[2])  # Third argument is avoid_polygons
+
+    def test_process_route_phase2_fallback(self):
+        """Test process_route_with_crime_data fallback to Phase 1 when Phase 2 fails"""
+        # Mock polyline decode to return coordinates
+        with patch("polyline.decode") as mock_polyline_decode:
+            mock_polyline_decode.return_value = [
+                [-74.0060, 40.7128],
+                [-118.2437, 34.0522],
+            ]
+
+            # Mock cursor for crime data - for phase 1 and phase 2 hotspots
+            with patch("django.db.connection.cursor") as mock_cursor:
+                mock_cursor_instance = MagicMock()
+                # Phase 1 hotspots
+                mock_cursor_instance.fetchall.side_effect = [
+                    [
+                        (40.7200, -74.0100, 15, 0.01),
+                        (40.7300, -74.0200, 20, 0.02),
+                    ],
+                    # Phase 2 hotspots
+                    [
+                        (40.7400, -74.0300, 12, 0.03),
+                        (40.7500, -74.0400, 18, 0.04),
+                    ],
+                ]
+                mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+                # Mock ORS responses - success for phase 1, error for phase 2
+                with patch("requests.post") as mock_post:
+                    # Phase 1 successful response
+                    phase1_response = MagicMock()
+                    phase1_response.ok = True
+                    phase1_response.json.return_value = {
+                        "routes": [{"geometry": "phase1_route_polyline"}]
+                    }
+
+                    # Phase 2 error response
+                    phase2_response = MagicMock()
+                    phase2_response.ok = False
+                    phase2_response.status_code = 404
+                    phase2_response.text = """{"error":{
+                        "code":2009,
+                        "message":"Route could not be found"
+                    }}"""
+
+                    # Set up mock to return phase1 success then phase2 error
+                    mock_post.side_effect = [phase1_response, phase2_response]
+
+                    # Run the function
+                    result = process_route_with_crime_data(self.mock_initial_route)
+
+                    # Verify we got the Phase 1 route as fallback
+                    self.assertEqual(
+                        result["routes"][0]["geometry"], "phase1_route_polyline"
+                    )
+
+                    # Verify metadata was added
+                    self.assertIn("metadata", result)
+                    self.assertEqual(result["metadata"]["phase"], "Phase 1")
+                    self.assertEqual(result["metadata"]["avoided_hotspots"], 2)
+
+    def test_create_avoid_polygons_nyc_sizing(self):
+        """Test NYC-specific sizing logic in create_avoid_polygons"""
+        # Create test hotspots with different complaint levels
+        test_hotspots = [
+            {
+                "latitude": 40.7200,
+                "longitude": -74.0100,
+                "complaints": 10,  # Low complaints
+                "distance": 0.01,
+            },
+            {
+                "latitude": 40.7300,
+                "longitude": -74.0200,
+                "complaints": 50,  # Medium complaints
+                "distance": 0.02,
+            },
+            {
+                "latitude": 40.7400,
+                "longitude": -74.0300,
+                "complaints": 100,  # High complaints (max scaling)
+                "distance": 0.03,
+            },
+        ]
+
+        # Patch the transform function to
+        # control the output and allow us to test the radii
+        with patch("map.views.transform") as mock_transform:
+            # Mock Point objects for the return values of transform
+            point_mock = Point(1, 1)
+
+            # Set up different polygon sizes to return based on the scaled radii
+            small_polygon = Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
+            medium_polygon = Polygon([(0, 0), (0, 1.5), (1.5, 1.5), (1.5, 0), (0, 0)])
+            large_polygon = Polygon([(0, 0), (0, 2), (2, 2), (2, 0), (0, 0)])
+
+            # Mock the transform returns in sequence
+            mock_transform.side_effect = [
+                # First hotspot (low complaints)
+                point_mock,  # transform(project, point)
+                small_polygon,  # transform(project_back, buffer_utm)
+                # Second hotspot (medium complaints)
+                point_mock,  # transform(project, point)
+                medium_polygon,  # transform(project_back, buffer_utm)
+                # Third hotspot (high complaints)
+                point_mock,  # transform(project, point)
+                large_polygon,  # transform(project_back, buffer_utm)
+            ]
+
+            # Call the function
+            result = create_avoid_polygons(test_hotspots)
+
+            # Verify results
+            self.assertIsInstance(result, MultiPolygon)
+            self.assertEqual(len(result.geoms), 3)
+
+            # Check that the radii were scaled properly (by checking the polygon areas)
+            # Sort polygons by area to match our expectation
+            sorted_polygons = sorted(result.geoms, key=lambda p: p.area)
+
+            # Low complaints should have smallest area
+            self.assertEqual(sorted_polygons[0].area, small_polygon.area)
+            # Medium complaints should have medium area
+            self.assertEqual(sorted_polygons[1].area, medium_polygon.area)
+            # High complaints should have largest area
+            self.assertEqual(sorted_polygons[2].area, large_polygon.area)
+
+            # Verify transform was called with the expected parameters
+            # We're expecting 6 calls (2 for each hotspot)
+            self.assertEqual(mock_transform.call_count, 6)
+
+    def test_get_safer_ors_route_error_handling(self):
+        """Test improved error handling in get_safer_ors_route without fallback"""
+        # Create a simple avoid polygon
+        avoid_polygons = MultiPolygon(
+            [
+                Polygon(
+                    [
+                        (-74.02, 40.72),
+                        (-74.01, 40.72),
+                        (-74.01, 40.73),
+                        (-74.02, 40.73),
+                        (-74.02, 40.72),
+                    ]
+                )
+            ]
+        )
+
+        # Mock ORS response with error
+        with patch("requests.post") as mock_post:
+            mock_response = MagicMock()
+            mock_response.ok = False
+            mock_response.status_code = 404
+            mock_response.text = (
+                """{"error":{"code":2009,"message":"Route could not be found"}}"""
+            )
+            mock_post.return_value = mock_response
+
+            # Call function
+            result = get_safer_ors_route(
+                self.departure, self.destination, avoid_polygons
+            )
+
+            # Verify we get an error response instead of a fallback
+            self.assertIn("error", result)
+            self.assertIn("OpenRouteService API error", result["error"])
+
+            # Verify no additional request was made (no fallback)
+            self.assertEqual(mock_post.call_count, 1)
+
+    def test_metadata_in_routes(self):
+        """Test that metadata is properly
+        added to routes with direct function patching"""
+        # Directly patch the hotspot-returning functions instead of the cursor
+        with patch("map.views.get_crime_hotspots") as mock_get_hotspots, patch(
+            "map.views.get_additional_hotspots"
+        ) as mock_get_additional_hotspots, patch(
+            "polyline.decode"
+        ) as mock_polyline_decode, patch(
+            "requests.post"
+        ) as mock_post:
+            # Setup polyline decode mock
+            mock_polyline_decode.return_value = [
+                [-74.0060, 40.7128],
+                [-118.2437, 34.0522],
+            ]
+
+            # Define hotspot data
+            phase1_hotspots = [
+                {
+                    "latitude": 40.7200,
+                    "longitude": -74.0100,
+                    "complaints": 15,
+                    "distance": 0.01,
+                }
+            ]
+
+            phase2_hotspots = [
+                {
+                    "latitude": 40.7400,
+                    "longitude": -74.0300,
+                    "complaints": 12,
+                    "distance": 0.03,
+                }
+            ]
+
+            # Setup direct function mocks - this approach is more reliable
+            mock_get_hotspots.return_value = (
+                phase1_hotspots  # Return exactly 1 hotspot in phase 1
+            )
+            mock_get_additional_hotspots.return_value = (
+                phase2_hotspots  # Return 1 hotspot in phase 2
+            )
+
+            # Test case 1: Both phase 1 and phase 2 succeed
+            # Mock successful responses for both phases
+            phase1_response = MagicMock()
+            phase1_response.ok = True
+            phase1_response.json.return_value = {
+                "routes": [{"geometry": "phase1_route_polyline"}]
+            }
+
+            phase2_response = MagicMock()
+            phase2_response.ok = True
+            phase2_response.json.return_value = {
+                "routes": [{"geometry": "phase2_route_polyline"}]
+            }
+
+            mock_post.side_effect = [phase1_response, phase2_response]
+
+            # Run the function
+            result = process_route_with_crime_data(self.mock_initial_route)
+
+            # Verify Phase 2 metadata
+            self.assertIn("metadata", result)
+            self.assertEqual(result["metadata"]["phase"], "Phase 2")
+            self.assertEqual(
+                result["metadata"]["avoided_hotspots"], 2
+            )  # Total hotspots (1+1)
+
+            # Reset the mocks for the next test
+            mock_post.reset_mock()
+
+            # Test case 2: Phase 1 succeeds but Phase 2 fails
+            phase2_error_response = MagicMock()
+            phase2_error_response.ok = False
+            phase2_error_response.status_code = 404
+            phase2_error_response.text = """{"error":{"message":"Route not found"}}"""
+
+            mock_post.side_effect = [phase1_response, phase2_error_response]
+
+            # Run the function again
+            result = process_route_with_crime_data(self.mock_initial_route)
+
+            # Print debug information
+            print(f"Debug - Phase 1 hotspots: {len(phase1_hotspots)}")
+            print(f"Debug - metadata: {result.get('metadata', 'No metadata')}")
+
+            # Verify Phase 1 metadata is present in fallback
+            self.assertIn("metadata", result)
+            self.assertEqual(result["metadata"]["phase"], "Phase 1")
+            self.assertEqual(
+                result["metadata"]["avoided_hotspots"], 1
+            )  # Should be 1 hotspot
 
 
 class NYCBoundaryValidationTestCase(TestCase):

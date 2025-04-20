@@ -38,7 +38,7 @@ const SettingsContent = () => {
             <CardHeader>
               <CardTitle>Report History</CardTitle>
               <CardDescription>
-                View reports you've made
+                View reports you&apos;ve made
               </CardDescription>
             </CardHeader>
           </Card>

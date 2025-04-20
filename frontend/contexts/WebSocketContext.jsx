@@ -92,7 +92,7 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     ws.current.onclose = (event) => {
-      console.log("Close code:", event.code, "Reason:", event.reason);
+      console.log("Close code:", event.code, "Reason:", event);
       setConnectionStatus("disconnected");
       attemptReconnect();
     };
@@ -152,6 +152,7 @@ export const WebSocketProvider = ({ children }) => {
                     content: data.message,
                     timestamp: data.timestamp,
                     read: false,
+                    is_deleted: "no", // Default to "no" for new messages
                   },
                 ],
               };
@@ -166,6 +167,22 @@ export const WebSocketProvider = ({ children }) => {
       if (data.type === "message_delivery") {
         console.log("Message delivery status:", data);
         //helpful for image delivery status
+        setChatUserList((prev) => {
+          return prev.map((chat) => {
+            if (chat.chat_uuid == data.chat_uuid) {
+              return {
+                ...chat,
+                messages: chat.messages.map((message) => {
+                  if (message.id == data.old_message_id) {
+                    return { ...message, id: data.message_id };
+                  }
+                  return message;
+                }),
+              };
+            }
+            return chat;
+          });
+        });
       }
 
       if (data.type === "messages_read") {

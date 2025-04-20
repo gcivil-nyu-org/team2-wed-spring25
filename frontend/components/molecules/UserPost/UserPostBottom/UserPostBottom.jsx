@@ -36,7 +36,7 @@ export default function UserPostBottom({
         onClickYes={handleReportPost}
         title={"Report User"}
         description={
-          "Are you sure you want to report this user?. This action cannot be undone"
+          "Are you sure you want to report this user? This action cannot be undone."
         }
         disableYesButton={disableYesButton}
       />
