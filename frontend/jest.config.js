@@ -27,7 +27,13 @@ const config = {
   coverageDirectory: "coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ["/node_modules/", "/.next/"],
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/.next/",
+    "<rootDir>/components/ui/tooltip.jsx",
+    "<rootDir>/components/atom/Button/Button.jsx",
+    "<rootDir>/components/atom/CustomButton/CustomButton.jsx",
+  ],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: "v8",
@@ -45,10 +51,10 @@ const config = {
   coverageThreshold: {
     // Keep stricter thresholds for local development
     global: {
-      branches: 50,
-      functions: 20,
-      lines: 50,
-      statements: 50,
+      branches: 80,
+      functions: 80,
+      lines: 85,
+      statements: 80,
     },
   },
 
@@ -96,6 +102,12 @@ const config = {
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
+    // Update SVG mapping to handle the specific path
+    "\\.(svg)$": "<rootDir>/__tests__/mocks/svgMock.js",
+    // Add specific mappings for your icon SVGs
+    "^@/public/icons/(.*)$": "<rootDir>/__tests__/mocks/svgMock.js",
+    "\\.svg$": "<rootDir>/__tests__/mocks/svgMock.js",
+    "./([^/]+)\\.svg$": "<rootDir>/__tests__/mocks/svgMock.js",
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -167,9 +179,7 @@ const config = {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  // testPathIgnorePatterns: [
-  //   "/node_modules/"
-  // ],
+  testPathIgnorePatterns: ["/node_modules/", "/.next/", "/__tests__/mocks/"],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],

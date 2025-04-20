@@ -172,6 +172,7 @@ const Message = ({
 
   return (
     <div
+      data-testid="message-wrapper"
       className={`flex my-2 mx-6 ${
         currentUserId == message.sender_id ? "justify-end" : "justify-start"
       }`}
