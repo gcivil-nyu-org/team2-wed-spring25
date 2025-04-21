@@ -8,6 +8,15 @@ const mockUser = {
   first_name: "Test",
   last_name: "User",
   email: "test@example.com",
+  // Adding avatar to test that branch
+  avatar: "https://example.com/avatar.jpg",
+};
+
+const mockGoogleUser = {
+  first_name: "Google",
+  last_name: "User",
+  email: "google@example.com",
+  avatar: "https://lh3.googleusercontent.com/a/example-google-avatar",
 };
 
 const mockLocalStorage = {
@@ -21,6 +30,19 @@ Object.defineProperty(window, "localStorage", {
   value: mockLocalStorage,
   writable: true,
 });
+
+// Mock the useUser hook from UserContextProvider
+let mockContextUser = null;
+
+jest.mock("@/components/Auth/UserContextProvider", () => ({
+  useUser: () => ({
+    user: mockContextUser,
+    isLoading: false,
+    error: null,
+    isAuthenticated: !!mockContextUser,
+    refreshUserDetails: jest.fn().mockResolvedValue(true)
+  })
+}));
 
 // Mock next/auth
 jest.mock("next-auth/react", () => ({
@@ -45,6 +67,16 @@ jest.mock("next/image", () => ({
 
 jest.mock("next/link", () => {
   return ({ children, href }) => <a href={href}>{children}</a>;
+});
+
+jest.mock("@/components/ui/avatar", () => {
+  return {
+    Avatar: ({ children, className }) => <div className={className} data-testid="avatar">{children}</div>,
+    AvatarImage: ({ src, alt, referrerPolicy, crossOrigin, onError }) => (
+      <img src={src} alt={alt} referrerPolicy={referrerPolicy} crossOrigin={crossOrigin} data-testid="avatar-image" />
+    ),
+    AvatarFallback: ({ children, className }) => <div className={className} data-testid="avatar-fallback">{children}</div>,
+  };
 });
 
 jest.mock("@/components/ui/sidebar", () => {
@@ -80,6 +112,10 @@ jest.mock("@/components/ui/sidebar", () => {
 describe("SettingsSidebar", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset localStorage mock to default user
+    mockLocalStorage.getItem.mockImplementation(() => JSON.stringify(mockUser));
+    // Reset context user to null
+    mockContextUser = null;
   });
 
   it("renders heading", () => {
@@ -154,5 +190,80 @@ describe("SettingsSidebar", () => {
     const arrowContainer = screen.getByLabelText("Close sidebar");
     fireEvent.click(arrowContainer);
     expect(mockSetOpen).toHaveBeenCalledWith(false);
+  });
+
+  it("uses context user when available instead of localStorage", () => {
+    // Set up context user
+    mockContextUser = {
+      id: 1,
+      first_name: "Context",
+      last_name: "User",
+      email: "context@example.com",
+      avatar: "https://example.com/context-avatar.jpg"
+    };
+
+    render(<SettingsSidebar />);
+    
+    // Should use the context user data, not localStorage
+    expect(screen.getByText("Context User")).toBeInTheDocument();
+    expect(screen.getByText("context@example.com")).toBeInTheDocument();
+  });
+
+  it("handles Google avatar URLs correctly", () => {
+    // Mock localStorage to return a Google user
+    mockLocalStorage.getItem.mockImplementation(() => JSON.stringify(mockGoogleUser));
+    
+    render(<SettingsSidebar />);
+    
+    expect(screen.getByText("Google User")).toBeInTheDocument();
+    expect(screen.getByText("google@example.com")).toBeInTheDocument();
+    
+    // Check that avatar image exists with Google URL
+    const avatarImg = screen.getByAltText("Google User");
+    expect(avatarImg).toBeInTheDocument();
+    
+    // The src should include googleusercontent.com and a timestamp parameter
+    expect(avatarImg.src).toContain("googleusercontent.com");
+    expect(avatarImg.src).toMatch(/[?&]t=\d+/); // Should include timestamp
+  });
+
+  it("renders user with avatar_url instead of avatar", () => {
+    // Mock localStorage with user that has avatar_url instead of avatar
+    const userWithAvatarUrl = {
+      first_name: "Avatar",
+      last_name: "Url",
+      email: "avatar@example.com",
+      avatar_url: "https://example.com/avatar-url.jpg"
+    };
+    
+    mockLocalStorage.getItem.mockImplementation(() => JSON.stringify(userWithAvatarUrl));
+    
+    render(<SettingsSidebar />);
+    
+    expect(screen.getByText("Avatar Url")).toBeInTheDocument();
+    
+    // Check that avatar image exists with correct URL
+    const avatarImg = screen.getByAltText("Avatar Url");
+    expect(avatarImg).toBeInTheDocument();
+    expect(avatarImg.src).toContain("avatar-url.jpg");
+  });
+
+  it("handles invalid localStorage data gracefully", () => {
+    // Mock localStorage to return invalid JSON
+    mockLocalStorage.getItem.mockImplementation(() => "invalid-json");
+    
+    // Mock console.error to avoid test output clutter
+    const originalConsoleError = console.error;
+    console.error = jest.fn();
+    
+    // Component should return null when no valid user is found
+    const { container } = render(<SettingsSidebar />);
+    expect(container).toBeEmptyDOMElement();
+    
+    // Verify error was logged
+    expect(console.error).toHaveBeenCalled();
+    
+    // Restore console.error
+    console.error = originalConsoleError;
   });
 });

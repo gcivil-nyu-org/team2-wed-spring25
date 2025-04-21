@@ -2,25 +2,58 @@ import { truncateFilenameWithEllipsis, getUserFullName } from "@/utils/string";
 
 describe("string utils", () => {
   describe("truncateFilenameWithEllipsis", () => {
-    it("handles null or empty filename", () => {
-      expect(truncateFilenameWithEllipsis(null, 10)).toBe("");
-      expect(truncateFilenameWithEllipsis("", 10)).toBe("");
+    it("returns empty string if filename is empty", () => {
+      expect(truncateFilenameWithEllipsis("")).toBe("");
+      expect(truncateFilenameWithEllipsis(null)).toBe("");
+      expect(truncateFilenameWithEllipsis(undefined)).toBe("");
     });
 
-    it("truncates filename with extension when too long", () => {
-      expect(truncateFilenameWithEllipsis("verylongfilename.jpg", 8)).toBe(
-        "verylong....jpg"
+    it("returns filename unchanged if shorter than maxLength", () => {
+      expect(truncateFilenameWithEllipsis("short.txt", 10)).toBe("short.txt");
+    });
+
+    it("truncates filename and keeps extension", () => {
+      expect(truncateFilenameWithEllipsis("longfilename.txt", 4)).toBe(
+        "long....txt"
+      );
+      expect(truncateFilenameWithEllipsis("averyverylongname.md", 5)).toBe(
+        "avery....md"
       );
     });
 
-    it("keeps original filename when shorter than maxLength", () => {
-      expect(truncateFilenameWithEllipsis("short.jpg", 10)).toBe("short.jpg");
+    it("truncates filename with no extension", () => {
+      expect(truncateFilenameWithEllipsis("longname", 4)).toBe("long...");
     });
 
-    it("handles filenames without extension", () => {
-      expect(truncateFilenameWithEllipsis("verylongfilename", 8)).toBe(
-        "verylong..."
+    it("handles multiple dots correctly", () => {
+      expect(truncateFilenameWithEllipsis("archive.tar.gz", 7)).toBe(
+        "archive....gz"
       );
+    });
+
+    it("returns original if name is exactly maxLength", () => {
+      expect(truncateFilenameWithEllipsis("test.txt", 4)).toBe("test.txt");
+    });
+
+    it("handles maxLength of 0", () => {
+      expect(truncateFilenameWithEllipsis("hello.txt", 0)).toBe("....txt");
+    });
+
+    it("handles filename with dot at the start (hidden files)", () => {
+      expect(truncateFilenameWithEllipsis(".gitignore", 3)).toBe(".gitignore");
+    });
+
+    it("handles File objects", () => {
+      const mockFile = new File([""], "document.pdf", {
+        type: "application/pdf",
+      });
+      expect(truncateFilenameWithEllipsis(mockFile.name, 4)).toBe(
+        "docu....pdf"
+      );
+    });
+
+    it("handles very short maxLength with extension", () => {
+      expect(truncateFilenameWithEllipsis("test.txt", 1)).toBe("t....txt");
     });
   });
 
@@ -30,12 +63,22 @@ describe("string utils", () => {
     });
 
     it("handles mixed case input", () => {
-      expect(getUserFullName("JOHN", "DOE")).toBe("John Doe");
       expect(getUserFullName("jOhN", "dOe")).toBe("John Doe");
     });
 
     it("handles multiple spaces", () => {
+      expect(getUserFullName("mary  jane", "van  der")).toBe(
+        "Mary  Jane Van  Der"
+      );
+      expect(getUserFullName("mary jane", "van der")).toBe("Mary Jane Van Der");
+    });
+
+    it("handles multiple spaces", () => {
       expect(getUserFullName("mary jane", "doe")).toBe("Mary Jane Doe");
+    });
+
+    it("normalizes single spaces", () => {
+      expect(getUserFullName("mary jane", "van der")).toBe("Mary Jane Van Der");
     });
   });
 });
