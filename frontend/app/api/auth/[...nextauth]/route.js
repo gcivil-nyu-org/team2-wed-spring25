@@ -46,12 +46,12 @@ async function refreshAccessToken(refreshToken) {
       ...refreshedTokens,
       error: null,
     };
-  } catch (error) {    
+  } catch (error) {
     // Check for specific error messages that indicate token issues
-    const errorMessage = error.message || '';
-    
+    const errorMessage = error.message || "";
+
     if (
-      errorMessage.includes("blacklisted") || 
+      errorMessage.includes("blacklisted") ||
       errorMessage.includes("invalid") ||
       errorMessage.includes("expired")
     ) {
@@ -61,7 +61,7 @@ async function refreshAccessToken(refreshToken) {
         error: "TokenInvalid",
       };
     }
-    
+
     return {
       access: null,
       refresh: null,
@@ -92,6 +92,11 @@ const handler = NextAuth({
             }),
           });
 
+          // Check if user is banned
+          if (data.user.is_banned) {
+            throw new Error("AccountBanned");
+          }
+
           return {
             id: data.user.id,
             email: data.user.email,
@@ -106,16 +111,20 @@ const handler = NextAuth({
             djangoUser: data.user,
           };
         } catch (error) {
-          console.error("Credentials authentication failed:", error);
+          console.error("Credentials authentication failed:", error.message);
+          // Forward specific error message if it exists
+          if (error.message === "AccountBanned") {
+            throw new Error("AccountBanned");
+          }
           return null;
         }
       },
     }),
   ],
   pages: {
-    signIn: "/login", 
+    signIn: "/login",
     signOut: "/login", // Redirect to login after signing out
-    error: "/login", 
+    error: "/login",
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -189,15 +198,20 @@ const handler = NextAuth({
 
       if (refreshed.error) {
         // For any token-related errors, force re-authentication
-        if (refreshed.error === "TokenInvalid" || refreshed.error === "RefreshTokenExpired") {
+        if (
+          refreshed.error === "TokenInvalid" ||
+          refreshed.error === "RefreshTokenExpired"
+        ) {
           console.log(`JWT callback: Refresh failed - ${refreshed.error}`);
           return { ...token, error: refreshed.error };
         }
-        
-        // For network errors or temporary backend issues, 
+
+        // For network errors or temporary backend issues,
         // continue with existing token if it's still valid
         if (accessExpiry > now) {
-          console.log("JWT callback: Temporary network error, using existing token");
+          console.log(
+            "JWT callback: Temporary network error, using existing token"
+          );
           return token;
         } else {
           // If the token is expired and we can't refresh it, force re-auth
@@ -216,7 +230,7 @@ const handler = NextAuth({
         },
       };
     },
-    
+
     async session({ session, token }) {
       // Add Django tokens and user to session
       session.djangoTokens = token.djangoTokens;

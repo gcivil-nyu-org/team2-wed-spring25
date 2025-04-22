@@ -33,6 +33,7 @@ class UserModelTests(TestCase):
         self.assertFalse(user.is_admin)
         self.assertTrue(user.is_active)
         self.assertFalse(user.email_verified)
+        self.assertFalse(user.is_banned)
 
     def test_create_user_no_email(self):
         """Test creating a user without email raises error"""
@@ -120,6 +121,21 @@ class UserModelTests(TestCase):
             last_name="User",
         )
         self.assertIsNone(user.get_avatar)
+
+    def test_user_banned_status(self):
+        """Test user banned status and helper method"""
+        user = User.objects.create_user(
+            email="test@example.com",
+            password="testpass123",
+            first_name="Test",
+            last_name="User",
+        )
+        self.assertFalse(user.is_banned)
+        self.assertFalse(user.is_user_banned())
+
+        user.is_banned = True
+        user.save()
+        self.assertTrue(user.is_user_banned())
 
 
 class GoogleAuthViewTests(APITestCase):
@@ -427,6 +443,110 @@ class AuthViewsTests(APITestCase):
         user_url = reverse("get-user", kwargs={"user_id": self.user.id})
         response = self.client.get(user_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_banned_user(self):
+        """Test that banned users cannot login"""
+        # Ban the user
+        self.user.is_banned = True
+        self.user.save()
+
+        data = {"email": "test@example.com", "password": "testpass123"}
+        response = self.client.post(self.login_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["detail"], "This account has been banned")
+
+    def test_ban_user_as_admin(self):
+        """Test banning a user as an admin"""
+        # Create admin user
+        admin = User.objects.create_user(
+            email="admin@example.com",
+            password="adminpass123",
+            first_name="Admin",
+            last_name="User",
+            is_admin=True,
+        )
+
+        # Login as admin
+        self.client.force_authenticate(user=admin)
+
+        # Try to ban a user
+        ban_url = reverse("ban-user", kwargs={"user_id": self.user.id})
+        response = self.client.post(ban_url, {"action": "ban"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_banned)
+
+    def test_unban_user_as_admin(self):
+        """Test unbanning a user as an admin"""
+        # Ban the user first
+        self.user.is_banned = True
+        self.user.save()
+
+        # Create and login as admin
+        admin = User.objects.create_user(
+            email="admin@example.com",
+            password="adminpass123",
+            first_name="Admin",
+            last_name="User",
+            is_admin=True,
+        )
+        self.client.force_authenticate(user=admin)
+
+        # Try to unban the user
+        ban_url = reverse("ban-user", kwargs={"user_id": self.user.id})
+        response = self.client.post(ban_url, {"action": "unban"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.is_banned)
+
+    def test_ban_user_as_non_admin(self):
+        """Test that non-admin users cannot ban others"""
+        self.client.force_authenticate(user=self.user)
+
+        ban_url = reverse("ban-user", kwargs={"user_id": self.google_user.id})
+        response = self.client.post(ban_url, {"action": "ban"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.google_user.refresh_from_db()
+        self.assertFalse(self.google_user.is_banned)
+
+    def test_ban_user_invalid_action(self):
+        """Test banning with invalid action"""
+        # Create and login as admin
+        admin = User.objects.create_user(
+            email="admin@example.com",
+            password="adminpass123",
+            first_name="Admin",
+            last_name="User",
+            is_admin=True,
+        )
+        self.client.force_authenticate(user=admin)
+
+        ban_url = reverse("ban-user", kwargs={"user_id": self.user.id})
+        response = self.client.post(ban_url, {"action": "invalid"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "Invalid action. Use 'ban' or 'unban'")
+
+    def test_ban_nonexistent_user(self):
+        """Test banning a user that doesn't exist"""
+        # Create and login as admin
+        admin = User.objects.create_user(
+            email="admin@example.com",
+            password="adminpass123",
+            first_name="Admin",
+            last_name="User",
+            is_admin=True,
+        )
+        self.client.force_authenticate(user=admin)
+
+        ban_url = reverse("ban-user", kwargs={"user_id": 99999})
+        response = self.client.post(ban_url, {"action": "ban"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["error"], "User not found")
 
 
 class UserDataManagementTests(APITestCase):
