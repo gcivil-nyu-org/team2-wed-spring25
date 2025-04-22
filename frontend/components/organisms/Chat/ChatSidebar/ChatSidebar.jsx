@@ -23,11 +23,19 @@ const ChatSidebar = ({
           Chats
         </h2>
       </div>
-      
+
       {/* Scrollable chat list - takes remaining height */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         {chatUserList.map((chatUser) => {
           const user = chatUser.user;
+          console.log(
+            "chatUser",
+            chatUser,
+            "user",
+            user,
+            "onlineUsers",
+            onlineUsers
+          );
           return (
             <div
               key={user.id}
@@ -58,13 +66,17 @@ const ChatSidebar = ({
                 <div className="relative truncate">
                   {chatUser.messages.length > 0 ? (
                     <p className="text-forum-subheading2 text-sm">
-                      {chatUser.messages[chatUser.messages.length - 1].content
-                        .length > 20
-                        ? chatUser.messages[
-                            chatUser.messages.length - 1
-                          ].content.slice(0, 30) + "..."
-                        : chatUser.messages[chatUser.messages.length - 1]
-                            .content}{" "}
+                      {chatUser.messages[chatUser.messages.length - 1]
+                        .is_deleted == "no" &&
+                        (chatUser.messages[chatUser.messages.length - 1].content
+                          .length > 20
+                          ? chatUser.messages[
+                              chatUser.messages.length - 1
+                            ].content.slice(0, 30) + "..."
+                          : chatUser.messages[chatUser.messages.length - 1]
+                              .content)}
+                      {chatUser.messages[chatUser.messages.length - 1]
+                        .is_deleted != "no" && "message deleted"}
                     </p>
                   ) : (
                     <p className="text-forum-subheading2 text-sm">

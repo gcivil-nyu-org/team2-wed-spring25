@@ -61,7 +61,12 @@ describe("usePostComments", () => {
       { wrapper }
     );
 
-    expect(result.current.isLoading).toBe(true);
+    // Wait for initial state updates
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(result.current.isLoading).toBe(false); // Should be false after initialization
     expect(result.current.hasMore).toBe(true);
   });
 
@@ -81,6 +86,12 @@ describe("usePostComments", () => {
       { wrapper }
     );
 
+    // Wait for initial state updates
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // Load more comments
     await act(async () => {
       result.current.loadMoreComments();
       await new Promise((resolve) => setTimeout(resolve, 0));

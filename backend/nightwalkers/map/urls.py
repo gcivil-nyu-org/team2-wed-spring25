@@ -1,15 +1,15 @@
 from django.urls import path
 from .views import (
     RouteViewAPI,
-    heatmap_data,
     SaveRouteAPIView,
     UpdateSavedRouteAPIView,
     DeleteSavedRouteAPIView,
     RetrieveSavedRoutesListAPIView,
+    HeatmapDataView,
 )
 
 urlpatterns = [
-    path("map/heatmap-data/", heatmap_data, name="heatmap-data"),
+    path("map/heatmap-data/", HeatmapDataView.as_view(), name="heatmap-data"),
     path("get-route/", RouteViewAPI.as_view(), name="get-route"),
     path("save-route/", SaveRouteAPIView.as_view(), name="save-route"),
     path(

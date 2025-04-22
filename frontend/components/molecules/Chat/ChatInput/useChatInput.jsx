@@ -2,10 +2,18 @@ import { useRef, useState } from "react";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
+import { apiPost } from "@/utils/fetch/fetch";
 
-export default function useChatInput(selectedUser, setChatUserList) {
+export default function useChatInput(
+  selectedUser,
+  setChatUserList,
+  isEdit,
+  messageId,
+  initialContent,
+  closeEditDialog
+) {
   const [rows, setRows] = useState(1);
-  const [messageContent, setMessageContent] = useState("");
+  const [messageContent, setMessageContent] = useState(initialContent || "");
   const textareaRef = useRef(null);
   const { send, connectionStatus, handleUserTyping } = useWebSocket();
   const [isTyping, setIsTyping] = useState(false);
@@ -19,9 +27,48 @@ export default function useChatInput(selectedUser, setChatUserList) {
   } = useEmojiPicker();
   const user = JSON.parse(localStorage.getItem("user"));
   const senderId = user.id; // Assuming you have the sender's ID from local storage
-  const handleSend = () => {
+  const handleSend = async () => {
+    if (isEdit) {
+      if (initialContent.trim() === messageContent.trim()) {
+        closeEditDialog(); // Close edit dialog if content is unchanged
+        return;
+      }
+      try {
+        // If editing, send the edit message request
+        setChatUserList((prev) => {
+          return prev.map((chat) => {
+            if (chat.user.id == selectedUser.user.id) {
+              return {
+                ...chat,
+                messages: chat.messages.map((msg) => {
+                  if (msg.id === messageId) {
+                    return {
+                      ...msg,
+                      content: messageContent.trim(),
+                      is_deleted: "no", // Reset deletion status on edit
+                    };
+                  }
+                  return msg;
+                }),
+              };
+            }
+            return chat;
+          });
+        });
+        closeEditDialog(); // Close the edit dialog after sending
+        const data = await apiPost(`/chats/chat/message/${messageId}/`, {
+          content: messageContent.trim(),
+        });
+        console.log("Message edited successfully:", data);
+      } catch (error) {
+        console.error("Error editing message:", error);
+        showError("Failed", "Failed to edit message", "edit_message_error");
+      }
+      return;
+    }
     if (!messageContent.trim()) return;
 
+    const message_id = Date.now(); // Generate a unique message ID based on timestamp
     // Create the message object
     const chatMessage = {
       type: "chat_message",
@@ -29,6 +76,7 @@ export default function useChatInput(selectedUser, setChatUserList) {
       recipient_id: selectedUser.user.id,
       content: messageContent.trim(),
       timestamp: new Date().toISOString(),
+      message_id: message_id,
     };
 
     // Send via WebSocket
@@ -43,11 +91,12 @@ export default function useChatInput(selectedUser, setChatUserList) {
             messages: [
               ...chat.messages,
               {
-                id: Date.now(),
+                id: message_id,
                 sender_id: senderId,
                 content: chatMessage.content,
                 timestamp: chatMessage.timestamp,
                 read: false,
+                is_deleted: "no", // Default to "no" for new messages
               },
             ],
           };
