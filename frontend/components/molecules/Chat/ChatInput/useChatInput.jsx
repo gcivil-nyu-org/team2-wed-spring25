@@ -3,6 +3,7 @@ import { useWebSocket } from "@/contexts/WebSocketContext";
 import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { apiPost } from "@/utils/fetch/fetch";
+import { Filter } from "bad-words";
 
 export default function useChatInput(
   selectedUser,
@@ -25,6 +26,7 @@ export default function useChatInput(
     handleClickOnEmojiPicker,
     handleOnEmojiClick,
   } = useEmojiPicker();
+  const filter = new Filter();
   const user = JSON.parse(localStorage.getItem("user"));
   const senderId = user.id; // Assuming you have the sender's ID from local storage
   const handleSend = async () => {
@@ -173,7 +175,7 @@ export default function useChatInput(
       showError("Message content exceeds 500 characters limit.");
       return;
     }
-    setMessageContent(e.target.value);
+    setMessageContent(filter.clean(e.target.value));
     handleTypingActivity(); // Track typing activity
 
     // Call handleInput to adjust height whenever content changes

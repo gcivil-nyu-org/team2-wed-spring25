@@ -28,7 +28,7 @@ export default function Forums({ settingsType = "" }) {
       }`}
     >
       {!settingsType && (
-        <div className="flex-col hidden  xsm:flex lg:w-2/6 xl:flex xl:flex-col xl:items-center max-w-[225px] ">
+        <div className="flex-col hidden  xsm:flex w-1/3 xl:flex xl:flex-col xl:items-center max-w-[225px]">
           <UserData
             isLoading={isLoading}
             user={user}

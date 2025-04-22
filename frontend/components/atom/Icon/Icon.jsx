@@ -19,7 +19,7 @@ export default function Icon({
     "flex justify-center items-center rounded-full hover:cursor-pointer transition-all duration-200 inline-block";
 
   if (selected == null) {
-    data = "hover:bg-bg-forum " + data;
+    data = "hover:bg-gray-600 " + data;
     if (size === "sm") {
       data = "w-5 h-5 " + data;
     } else if (size === "md") {
