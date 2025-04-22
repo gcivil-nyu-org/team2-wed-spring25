@@ -128,10 +128,10 @@ class UserModelTests(TestCase):
             email="test@example.com",
             password="testpass123",
             first_name="Test",
-            last_name="User",
+            last_name="User"
         )
-        self.assertFalse(user.is_banned)
-        self.assertFalse(user.is_user_banned())
+        self.assertFalse(user.is_banned)  # Default value
+        self.assertFalse(user.is_user_banned())  # Helper method
 
         user.is_banned = True
         user.save()
@@ -248,6 +248,39 @@ class GoogleAuthViewTests(APITestCase):
 
         response = self.client.post(self.google_auth_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @patch("google.oauth2.id_token.verify_oauth2_token")
+    def test_google_auth_banned_user(self, mock_verify):
+        """Test that banned Google users cannot login"""
+        # Create a user with the ban flag set
+        banned_user = User.objects.create_user(
+            email="banned@example.com",
+            password="testpass123", 
+            first_name="Banned",
+            last_name="User",
+            is_banned=True,
+            provider="google",
+            provider_id="54321"
+        )
+        
+        # Mock the Google token verification
+        mock_verify.return_value = {
+            "email": "banned@example.com",
+            "sub": "54321",
+            "given_name": "Banned",
+            "family_name": "User",
+            "picture": "https://example.com/avatar.jpg",
+        }
+
+        data = {
+            "token": "fake-google-token",
+            "email": "banned@example.com",
+            "name": "Banned User",
+        }
+
+        response = self.client.post(self.google_auth_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["error"], "This account has been banned")
 
 
 class AuthViewsTests(APITestCase):
@@ -463,15 +496,15 @@ class AuthViewsTests(APITestCase):
             password="adminpass123",
             first_name="Admin",
             last_name="User",
-            is_admin=True,
+            is_admin=True
         )
 
         # Login as admin
         self.client.force_authenticate(user=admin)
 
         # Try to ban a user
-        ban_url = reverse("ban-user", kwargs={"user_id": self.user.id})
-        response = self.client.post(ban_url, {"action": "ban"}, format="json")
+        ban_url = reverse('ban-user', kwargs={'user_id': self.user.id})
+        response = self.client.post(ban_url, {'action': 'ban'}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
@@ -489,13 +522,13 @@ class AuthViewsTests(APITestCase):
             password="adminpass123",
             first_name="Admin",
             last_name="User",
-            is_admin=True,
+            is_admin=True
         )
         self.client.force_authenticate(user=admin)
 
         # Try to unban the user
-        ban_url = reverse("ban-user", kwargs={"user_id": self.user.id})
-        response = self.client.post(ban_url, {"action": "unban"}, format="json")
+        ban_url = reverse('ban-user', kwargs={'user_id': self.user.id})
+        response = self.client.post(ban_url, {'action': 'unban'}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
@@ -503,14 +536,26 @@ class AuthViewsTests(APITestCase):
 
     def test_ban_user_as_non_admin(self):
         """Test that non-admin users cannot ban others"""
+        # Create a second regular user to try to ban
+        second_user = User.objects.create_user(
+            email="second@example.com",
+            password="testpass123",
+            first_name="Second",
+            last_name="User"
+        )
+        
+        # Login as the first non-admin user
         self.client.force_authenticate(user=self.user)
 
-        ban_url = reverse("ban-user", kwargs={"user_id": self.google_user.id})
-        response = self.client.post(ban_url, {"action": "ban"}, format="json")
+        # Try to ban the second user
+        ban_url = reverse('ban-user', kwargs={'user_id': second_user.id})
+        response = self.client.post(ban_url, {'action': 'ban'}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.google_user.refresh_from_db()
-        self.assertFalse(self.google_user.is_banned)
+        
+        # Verify the second user is not banned
+        second_user.refresh_from_db()
+        self.assertFalse(second_user.is_banned)
 
     def test_ban_user_invalid_action(self):
         """Test banning with invalid action"""
@@ -520,15 +565,18 @@ class AuthViewsTests(APITestCase):
             password="adminpass123",
             first_name="Admin",
             last_name="User",
-            is_admin=True,
+            is_admin=True
         )
         self.client.force_authenticate(user=admin)
 
-        ban_url = reverse("ban-user", kwargs={"user_id": self.user.id})
-        response = self.client.post(ban_url, {"action": "invalid"}, format="json")
+        ban_url = reverse('ban-user', kwargs={'user_id': self.user.id})
+        response = self.client.post(ban_url, {'action': 'invalid'}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid action. Use 'ban' or 'unban'")
+        self.assertEqual(
+            response.data["error"],
+            "Invalid action. Use 'ban' or 'unban'"
+        )
 
     def test_ban_nonexistent_user(self):
         """Test banning a user that doesn't exist"""
@@ -538,12 +586,12 @@ class AuthViewsTests(APITestCase):
             password="adminpass123",
             first_name="Admin",
             last_name="User",
-            is_admin=True,
+            is_admin=True
         )
         self.client.force_authenticate(user=admin)
 
-        ban_url = reverse("ban-user", kwargs={"user_id": 99999})
-        response = self.client.post(ban_url, {"action": "ban"}, format="json")
+        ban_url = reverse('ban-user', kwargs={'user_id': 99999})
+        response = self.client.post(ban_url, {'action': 'ban'}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data["error"], "User not found")
