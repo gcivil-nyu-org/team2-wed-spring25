@@ -84,13 +84,31 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         try {
-          const data = await djangoFetch("/auth/login/", {
+          const response = await fetch(`${BASE_URL}/auth/login/`, {
             method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify({
               email: credentials.email,
               password: credentials.password,
             }),
           });
+
+          // Check for banned user response (HTTP 403)
+          if (response.status === 403) {
+            const errorData = await response.json();
+            // If the error message contains "banned", throw a specific error
+            if (errorData.detail && errorData.detail.includes("banned")) {
+              throw new Error("AccountBanned");
+            }
+          }
+
+          if (!response.ok) {
+            throw new Error("CredentialsSignin");
+          }
+
+          const data = await response.json();
 
           // Check if user is banned
           if (data.user.is_banned) {
@@ -111,11 +129,11 @@ const handler = NextAuth({
             djangoUser: data.user,
           };
         } catch (error) {
-          console.error("Credentials authentication failed:", error.message);
-          // Forward specific error message if it exists
+          // Pass through our specific error codes
           if (error.message === "AccountBanned") {
             throw new Error("AccountBanned");
           }
+          console.error("Credentials authentication failed:", error);
           return null;
         }
       },

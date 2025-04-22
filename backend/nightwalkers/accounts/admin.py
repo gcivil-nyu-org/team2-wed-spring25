@@ -59,6 +59,7 @@ class CustomUserAdmin(UserAdmin):
         "is_active",
         "is_staff",
         "is_admin",
+        "is_banned",
         "date_joined",
     )
     list_filter = (
@@ -69,6 +70,7 @@ class CustomUserAdmin(UserAdmin):
         "email_verified",
         "provider",
         "date_joined",
+        "is_banned",
     )
     search_fields = ("email", "first_name", "last_name")
     ordering = ("-date_joined",)
