@@ -29,7 +29,7 @@ const steps = [
   },
   {
     title: "Visualize Safety with the Heatmap",
-    description: "Turn on the heatmap to view nearby safety indicators from official crime data.",
+    description: "Use the heatmap to spot nearby areas with higher and lower crime based on NYPD data.",
     image: "/images/heatmap-phone.png",
   },
   {
