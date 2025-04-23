@@ -52,6 +52,13 @@ jest.mock("@/app/custom-components/ToastComponent/NotificationContext", () => ({
   }),
 }));
 
+// Add this mock at the top of your test file, before the other imports
+jest.mock("bad-words", () => ({
+  Filter: jest.fn().mockImplementation(() => ({
+    clean: jest.fn((text) => text), // Simple mock that returns the input unchanged
+  })),
+}));
+
 describe("PostDialog", () => {
   const mockProps = {
     onClick: jest.fn(),
