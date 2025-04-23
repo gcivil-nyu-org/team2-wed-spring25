@@ -73,7 +73,84 @@ class HeatmapDataView(generics.GenericAPIView):
             print("Error while fetching data from PostgreSQL: %s", error)
             return Response([], status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class PrimaryHeatmapDataView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request, *args, **kwargs):
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """SELECT ST_Y(wkb_geometry) AS latitude,
+                    ST_X(wkb_geometry) AS longitude,
+                    CMPLNT_NUM
+                    FROM filtered_grouped_data_centroid
+                    WHERE CMPLNT_NUM >= %s;""",
+                    [5],
+                )
+
+                heatmap_points = []
+                for row in cursor.fetchall():
+                    latitude, longitude, complaints = row
+                    try:
+                        complaints = (
+                            float(complaints) if complaints is not None else 0.0
+                        )
+                    except (ValueError, TypeError):
+                        complaints = 0.0
+
+                    heatmap_points.append(
+                        {
+                            "latitude": latitude,
+                            "longitude": longitude,
+                            "intensity": complaints,
+                        }
+                    )
+
+            return Response(heatmap_points)
+
+        except Exception as error:
+            print("Error while fetching data from PostgreSQL: %s", error)
+            return Response([], status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SecondaryHeatmapDataView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """SELECT ST_Y(wkb_geometry) AS latitude,
+                    ST_X(wkb_geometry) AS longitude,
+                    CMPLNT_NUM
+                    FROM filtered_grouped_data_centroid
+                    WHERE CMPLNT_NUM < %s;""",
+                    [5],
+                )
+
+                heatmap_points = []
+                for row in cursor.fetchall():
+                    latitude, longitude, complaints = row
+                    try:
+                        complaints = (
+                            float(complaints) if complaints is not None else 0.0
+                        )
+                    except (ValueError, TypeError):
+                        complaints = 0.0
+
+                    heatmap_points.append(
+                        {
+                            "latitude": latitude,
+                            "longitude": longitude,
+                            "intensity": complaints,
+                        }
+                    )
+
+            return Response(heatmap_points)
+
+        except Exception as error:
+            print("Error while fetching data from PostgreSQL: %s", error)
+            return Response([], status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class SaveRouteAPIView(generics.GenericAPIView):
     serializer_class = SavedRouteSerializer
     permission_classes = [IsAuthenticated]

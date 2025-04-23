@@ -66,7 +66,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
     isPrimaryFetching = true;
     
     try {
-      const data = await authAPI.authenticatedGet("map/heatmap-data/?type=1");
+      const data = await authAPI.authenticatedGet("map/heatmap-data/primary");
       
       if (!data || !Array.isArray(data) || data.length === 0) {
         throw new Error("Invalid or empty primary heatmap data received");
@@ -149,7 +149,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
     isSecondaryFetching = true;
     
     try {
-      const data = await authAPI.authenticatedGet("map/heatmap-data/?type=2");
+      const data = await authAPI.authenticatedGet("map/heatmap-data/secondary");
       
       if (!data || !Array.isArray(data) || data.length === 0) {
         throw new Error("Invalid or empty secondary heatmap data received");
