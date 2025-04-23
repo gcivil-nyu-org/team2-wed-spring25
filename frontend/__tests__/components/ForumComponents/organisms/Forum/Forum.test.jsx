@@ -85,9 +85,10 @@ describe("Forum", () => {
     expect(screen.getByTestId("user-posts")).toBeInTheDocument();
   });
 
-  it("shows recommendations section in xlg viewport", () => {
+  it("shows community bookmarks and rules in xlg viewport", () => {
     render(<Forum />);
-
-    expect(screen.getByText("Recommendations")).toBeInTheDocument();
-  });
+  
+    expect(screen.getByText(/Bookmarks/i)).toBeInTheDocument();
+    expect(screen.getByText(/Rules/i)).toBeInTheDocument();    
+  });  
 });
