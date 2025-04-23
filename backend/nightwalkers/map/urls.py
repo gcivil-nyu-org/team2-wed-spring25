@@ -8,6 +8,8 @@ from .views import (
     HeatmapDataView,
     PrimaryHeatmapDataView,
     SecondaryHeatmapDataView,
+    IssueOnLocationReportListView,
+    CreateIssueOnLocationReportView,
 )
 
 urlpatterns = [
@@ -33,4 +35,14 @@ urlpatterns = [
         name="retrieve-routes",
     ),
     path("update-route/", UpdateSavedRouteAPIView.as_view(), name="update-route"),
+    path(
+        "user/safety-report-list/",
+        IssueOnLocationReportListView.as_view(),
+        name="safety-report-list",
+    ),
+    path(
+        "user/create-safety-report/",
+        CreateIssueOnLocationReportView.as_view(),
+        name="create-safety-report",
+    ),
 ]

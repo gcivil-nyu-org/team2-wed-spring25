@@ -4,11 +4,13 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .models import SavedRoute
+from .models import SavedRoute, IssueOnLocationReport
 from .serializers import (
     RouteInputSerializer,
     SavedRouteSerializer,
     SavedRouteUpdateSerializer,
+    IssueOnLocationListSerializer,
+    CreateIssueOnLocationReportSerializer,
 )
 import requests
 from django.db import connection
@@ -159,7 +161,6 @@ class SaveRouteAPIView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        print(request.data)
         serializer = self.get_serializer(
             data=request.data, context={"user": request.user}
         )
@@ -649,3 +650,31 @@ def get_safer_ors_route(departure, destination, avoid_polygons):
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
         return {"error": f"Unexpected error: {str(e)}"}
+
+
+class IssueOnLocationReportListView(generics.ListAPIView):
+    pagination_class = RoutesPagination
+    permission_classes = (IsAuthenticated,)
+    serializer_class = IssueOnLocationListSerializer
+
+    def get_queryset(self):
+        return IssueOnLocationReport.objects.filter(user=self.request.user).order_by(
+            "-created_at"
+        )
+
+
+class CreateIssueOnLocationReportView(generics.GenericAPIView):
+    serializer_class = CreateIssueOnLocationReportSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            data=request.data, context={"user": self.request.user}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {
+                "success": "Thank you for your report!! It will be available for review in no time"
+            }
+        )

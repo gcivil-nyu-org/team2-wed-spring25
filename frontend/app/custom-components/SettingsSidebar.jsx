@@ -144,11 +144,11 @@ const SettingsSidebar = () => {
   let avatarUrl = null;
   
   // Debug what avatar values are available
-  console.log("Avatar data:", {
-    contextAvatar: user.avatar,
-    contextAvatarUrl: user.avatar_url,
-    userObject: user
-  });
+  // console.log("Avatar data:", {
+  //   contextAvatar: user.avatar,
+  //   contextAvatarUrl: user.avatar_url,
+  //   userObject: user
+  // });
   
   // Check if it's a Google avatar URL
   const isGoogleAvatar = (url) => {
@@ -182,7 +182,7 @@ const SettingsSidebar = () => {
     avatarUrl = `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
   }
   
-  console.log("Final avatar URL:", avatarUrl);
+  // console.log("Final avatar URL:", avatarUrl);
 
   const renderMenuGroup = (label, menuItems) => (
     <SidebarGroup>
