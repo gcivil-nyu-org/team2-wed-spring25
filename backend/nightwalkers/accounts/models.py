@@ -91,6 +91,9 @@ class User(AbstractUser):
     def get_karma(self):
         return self.karma if self.karma else 0
 
+    def is_user_banned(self):
+        return self.is_banned
+
     @property
     def get_avatar(self):
         """

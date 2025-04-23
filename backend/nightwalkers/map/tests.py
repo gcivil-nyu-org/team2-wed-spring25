@@ -46,6 +46,240 @@ class BaseTestCase(TestCase):
         self.client = Client()
 
 
+class SplitHeatmapDataTestCase(BaseTestCase):
+    """Test cases for the split Primary and Secondary HeatmapDataViews"""
+
+    def setUp(self):
+        super().setUp()
+        self.primary_url = reverse("primary-heatmap")
+        self.secondary_url = reverse("secondary-heatmap")
+
+        # Sample data to be returned by the cursor
+        self.mock_data = [
+            (40.7128, -74.0060, "5"),
+            (40.7580, -73.9855, "10"),
+            (40.7431, -73.9712, None),
+        ]
+
+    def authenticate(self):
+        """Helper method to authenticate the client"""
+        self.api_client.force_authenticate(user=self.user1)
+
+    @patch("django.db.connection.cursor")
+    def test_primary_authentication_required(self, mock_cursor):
+        """Test that authentication is required for accessing the primary endpoint"""
+        # Unauthenticated request should be rejected
+        response = self.api_client.get(self.primary_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Authenticate and try again
+        self.authenticate()
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = self.mock_data
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.api_client.get(self.primary_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @patch("django.db.connection.cursor")
+    def test_secondary_authentication_required(self, mock_cursor):
+        """Test that authentication is required for accessing the secondary endpoint"""
+        # Unauthenticated request should be rejected
+        response = self.api_client.get(self.secondary_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # Authenticate and try again
+        self.authenticate()
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = self.mock_data
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.api_client.get(self.secondary_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @patch("django.db.connection.cursor")
+    def test_primary_heatmap_data_format(self, mock_cursor):
+        """Test format of data returned by primary heatmap endpoint"""
+        self.authenticate()
+
+        # Mock the cursor's fetchall method to return our sample data
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = self.mock_data
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.api_client.get(self.primary_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 3)
+
+        # Verify the data is formatted correctly
+        self.assertEqual(data[0]["latitude"], 40.7128)
+        self.assertEqual(data[0]["longitude"], -74.0060)
+        self.assertEqual(data[0]["intensity"], 5.0)
+
+        # Verify that None is handled properly
+        self.assertEqual(data[2]["intensity"], 0.0)
+
+        # Verify that the SQL query was executed with the correct WHERE clause
+        self.assertTrue(mock_cursor_instance.execute.called)
+        args, kwargs = mock_cursor_instance.execute.call_args
+        self.assertIn("WHERE CMPLNT_NUM >= %s", args[0])
+        # Check if parameters were passed
+        if len(args) > 1:
+            self.assertEqual(args[1][0], 5)  # Check threshold value
+        elif kwargs and "params" in kwargs:
+            self.assertEqual(kwargs["params"][0], 5)  # Check threshold value
+
+    @patch("django.db.connection.cursor")
+    def test_secondary_heatmap_data_format(self, mock_cursor):
+        """Test format of data returned by secondary heatmap endpoint"""
+        self.authenticate()
+
+        # Mock the cursor's fetchall method to return our sample data
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = self.mock_data
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.api_client.get(self.secondary_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 3)
+
+        # Verify the data is formatted correctly
+        self.assertEqual(data[0]["latitude"], 40.7128)
+        self.assertEqual(data[0]["longitude"], -74.0060)
+        self.assertEqual(data[0]["intensity"], 5.0)
+
+        # Verify that None is handled properly
+        self.assertEqual(data[2]["intensity"], 0.0)
+
+        # Verify that the SQL query was executed with the correct WHERE clause
+        self.assertTrue(mock_cursor_instance.execute.called)
+        args, kwargs = mock_cursor_instance.execute.call_args
+        self.assertIn("WHERE CMPLNT_NUM < %s", args[0])
+        # Check if parameters were passed
+        if len(args) > 1:
+            self.assertEqual(args[1][0], 5)  # Check threshold value
+        elif kwargs and "params" in kwargs:
+            self.assertEqual(kwargs["params"][0], 5)  # Check threshold value
+
+    @patch("django.db.connection.cursor")
+    def test_primary_heatmap_data_db_error(self, mock_cursor):
+        """Test handling of database errors in primary endpoint"""
+        self.authenticate()
+
+        # Mock the cursor to raise an exception
+        mock_cursor.return_value.__enter__.side_effect = Exception("Database error")
+
+        response = self.api_client.get(self.primary_url)
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        data = json.loads(response.content)
+        self.assertEqual(data, [])  # Empty list on error
+
+    @patch("django.db.connection.cursor")
+    def test_secondary_heatmap_data_db_error(self, mock_cursor):
+        """Test handling of database errors in secondary endpoint"""
+        self.authenticate()
+
+        # Mock the cursor to raise an exception
+        mock_cursor.return_value.__enter__.side_effect = Exception("Database error")
+
+        response = self.api_client.get(self.secondary_url)
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        data = json.loads(response.content)
+        self.assertEqual(data, [])  # Empty list on error
+
+    @patch("django.db.connection.cursor")
+    def test_primary_heatmap_data_empty_result(self, mock_cursor):
+        """Test handling of empty database results in primary endpoint"""
+        self.authenticate()
+
+        # Mock the cursor to return an empty result
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = []
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.api_client.get(self.primary_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertEqual(data, [])
+
+    @patch("django.db.connection.cursor")
+    def test_secondary_heatmap_data_empty_result(self, mock_cursor):
+        """Test handling of empty database results in secondary endpoint"""
+        self.authenticate()
+
+        # Mock the cursor to return an empty result
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = []
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.api_client.get(self.secondary_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertEqual(data, [])
+
+    @patch("django.db.connection.cursor")
+    def test_primary_heatmap_data_invalid_value_handling(self, mock_cursor):
+        """Test handling of invalid values in the database results for
+        primary endpoint"""
+        self.authenticate()
+
+        # Mock cursor to return data with invalid values
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = [
+            (40.7128, -74.0060, "invalid"),  # String that isn't a number
+            (40.7580, -73.9855, {}),  # Invalid type
+            (40.7431, -73.9712, None),  # None value
+        ]
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.api_client.get(self.primary_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 3)
+
+        # All intensity values should be converted to numbers
+        # Invalid entries should be converted to 0.0
+        self.assertEqual(data[0]["intensity"], 0.0)
+        self.assertEqual(data[1]["intensity"], 0.0)
+        self.assertEqual(data[2]["intensity"], 0.0)
+
+    @patch("django.db.connection.cursor")
+    def test_secondary_heatmap_data_invalid_value_handling(self, mock_cursor):
+        """Test handling of invalid values in the database results for
+        secondary endpoint"""
+        self.authenticate()
+
+        # Mock cursor to return data with invalid values
+        mock_cursor_instance = MagicMock()
+        mock_cursor_instance.fetchall.return_value = [
+            (40.7128, -74.0060, "invalid"),  # String that isn't a number
+            (40.7580, -73.9855, {}),  # Invalid type
+            (40.7431, -73.9712, None),  # None value
+        ]
+        mock_cursor.return_value.__enter__.return_value = mock_cursor_instance
+
+        response = self.api_client.get(self.secondary_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 3)
+
+        # All intensity values should be converted to numbers
+        # Invalid entries should be converted to 0.0
+        self.assertEqual(data[0]["intensity"], 0.0)
+        self.assertEqual(data[1]["intensity"], 0.0)
+        self.assertEqual(data[2]["intensity"], 0.0)
+
+
 class SavedRouteAPITestCase(BaseTestCase):
     """Test cases for SavedRoute API endpoints"""
 

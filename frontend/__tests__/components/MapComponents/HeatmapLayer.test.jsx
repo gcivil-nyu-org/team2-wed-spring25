@@ -94,9 +94,9 @@ describe("HeatmapLayer", () => {
     ];
 
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -111,15 +111,15 @@ describe("HeatmapLayer", () => {
       );
     });
 
-    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/?type=1");
-    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/?type=2");
+    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/primary");
+    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/secondary");
   });
 
   it("handles primary API errors gracefully", async () => {
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.reject(new Error("API Error"));
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve([{ latitude: 3, longitude: 3, intensity: 0.3 }]);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -143,9 +143,9 @@ describe("HeatmapLayer", () => {
 
   it("handles secondary API errors gracefully", async () => {
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve([{ latitude: 1, longitude: 1, intensity: 0.5 }]);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.reject(new Error("API Error"));
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -172,9 +172,9 @@ describe("HeatmapLayer", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -192,8 +192,8 @@ describe("HeatmapLayer", () => {
     });
 
     // Verify heatmap data was loaded
-    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/?type=1");
-    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/?type=2");
+    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/primary");
+    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/secondary");
   });
 
   it("toggles low crime layer visibility when Low button is clicked", async () => {
@@ -201,9 +201,9 @@ describe("HeatmapLayer", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -242,9 +242,9 @@ describe("HeatmapLayer", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -275,9 +275,9 @@ describe("HeatmapLayer", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -329,9 +329,9 @@ describe("HeatmapLayer", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -375,9 +375,9 @@ describe("HeatmapLayer", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -481,9 +481,9 @@ describe("HeatmapLayer", () => {
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
       
       authAPI.authenticatedGet.mockImplementation((url) => {
-        if (url.includes("type=1")) {
+        if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
-        } else if (url.includes("type=2")) {
+        } else if (url.includes("secondary")) {
           return Promise.resolve(mockSecondaryData);
         }
         return Promise.reject(new Error("Invalid URL"));
@@ -517,8 +517,8 @@ describe("HeatmapLayer", () => {
       });
       
       // Should call API for both types of data
-      expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/?type=1");
-      expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/?type=2");
+      expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/primary");
+      expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/secondary");
     });
   });
   describe("Error handling tests", () => {
@@ -563,9 +563,9 @@ describe("HeatmapLayer", () => {
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
       
       authAPI.authenticatedGet.mockImplementation((url) => {
-        if (url.includes("type=1")) {
+        if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
-        } else if (url.includes("type=2")) {
+        } else if (url.includes("secondary")) {
           return Promise.resolve(mockSecondaryData);
         }
         return Promise.reject(new Error("Invalid URL"));
@@ -615,9 +615,9 @@ describe("HeatmapLayer", () => {
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
       
       authAPI.authenticatedGet.mockImplementation((url) => {
-        if (url.includes("type=1")) {
+        if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
-        } else if (url.includes("type=2")) {
+        } else if (url.includes("secondary")) {
           return Promise.resolve(mockSecondaryData);
         }
         return Promise.reject(new Error("Invalid URL"));
@@ -667,9 +667,9 @@ describe("HeatmapLayer", () => {
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
       
       authAPI.authenticatedGet.mockImplementation((url) => {
-        if (url.includes("type=1")) {
+        if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
-        } else if (url.includes("type=2")) {
+        } else if (url.includes("secondary")) {
           return Promise.resolve(mockSecondaryData);
         }
         return Promise.reject(new Error("Invalid URL"));
@@ -719,9 +719,9 @@ describe("HeatmapLayer", () => {
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
       
       authAPI.authenticatedGet.mockImplementation((url) => {
-        if (url.includes("type=1")) {
+        if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
-        } else if (url.includes("type=2")) {
+        } else if (url.includes("secondary")) {
           return Promise.resolve(mockSecondaryData);
         }
         return Promise.reject(new Error("Invalid URL"));
@@ -811,9 +811,9 @@ describe("Retry functionality", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -862,9 +862,9 @@ describe("Retry functionality", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -917,9 +917,9 @@ describe("Retry functionality", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
@@ -968,9 +968,9 @@ describe("Retry functionality", () => {
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
     
     authAPI.authenticatedGet.mockImplementation((url) => {
-      if (url.includes("type=1")) {
+      if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
-      } else if (url.includes("type=2")) {
+      } else if (url.includes("secondary")) {
         return Promise.resolve(mockSecondaryData);
       }
       return Promise.reject(new Error("Invalid URL"));
