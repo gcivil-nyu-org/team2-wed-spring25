@@ -227,7 +227,8 @@ class SplitHeatmapDataTestCase(BaseTestCase):
 
     @patch("django.db.connection.cursor")
     def test_primary_heatmap_data_invalid_value_handling(self, mock_cursor):
-        """Test handling of invalid values in the database results for primary endpoint"""
+        """Test handling of invalid values in the database results for
+        primary endpoint"""
         self.authenticate()
 
         # Mock cursor to return data with invalid values
@@ -253,7 +254,8 @@ class SplitHeatmapDataTestCase(BaseTestCase):
 
     @patch("django.db.connection.cursor")
     def test_secondary_heatmap_data_invalid_value_handling(self, mock_cursor):
-        """Test handling of invalid values in the database results for secondary endpoint"""
+        """Test handling of invalid values in the database results for
+        secondary endpoint"""
         self.authenticate()
 
         # Mock cursor to return data with invalid values
@@ -276,6 +278,8 @@ class SplitHeatmapDataTestCase(BaseTestCase):
         self.assertEqual(data[0]["intensity"], 0.0)
         self.assertEqual(data[1]["intensity"], 0.0)
         self.assertEqual(data[2]["intensity"], 0.0)
+
+
 class SavedRouteAPITestCase(BaseTestCase):
     """Test cases for SavedRoute API endpoints"""
 

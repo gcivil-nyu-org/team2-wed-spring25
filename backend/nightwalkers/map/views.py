@@ -73,6 +73,7 @@ class HeatmapDataView(generics.GenericAPIView):
             print("Error while fetching data from PostgreSQL: %s", error)
             return Response([], status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class PrimaryHeatmapDataView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -151,6 +152,8 @@ class SecondaryHeatmapDataView(generics.GenericAPIView):
         except Exception as error:
             print("Error while fetching data from PostgreSQL: %s", error)
             return Response([], status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class SaveRouteAPIView(generics.GenericAPIView):
     serializer_class = SavedRouteSerializer
     permission_classes = [IsAuthenticated]
