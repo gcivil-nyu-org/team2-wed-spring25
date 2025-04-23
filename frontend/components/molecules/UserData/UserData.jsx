@@ -13,7 +13,7 @@ export default function UserData({
 }) {
   return (
     <div className="text-text-forum-heading w-full ">
-      <div className="relative  rounded-lg max-h-[210px] pb-4 w-full bg-bg-post">
+      <div className="relative  rounded-lg max-h-[270px] pb-4 w-full bg-bg-post">
         <div className="h-[58px] absolute left-0 top-0 w-full bg-purple-300 rounded-t-lg">
           <Image
             src={"/topography.svg"}
