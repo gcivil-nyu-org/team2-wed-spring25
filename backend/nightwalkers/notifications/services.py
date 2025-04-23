@@ -7,6 +7,7 @@ import asyncio
 import os
 import json
 from pathlib import Path
+import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -145,4 +146,7 @@ class NotificationService:
             return 0
 
 
-notification_service = NotificationService()
+if "test" not in sys.argv:
+    notification_service = NotificationService()
+else:
+    notification_service = None  # or a mock
