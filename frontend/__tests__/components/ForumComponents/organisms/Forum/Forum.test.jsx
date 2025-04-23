@@ -1,3 +1,15 @@
+jest.mock("bad-words", () => {
+  class MockFilter {
+    constructor() {
+      this.clean = jest.fn((text) => text);
+    }
+  }
+
+  return {
+    Filter: MockFilter,
+  };
+});
+
 jest.mock("public/icons/index.js", () => ({
   closeDark: "mocked-svg",
   emojiDark: "mocked-svg",
@@ -76,8 +88,8 @@ describe("Forum", () => {
 
   it("shows community bookmarks and rules in xlg viewport", () => {
     render(<Forum />);
-  
+
     expect(screen.getByText(/Bookmarks/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rules/i)).toBeInTheDocument();    
-  });  
+    expect(screen.getByText(/Rules/i)).toBeInTheDocument();
+  });
 });

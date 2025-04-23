@@ -65,8 +65,7 @@ describe("PostCommentInput", () => {
     );
 
     expect(screen.getByTestId("comment-input")).toBeInTheDocument();
-    expect(screen.getByTestId("icon-emoji")).toBeInTheDocument();
-    expect(screen.getByTestId("icon-emoji")).toHaveAttribute("data-size", "lg");
+    expect(screen.getByTestId("icon-emoji-white")).toHaveAttribute("data-size", "lg");
   });
 
   it("shows comment button when there is content", () => {
