@@ -54,11 +54,19 @@ const RoutingMapComponent = () => {
   const routeCalculatedRef = useRef(false);
   const [shouldCalculateRoute, setShouldCalculateRoute] = useState(false);
 
+  const latestUserLocationRef = useRef(null);
+
+  useEffect(() => {
+    if (userLocation && canUseCurrentLocation) {
+      latestUserLocationRef.current = userLocation;
+    }
+  }, [userLocation, canUseCurrentLocation]);
+
   // Helper function to center map on user location
   const centerMapOnUserLocation = () => {
-    if (mapInstanceRef.current && userLocation && canUseCurrentLocation) {
-      // Center map on user location
-      mapInstanceRef.current.setView(userLocation, 15);
+    if (mapInstanceRef.current && latestUserLocationRef.current) {
+      // Center map on latest user location from the ref
+      mapInstanceRef.current.setView(latestUserLocationRef.current, 15);
     }
   };
 
@@ -178,13 +186,14 @@ const RoutingMapComponent = () => {
         // Add locate button to container
         container.appendChild(locateButton);
 
-        // Handle locate button click
+        // Handle locate button click- this got updated to bypass the hook becasue I would need to modify more code and nope
         locateButton.addEventListener("click", (e) => {
           e.stopPropagation();
+          // Just center on the latest location we have
+          centerMapOnUserLocation();
+          // Optionally refresh location for future updates
           if (fetchUserLocation) {
-            fetchUserLocation(); // Get updated location
-            // Center on user location
-            setTimeout(() => centerMapOnUserLocation(), 300);
+            fetchUserLocation();
           }
         });
       }
