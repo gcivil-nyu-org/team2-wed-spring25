@@ -27,7 +27,9 @@ urlpatterns = [
     path("report-app-issue/", ReportIssueView.as_view(), name="report-app-issue"),
     path("user/change-password/", ChangePasswordView.as_view(), name="change-password"),
     path("user/change-names/", ChangeUserNamesView.as_view(), name="change-names"),
-    path("user/update-fcm-token/", ChangeFCMTokenView.as_view(), name="change-fcm-token"),
+    path(
+        "user/update-fcm-token/", ChangeFCMTokenView.as_view(), name="change-fcm-token"
+    ),
     path(
         "user/change-profile-picture/",
         UploadProfilePic.as_view(),
