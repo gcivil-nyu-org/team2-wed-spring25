@@ -6,10 +6,22 @@ from .views import (
     DeleteSavedRouteAPIView,
     RetrieveSavedRoutesListAPIView,
     HeatmapDataView,
+    PrimaryHeatmapDataView,
+    SecondaryHeatmapDataView,
 )
 
 urlpatterns = [
     path("map/heatmap-data/", HeatmapDataView.as_view(), name="heatmap-data"),
+    path(
+        "map/heatmap-data/primary/",
+        PrimaryHeatmapDataView.as_view(),
+        name="primary-heatmap",
+    ),
+    path(
+        "map/heatmap-data/secondary/",
+        SecondaryHeatmapDataView.as_view(),
+        name="secondary-heatmap",
+    ),
     path("get-route/", RouteViewAPI.as_view(), name="get-route"),
     path("save-route/", SaveRouteAPIView.as_view(), name="save-route"),
     path(

@@ -93,6 +93,13 @@ class GoogleAuthView(APIView):
 
                 user.save()
 
+            # BAN CHECK
+            if user.is_banned:
+                return Response(
+                    {"error": "This account has been banned"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
             # Use standardized response format
             return Response(get_standard_response(user), status=status.HTTP_200_OK)
 
@@ -120,7 +127,12 @@ class LoginView(APIView):
         user = authenticate(email=email, password=password)
 
         if user is not None:
-            # Use standardized response format
+            # BAN CHECK
+            if user.is_banned:
+                return Response(
+                    {"detail": "This account has been banned"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
             return Response(get_standard_response(user))
         else:
             return Response(
@@ -422,3 +434,36 @@ class UploadProfilePic(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+# admin view to ban/unban users
+class BanUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        if not request.user.is_admin:
+            return Response(
+                {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        try:
+            user = User.objects.get(id=user_id)
+            action = request.data.get("action")
+
+            if action == "ban":
+                user.is_banned = True
+            elif action == "unban":
+                user.is_banned = False
+            else:
+                return Response(
+                    {"error": "Invalid action. Use 'ban' or 'unban'"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            user.save()
+            sm = f"User {'banned' if action == 'ban' else 'unbanned'} successfully"
+            return Response({"success": sm}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )

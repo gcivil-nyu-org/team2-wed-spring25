@@ -5,10 +5,6 @@ import { authAPI } from "@/utils/fetch/fetch";
 import L from "leaflet";
 import "leaflet.heat";
 
-// Global state to prevent multiple components from fetching simultaneously
-let isPrimaryFetching = false;
-let isSecondaryFetching = false;
-
 // Cache keys and expiry
 const PRIMARY_CACHE_KEY = "primary_heatmap_data_cache";
 const SECONDARY_CACHE_KEY = "secondary_heatmap_data_cache";
@@ -19,17 +15,23 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   const secondaryHeatLayerRef = useRef(null);
   const { showError, showWarning } = useNotification();
   
+  // Use refs instead of global variables for fetching state
+  const isPrimaryFetchingRef = useRef(false);
+  const isSecondaryFetchingRef = useRef(false);
+  
+  // Use refs for retry counters instead of state
+  const primaryRetryCountRef = useRef(0);
+  const secondaryRetryCountRef = useRef(0);
+  
   // Primary heatmap states
   const [primaryHeatmapPoints, setPrimaryHeatmapPoints] = useState([]);
   const [primaryDataLoaded, setPrimaryDataLoaded] = useState(false);
   const [isPrimaryLoading, setIsPrimaryLoading] = useState(false);
-  const [primaryRetryCount, setPrimaryRetryCount] = useState(0);
   
   // Secondary heatmap states
   const [secondaryHeatmapPoints, setSecondaryHeatmapPoints] = useState([]);
   const [secondaryDataLoaded, setSecondaryDataLoaded] = useState(false);
   const [isSecondaryLoading, setIsSecondaryLoading] = useState(false);
-  const [secondaryRetryCount, setSecondaryRetryCount] = useState(0);
   
   // New toggle states for layers
   const [showLowCrime, setShowLowCrime] = useState(false);
@@ -43,7 +45,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
 
   // Fetch primary heatmap data (high crime areas)
   const fetchPrimaryHeatmapData = useCallback(async () => {
-    if (isPrimaryLoading || isPrimaryFetching) return;
+    if (isPrimaryLoading || isPrimaryFetchingRef.current) return;
     
     // Check cache first
     try {
@@ -63,10 +65,10 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
     }
     
     setIsPrimaryLoading(true);
-    isPrimaryFetching = true;
+    isPrimaryFetchingRef.current = true;
     
     try {
-      const data = await authAPI.authenticatedGet("map/heatmap-data/?type=1");
+      const data = await authAPI.authenticatedGet("map/heatmap-data/primary");
       
       if (!data || !Array.isArray(data) || data.length === 0) {
         throw new Error("Invalid or empty primary heatmap data received");
@@ -93,40 +95,68 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       
       setPrimaryHeatmapPoints(formattedData);
       setPrimaryDataLoaded(true);
-      setPrimaryRetryCount(0);
+      // Reset retry counter on success
+      primaryRetryCountRef.current = 0;
     } catch (err) {
-      console.error("Error fetching primary heatmap data:", err);
+      console.error("Error fetching primary heatmap data:", err?.status || err?.response?.status || err?.message || err);
       
-      if (primaryRetryCount < 2) {
-        showWarning(
-          "Loading high crime data...",
-          "Retrying to load high crime heatmap data",
-          "primary_heatmap_retry"
+      // Specifically handle 404 errors - don't retry
+      if (err?.status === 404 || err?.response?.status === 404) {
+        showError(
+          "High crime data unavailable",
+          "Crime data not found (404). Feature disabled.",
+          "primary_heatmap_error"
         );
-        setPrimaryRetryCount((prev) => prev + 1);
+        setPrimaryDataLoaded(true);
+        setPrimaryHeatmapPoints([]);
+      } 
+      // Only retry if we haven't reached the max retry count
+      else if (primaryRetryCountRef.current < 2) {
+        // Increment retry counter
+        primaryRetryCountRef.current += 1;
+        
+        // For the last retry attempt, show error instead of warning
+        if (primaryRetryCountRef.current === 2) {
+          showError(
+            "Final attempt: Loading high crime data",
+            "Last attempt to load high crime heatmap data",
+            "primary_heatmap_final_retry"
+          );
+        } else {
+          showWarning(
+            "Loading high crime data...",
+            "Retrying to load high crime heatmap data",
+            "primary_heatmap_retry"
+          );
+        }
+        
         setTimeout(() => {
           setIsPrimaryLoading(false);
-          isPrimaryFetching = false;
+          isPrimaryFetchingRef.current = false;
           fetchPrimaryHeatmapData();
         }, 3000);
       } else {
+        // Max retries reached
         showError(
           "High crime data unavailable",
-          "Could not load high crime heatmap data. Some features may be limited.",
+          "Could not load high crime heatmap data after multiple attempts. Some features may be limited.",
           "primary_heatmap_error"
         );
         setPrimaryDataLoaded(true);
         setPrimaryHeatmapPoints([]);
       }
     } finally {
-      setIsPrimaryLoading(false);
-      isPrimaryFetching = false;
+      if (primaryRetryCountRef.current >= 2) {
+        // Reset loading state if we're done retrying
+        setIsPrimaryLoading(false);
+        isPrimaryFetchingRef.current = false;
+      }
     }
-  }, [primaryRetryCount, isPrimaryLoading, showError, showWarning]);
+  }, [isPrimaryLoading, showError, showWarning]);
 
   // Fetch secondary heatmap data (lower crime areas)
   const fetchSecondaryHeatmapData = useCallback(async () => {
-    if (isSecondaryLoading || isSecondaryFetching) return;
+    if (isSecondaryLoading || isSecondaryFetchingRef.current) return;
     
     // Check cache first
     try {
@@ -146,10 +176,10 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
     }
     
     setIsSecondaryLoading(true);
-    isSecondaryFetching = true;
+    isSecondaryFetchingRef.current = true;
     
     try {
-      const data = await authAPI.authenticatedGet("map/heatmap-data/?type=2");
+      const data = await authAPI.authenticatedGet("map/heatmap-data/secondary");
       
       if (!data || !Array.isArray(data) || data.length === 0) {
         throw new Error("Invalid or empty secondary heatmap data received");
@@ -176,36 +206,82 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       
       setSecondaryHeatmapPoints(formattedData);
       setSecondaryDataLoaded(true);
-      setSecondaryRetryCount(0);
+      // Reset retry counter on success
+      secondaryRetryCountRef.current = 0;
     } catch (err) {
-      console.error("Error fetching secondary heatmap data:", err);
+      console.error("Error fetching secondary heatmap data:", err?.status || err?.response?.status || err?.message || err);
       
-      if (secondaryRetryCount < 2) {
-        showWarning(
-          "Loading low crime data...",
-          "Retrying to load low crime heatmap data",
-          "secondary_heatmap_retry"
+      // Specifically handle 404 errors - don't retry
+      if (err?.status === 404 || err?.response?.status === 404) {
+        showError(
+          "Low crime data unavailable",
+          "Crime data not found (404). Feature disabled.",
+          "secondary_heatmap_error"
         );
-        setSecondaryRetryCount((prev) => prev + 1);
+        setSecondaryDataLoaded(true);
+        setSecondaryHeatmapPoints([]);
+      } 
+      // Only retry if we haven't reached the max retry count
+      else if (secondaryRetryCountRef.current < 2) {
+        // Increment retry counter
+        secondaryRetryCountRef.current += 1;
+        
+        // For the last retry attempt, show error instead of warning
+        if (secondaryRetryCountRef.current === 2) {
+          showError(
+            "Final attempt: Loading low crime data",
+            "Last attempt to load low crime heatmap data",
+            "secondary_heatmap_final_retry"
+          );
+        } else {
+          showWarning(
+            "Loading low crime data...",
+            "Retrying to load low crime heatmap data",
+            "secondary_heatmap_retry"
+          );
+        }
+        
         setTimeout(() => {
           setIsSecondaryLoading(false);
-          isSecondaryFetching = false;
+          isSecondaryFetchingRef.current = false;
           fetchSecondaryHeatmapData();
         }, 3000);
       } else {
+        // Max retries reached
         showError(
           "Low crime data unavailable",
-          "Could not load low crime heatmap data. Some features may be limited.",
+          "Could not load low crime heatmap data after multiple attempts. Some features may be limited.",
           "secondary_heatmap_error"
         );
         setSecondaryDataLoaded(true);
         setSecondaryHeatmapPoints([]);
       }
     } finally {
-      setIsSecondaryLoading(false);
-      isSecondaryFetching = false;
+      if (secondaryRetryCountRef.current >= 2) {
+        // Reset loading state if we're done retrying
+        setIsSecondaryLoading(false);
+        isSecondaryFetchingRef.current = false;
+      }
     }
-  }, [secondaryRetryCount, isSecondaryLoading, showError, showWarning]);
+  }, [isSecondaryLoading, showError, showWarning]);
+
+  // Reset retry counters on mount
+  useEffect(() => {
+    primaryRetryCountRef.current = 0;
+    secondaryRetryCountRef.current = 0;
+    
+    return () => {
+      // Cleanup on unmount
+      setIsPrimaryLoading(false);
+      isPrimaryFetchingRef.current = false;
+      setIsSecondaryLoading(false);
+      isSecondaryFetchingRef.current = false;
+      
+      // Reset retry counters
+      primaryRetryCountRef.current = 0;
+      secondaryRetryCountRef.current = 0;
+    };
+  }, []);
 
   // Fetch data once on component mount
   const primaryDataFetchedRef = useRef(false);
@@ -223,19 +299,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       secondaryDataFetchedRef.current = true;
       fetchSecondaryHeatmapData();
     }
-    
-    // Cleanup function
-    return () => {
-      setIsPrimaryLoading(false);
-      isPrimaryFetching = false;
-      setIsSecondaryLoading(false);
-      isSecondaryFetching = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  
-  // For linter satisfaction only
-  useEffect(() => {}, [fetchPrimaryHeatmapData, fetchSecondaryHeatmapData]);
+  }, [fetchPrimaryHeatmapData, fetchSecondaryHeatmapData]);
 
   // Update showingAny state whenever either layer is visible
   useEffect(() => {
@@ -419,14 +483,16 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
 
   // Handle refresh for both layers
   const handleRefresh = () => {
+    // Reset retry counters
+    primaryRetryCountRef.current = 0;
+    secondaryRetryCountRef.current = 0;
+    
     // Refresh primary data
     setPrimaryDataLoaded(false);
-    setPrimaryRetryCount(0);
     fetchPrimaryHeatmapData();
     
     // Refresh secondary data
     setSecondaryDataLoaded(false);
-    setSecondaryRetryCount(0);
     fetchSecondaryHeatmapData();
   };
 

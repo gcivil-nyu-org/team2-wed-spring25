@@ -255,6 +255,13 @@ const RoutingMapComponent = () => {
     }
   }, [userLocation, canUseCurrentLocation]);
 
+  useEffect(() => {
+    // If we're no longer getting location but still waiting, stop waiting
+    if (!isGettingLocation && waitingForLocation) {
+      setWaitingForLocation(false);
+    }
+  }, [isGettingLocation, waitingForLocation]);
+
   // Helper function to check if coordinates have meaningfully changed
   const areCoordinatesDifferent = (coords1, coords2) => {
     if (!coords1 || !coords2) return true;
