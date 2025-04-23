@@ -10,6 +10,7 @@ from .views import (
     ChangePasswordView,
     ChangeUserNamesView,
     UploadProfilePic,
+    BanUserView,
 )
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
@@ -30,4 +31,5 @@ urlpatterns = [
         UploadProfilePic.as_view(),
         name="upload_profile_pic",
     ),  # For image uploads
+    path("users/<int:user_id>/ban/", BanUserView.as_view(), name="ban-user"),
 ]

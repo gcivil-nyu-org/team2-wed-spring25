@@ -16,7 +16,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Suspense } from 'react';
+import { Suspense } from "react";
 
 export default function LoginPage() {
   return (
@@ -41,7 +41,7 @@ export function LoginContent() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   // Debug log for session status changes
   useEffect(() => {
     console.log("Session status:", status);
@@ -55,11 +55,12 @@ export function LoginContent() {
     const errorFromParams = searchParams.get("error");
     if (errorFromParams) {
       const errorMessages = {
-        "session_expired": "Your session has expired. Please log in again.",
-        "TokenInvalid": "Your session has expired. Please log in again.",
-        "CredentialsSignin": "Invalid email or password.",
-        "OAuthSignin": "Error signing in with Google.",
-        "default": "An error occurred during sign in."
+        session_expired: "Your session has expired. Please log in again.",
+        TokenInvalid: "Your session has expired. Please log in again.",
+        CredentialsSignin: "Invalid email or password.",
+        OAuthSignin: "Error signing in with Google.",
+        default: "An error occurred during sign in.",
+        AccountBanned: "This account has been banned for violating community guidelines.",
       };
 
       setError(errorMessages[errorFromParams] || errorMessages.default);
@@ -78,17 +79,19 @@ export function LoginContent() {
   // Safety timeout to prevent UI getting stuck in loading state
   useEffect(() => {
     let timeoutId;
-    
+
     if (loading) {
       timeoutId = setTimeout(() => {
         console.log("Login timeout - resetting loading state");
         setLoading(false);
         if (!error) {
-          setError("Login is taking longer than expected. Refresh and try again.");
+          setError(
+            "Login is taking longer than expected. Refresh and try again."
+          );
         }
       }, 15000); // 10 second timeout
     }
-    
+
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
@@ -133,12 +136,15 @@ export function LoginContent() {
       if (result?.error) {
         // Map known error codes to user-friendly messages
         const errorMessages = {
-          "CredentialsSignin": "Invalid email or password",
-          "SessionExpired": "Your session expired. Please log in again",
-          "RefreshTokenExpired": "Your session has expired. Please log in again",
-          "TokenInvalid": "Your session has expired. Please log in again",
-          "RefreshAccessTokenError": "Authentication error. Please try again",
-          "OAuthAccountNotLinked": "Email already in use with a different provider",
+          CredentialsSignin: "Invalid email or password",
+          SessionExpired: "Your session expired. Please log in again",
+          RefreshTokenExpired: "Your session has expired. Please log in again",
+          TokenInvalid: "Your session has expired. Please log in again",
+          RefreshAccessTokenError: "Authentication error. Please try again",
+          OAuthAccountNotLinked:
+            "Email already in use with a different provider",
+          AccountBanned:
+            "This account has been banned for violating community guidelines",
           // Add other error codes as you encounter them
         };
 
@@ -150,15 +156,15 @@ export function LoginContent() {
 
       // If we get here, login was successful
       console.log("Login successful, redirecting");
-      
+
       // Force refresh the session to ensure we have the latest data
       if (update) {
         await update();
       }
-      
+
       // Use the router to navigate to the home page
       router.push("/users/home");
-      
+
       // Don't reset loading state as we're navigating away
     } catch (error) {
       console.error("Login failed:", error);

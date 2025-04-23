@@ -19,35 +19,43 @@ function LoadingSpinner({ message = "Loading..." }) {
 }
 
 // Provider component
-export function UserProvider({ 
+export function UserProvider({
   children,
-  disableBackgroundRefresh = false // Set to true to disable background refresh
+  disableBackgroundRefresh = false, // Set to true to disable background refresh
 }) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [userDetails, setUserDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [loadingMessage, setLoadingMessage] = useState("Fetching user details...");
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Fetching user details..."
+  );
 
   // Maximum time to wait for user details before showing an error
   const MAX_LOADING_TIME = 10000; // 10 seconds
 
   // Sync userDetails to localStorage whenever it changes
-  useEffect(() => {    
+  useEffect(() => {
     if (userDetails) {
       try {
         // console.log("Storing user in localStorage");
         localStorage.setItem("user", JSON.stringify(userDetails));
       } catch (err) {
-        console.error("[UserProvider] Error syncing user to localStorage:", err);
+        console.error(
+          "[UserProvider] Error syncing user to localStorage:",
+          err
+        );
       }
     } else if (status === "unauthenticated") {
       try {
         console.log("Removing user from localStorage");
         localStorage.removeItem("user");
       } catch (err) {
-        console.error("[UserProvider] Error removing user from localStorage:", err);
+        console.error(
+          "[UserProvider] Error removing user from localStorage:",
+          err
+        );
       }
     }
   }, [userDetails, status]);
@@ -85,7 +93,7 @@ export function UserProvider({
   useEffect(() => {
     async function fetchUserDetails() {
       // console.log("fetchUserDetails called", { status, sessionExists: !!session });
-      
+
       // If session is still loading, wait
       if (status === "loading") {
         console.log("Session still loading");
@@ -95,9 +103,9 @@ export function UserProvider({
 
       // If user is not authenticated, clear state and stop loading
       if (status === "unauthenticated" || !session?.djangoTokens?.access) {
-        console.log("User not authenticated or no access token", { 
-          status, 
-          hasAccessToken: !!session?.djangoTokens?.access 
+        console.log("User not authenticated or no access token", {
+          status,
+          hasAccessToken: !!session?.djangoTokens?.access,
         });
         setUserDetails(null);
         setIsLoading(false);
@@ -117,38 +125,48 @@ export function UserProvider({
       setLoadingMessage("Fetching user details...");
 
       // Use cached details from session if available and complete
-      if (session.djangoUser &&
-          session.djangoUser.id &&
-          session.djangoUser.email) {
-        
+      if (
+        session.djangoUser &&
+        session.djangoUser.id &&
+        session.djangoUser.email
+      ) {
         setUserDetails(session.djangoUser);
         setIsLoading(false);
 
         // Optionally refresh in background with more safety checks
         if (!disableBackgroundRefresh) {
-          authAPI.authenticatedGet("/users/me/")
-            .then(response => {              
+          authAPI
+            .authenticatedGet("/users/me/")
+            .then((response) => {
               // Handle different response formats
               const freshData = response.user ? response.user : response;
-                            
+
               // Only update if we have valid data that's different from current
               if (freshData && freshData.id && freshData.email) {
                 // Check if data is actually different
-                const isDataDifferent = JSON.stringify(freshData) !== JSON.stringify(session.djangoUser);
+                const isDataDifferent =
+                  JSON.stringify(freshData) !==
+                  JSON.stringify(session.djangoUser);
                 // console.log("Is data different?", { isDataDifferent });
-                
+
                 if (isDataDifferent) {
-                  console.log("Updating user details from background refresh", freshData);
+                  console.log(
+                    "Updating user details from background refresh",
+                    freshData
+                  );
                   setUserDetails(freshData);
                 } else {
                   // console.log("No changes needed from background refresh");
                 }
               } else {
-                console.warn("[UserProvider] Background refresh returned invalid data:", freshData);            
+                console.warn(
+                  "[UserProvider] Background refresh returned invalid data:",
+                  freshData
+                );
               }
             })
-            .catch(err => {
-              console.error("[UserProvider] Background refresh error:", err);          
+            .catch((err) => {
+              console.error("[UserProvider] Background refresh error:", err);
             });
         } else {
           console.log("Background refresh disabled");
@@ -162,13 +180,22 @@ export function UserProvider({
         // console.log("Fetching fresh user details");
         const response = await authAPI.authenticatedGet("/users/me/");
         // console.log("Fresh user details response", response);
-        
+
         // Handle different response formats
         const userData = response.user ? response.user : response;
-        
+
         console.log("Processed user data", userData);
-        
+
         if (userData && userData.id && userData.email) {
+          // Check for banned status
+          if (userData.is_banned) {
+            console.error("[UserProvider] Account is banned");
+            setError("AccountBanned");
+            setUserDetails(null);
+            router.push("/login?error=AccountBanned");
+            return;
+          }
+
           setUserDetails(userData);
           setError(null);
         } else {
@@ -176,7 +203,7 @@ export function UserProvider({
           setError("Invalid user data received");
           router.push("/login?error=invalidUserData");
         }
-        
+
         setIsLoading(false);
       } catch (err) {
         console.error("[UserProvider] Error fetching user details:", err);
@@ -193,7 +220,7 @@ export function UserProvider({
   // Force refresh function
   const refreshUserDetails = async () => {
     console.log("refreshUserDetails called", { status });
-    
+
     if (status !== "authenticated") {
       console.log("Cannot refresh - not authenticated");
       return null;
@@ -202,16 +229,16 @@ export function UserProvider({
     try {
       setIsLoading(true);
       setLoadingMessage("Refreshing user details...");
-      
+
       // console.log("Fetching updated user details");
       const response = await authAPI.authenticatedGet("/users/me/");
       // console.log("User details refresh response", response);
-      
+
       // Handle different response formats
       const userData = response.user ? response.user : response;
-      
+
       // console.log("Processed user data", userData);
-      
+
       if (userData && userData.id && userData.email) {
         setUserDetails(userData);
         setError(null);
@@ -220,7 +247,7 @@ export function UserProvider({
         // Keep existing user data
         setError("Received invalid user data");
       }
-      
+
       setIsLoading(false);
       return userData;
     } catch (err) {
@@ -237,12 +264,12 @@ export function UserProvider({
     isLoading,
     error,
     isAuthenticated: status === "authenticated" && !!userDetails,
-    refreshUserDetails
+    refreshUserDetails,
   };
 
   // Debug render state
-  // console.log("Render state", { 
-  //   isLoading, 
+  // console.log("Render state", {
+  //   isLoading,
   //   hasUser: !!userDetails,
   //   status,
   //   loadingMessage,
