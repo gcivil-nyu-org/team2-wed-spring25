@@ -43,7 +43,6 @@ const items = [
     url: "/users/settings/profile#location",
     icon: Globe,
   },
-  { title: "Privacy", url: "/users/settings/profile#privacy", icon: GlobeLock },
   { title: "Report a Bug", url: "/users/settings/profile#report", icon: Flag },
 ];
 
