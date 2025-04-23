@@ -144,12 +144,12 @@ export default function UserPostHeader({
               ))}
           </div>
           {user_id === post_user_id && (
-            <div className="absolute top-0 right-0 rounded-full hover:cursor-pointer hover:bg-gray-100">
+            <div className="absolute top-0 right-0 rounded-full hover:cursor-pointer ">
               <Icon
-                src={"/icons/more-options.svg"}
+                src={"/icons/ellipsis-dark.svg"}
                 size={"md"}
-                width={30}
-                height={30}
+                width={22}
+                height={22}
                 alt={"..."}
                 onClick={() => {
                   setIsPostOptionListVisible(!isPostOptionListVisible);

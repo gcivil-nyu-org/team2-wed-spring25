@@ -1,8 +1,10 @@
 "use client";
+import { Filter } from "bad-words";
 import { useRef } from "react";
 
 export default function useCustomTextInput(content, setContent, placeholder) {
   const editableDivRef = useRef(null);
+  const filter = new Filter();
   // Handle input in the editable div
   const handleEditableDivInput = (e) => {
     const element = editableDivRef.current;
@@ -15,7 +17,7 @@ export default function useCustomTextInput(content, setContent, placeholder) {
 
     // Remove placeholder text if it exists
     if (text !== placeholder) {
-      setContent(text);
+      setContent(filter.clean(text)); // Use the filter to clean the text
     }
 
     // Restore the cursor position after updating the content

@@ -70,7 +70,7 @@ export default function PostCommentInput({
       <div className="flex justify-between">
         <Icon
           onClick={handleClickOnEmojiPicker}
-          src={"/icons/emoji.svg"}
+          src={"/icons/emoji-white.svg"}
           width={20}
           height={20}
           alt="Image Picker"

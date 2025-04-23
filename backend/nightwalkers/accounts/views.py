@@ -348,6 +348,37 @@ class ChangeUserNamesView(APIView):
         )
 
 
+class ChangeFCMTokenView(APIView):
+    authentication_classes = []  # Disable all authentication
+    permission_classes = []  # Disable all permission checks
+
+    def post(self, request):
+        try:
+            user_id = request.data.get("user_id")
+            fcm_token = request.data.get("fcm_token")
+            user = User.objects.get(id=user_id)
+            if not fcm_token:
+                return Response(
+                    {"error": "FCM token is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Update FCM token
+            user.fcm_token = fcm_token
+            user.save()
+
+            return Response(
+                {"success": "FCM token updated successfully"},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            print(f"Error in ChangeFCMTokenView: {str(e)}")
+            return Response(
+                {"error": f"An error occurred: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
 class UploadProfilePic(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]  # Support file and JSON
