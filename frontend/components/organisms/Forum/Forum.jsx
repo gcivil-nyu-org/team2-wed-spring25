@@ -116,10 +116,10 @@ export default function Forums({ settingsType = "" }) {
           {/* Bottom Drawer */}
           {drawerOpen && (
             <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-end">
-              <div className="relative w-[75%] max-w-sm h-[75dvh] bg-[#1e1e1e] rounded-t-2xl shadow-xl overflow-hidden">
+              <div className="relative w-[75%] max-w-sm max-h-[80dvh] bg-[#1e1e1e] rounded-t-2xl shadow-xl flex flex-col">
                 {/* Sticky header */}
                 <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700 sticky top-0 bg-[#1e1e1e] z-10">
-                  <h2 className="font-semibold text-white text-sm">Forum Info</h2>
+                  <h2 className="font-semibold text-white text-sm">Resources & Rules</h2>
                   <button
                     onClick={() => setDrawerOpen(false)}
                     className="text-gray-400 hover:text-white transition"
@@ -129,7 +129,7 @@ export default function Forums({ settingsType = "" }) {
                 </div>
 
                 {/* Scrollable content */}
-                <div className="overflow-y-auto h-[calc(50dvh)] px-4 pb-6">
+                <div className="overflow-y-auto px-4 pb-[calc(52px+1rem)] flex-1">
                   <ForumSidebarInfo />
                 </div>
               </div>
