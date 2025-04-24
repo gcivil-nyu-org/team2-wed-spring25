@@ -1,9 +1,9 @@
 import os
-from rest_framework import generics, status
+from rest_framework import generics, status, filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import SavedRoute, IssueOnLocationReport
 from .serializers import (
     RouteInputSerializer,
@@ -656,11 +656,13 @@ class IssueOnLocationReportListView(generics.ListAPIView):
     pagination_class = RoutesPagination
     permission_classes = (IsAuthenticated,)
     serializer_class = IssueOnLocationListSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['status']  # Allow filtering by status
+    ordering_fields = ['created_at']  # Allow ordering by created_at
+    ordering = ['-created_at']  # Default ordering
 
     def get_queryset(self):
-        return IssueOnLocationReport.objects.filter(user=self.request.user).order_by(
-            "-created_at"
-        )
+        return IssueOnLocationReport.objects.filter(user=self.request.user)
 
 
 class CreateIssueOnLocationReportView(generics.GenericAPIView):

@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "channels",
     "chat",
     "notifications",
+    'django_filters',
 ]
 
 
@@ -227,6 +228,10 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.MultiPartParser",
     ),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+    ],
 }
 
 SIMPLE_JWT = {

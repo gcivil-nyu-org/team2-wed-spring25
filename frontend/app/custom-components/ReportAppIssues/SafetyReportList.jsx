@@ -5,7 +5,16 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Trash2, AlertCircle, MapPin, InfoIcon } from "lucide-react";
+import {
+  Trash2,
+  AlertCircle,
+  MapPin,
+  InfoIcon,
+  ArrowUpDown,
+  ListFilter,
+  X,
+  RefreshCw
+} from "lucide-react";
 import { formatDate } from "@/utils/datetime";
 import CustomAlertDialog from "@/app/custom-components/CustomAlertDialog";
 import Link from "next/link";
@@ -21,6 +30,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Badge
+} from "@/components/ui/badge";
 
 const SafetyReportsList = ({ homepage }) => {
   const router = useRouter();
@@ -33,37 +52,57 @@ const SafetyReportsList = ({ homepage }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState(null);
   const { showError, showSuccess } = useNotification();
-  
+
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState("");
+  const [ordering, setOrdering] = useState("-created_at"); // Default is newest first
+
   // Create observer ref for infinite scroll
   const observer = useRef();
   const lastReportElementRef = useCallback(node => {
     if (isLoading) return;
     if (observer.current) observer.current.disconnect();
-    
+
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore) {
         setPage(prevPage => prevPage + 1);
       }
     }, { threshold: 0.5 });
-    
+
     if (node) observer.current.observe(node);
   }, [isLoading, hasMore]);
+
+  // Build query params for API request
+  const buildQueryParams = (pageNum) => {
+    let params = `page=${pageNum}`;
+
+    if (statusFilter) {
+      params += `&status=${statusFilter}`;
+    }
+
+    if (ordering) {
+      params += `&ordering=${ordering}`;
+    }
+
+    return params;
+  };
 
   const fetchReports = async (pageNum = 1, append = false) => {
     if (pageNum === 1) setIsLoading(true);
     setError(false);
 
     try {
+      const queryParams = buildQueryParams(pageNum);
       const response = await authAPI.authenticatedGet(
-        `/user/safety-report-list?page=${pageNum}`
+        `/user/safety-report-list?${queryParams}`
       );
-      
+
       if (append) {
         setReports(prev => [...prev, ...response.results]);
       } else {
         setReports(response.results);
       }
-      
+
       setTotalCount(response.count);
       setHasMore(response.next !== null);
       setIsLoading(false);
@@ -73,6 +112,14 @@ const SafetyReportsList = ({ homepage }) => {
       setIsLoading(false);
     }
   };
+
+  // Reset and reload when filters change
+  useEffect(() => {
+    setPage(1);
+    setReports([]);
+    fetchReports(1, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, ordering]);
 
   // Load more data when page changes
   useEffect(() => {
@@ -86,6 +133,20 @@ const SafetyReportsList = ({ homepage }) => {
     fetchReports();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Handle filter changes
+  const handleStatusFilterChange = (newStatus) => {
+    setStatusFilter(newStatus);
+  };
+
+  const handleOrderingChange = (newOrdering) => {
+    setOrdering(newOrdering);
+  };
+
+  const clearFilters = () => {
+    setStatusFilter("");
+    setOrdering("-created_at");
+  };
 
   // Handle opening delete dialog
   const openDeleteDialog = (report) => {
@@ -244,10 +305,113 @@ const SafetyReportsList = ({ homepage }) => {
     );
   }
 
+  // Filter controls component
+  const FilterControls = () => (
+    <div className="mb-6 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+      <div className="flex flex-wrap gap-3 items-center">
+        {/* Status filter */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 gap-1 border-dashed bg-black">
+              <ListFilter className="h-3.5 w-3.5" />
+              <span>Status</span>
+              {statusFilter && (
+                <Badge variant="secondary" className="ml-1 rounded-sm px-1">
+                  {statusFilter === "pending" && "Pending"}
+                  {statusFilter === "approved" && "Approved"}
+                  {statusFilter === "rejected" && "Rejected"}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-0 bg-black text-white" align="start">
+            <div className="p-2">
+              <div className="space-y-1">
+                <Button
+                  variant={statusFilter === "" ? "default" : "ghost"}
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => handleStatusFilterChange("")}
+                >
+                  All Reports
+                </Button>
+                <Button
+                  variant={statusFilter === "pending" ? "default" : "ghost"}
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => handleStatusFilterChange("pending")}
+                >
+                  Pending
+                </Button>
+                <Button
+                  variant={statusFilter === "approved" ? "default" : "ghost"}
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => handleStatusFilterChange("approved")}
+                >
+                  Approved
+                </Button>
+                <Button
+                  variant={statusFilter === "rejected" ? "default" : "ghost"}
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => handleStatusFilterChange("rejected")}
+                >
+                  Rejected
+                </Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* Sort order control */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 gap-1 bg-black text-white border-gray-700">
+              <ArrowUpDown className="h-3.5 w-3.5" />
+              <span>
+                {ordering === "-created_at" ? "Newest First" : "Oldest First"}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="bg-black border border-gray-700 text-white">
+            <DropdownMenuItem
+              onClick={() => handleOrderingChange("-created_at")}
+              className={`text-white hover:bg-gray-800 ${ordering === "-created_at" ? "bg-gray-800" : ""}`}
+            >
+              Newest First
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleOrderingChange("created_at")}
+              className={`text-white hover:bg-gray-800 ${ordering === "created_at" ? "bg-gray-800" : ""}`}
+            >
+              Oldest First
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Show filter badge/clear button if filters applied */}
+        {(statusFilter || ordering !== "-created_at") && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2"
+            onClick={clearFilters}
+          >
+            <X className="h-4 w-4 mr-1" />
+            Clear
+          </Button>
+        )}
+      </div>
+
+    </div>
+  );
+
   // Loading state
   if (isLoading && page === 1) {
     return (
       <div className="p-6">
+        <FilterControls />
         {Array(3)
           .fill()
           .map((_, i) => (
@@ -277,11 +441,12 @@ const SafetyReportsList = ({ homepage }) => {
   if (error) {
     return (
       <div className="p-6">
+        <FilterControls />
         <div className="text-center py-8">
           <div className="text-red-500 mb-4">Failed to load your safety reports</div>
           <Button onClick={() => {
             setPage(1);
-            fetchReports();
+            fetchReports(1, false);
           }}>Retry</Button>
         </div>
       </div>
@@ -290,14 +455,18 @@ const SafetyReportsList = ({ homepage }) => {
 
   return (
     <div className="p-6">
+      <FilterControls />
+
       {reports.length === 0 ? (
         <div className="text-center py-8">
           <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-lg font-medium text-gray-900">
-            No safety reports
+            No safety reports found
           </h3>
           <p className="mt-1 text-sm text-gray-500">
-            You haven&apos;t submitted any safety reports yet.
+            {statusFilter
+              ? `No ${statusFilter} reports found. Try changing your filters.`
+              : "You haven't submitted any safety reports yet."}
           </p>
         </div>
       ) : (
@@ -316,19 +485,19 @@ const SafetyReportsList = ({ homepage }) => {
                   <h3 className="font-medium">{report.title}</h3>
                   {getStatusBadge(report)}
                 </div>
-                
+
                 <p className="text-sm mb-2 line-clamp-2">{report.description}</p>
-                
+
                 <p className="text-xs text-gray-500 mb-2">
                   <MapPin className="h-3 w-3 inline mr-1" />
                   Near: {report.location_str}
                 </p>
-                
+
                 <div className="flex justify-between items-center mt-3">
                   <p className="text-xs text-gray-500">
                     Reported: {formatDate(report.created_at)}
                   </p>
-                  
+
                   <div className="flex space-x-2">
                     <div
                       className="rounded-md p-2 text-red-500 hover:bg-gray-100 cursor-pointer"
