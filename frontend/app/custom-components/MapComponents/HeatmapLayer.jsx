@@ -14,30 +14,30 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   const primaryHeatLayerRef = useRef(null);
   const secondaryHeatLayerRef = useRef(null);
   const { showError, showWarning } = useNotification();
-  
+
   // Use refs instead of global variables for fetching state
   const isPrimaryFetchingRef = useRef(false);
   const isSecondaryFetchingRef = useRef(false);
-  
+
   // Use refs for retry counters instead of state
   const primaryRetryCountRef = useRef(0);
   const secondaryRetryCountRef = useRef(0);
-  
+
   // Primary heatmap states
   const [primaryHeatmapPoints, setPrimaryHeatmapPoints] = useState([]);
   const [primaryDataLoaded, setPrimaryDataLoaded] = useState(false);
   const [isPrimaryLoading, setIsPrimaryLoading] = useState(false);
-  
+
   // Secondary heatmap states
   const [secondaryHeatmapPoints, setSecondaryHeatmapPoints] = useState([]);
   const [secondaryDataLoaded, setSecondaryDataLoaded] = useState(false);
   const [isSecondaryLoading, setIsSecondaryLoading] = useState(false);
-  
+
   // New toggle states for layers
   const [showLowCrime, setShowLowCrime] = useState(false);
   const [showHighCrime, setShowHighCrime] = useState(false);
   const [showingAny, setShowingAny] = useState(false);
-  
+
   // Define loading state for UI
   const isLoading = isPrimaryLoading || isSecondaryLoading;
   const dataLoaded = primaryDataLoaded && secondaryDataLoaded;
@@ -46,14 +46,14 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   // Fetch primary heatmap data (high crime areas)
   const fetchPrimaryHeatmapData = useCallback(async () => {
     if (isPrimaryLoading || isPrimaryFetchingRef.current) return;
-    
+
     // Check cache first
     try {
       const cachedData = localStorage.getItem(PRIMARY_CACHE_KEY);
       if (cachedData) {
         const { data, timestamp } = JSON.parse(cachedData);
         const now = new Date().getTime();
-        
+
         if (now - timestamp < CACHE_EXPIRY && Array.isArray(data) && data.length > 0) {
           setPrimaryHeatmapPoints(data);
           setPrimaryDataLoaded(true);
@@ -63,27 +63,27 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
     } catch (error) {
       console.warn("Primary cache read error:", error);
     }
-    
+
     setIsPrimaryLoading(true);
     isPrimaryFetchingRef.current = true;
-    
+
     try {
       const data = await authAPI.authenticatedGet("map/heatmap-data/primary");
-      
+
       if (!data || !Array.isArray(data) || data.length === 0) {
         throw new Error("Invalid or empty primary heatmap data received");
       }
-      
+
       const formattedData = data.map((item) => [
         item.latitude,
         item.longitude,
         item.intensity,
       ]);
-            
+
       // Store in cache
       try {
         localStorage.setItem(
-          PRIMARY_CACHE_KEY, 
+          PRIMARY_CACHE_KEY,
           JSON.stringify({
             data: formattedData,
             timestamp: new Date().getTime()
@@ -92,14 +92,14 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       } catch (cacheError) {
         console.warn("Primary cache write error:", cacheError);
       }
-      
+
       setPrimaryHeatmapPoints(formattedData);
       setPrimaryDataLoaded(true);
       // Reset retry counter on success
       primaryRetryCountRef.current = 0;
     } catch (err) {
       console.error("Error fetching primary heatmap data:", err?.status || err?.response?.status || err?.message || err);
-      
+
       // Specifically handle 404 errors - don't retry
       if (err?.status === 404 || err?.response?.status === 404) {
         showError(
@@ -109,12 +109,12 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
         );
         setPrimaryDataLoaded(true);
         setPrimaryHeatmapPoints([]);
-      } 
+      }
       // Only retry if we haven't reached the max retry count
       else if (primaryRetryCountRef.current < 2) {
         // Increment retry counter
         primaryRetryCountRef.current += 1;
-        
+
         // For the last retry attempt, show error instead of warning
         if (primaryRetryCountRef.current === 2) {
           showError(
@@ -129,7 +129,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
             "primary_heatmap_retry"
           );
         }
-        
+
         setTimeout(() => {
           setIsPrimaryLoading(false);
           isPrimaryFetchingRef.current = false;
@@ -152,19 +152,20 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
         isPrimaryFetchingRef.current = false;
       }
     }
+    setIsPrimaryLoading(false);
   }, [isPrimaryLoading, showError, showWarning]);
 
   // Fetch secondary heatmap data (lower crime areas)
   const fetchSecondaryHeatmapData = useCallback(async () => {
     if (isSecondaryLoading || isSecondaryFetchingRef.current) return;
-    
+
     // Check cache first
     try {
       const cachedData = localStorage.getItem(SECONDARY_CACHE_KEY);
       if (cachedData) {
         const { data, timestamp } = JSON.parse(cachedData);
         const now = new Date().getTime();
-        
+
         if (now - timestamp < CACHE_EXPIRY && Array.isArray(data) && data.length > 0) {
           setSecondaryHeatmapPoints(data);
           setSecondaryDataLoaded(true);
@@ -174,27 +175,27 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
     } catch (error) {
       console.warn("Secondary cache read error:", error);
     }
-    
+
     setIsSecondaryLoading(true);
     isSecondaryFetchingRef.current = true;
-    
+
     try {
       const data = await authAPI.authenticatedGet("map/heatmap-data/secondary");
-      
+
       if (!data || !Array.isArray(data) || data.length === 0) {
         throw new Error("Invalid or empty secondary heatmap data received");
       }
-      
+
       const formattedData = data.map((item) => [
         item.latitude,
         item.longitude,
         item.intensity,
       ]);
-            
+
       // Store in cache
       try {
         localStorage.setItem(
-          SECONDARY_CACHE_KEY, 
+          SECONDARY_CACHE_KEY,
           JSON.stringify({
             data: formattedData,
             timestamp: new Date().getTime()
@@ -203,14 +204,14 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
       } catch (cacheError) {
         console.warn("Secondary cache write error:", cacheError);
       }
-      
+
       setSecondaryHeatmapPoints(formattedData);
       setSecondaryDataLoaded(true);
       // Reset retry counter on success
       secondaryRetryCountRef.current = 0;
     } catch (err) {
       console.error("Error fetching secondary heatmap data:", err?.status || err?.response?.status || err?.message || err);
-      
+
       // Specifically handle 404 errors - don't retry
       if (err?.status === 404 || err?.response?.status === 404) {
         showError(
@@ -220,12 +221,12 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
         );
         setSecondaryDataLoaded(true);
         setSecondaryHeatmapPoints([]);
-      } 
+      }
       // Only retry if we haven't reached the max retry count
       else if (secondaryRetryCountRef.current < 2) {
         // Increment retry counter
         secondaryRetryCountRef.current += 1;
-        
+
         // For the last retry attempt, show error instead of warning
         if (secondaryRetryCountRef.current === 2) {
           showError(
@@ -240,7 +241,7 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
             "secondary_heatmap_retry"
           );
         }
-        
+
         setTimeout(() => {
           setIsSecondaryLoading(false);
           isSecondaryFetchingRef.current = false;
@@ -263,20 +264,21 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
         isSecondaryFetchingRef.current = false;
       }
     }
+    setIsSecondaryLoading(false);
   }, [isSecondaryLoading, showError, showWarning]);
 
   // Reset retry counters on mount
   useEffect(() => {
     primaryRetryCountRef.current = 0;
     secondaryRetryCountRef.current = 0;
-    
+
     return () => {
       // Cleanup on unmount
       setIsPrimaryLoading(false);
       isPrimaryFetchingRef.current = false;
       setIsSecondaryLoading(false);
       isSecondaryFetchingRef.current = false;
-      
+
       // Reset retry counters
       primaryRetryCountRef.current = 0;
       secondaryRetryCountRef.current = 0;
@@ -286,14 +288,14 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   // Fetch data once on component mount
   const primaryDataFetchedRef = useRef(false);
   const secondaryDataFetchedRef = useRef(false);
-  
+
   useEffect(() => {
     // Only fetch primary data once
     if (!primaryDataFetchedRef.current) {
       primaryDataFetchedRef.current = true;
       fetchPrimaryHeatmapData();
     }
-    
+
     // Only fetch secondary data once
     if (!secondaryDataFetchedRef.current) {
       secondaryDataFetchedRef.current = true;
@@ -309,9 +311,9 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   // Handle primary heatmap layer
   useEffect(() => {
     if (
-      !mapInstanceRef?.current || 
-      !mapLoaded || 
-      !primaryDataLoaded || 
+      !mapInstanceRef?.current ||
+      !mapLoaded ||
+      !primaryDataLoaded ||
       !primaryHeatmapPoints.length
     ) {
       return;
@@ -375,9 +377,9 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   // Handle secondary heatmap layer
   useEffect(() => {
     if (
-      !mapInstanceRef?.current || 
-      !mapLoaded || 
-      !secondaryDataLoaded || 
+      !mapInstanceRef?.current ||
+      !mapLoaded ||
+      !secondaryDataLoaded ||
       !secondaryHeatmapPoints.length
     ) {
       return;
@@ -442,22 +444,22 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   useEffect(() => {
     if (!mapInstanceRef?.current) return;
     const map = mapInstanceRef.current;
-    
+
     try {
       // First, remove both layers to control the stacking order
       if (primaryHeatLayerRef.current && map.hasLayer(primaryHeatLayerRef.current)) {
         map.removeLayer(primaryHeatLayerRef.current);
       }
-      
+
       if (secondaryHeatLayerRef.current && map.hasLayer(secondaryHeatLayerRef.current)) {
         map.removeLayer(secondaryHeatLayerRef.current);
       }
-      
+
       // Add layers in specific order: first low crime (bottom), then high crime (top)
       if (showLowCrime && secondaryHeatLayerRef.current) {
         secondaryHeatLayerRef.current.addTo(map);
       }
-      
+
       // Always add high crime layer last so it appears on top
       if (showHighCrime && primaryHeatLayerRef.current) {
         primaryHeatLayerRef.current.addTo(map);
@@ -486,11 +488,11 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
     // Reset retry counters
     primaryRetryCountRef.current = 0;
     secondaryRetryCountRef.current = 0;
-    
+
     // Refresh primary data
     setPrimaryDataLoaded(false);
     fetchPrimaryHeatmapData();
-    
+
     // Refresh secondary data
     setSecondaryDataLoaded(false);
     fetchSecondaryHeatmapData();
@@ -499,10 +501,10 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
   return (
     <>
       {/* Heatmap Control */}
-      <div className="absolute bottom-[60px] left-4 z-[499] bg-[#1c2735] text-white p-2 rounded-md shadow-md flex flex-col gap-2">
+      <div className="absolute bottom-[70px] left-4 z-[499] bg-[#1c2735] text-white p-2 rounded-md shadow-md flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-white mr-3">Crime Heatmap</span>
-          
+
           {isLoading && (
             <span className="text-xs text-gray-500 flex items-center">
               <svg className="animate-spin -ml-1 mr-1 h-3 w-3 text-map-bg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -511,9 +513,9 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
               </svg>
             </span>
           )}
-          
+
           {!isLoading && dataLoaded && !hasData && (
-            <button 
+            <button
               onClick={handleRefresh}
               className="text-xs text-map-bg hover:text-map-darkerbg"
             >
@@ -521,55 +523,49 @@ const HeatmapLayer = ({ mapLoaded, mapInstanceRef }) => {
             </button>
           )}
         </div>
-        
+
         {/* shadcn-style Toggle Group */}
         <div className="inline-flex items-center justify-center rounded-md p-1 shadow-sm space-x-1" role="group">
           {/* OFF Button */}
           <button
             onClick={handleOffClick}
             disabled={!dataLoaded || !hasData}
-            className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 ${
-              !showingAny 
-                ? "bg-black text-white shadow-sm" 
+            className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 ${!showingAny
+                ? "bg-black text-white shadow-sm"
                 : "text-white hover:bg-gray-900 hover:text-white"
-            } ${
-              (!dataLoaded || !hasData) ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+              } ${(!dataLoaded || !hasData) ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             Off
           </button>
-          
+
           {/* LOW Button */}
           <button
             onClick={handleLowClick}
             disabled={!dataLoaded || !hasData}
-            className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 ${
-              showLowCrime 
-                ? "bg-amber-500 text-white shadow-sm" 
+            className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 ${showLowCrime
+                ? "bg-amber-500 text-white shadow-sm"
                 : "text-white hover:bg-amber-700 hover:text-gray-900"
-            } ${
-              (!dataLoaded || !hasData) ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+              } ${(!dataLoaded || !hasData) ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             Low
           </button>
-          
+
           {/* HIGH Button */}
           <button
             onClick={handleHighClick}
             disabled={!dataLoaded || !hasData}
-            className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 ${
-              showHighCrime 
-                ? "bg-red-600 text-white shadow-sm" 
+            className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 ${showHighCrime
+                ? "bg-red-600 text-white shadow-sm"
                 : "text-white hover:bg-red-800 "
-            } ${
-              (!dataLoaded || !hasData) ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+              } ${(!dataLoaded || !hasData) ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             High
           </button>
         </div>
-        
+
         {/* Legend - Always present with fixed height */}
         <div className="h-14 mt-2 text-xs font-medium text-white">
           {showingAny ? (

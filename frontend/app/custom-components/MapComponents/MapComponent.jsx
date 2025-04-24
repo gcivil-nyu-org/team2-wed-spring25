@@ -31,7 +31,9 @@ const RoutingMapComponent = () => {
     isGettingLocation,
     locationDenied,
     fetchUserLocation,
-    routeKey
+    routeKey,
+    isCalculatingRoute,
+    setIsCalculatingRoute,
   } = useRoute();
 
   const { showError, showWarning, showSuccess } = useNotification();
@@ -39,7 +41,6 @@ const RoutingMapComponent = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapInstanceRef = useRef(null);
   const mapInitializedRef = useRef(false);
-  const [isLoadingRoute, setIsLoadingRoute] = useState(false);
   const [routeDetails, setRouteDetails] = useState(null);
   const [routeData, setRouteData] = useState(null); // Store the raw route data
   const [activeRoute, setActiveRoute] = useState("initial"); // 'initial' or 'safer'
@@ -152,10 +153,11 @@ const RoutingMapComponent = () => {
       // Add tile layer
       L.tileLayer(mapboxUrl, {
         attribution:
-          'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+          'Map data &copy; <a href="https://www.mapbox.com/">Mapbox</a> contributors',
         maxZoom: 18,
         minZoom: 11,
         id: "mapbox/streets-v11",
+        className: "mapbox-navigation-night",
         tileSize: 512,
         zoomOffset: -1,
         accessToken: mapboxToken,
@@ -314,7 +316,7 @@ const RoutingMapComponent = () => {
       return;
     }
 
-    setIsLoadingRoute(true);
+    setIsCalculatingRoute(true);
     setMapCriticalError(null); // Clear any previous errors
 
     try {
@@ -400,7 +402,7 @@ const RoutingMapComponent = () => {
       // Reset route calculated flag to allow retrying
       routeCalculatedRef.current = false;
     } finally {
-      setIsLoadingRoute(false);
+      setIsCalculatingRoute(false);
     }
   };
 
@@ -433,14 +435,11 @@ const RoutingMapComponent = () => {
         {waitingForLocation && <MapRenderMsg text="Waiting for your location..." />}
         {/* loading location */}
         {isGettingLocation && <MapRenderMsg text="Getting your location..." />}
-        {/* loading route */}
-        {isLoadingRoute && <MapRenderMsg text="Calculating Safe Route..." />}
         {/* catch all */}
         {!isGettingLocation && !mapLoaded && !mapCriticalError && !waitingForLocation && (
           <MapRenderMsg text="Loading map..." />
         )}
 
-        {/* Optional: Location retry button for when permission is denied */}
         {locationDenied && !isGettingLocation && (
           <div className="absolute top-4 right-4 z-[1000]">
             <button
