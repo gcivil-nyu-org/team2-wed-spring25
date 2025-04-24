@@ -10,7 +10,7 @@ from .views import (
     SecondaryHeatmapDataView,
     IssueOnLocationReportListView,
     CreateIssueOnLocationReportView,
-    DeleteIssueOnLocationReportView
+    DeleteIssueOnLocationReportView,
 )
 
 urlpatterns = [

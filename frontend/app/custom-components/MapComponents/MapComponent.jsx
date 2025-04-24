@@ -15,7 +15,7 @@ import RouteInfo from "./RouteInfo";
 import RouteRenderer from "./RouteRender";
 import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { useRoute } from "./RouteContext";
-import ReportSafetyIssueComponent from "./ReportSafetyIssueForm";
+import ReportSafetyIssueComponent from "../SafetyReport/ReportSafetyIssueForm";
 
 // Default location (Washington Square Park)
 const DEFAULT_LOCATION = [40.7308, -73.9974];

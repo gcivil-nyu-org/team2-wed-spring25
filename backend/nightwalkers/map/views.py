@@ -657,9 +657,9 @@ class IssueOnLocationReportListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = IssueOnLocationListSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['status']  # Allow filtering by status
-    ordering_fields = ['created_at']  # Allow ordering by created_at
-    ordering = ['-created_at']  # Default ordering
+    filterset_fields = ["status"]  # Allow filtering by status
+    ordering_fields = ["created_at"]  # Allow ordering by created_at
+    ordering = ["-created_at"]  # Default ordering
 
     def get_queryset(self):
         return IssueOnLocationReport.objects.filter(user=self.request.user)
@@ -677,7 +677,10 @@ class CreateIssueOnLocationReportView(generics.GenericAPIView):
         serializer.save()
         return Response(
             {
-                "success": "Thank you for your report!! It will be available for review in no time"
+                "success": (
+                    "Thank you for your report!! "
+                    "It will be available for review in no time"
+                )
             }
         )
 
@@ -697,11 +700,10 @@ class DeleteIssueOnLocationReportView(generics.DestroyAPIView):
         if instance.user != request.user:
             return Response(
                 {"detail": "You do not have permission to delete this report."},
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
 
-        # self.perform_destroy(instance)
+        self.perform_destroy(instance)
         return Response(
-            {"detail": "Report deleted successfully."},
-            status=status.HTTP_200_OK
+            {"detail": "Report deleted successfully."}, status=status.HTTP_200_OK
         )

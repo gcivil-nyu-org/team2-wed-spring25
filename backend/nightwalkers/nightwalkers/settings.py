@@ -103,7 +103,7 @@ INSTALLED_APPS = [
     "channels",
     "chat",
     "notifications",
-    'django_filters',
+    "django_filters",
 ]
 
 
@@ -162,14 +162,14 @@ DATABASES = {
     )
 }
 # For my test on linux leave the lines below please
-# if 'test' in sys.argv:
-#     DATABASES['default'] = {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'nightwalkers',
-#         'USER': 'alex',
-#         'PASSWORD': 'alex1006',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
+# if "test" in sys.argv:
+#     DATABASES["default"] = {
+#         "ENGINE": "django.db.backends.postgresql_psycopg2",
+#         "NAME": "nightwalkers",
+#         "USER": "alex",
+#         "PASSWORD": "alex1006",
+#         "HOST": "localhost",
+#         "PORT": "5432",
 #     }
 
 # Password validation
@@ -228,9 +228,9 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.MultiPartParser",
     ),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.OrderingFilter',
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.OrderingFilter",
     ],
 }
 
