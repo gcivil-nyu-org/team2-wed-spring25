@@ -4,11 +4,10 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import UserReportsList from "@/app/custom-components/ReportAppIssues/UserReportList";
 import { ArrowLeft } from "lucide-react";
-import SafetyReportsList from "@/app/custom-components/ReportAppIssues/SafetyReportList";
 
-const ReportLog = () => {
+const SafetyReports = () => {
   return (
-    <div className="h-full w-full overflow-scroll">
+    <div className="h-full w-full">
       <div className="lg:h-header h-mobileheader flex items-center ml-8">
         <Link href="/users/settings">
           <ArrowLeft />
@@ -24,14 +23,8 @@ const ReportLog = () => {
           <UserReportsList />
         </div>
       </div>
-      <Separator orientation="horizontal" />
-      <div className="flex flex-col m-4">
-        <div>
-          <SafetyReportsList />
-        </div>
-      </div>
     </div>
   );
 };
 
-export default ReportLog;
+export default SafetyReports;

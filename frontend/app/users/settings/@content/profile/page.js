@@ -55,7 +55,7 @@ const ProfileContent = () => {
         </div>
 
         {/* Report Section */}
-        <div>
+        <div className="mb-[50px]">
           <h2 id="report" className="mb-4">
             Report a Bug
           </h2>

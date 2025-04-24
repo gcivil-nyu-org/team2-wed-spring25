@@ -17,6 +17,7 @@ import {
   MessageSquareText,
   ThumbsUp,
   ClipboardX,
+  TriangleAlert
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -292,9 +293,14 @@ const SettingsSidebar = () => {
         {renderMenuGroup("Account", items)}
         {renderMenuGroup("Report History", [
           {
-            title: "Reports",
+            title: "App Bug Reports",
             url: "/users/settings/reportlog",
             icon: NotebookPen,
+          },
+          {
+            title: "Safety Reports",
+            url: "/users/settings/safety-reports",
+            icon: TriangleAlert,
           },
         ])}
         {renderMenuGroup("Route Management", routeItems)}

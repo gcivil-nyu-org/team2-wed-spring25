@@ -678,3 +678,28 @@ class CreateIssueOnLocationReportView(generics.GenericAPIView):
                 "success": "Thank you for your report!! It will be available for review in no time"
             }
         )
+
+
+class DeleteIssueOnLocationReportView(generics.DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = IssueOnLocationListSerializer
+
+    def get_queryset(self):
+        # Only allow users to delete their own reports
+        return IssueOnLocationReport.objects.filter(user=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # Extra check to ensure the user owns this report
+        if instance.user != request.user:
+            return Response(
+                {"detail": "You do not have permission to delete this report."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # self.perform_destroy(instance)
+        return Response(
+            {"detail": "Report deleted successfully."},
+            status=status.HTTP_200_OK
+        )

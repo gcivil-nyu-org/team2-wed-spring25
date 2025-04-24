@@ -1,12 +1,9 @@
-/* map_styles.css - Replace or add this to your file */
 
 .map-container {
   height: 500px;
   width: 100%;
 }
 
-/* The key issue is that your ::after pseudo-element animation 
-   needs to be properly visible and sized */
 
 .custom-user-marker-icon {
   background: none !important;
@@ -33,7 +30,6 @@
   z-index: 3;
 }
 
-/* Key fix - The pseudo-element needs to be properly positioned and sized */
 .user-location-pulse::after {
   content: '';
   position: absolute;

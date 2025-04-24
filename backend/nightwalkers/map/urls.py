@@ -10,6 +10,7 @@ from .views import (
     SecondaryHeatmapDataView,
     IssueOnLocationReportListView,
     CreateIssueOnLocationReportView,
+    DeleteIssueOnLocationReportView
 )
 
 urlpatterns = [
@@ -44,5 +45,10 @@ urlpatterns = [
         "user/create-safety-report/",
         CreateIssueOnLocationReportView.as_view(),
         name="create-safety-report",
+    ),
+    path(
+        "delete-safety-report/<int:pk>/",
+        DeleteIssueOnLocationReportView.as_view(),
+        name="delete-safety-report",
     ),
 ]
