@@ -71,7 +71,7 @@ export default function PostDialog({
 
   return (
     <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0 z-50">
-      <div className="w-1/2 h-4/5 bg-bg-post rounded-lg flex flex-col">
+      <div className="mx-4 w-full md:w-1/2 max-w-3xl h-4/5 bg-bg-post rounded-lg flex flex-col">
         <div className="flex justify-between mb-2 p-4">
           <div className="flex items-center p-3 rounded-2xl hover:bg-black">
             <UserImage

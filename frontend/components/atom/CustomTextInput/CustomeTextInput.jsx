@@ -7,31 +7,16 @@ export default function CustomTextInput({
   placeholder,
   isLoading = false,
 }) {
-  const {
-    editableDivRef,
-    handleEditableDivInput,
-    handleEditableDivOnClick,
-    handleEditableDivFocus,
-    handleEditableDivPaste,
-    handleEditableDivKeyDown,
-    handleEditableDivBlur,
-  } = useCustomTextInput(content, setContent, placeholder);
+  const { handleOnChange } = useCustomTextInput(setContent);
   return (
-    <div
-      contentEditable={isLoading ? false : true}
-      suppressContentEditableWarning={true}
-      ref={editableDivRef}
-      className={`outline-none flex text-forum-subheading items-center pl-3  ${
-        content === "" ? "text-gray-400" : "pt-2"
+    <textarea
+      className={`outline-none w-full bg-transparent flex text-forum-subheading justify-start items-center pl-3 resize-none relative top-2 ${
+        content === "" ? "text-gray-400" : "pr-3"
       }`}
-      onInput={handleEditableDivInput}
-      onClick={handleEditableDivOnClick}
-      onFocus={handleEditableDivFocus}
-      onPaste={handleEditableDivPaste}
-      onKeyDown={handleEditableDivKeyDown}
-      onBlur={handleEditableDivBlur}
-    >
-      {content === "" ? placeholder : content}
-    </div>
+      onChange={handleOnChange}
+      placeholder={placeholder}
+      value={content}
+      disabled={isLoading}
+    />
   );
 }

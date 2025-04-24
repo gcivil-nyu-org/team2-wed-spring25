@@ -70,7 +70,7 @@ export default function PostCommentUserBody({
             <div className="relative flex items-center">
               {isTooltipVisible && (
                 <div
-                  className="absolute -top-[4.9rem] bg-bg-post p-1 rounded-full shadow-md pointer-events-auto border border-gray-500 border-opacity-100"
+                  className="absolute -top-[4.9rem] bg-bg-post p-1 rounded-full shadow-md pointer-events-auto border border-gray-500 border-opacity-100 -left-12 sm:left-0 z-10"
                   onMouseEnter={handleMouseEnter} // Keep tooltip visible when hovering over it
                   onMouseLeave={handleMouseLeave} // Hide tooltip after 0.5 seconds when leaving
                 >
