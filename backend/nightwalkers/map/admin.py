@@ -1,9 +1,10 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 from django.urls import reverse
 from django import forms
 from .models import IssueOnLocationReport
+import json
 
 
 class IssueOnLocationReportAdminForm(forms.ModelForm):
@@ -109,6 +110,13 @@ class IssueOnLocationReportAdmin(admin.ModelAdmin):
 
     location_map.short_description = "Location"
 
+    def heatmap_point_display(self, obj):
+        """Display the heatmap point ID if it exists"""
+        if obj.heatmap_point_id:
+            return obj.heatmap_point_id
+        return "-"
+
+    heatmap_point_display.short_description = "Heatmap Point ID"
     fieldsets = (
         ("Report Information", {"fields": ("title", "description", "created_at")}),
         (
@@ -118,7 +126,7 @@ class IssueOnLocationReportAdmin(admin.ModelAdmin):
         (
             "Status",
             {
-                "fields": ("status", "rejection_reason"),
+                "fields": ("status", "rejection_reason", "heatmap_point_id"),
                 "description": "If rejecting a report, you must provide a reason.",
             },
         ),
@@ -139,14 +147,170 @@ class IssueOnLocationReportAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """
-        Override save method to enforce rejection reason when status is 'rejected'
+        Override save method to:
+        1. Enforce rejection reason validation
+        2. Process approved reports
+        3. Handle revocation of approval
         """
         if obj.status == "rejected" and not obj.rejection_reason:
             raise ValidationError(
                 "You must provide a rejection reason when rejecting a report."
             )
 
+        # Check if this is a status change to approved
+        is_newly_approved = (
+            change and "status" in form.changed_data and obj.status == "approved"
+        )
+
+        # Check if this is a status change FROM approved TO something else
+        is_approval_revoked = (
+            change
+            and "status" in form.changed_data
+            and form.initial["status"] == "approved"
+            and obj.status != "approved"
+        )
+
+        # If this is an approval revocation, handle it before saving
+        if is_approval_revoked and obj.heatmap_point_id:
+            try:
+                print(f"Processing approval revocation for report {obj.id}")
+
+                # Use the API endpoint for revocation
+                from django.test import RequestFactory
+
+                process_url = reverse("revoke-report-approval")
+                factory = RequestFactory()
+                process_request = factory.post(process_url, data={"report_id": obj.id})
+                process_request.user = request.user
+
+                # Call the view directly
+                from django.urls import resolve
+
+                view_func, args, kwargs = resolve(process_url)
+                response = view_func(process_request)
+
+                # Process the response
+                response_data = json.loads(response.content.decode("utf-8"))
+                print(f"Response status: {response.status_code}")
+                print(f"Response content: {response_data}")
+
+                if response.status_code >= 400:
+                    messages.error(
+                        request,
+                        (
+                            "The approval was revoked, but there was an error on map: "
+                            f"{response_data.get('error', 'Unknown error')}",
+                        ),
+                    )
+                else:
+                    if response_data.get("was_deleted", False):
+                        messages.info(
+                            request,
+                            (
+                                "Approval revoked and heatmap point"
+                                " removed because complaint count reached 0."
+                            ),
+                        )
+                    else:
+                        messages.info(
+                            request,
+                            (
+                                "Approval revoked and map point updated. New Count: "
+                                f"{response_data.get('new_complaint_count')}"
+                            ),
+                        )
+
+            except Exception as e:
+                print(f"Error processing approval revocation: {str(e)}")
+                import traceback
+
+                traceback.print_exc()
+
+                messages.error(
+                    request,
+                    (
+                        "The approval was revoked, but there was"
+                        " an error updating the heatmap: "
+                        f"{str(e)}"
+                    ),
+                )
+
+        # Save the model
         super().save_model(request, obj, form, change)
+
+        # If this is a newly approved report, process it
+        if is_newly_approved:
+            try:
+                print(f"Processing newly approved report {obj.id}")
+
+                # Direct server-side call using Django's built-in methods
+                from django.test import RequestFactory
+
+                process_url = reverse("process-approved-report")
+                factory = RequestFactory()
+                process_request = factory.post(process_url, data={"report_id": obj.id})
+                process_request.user = request.user
+
+                # Call the view directly
+                from django.urls import resolve
+
+                view_func, args, kwargs = resolve(process_url)
+                response = view_func(process_request)
+
+                # Process the response
+                response_data = json.loads(response.content.decode("utf-8"))
+                print(f"Response status: {response.status_code}")
+                print(f"Response content: {response_data}")
+
+                if response.status_code >= 400:
+                    messages.error(
+                        request,
+                        (
+                            "The report was approved, "
+                            "but there was an error processing it: "
+                            f"{response_data.get('error', 'Unknown error')}"
+                        ),
+                    )
+                else:
+                    # Store the heatmap point ID in the report
+                    point_id = response_data.get("point_id")
+
+                    # Update the report with the heatmap point ID
+                    obj.heatmap_point_id = point_id
+                    obj.save(update_fields=["heatmap_point_id"])
+
+                    # Success message based on what action was taken
+                    if response_data.get("message") == "Updated existing point":
+                        messages.success(
+                            request,
+                            (
+                                "Report approved and added to existing point"
+                                f" (ID: {point_id}). New complaint count: "
+                                f"{response_data.get('new_complaint_count')}"
+                            ),
+                        )
+                    else:
+                        messages.success(
+                            request,
+                            (
+                                "Report approved and new point "
+                                f"created with ID: {point_id}"
+                            ),
+                        )
+
+            except Exception as e:
+                print(f"Error processing approved report: {str(e)}")
+                import traceback
+
+                traceback.print_exc()
+
+                messages.error(
+                    request,
+                    (
+                        "The report was approved, "
+                        f"but there was an error processing it: {str(e)}",
+                    ),
+                )
 
 
 # Register the model with the custom admin class

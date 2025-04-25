@@ -11,6 +11,8 @@ from .views import (
     IssueOnLocationReportListView,
     CreateIssueOnLocationReportView,
     DeleteIssueOnLocationReportView,
+    process_approved_report,
+    revoke_report_approval,
 )
 
 urlpatterns = [
@@ -50,5 +52,13 @@ urlpatterns = [
         "delete-safety-report/<int:pk>/",
         DeleteIssueOnLocationReportView.as_view(),
         name="delete-safety-report",
+    ),
+    path(
+        "process-approved-report/",
+        process_approved_report,
+        name="process-approved-report",
+    ),
+    path(
+        "revoke-report-approval/", revoke_report_approval, name="revoke-report-approval"
     ),
 ]

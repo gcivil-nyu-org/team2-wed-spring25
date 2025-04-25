@@ -20,6 +20,11 @@ from shapely.geometry import Point, MultiPolygon
 from shapely.ops import transform
 import pyproj
 import json
+import uuid
+import traceback
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 
 class HeatmapDataView(generics.GenericAPIView):
@@ -707,3 +712,310 @@ class DeleteIssueOnLocationReportView(generics.DestroyAPIView):
         return Response(
             {"detail": "Report deleted successfully."}, status=status.HTTP_200_OK
         )
+
+
+@login_required
+@require_POST
+def process_approved_report(request):
+    """Process an approved report to update
+    the filtered_grouped_data_centroid table"""
+    try:
+        print("Process view called")
+
+        # Get report_id from POST data
+        report_id = request.POST.get("report_id")
+        if not report_id:
+            # Try to get from JSON body
+            try:
+                body_data = json.loads(request.body.decode("utf-8"))
+                report_id = body_data.get("report_id")
+            except Exception:
+                pass
+
+        print(f"Report ID: {report_id}")
+
+        if not report_id:
+            return JsonResponse({"error": "Report ID is required"}, status=400)
+
+        try:
+            report = IssueOnLocationReport.objects.get(id=report_id, status="approved")
+            print(
+                f"Found approved report: {report.id} ",
+                f"at ({report.latitude}, {report.longitude})",
+            )
+        except IssueOnLocationReport.DoesNotExist:
+            print(f"Error: Report {report_id} not found or not approved")
+            return JsonResponse(
+                {"error": "Report not found or not approved"}, status=404
+            )
+
+        # Check if there's a nearby point in the filtered_grouped_data_centroid table
+        nearby_point = _check_nearby_points(report.latitude, report.longitude)
+        print(f"Nearby point check result: {nearby_point}")
+
+        if nearby_point:
+            print(f"Found nearby point with ID {nearby_point['id']}")
+            # Update existing point (increment complaint count)
+            result = _update_complaint_count(nearby_point["id"])
+            print(
+                f"Updated point {nearby_point['id']} ",
+                f"to complaint count: {result['new_count']}",
+            )
+
+            # Store the heatmap point ID in the report
+            report.heatmap_point_id = nearby_point["id"]
+            report.save(update_fields=["heatmap_point_id"])
+
+            return JsonResponse(
+                {
+                    "message": "Updated existing point",
+                    "point_id": nearby_point["id"],
+                    "new_complaint_count": result["new_count"],
+                },
+                status=200,
+            )
+        else:
+            print("No nearby point found, creating new point")
+            # Create new point in the filtered_grouped_data_centroid table
+            new_point = _create_new_point(report)
+            print(f"Created new point with ID: {new_point['id']}")
+
+            # Store the heatmap point ID in the report
+            report.heatmap_point_id = new_point["id"]
+            report.save(update_fields=["heatmap_point_id"])
+
+            return JsonResponse(
+                {"message": "Created new point", "point_id": new_point["id"]},
+                status=201,
+            )
+
+    except Exception as e:
+        print(f"Exception in process_approved_report: {str(e)}")
+        print(traceback.format_exc())
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+
+@login_required
+@require_POST
+def revoke_report_approval(request):
+    """Process a revocation of approval for a report"""
+    try:
+        # Get report_id from POST data
+        report_id = request.POST.get("report_id")
+        if not report_id:
+            # Try to get from JSON body
+            try:
+                body_data = json.loads(request.body.decode("utf-8"))
+                report_id = body_data.get("report_id")
+            except Exception:
+                pass
+
+        print(f"Revocation requested for report ID: {report_id}")
+
+        if not report_id:
+            return JsonResponse({"error": "Report ID is required"}, status=400)
+
+        # Get the report details
+        from .models import IssueOnLocationReport
+
+        try:
+            report = IssueOnLocationReport.objects.get(id=report_id)
+            print(f"Found report: {report.id} with status {report.status}")
+
+            # Check if the report has an associated heatmap point
+            if not report.heatmap_point_id:
+                print(f"Report {report_id} has no associated heatmap point")
+                return JsonResponse(
+                    {"message": "Report has no associated heatmap point"}, status=200
+                )
+
+            heatmap_point_id = report.heatmap_point_id
+
+            # Decrement the complaint count
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE filtered_grouped_data_centroid
+                    SET cmplnt_num = GREATEST(0, cmplnt_num - 1),
+                        ratio      = CASE
+                                         WHEN total_popu > 0
+                                             THEN GREATEST(0, cmplnt_num - 1)::float
+                                             / total_popu
+                                    ELSE 0
+                    END
+                    WHERE ogc_fid =
+                    %s
+                    RETURNING
+                    cmplnt_num;
+                    """,
+                    [heatmap_point_id],
+                )
+                result = cursor.fetchone()
+                new_count = result[0] if result else None
+
+            # If the complaint count is now 0, delete the point
+            if new_count == 0:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        DELETE
+                        FROM filtered_grouped_data_centroid
+                        WHERE ogc_fid = %s;
+                        """,
+                        [heatmap_point_id],
+                    )
+                print(
+                    f"Deleted heatmap point {heatmap_point_id} "
+                    "as complaint count reached 0"
+                )
+
+                # Clear the heatmap_point_id from the report
+                report.heatmap_point_id = None
+                report.save(update_fields=["heatmap_point_id"])
+
+                return JsonResponse(
+                    {
+                        "message": "Approval revoked and heatmap point removed",
+                        "point_id": heatmap_point_id,
+                        "was_deleted": True,
+                    },
+                    status=200,
+                )
+            else:
+                print(
+                    f"Updated heatmap point {heatmap_point_id} "
+                    f"to complaint count: {new_count}"
+                )
+
+                # Clear the heatmap_point_id from the report
+                report.heatmap_point_id = None
+                report.save(update_fields=["heatmap_point_id"])
+
+                return JsonResponse(
+                    {
+                        "message": "Approval revoked and heatmap point updated",
+                        "point_id": heatmap_point_id,
+                        "new_complaint_count": new_count,
+                        "was_deleted": False,
+                    },
+                    status=200,
+                )
+
+        except IssueOnLocationReport.DoesNotExist:
+            print(f"Error: Report {report_id} not found")
+            return JsonResponse({"error": "Report not found"}, status=404)
+
+    except Exception as e:
+        print(f"Exception in revoke_report_approval: {str(e)}")
+        print(traceback.format_exc())
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+
+def _check_nearby_points(lat, lon, max_distance_meters=100):
+    """Check if there's a point within specified distance in the external table"""
+    print(f"Checking for points near ({lat}, {lon}) within {max_distance_meters}m")
+    with connection.cursor() as cursor:
+        try:
+            cursor.execute(
+                """
+                SELECT ogc_fid,
+                       ST_Y(wkb_geometry) AS latitude,
+                       ST_X(wkb_geometry) AS longitude,
+                       cmplnt_num
+                FROM filtered_grouped_data_centroid
+                WHERE ST_DWithin(
+                              wkb_geometry::geography,
+                              ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography,
+                              %s
+                      ) LIMIT 1;
+                """,
+                [lon, lat, max_distance_meters],
+            )
+            result = cursor.fetchone()
+            print(f"Query result: {result}")
+
+            if result:
+                return {
+                    "id": result[0],
+                    "latitude": result[1],
+                    "longitude": result[2],
+                    "complaint_number": result[3],
+                }
+            return None
+        except Exception as e:
+            print(f"ERROR in _check_nearby_points: {str(e)}")
+            raise
+
+
+def _update_complaint_count(point_id):
+    """Increment the complaint count for an existing point"""
+    print(f"Updating complaint count for point {point_id}")
+    with connection.cursor() as cursor:
+        try:
+            cursor.execute(
+                """
+                UPDATE filtered_grouped_data_centroid
+                SET cmplnt_num = cmplnt_num + 1,
+                    ratio      = CASE
+                                     WHEN total_popu > 0
+                                         THEN (cmplnt_num + 1)::float
+                                         / total_popu
+                           ELSE 0
+                END
+                WHERE ogc_fid =
+                %s
+                RETURNING
+                cmplnt_num;
+                """,
+                [point_id],
+            )
+            result = cursor.fetchone()
+            print(f"Update result: {result}")
+            return {"new_count": result[0] if result else None}
+        except Exception as e:
+            print(f"ERROR in _update_complaint_count: {str(e)}")
+            raise
+
+
+def _generate_road_segment_id():
+    """Generate a unique road segment ID as varchar"""
+    road_id = f"R-{uuid.uuid4().hex[:8].upper()}"
+    print(f"Generated road segment ID: {road_id}")
+    return road_id
+
+
+def _create_new_point(report):
+    """Create a new point in the filtered_grouped_data_centroid table"""
+    print(f"Creating new point for report {report.id}")
+    with connection.cursor() as cursor:
+        try:
+            road_seg_id = _generate_road_segment_id()
+
+            cursor.execute(
+                """
+    INSERT INTO filtered_grouped_data_centroid
+        (road_seg_i, total_popu, cmplnt_num, ratio, wkb_geometry)
+    VALUES (
+        %s, %s, %s, %s,
+        ST_SetSRID(
+            ST_MakePoint(%s, %s),
+            4326
+        )
+    )
+    RETURNING ogc_fid;
+    """,
+                [
+                    road_seg_id,
+                    0,  # Default population
+                    1,  # Initial complaint count
+                    0.0,  # Default ratio
+                    report.longitude,
+                    report.latitude,
+                ],
+            )
+            result = cursor.fetchone()
+            print(f"Insert result: {result}")
+            return {"id": result[0] if result else None}
+        except Exception as e:
+            print(f"ERROR in _create_new_point: {str(e)}")
+            raise

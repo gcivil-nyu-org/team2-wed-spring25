@@ -35,6 +35,7 @@ class IssueOnLocationReport(models.Model):
     location_str = models.CharField(max_length=200)
     status = models.CharField(max_length=15, choices=report_status, default="pending")
     rejection_reason = models.TextField(max_length=500, blank=True, null=True)
+    heatmap_point_id = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.title}"
