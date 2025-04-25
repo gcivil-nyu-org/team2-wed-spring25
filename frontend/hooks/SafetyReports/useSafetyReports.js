@@ -42,33 +42,36 @@ export function useSafetyReports({ onError }) {
   }, [debouncedFilter, debouncedOrdering]);
 
   // Fetch reports from API
-  const fetchReports = useCallback(async (pageNum = 1, append = false) => {
+  const fetchReports = useCallback(async (pageNum = 1, append = false, forcePageOne = false) => {
+    // Use forcePageOne to override the pageNum parameter when filters change
+    const effectivePageNum = forcePageOne ? 1 : pageNum;
+    
     // Prevent duplicate requests for the same page
-    if (lastPageRequestedRef.current === pageNum && pageNum > 1) {
+    if (lastPageRequestedRef.current === effectivePageNum && effectivePageNum > 1) {
       return;
     }
     
     // Set request in progress flag
     isRequestInProgressRef.current = true;
-    lastPageRequestedRef.current = pageNum;
+    lastPageRequestedRef.current = effectivePageNum;
     
     // Cancel any in-flight requests
     if (currentRequestRef.current) {
       currentRequestRef.current.abort();
     }
-
+  
     // Create new abort controller
     const controller = new AbortController();
     currentRequestRef.current = controller;
     
-    if (pageNum === 1) setIsLoading(true);
+    if (effectivePageNum === 1) setIsLoading(true);
     setError(false);
-
+  
     try {
-      const queryParams = buildQueryParams(pageNum);
+      const queryParams = buildQueryParams(effectivePageNum);
       
       const response = await authAPI.authenticatedGet(
-        `/user/safety-report-list?${queryParams}`, // Fixed: using correct variable name
+        `/user/safety-report-list?${queryParams}`,
         { signal: controller.signal }
       );
 
@@ -138,12 +141,7 @@ export function useSafetyReports({ onError }) {
 
   // Watch for page or filter changes to trigger fetch
   useEffect(() => {
-    // For page 1 (initial load or filter changes), clear existing reports
-    if (page === 1) {
-      setReports([]);
-    }
-    
-    // Only fetch if we're not already loading this page
+    // Only fetch for page changes if we're not handling a filter change
     if (!isRequestInProgressRef.current) {
       fetchReports(page, page > 1);
     }
@@ -151,11 +149,12 @@ export function useSafetyReports({ onError }) {
   
   // Watch for filter changes specifically
   useEffect(() => {
-    // Skip the first render
-    if (lastPageRequestedRef.current !== 0) {
-      setPage(1);
+    // Skip initial render
+    if (debouncedFilter !== undefined && debouncedOrdering !== undefined) {
+      // Force page 1 when filters change
+      fetchReports(1, false, true);
     }
-  }, [debouncedFilter, debouncedOrdering]);
+  }, [debouncedFilter, debouncedOrdering, fetchReports]);
 
   // Delete a report
   const deleteReport = useCallback(async (reportId) => {

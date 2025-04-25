@@ -50,6 +50,12 @@ jest.mock('@/app/custom-components/RoutingComponets/RouteHandler', () => ({
   enhanceTurnInstructions: jest.fn(steps => steps)
 }));
 
+jest.mock('@/app/custom-components/SafetyReport/ReportSafetyIssueForm', () => {
+  return function MockReportSafetyIssue() {
+    return <div data-testid="mock-safety-report">Mock Safety Report Form</div>;
+  };
+});
+
 // Mock fetch API with the function directly in the mock
 jest.mock('@/utils/fetch/fetch', () => ({
   authAPI: {
@@ -87,7 +93,9 @@ jest.mock('@/app/custom-components/MapComponents/RouteContext', () => {
     isGettingLocation: false,
     locationDenied: false,
     fetchUserLocation: jest.fn(),
-    routeKey: 'mock-route-key'
+    routeKey: 'mock-route-key',
+    isCalculatingRoute: false,
+    setIsCalculatingRoute: jest.fn()
   };
 
   return {
@@ -180,15 +188,15 @@ describe('RoutingMapComponent', () => {
     mockMapInstance._userMarker = null;
   });
 
-  // test('renders without crashing', () => {
-  //   render(<RoutingMapComponent />);
-  //   expect(screen.getByTestId('mock-heatmap')).toBeInTheDocument();
-  // });
+  test('renders without crashing', () => {
+    render(<RoutingMapComponent />);
+    expect(screen.getByTestId('mock-heatmap')).toBeInTheDocument();
+  });
 
-  // test('adds and updates user marker properly', () => {
-  //   render(<RoutingMapComponent />);
-  //   expect(require('leaflet').marker).toHaveBeenCalled();
-  // });
+  test('adds and updates user marker properly', () => {
+    render(<RoutingMapComponent />);
+    expect(require('leaflet').marker).toHaveBeenCalled();
+  });
 
 
   test('detects coordinate changes correctly', () => {
@@ -203,23 +211,23 @@ describe('RoutingMapComponent', () => {
     expect(areCoordinatesDifferent([1, 2], null)).toBe(true);
   });
 
-  // test('handles route fetching errors properly', async () => {
-  //   // Force API to throw error for this test
-  //   authAPI.authenticatedPost.mockRejectedValueOnce(new Error('API error'));
+  test('handles route fetching errors properly', async () => {
+    // Force API to throw error for this test
+    authAPI.authenticatedPost.mockRejectedValueOnce(new Error('API error'));
 
-  //   render(<RoutingMapComponent />);
+    render(<RoutingMapComponent />);
 
-  //   await waitFor(() => {
-  //     expect(useNotification().showError).toHaveBeenCalled();
-  //   });
-  // });
+    await waitFor(() => {
+      expect(useNotification().showError).toHaveBeenCalled();
+    });
+  });
 
 
-  // test('initializes map with all required components', () => {
-  //   render(<RoutingMapComponent />);
-  //   expect(require('leaflet').map).toHaveBeenCalled();
-  //   expect(require('leaflet').tileLayer).toHaveBeenCalled();
-  // });
+  test('initializes map with all required components', () => {
+    render(<RoutingMapComponent />);
+    expect(require('leaflet').map).toHaveBeenCalled();
+    expect(require('leaflet').tileLayer).toHaveBeenCalled();
+  });
 
   test('renders route info panel with toggle controls', () => {
     render(
@@ -235,290 +243,290 @@ describe('RoutingMapComponent', () => {
     expect(screen.getByTestId("toggle-down")).toBeInTheDocument();
   });
 
-  // test('handles map initialization errors', () => {
-  //   // Force map initialization to throw an error
-  //   require('leaflet').map.mockImplementationOnce(() => {
-  //     throw new Error('Map initialization error');
-  //   });
+  test('handles map initialization errors', () => {
+    // Force map initialization to throw an error
+    require('leaflet').map.mockImplementationOnce(() => {
+      throw new Error('Map initialization error');
+    });
 
-  //   render(<RoutingMapComponent />);
-  //   expect(useNotification().showError).toHaveBeenCalled();
-  // });
+    render(<RoutingMapComponent />);
+    expect(useNotification().showError).toHaveBeenCalled();
+  });
 
 
-  // test('centers map on user location', () => {
-  //   const mockMapInstance = require('leaflet').map();
-  //   render(<RoutingMapComponent />);
+  test('centers map on user location', () => {
+    const mockMapInstance = require('leaflet').map();
+    render(<RoutingMapComponent />);
 
-  //   // Call the centerMapOnUserLocation function directly
-  //   mockMapInstance.setView.mockClear();
+    // Call the centerMapOnUserLocation function directly
+    mockMapInstance.setView.mockClear();
 
-  //   // Expect the map to be centered when user location is valid
-  //   const routeContext = useRoute();
-  //   expect(routeContext.userLocation).toBeTruthy();
-  //   expect(routeContext.canUseCurrentLocation).toBe(true);
+    // Expect the map to be centered when user location is valid
+    const routeContext = useRoute();
+    expect(routeContext.userLocation).toBeTruthy();
+    expect(routeContext.canUseCurrentLocation).toBe(true);
 
-  //   // Simulate center operation
-  //   mockMapInstance.setView(routeContext.userLocation, 15);
+    // Simulate center operation
+    mockMapInstance.setView(routeContext.userLocation, 15);
 
-  //   expect(mockMapInstance.setView).toHaveBeenCalledWith(
-  //     routeContext.userLocation,
-  //     15
-  //   );
-  // });
+    expect(mockMapInstance.setView).toHaveBeenCalledWith(
+      routeContext.userLocation,
+      15
+    );
+  });
 
   // Test map initialization with departure coordinates
-  // test('initializes map with departure coordinates', () => {
-  //   // Set specific coordinates
-  //   const departureCoords = [40.8, -74.1];
+  test('initializes map with departure coordinates', () => {
+    // Set specific coordinates
+    const departureCoords = [40.8, -74.1];
 
-  //   useRoute.mockImplementationOnce(() => ({
-  //     mapboxToken: 'mock-token',
-  //     departureCoords,
-  //     destinationCoords: [40.9, -74.2],
-  //     userLocation: null,
-  //     canUseCurrentLocation: false,
-  //     isGettingLocation: false,
-  //     locationDenied: false,
-  //     fetchUserLocation: jest.fn(),
-  //     routeKey: 'mock-route-key'
-  //   }));
+    useRoute.mockImplementationOnce(() => ({
+      mapboxToken: 'mock-token',
+      departureCoords,
+      destinationCoords: [40.9, -74.2],
+      userLocation: null,
+      canUseCurrentLocation: false,
+      isGettingLocation: false,
+      locationDenied: false,
+      fetchUserLocation: jest.fn(),
+      routeKey: 'mock-route-key'
+    }));
 
-  //   render(<RoutingMapComponent />);
+    render(<RoutingMapComponent />);
 
-  //   // Verify map is initialized with departure coordinates
-  //   const leaflet = require('leaflet');
-  //   expect(leaflet.map).toHaveBeenCalled();
-  //   expect(leaflet.map().setView).toHaveBeenCalledWith(departureCoords, expect.any(Number));
-  // });
+    // Verify map is initialized with departure coordinates
+    const leaflet = require('leaflet');
+    expect(leaflet.map).toHaveBeenCalled();
+    expect(leaflet.map().setView).toHaveBeenCalledWith(departureCoords, expect.any(Number));
+  });
 
   // Test location denied scenario
-  // test('displays location access button when denied', () => {
-  //   // Mock location denied
-  //   useRoute.mockImplementationOnce(() => ({
-  //     mapboxToken: 'mock-token',
-  //     departureCoords: null,
-  //     destinationCoords: null,
-  //     userLocation: null,
-  //     canUseCurrentLocation: false,
-  //     isGettingLocation: false,
-  //     locationDenied: true,
-  //     fetchUserLocation: jest.fn(),
-  //     routeKey: 'mock-route-key'
-  //   }));
+  test('displays location access button when denied', () => {
+    // Mock location denied
+    useRoute.mockImplementationOnce(() => ({
+      mapboxToken: 'mock-token',
+      departureCoords: null,
+      destinationCoords: null,
+      userLocation: null,
+      canUseCurrentLocation: false,
+      isGettingLocation: false,
+      locationDenied: true,
+      fetchUserLocation: jest.fn(),
+      routeKey: 'mock-route-key'
+    }));
 
-  //   // Create a custom mock for MapRenderMsg to check if it renders properly
-  //   const MapRenderMsg = require('@/app/custom-components/MapComponents/MapRenderMsg');
+    // Create a custom mock for MapRenderMsg to check if it renders properly
+    const MapRenderMsg = require('@/app/custom-components/MapComponents/MapRenderMsg');
 
-  //   render(<RoutingMapComponent />);
+    render(<RoutingMapComponent />);
 
-  //   // Verify the map loads even when location is denied
-  //   expect(require('leaflet').map).toHaveBeenCalled();
-  // });
+    // Verify the map loads even when location is denied
+    expect(require('leaflet').map).toHaveBeenCalled();
+  });
 
   // Test userMarker update when location changes
-  // test('updates user marker when location changes', () => {
-  //   // Initial render
-  //   const { rerender } = render(<RoutingMapComponent />);
+  test('updates user marker when location changes', () => {
+    // Initial render
+    const { rerender } = render(<RoutingMapComponent />);
 
-  //   // Mock the user marker for tests
-  //   const leaflet = require('leaflet');
-  //   const mockMapInstance = leaflet.map();
-  //   mockMapInstance._userMarker = {
-  //     setLatLng: jest.fn(),
-  //     remove: jest.fn()
-  //   };
+    // Mock the user marker for tests
+    const leaflet = require('leaflet');
+    const mockMapInstance = leaflet.map();
+    mockMapInstance._userMarker = {
+      setLatLng: jest.fn(),
+      remove: jest.fn()
+    };
 
-  //   // Update with new location
-  //   useRoute.mockImplementationOnce(() => ({
-  //     mapboxToken: 'mock-token',
-  //     departureCoords: [40.8, -74.1],
-  //     destinationCoords: [40.9, -74.2],
-  //     userLocation: [40.8, -74.0], // Changed location
-  //     canUseCurrentLocation: true,
-  //     isGettingLocation: false,
-  //     locationDenied: false,
-  //     fetchUserLocation: jest.fn(),
-  //     routeKey: 'mock-route-key'
-  //   }));
+    // Update with new location
+    useRoute.mockImplementationOnce(() => ({
+      mapboxToken: 'mock-token',
+      departureCoords: [40.8, -74.1],
+      destinationCoords: [40.9, -74.2],
+      userLocation: [40.8, -74.0], // Changed location
+      canUseCurrentLocation: true,
+      isGettingLocation: false,
+      locationDenied: false,
+      fetchUserLocation: jest.fn(),
+      routeKey: 'mock-route-key'
+    }));
 
-  //   // Rerender with new location
-  //   rerender(<RoutingMapComponent />);
-  // });
+    // Rerender with new location
+    rerender(<RoutingMapComponent />);
+  });
 
   // Test handling of missing mapbox token
-  // test('shows error when mapbox token is missing', () => {
-  //   // Mock missing token
-  //   useRoute.mockImplementationOnce(() => ({
-  //     mapboxToken: '', // Empty token
-  //     departureCoords: [40.8, -74.1],
-  //     destinationCoords: [40.9, -74.2],
-  //     userLocation: [40.7, -74.0],
-  //     canUseCurrentLocation: true,
-  //     isGettingLocation: false,
-  //     locationDenied: false,
-  //     fetchUserLocation: jest.fn(),
-  //     routeKey: 'mock-route-key'
-  //   }));
+  test('shows error when mapbox token is missing', () => {
+    // Mock missing token
+    useRoute.mockImplementationOnce(() => ({
+      mapboxToken: '', // Empty token
+      departureCoords: [40.8, -74.1],
+      destinationCoords: [40.9, -74.2],
+      userLocation: [40.7, -74.0],
+      canUseCurrentLocation: true,
+      isGettingLocation: false,
+      locationDenied: false,
+      fetchUserLocation: jest.fn(),
+      routeKey: 'mock-route-key'
+    }));
 
-  //   render(<RoutingMapComponent />);
+    render(<RoutingMapComponent />);
 
-  //   // Verify error
-  //   expect(screen.getByTestId('mock-error-msg')).toBeInTheDocument();
-  // });
+    // Verify error
+    expect(screen.getByTestId('mock-error-msg')).toBeInTheDocument();
+  });
 
-  // test('handles waiting for location state', () => {
-  //   // First render with isGettingLocation = true and waitingForLocation = true
-  //   useRoute.mockImplementationOnce(() => ({
-  //     mapboxToken: 'mock-token',
-  //     departureCoords: null,
-  //     destinationCoords: null,
-  //     userLocation: null,
-  //     canUseCurrentLocation: true,
-  //     isGettingLocation: true,
-  //     locationDenied: false,
-  //     fetchUserLocation: jest.fn(),
-  //     routeKey: 'mock-route-key'
-  //   }));
+  test('handles waiting for location state', () => {
+    // First render with isGettingLocation = true and waitingForLocation = true
+    useRoute.mockImplementationOnce(() => ({
+      mapboxToken: 'mock-token',
+      departureCoords: null,
+      destinationCoords: null,
+      userLocation: null,
+      canUseCurrentLocation: true,
+      isGettingLocation: true,
+      locationDenied: false,
+      fetchUserLocation: jest.fn(),
+      routeKey: 'mock-route-key'
+    }));
 
-  //   render(<RoutingMapComponent />);
+    render(<RoutingMapComponent />);
 
-  //   // Check for the mock-error-msg which is rendered when mapCriticalError is present
-  //   // Since we're mocking everything, we need to check what's actually being rendered
-  //   expect(screen.getByTestId('mock-error-msg')).toBeInTheDocument();
+    // Check for the mock-error-msg which is rendered when mapCriticalError is present
+    // Since we're mocking everything, we need to check what's actually being rendered
+    expect(screen.getByTestId('mock-error-msg')).toBeInTheDocument();
 
-  //   // Update mock for next render
-  //   useRoute.mockImplementationOnce(() => ({
-  //     mapboxToken: 'mock-token',
-  //     departureCoords: null,
-  //     destinationCoords: null,
-  //     userLocation: [40.7, -74.0],
-  //     canUseCurrentLocation: true,
-  //     isGettingLocation: false,
-  //     locationDenied: false,
-  //     fetchUserLocation: jest.fn(),
-  //     routeKey: 'mock-route-key'
-  //   }));
+    // Update mock for next render
+    useRoute.mockImplementationOnce(() => ({
+      mapboxToken: 'mock-token',
+      departureCoords: null,
+      destinationCoords: null,
+      userLocation: [40.7, -74.0],
+      canUseCurrentLocation: true,
+      isGettingLocation: false,
+      locationDenied: false,
+      fetchUserLocation: jest.fn(),
+      routeKey: 'mock-route-key'
+    }));
 
-  //   // Rerender with updated props
-  //   render(<RoutingMapComponent />);
+    // Rerender with updated props
+    render(<RoutingMapComponent />);
 
-  //   // Verify map instance is created
-  //   expect(require('leaflet').map).toHaveBeenCalled();
-  // });
+    // Verify map instance is created
+    expect(require('leaflet').map).toHaveBeenCalled();
+  });
 
-  // test('calculates route when coordinates are available', async () => {
-  //   // Reset API mock between tests
-  //   jest.clearAllMocks();
-  //   authAPI.authenticatedPost.mockClear();
+  test('calculates route when coordinates are available', async () => {
+    // Reset API mock between tests
+    jest.clearAllMocks();
+    authAPI.authenticatedPost.mockClear();
 
-  //   // Mock the map instance setup that would trigger the fetchRouteData call
-  //   // We need to simulate the conditions where fetchRouteData would be called
-  //   const mockMapInstance = require('leaflet').map();
+    // Mock the map instance setup that would trigger the fetchRouteData call
+    // We need to simulate the conditions where fetchRouteData would be called
+    const mockMapInstance = require('leaflet').map();
 
-  //   // Mock conditions where shouldCalculateRoute becomes true
-  //   // This typically happens after map initialization and when coords are available
-  //   useRoute.mockImplementationOnce(() => ({
-  //     mapboxToken: 'mock-token',
-  //     departureCoords: [40.8, -74.1],
-  //     destinationCoords: [40.9, -74.2],
-  //     userLocation: [40.7, -74.0],
-  //     canUseCurrentLocation: true,
-  //     isGettingLocation: false,
-  //     locationDenied: false,
-  //     fetchUserLocation: jest.fn(),
-  //     routeKey: 'mock-route-key-1' // Use a unique key
-  //   }));
+    // Mock conditions where shouldCalculateRoute becomes true
+    // This typically happens after map initialization and when coords are available
+    useRoute.mockImplementationOnce(() => ({
+      mapboxToken: 'mock-token',
+      departureCoords: [40.8, -74.1],
+      destinationCoords: [40.9, -74.2],
+      userLocation: [40.7, -74.0],
+      canUseCurrentLocation: true,
+      isGettingLocation: false,
+      locationDenied: false,
+      fetchUserLocation: jest.fn(),
+      routeKey: 'mock-route-key-1' // Use a unique key
+    }));
 
-  //   // The critical part - we need to simulate that the map is loaded and ready
-  //   // which would trigger the route calculation
-  //   mockMapInstance.setView.mockImplementation(() => {
-  //     // This will trigger API call
-  //     authAPI.authenticatedPost.mockResolvedValueOnce({
-  //       initial_route: {
-  //         routes: [{ summary: { distance: 1000, duration: 300 }, geometry: "geometry" }]
-  //       },
-  //       safer_route: {
-  //         routes: [{ summary: { distance: 1200, duration: 350 }, geometry: "geometry2" }]
-  //       }
-  //     });
-  //     return mockMapInstance;
-  //   });
+    // The critical part - we need to simulate that the map is loaded and ready
+    // which would trigger the route calculation
+    mockMapInstance.setView.mockImplementation(() => {
+      // This will trigger API call
+      authAPI.authenticatedPost.mockResolvedValueOnce({
+        initial_route: {
+          routes: [{ summary: { distance: 1000, duration: 300 }, geometry: "geometry" }]
+        },
+        safer_route: {
+          routes: [{ summary: { distance: 1200, duration: 350 }, geometry: "geometry2" }]
+        }
+      });
+      return mockMapInstance;
+    });
 
-  //   render(<RoutingMapComponent />);
+    render(<RoutingMapComponent />);
 
-  //   // Force the API call - in real component this happens after map load and route calculation trigger
-  //   // Rather than expecting the API to have been called (as it may not get called in the test environment),
-  //   // let's verify our mock function behaves correctly
+    // Force the API call - in real component this happens after map load and route calculation trigger
+    // Rather than expecting the API to have been called (as it may not get called in the test environment),
+    // let's verify our mock function behaves correctly
 
-  //   // Directly call the mocked API function to verify it works
-  //   const response = await authAPI.authenticatedPost("/get-route/", {
-  //     departure: [40.8, -74.1],
-  //     destination: [40.9, -74.2],
-  //     save_route: false
-  //   });
+    // Directly call the mocked API function to verify it works
+    const response = await authAPI.authenticatedPost("/get-route/", {
+      departure: [40.8, -74.1],
+      destination: [40.9, -74.2],
+      save_route: false
+    });
 
-  //   // Verify the mock returns expected data
-  //   expect(response).toEqual(expect.objectContaining({
-  //     initial_route: expect.any(Object),
-  //     safer_route: expect.any(Object)
-  //   }));
-  // });
+    // Verify the mock returns expected data
+    expect(response).toEqual(expect.objectContaining({
+      initial_route: expect.any(Object),
+      safer_route: expect.any(Object)
+    }));
+  });
 
-  // test('recalculates route when routeKey changes', () => {
-  //   // Clear mocks
-  //   jest.clearAllMocks();
+  test('recalculates route when routeKey changes', () => {
+    // Clear mocks
+    jest.clearAllMocks();
     
-  //   // First render with initial routeKey
-  //   useRoute.mockImplementationOnce(() => ({
-  //     mapboxToken: 'mock-token',
-  //     departureCoords: [40.8, -74.1],
-  //     destinationCoords: [40.9, -74.2],
-  //     userLocation: [40.7, -74.0],
-  //     canUseCurrentLocation: true,
-  //     isGettingLocation: false,
-  //     locationDenied: false,
-  //     fetchUserLocation: jest.fn(),
-  //     routeKey: 'initial-key'
-  //   }));
+    // First render with initial routeKey
+    useRoute.mockImplementationOnce(() => ({
+      mapboxToken: 'mock-token',
+      departureCoords: [40.8, -74.1],
+      destinationCoords: [40.9, -74.2],
+      userLocation: [40.7, -74.0],
+      canUseCurrentLocation: true,
+      isGettingLocation: false,
+      locationDenied: false,
+      fetchUserLocation: jest.fn(),
+      routeKey: 'initial-key'
+    }));
     
-  //   const { rerender } = render(<RoutingMapComponent />);
+    const { rerender } = render(<RoutingMapComponent />);
     
-  //   // Clear API calls before rerender
-  //   authAPI.authenticatedPost.mockClear();
+    // Clear API calls before rerender
+    authAPI.authenticatedPost.mockClear();
     
-  //   // Instead of testing if the API was called (which depends on internal component state),
-  //   // let's directly test the effect of routeKey change by checking the useEffect dependency
+    // Instead of testing if the API was called (which depends on internal component state),
+    // let's directly test the effect of routeKey change by checking the useEffect dependency
     
-  //   // We can test that routeKey is used as a dependency in useEffect
-  //   // by checking if the state resets correctly
-  //   useRoute.mockImplementationOnce(() => ({
-  //     mapboxToken: 'mock-token',
-  //     departureCoords: [40.8, -74.1],
-  //     destinationCoords: [40.9, -74.2],
-  //     userLocation: [40.7, -74.0],
-  //     canUseCurrentLocation: true,
-  //     isGettingLocation: false,
-  //     locationDenied: false,
-  //     fetchUserLocation: jest.fn(),
-  //     routeKey: 'new-key' // Changed key
-  //   }));
+    // We can test that routeKey is used as a dependency in useEffect
+    // by checking if the state resets correctly
+    useRoute.mockImplementationOnce(() => ({
+      mapboxToken: 'mock-token',
+      departureCoords: [40.8, -74.1],
+      destinationCoords: [40.9, -74.2],
+      userLocation: [40.7, -74.0],
+      canUseCurrentLocation: true,
+      isGettingLocation: false,
+      locationDenied: false,
+      fetchUserLocation: jest.fn(),
+      routeKey: 'new-key' // Changed key
+    }));
     
-  //   rerender(<RoutingMapComponent />);
+    rerender(<RoutingMapComponent />);
     
-  //   // Test that Leaflet map was initialized on rerender
-  //   expect(require('leaflet').map).toHaveBeenCalled();
-  // });
+    // Test that Leaflet map was initialized on rerender
+    expect(require('leaflet').map).toHaveBeenCalled();
+  });
 
-  // test('shows error message when map fails to load', () => {
-  //   // Mock the map to throw an error
-  //   require('leaflet').map.mockImplementationOnce(() => {
-  //     throw new Error('Map loading error');
-  //   });
+  test('shows error message when map fails to load', () => {
+    // Mock the map to throw an error
+    require('leaflet').map.mockImplementationOnce(() => {
+      throw new Error('Map loading error');
+    });
 
-  //   render(<RoutingMapComponent />);
+    render(<RoutingMapComponent />);
 
-  //   // Check if the error message is displayed
-  //   expect(screen.getByTestId('mock-error-msg')).toBeInTheDocument();
-  // });
+    // Check if the error message is displayed
+    expect(screen.getByTestId('mock-error-msg')).toBeInTheDocument();
+  });
 });
