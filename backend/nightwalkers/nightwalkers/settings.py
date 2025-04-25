@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "channels",
     "chat",
     "notifications",
+    "django_filters",
 ]
 
 
@@ -161,14 +162,14 @@ DATABASES = {
     )
 }
 # For my test on linux leave the lines below please
-# if 'test' in sys.argv:
-#     DATABASES['default'] = {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'nightwalkers',
-#         'USER': 'alex',
-#         'PASSWORD': 'alex1006',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
+# if "test" in sys.argv:
+#     DATABASES["default"] = {
+#         "ENGINE": "django.db.backends.postgresql_psycopg2",
+#         "NAME": "nightwalkers",
+#         "USER": "alex",
+#         "PASSWORD": "alex1006",
+#         "HOST": "localhost",
+#         "PORT": "5432",
 #     }
 
 # Password validation
@@ -219,6 +220,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework." "permissions.IsAuthenticated",),
     "DEFAULT_PARSER_CLASSES": (
@@ -227,6 +229,10 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.MultiPartParser",
     ),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.OrderingFilter",
+    ],
 }
 
 SIMPLE_JWT = {

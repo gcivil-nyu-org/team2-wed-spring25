@@ -30,6 +30,12 @@ const ProfileSidebar = () => {
         >
           Report a Bug
         </Link>
+        {/* <Link
+          href="/users/settings/profile#flagged_posts"
+          className="px-4 py-2 hover:bg-sidebar-border"
+        >
+          My Reports
+        </Link> */}
       </nav>
     </>
   );

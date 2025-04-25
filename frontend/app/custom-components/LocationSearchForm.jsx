@@ -25,7 +25,8 @@ export default function LocationSearchForm() {
     NYC_BOUNDS,
     isWithinNYC,
     formatCoords,
-    handleSearch
+    handleSearch,
+    isCalculatingRoute,
   } = useRoute();
 
   // Local form state
@@ -277,6 +278,7 @@ export default function LocationSearchForm() {
   // Determine if submit button should be disabled
   const isButtonDisabled = () => {
     // Already calculated and no changes
+    if (isCalculatingRoute) return true;
     if (routeCalculated && !inputsModified) return true;
 
     // Getting location
@@ -291,8 +293,9 @@ export default function LocationSearchForm() {
 
   // Get button text based on state
   const getButtonText = () => {
+    if (isCalculatingRoute) return "Calculating Route...";
     if (isGettingLocation) return "Calculating Route...";
-    if (routeCalculated && !inputsModified) return "Route Already Calculated";
+    if (routeCalculated && !inputsModified && !isCalculatingRoute) return "Route Already Calculated";
     return "Get Directions";
   };
 
@@ -478,7 +481,14 @@ export default function LocationSearchForm() {
             disabled={isButtonDisabled()}
             className="w-full mt-4 bg-map-pointer hover:bg-map-pointer2 text-map-text text-sm md:text-base sm:text-xs p-2 sm:p-1.5"
           >
-            {getButtonText()}
+            {isCalculatingRoute ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                <span>{getButtonText()}</span>
+              </div>
+            ) : (
+              getButtonText()
+            )}
           </Button>
 
           {routeCalculated && !inputsModified && (

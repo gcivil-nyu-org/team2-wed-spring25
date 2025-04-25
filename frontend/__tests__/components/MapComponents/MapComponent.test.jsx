@@ -50,6 +50,12 @@ jest.mock('@/app/custom-components/RoutingComponets/RouteHandler', () => ({
   enhanceTurnInstructions: jest.fn(steps => steps)
 }));
 
+jest.mock('@/app/custom-components/SafetyReport/ReportSafetyIssueForm', () => {
+  return function MockReportSafetyIssue() {
+    return <div data-testid="mock-safety-report">Mock Safety Report Form</div>;
+  };
+});
+
 // Mock fetch API with the function directly in the mock
 jest.mock('@/utils/fetch/fetch', () => ({
   authAPI: {
@@ -87,7 +93,9 @@ jest.mock('@/app/custom-components/MapComponents/RouteContext', () => {
     isGettingLocation: false,
     locationDenied: false,
     fetchUserLocation: jest.fn(),
-    routeKey: 'mock-route-key'
+    routeKey: 'mock-route-key',
+    isCalculatingRoute: false,
+    setIsCalculatingRoute: jest.fn()
   };
 
   return {
@@ -160,6 +168,7 @@ import '@testing-library/jest-dom';
 
 // Import the component after all mocks
 import RoutingMapComponent from '@/app/custom-components/MapComponents/MapComponent';
+
 
 // Import the mocked modules
 import { authAPI } from '@/utils/fetch/fetch';
@@ -508,6 +517,7 @@ describe('RoutingMapComponent', () => {
     // Test that Leaflet map was initialized on rerender
     expect(require('leaflet').map).toHaveBeenCalled();
   });
+
   test('shows error message when map fails to load', () => {
     // Mock the map to throw an error
     require('leaflet').map.mockImplementationOnce(() => {
