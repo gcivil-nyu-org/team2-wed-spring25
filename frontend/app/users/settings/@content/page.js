@@ -38,7 +38,17 @@ const SettingsContent = () => {
             <CardHeader>
               <CardTitle>App Report History</CardTitle>
               <CardDescription>
-                View reports you&apos;ve made about app bugs
+                View reports you&apos;ve made about bugs within the app
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link href="/users/settings/reportlog">
+          <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text hover:bg-sidebar-separator">
+            <CardHeader>
+              <CardTitle>Safety Report History</CardTitle>
+              <CardDescription>
+                View safety reports you&apos;ve made
               </CardDescription>
             </CardHeader>
           </Card>

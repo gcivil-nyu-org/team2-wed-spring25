@@ -10,7 +10,7 @@ const ReportsSidebar = () => {
           href="/users/settings/reportlog"
           className="px-4 py-2 hover:bg-sidebar-border"
         >
-          Reports
+          Bug Reports
         </Link>
         {/* <Link
           href="/users/settings/routes/preferences"
