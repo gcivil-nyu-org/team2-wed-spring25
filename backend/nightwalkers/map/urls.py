@@ -8,6 +8,11 @@ from .views import (
     HeatmapDataView,
     PrimaryHeatmapDataView,
     SecondaryHeatmapDataView,
+    IssueOnLocationReportListView,
+    CreateIssueOnLocationReportView,
+    DeleteIssueOnLocationReportView,
+    process_approved_report,
+    revoke_report_approval,
 )
 
 urlpatterns = [
@@ -33,4 +38,27 @@ urlpatterns = [
         name="retrieve-routes",
     ),
     path("update-route/", UpdateSavedRouteAPIView.as_view(), name="update-route"),
+    path(
+        "user/safety-report-list/",
+        IssueOnLocationReportListView.as_view(),
+        name="safety-report-list",
+    ),
+    path(
+        "user/create-safety-report/",
+        CreateIssueOnLocationReportView.as_view(),
+        name="create-safety-report",
+    ),
+    path(
+        "delete-safety-report/<int:pk>/",
+        DeleteIssueOnLocationReportView.as_view(),
+        name="delete-safety-report",
+    ),
+    path(
+        "process-approved-report/",
+        process_approved_report,
+        name="process-approved-report",
+    ),
+    path(
+        "revoke-report-approval/", revoke_report_approval, name="revoke-report-approval"
+    ),
 ]

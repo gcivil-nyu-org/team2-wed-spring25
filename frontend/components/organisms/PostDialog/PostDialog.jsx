@@ -10,6 +10,7 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import { getUserFullName } from "@/utils/string";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 import { closeDark, emojiDark, imagePickerDark } from "@/public/icons";
+import { Filter } from "bad-words";
 
 export default function PostDialog({
   onClick,
@@ -56,6 +57,7 @@ export default function PostDialog({
     is_repost,
     original_post_id
   );
+  const filter = new Filter();
   const { showError } = useNotification();
   let user = null;
 
@@ -67,7 +69,7 @@ export default function PostDialog({
     return null; // or handle the case when user is not found
   }
 
-  console.log("user in post dialog", user);
+  // console.log("user in post dialog", user);
 
   // const contentEditableRef = useRef(null);
 
@@ -133,7 +135,7 @@ export default function PostDialog({
               className="pl-7 text-xl flex-1 resize-none outline-none placeholder-forum-subheading bg-bg-post text-forum-heading"
               placeholder="Share Your Thoughts..."
               value={postContent}
-              onChange={(e) => setPostContent(e.target.value)}
+              onChange={(e) => setPostContent(filter.clean(e.target.value))}
             />
             {selectedImage && (
               <div className="mx-5 px-3 p-2 flex justify-between items-center border-2 border-slate-300 rounded">
@@ -150,27 +152,6 @@ export default function PostDialog({
                 />
               </div>
             )}
-            {/* <div 
-                            className="w-full h-1 outline-none pl-7 text-xl relative text-slate-700 select-text" 
-                            contentEditable="true"
-                            ref={contentEditableRef}
-                            onInput={handleInput}
-                            suppressContentEditableWarning={true} 
-                            >
-                            {postContent === "" && "Share Your Thoughts..."}
-                            {postContent !== "" && postContent}
-                            <div>
-                            {selectedImage &&
-                                <Image
-                                    src={selectedImage}
-                                    width={500}
-                                    height={500}
-                                    alt={selectedImageName}
-                                    className="absolute w-full left-0 mt-4 select-none"
-                                />
-                                }
-                            </div>
-                        </div> */}
           </div>
 
           <div className="flex justify-between items-center mx-3 px-2 pt-3">

@@ -22,9 +22,12 @@ const CustomAlertDialog = ({
     setIsProcessing(true);
     try {
       await onConfirm();
+      // The dialog should be closed by onConfirm() in the parent component
+      // But let's reset isProcessing here just in case the dialog isn't closed
+      setIsProcessing(false);
     } catch (error) {
       console.error("Error in confirmation action:", error);
-      setIsProcessing(false); // Reset only on error, so user can try again
+      setIsProcessing(false); // Reset on error, so user can try again
     }
   };
 
