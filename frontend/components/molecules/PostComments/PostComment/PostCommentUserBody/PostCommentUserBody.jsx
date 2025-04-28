@@ -93,8 +93,8 @@ export default function PostCommentUserBody({
               >
                 {likeType ?? "Like"}
               </p>
-              {likesCount > 0 && <span className="text-xs">•</span>}
-              {likesCount > 0 && (
+              {likesCount > 0 && <span className="text-xs mr-1">•</span>}
+              {/* {likesCount > 0 && (
                 <Icon
                   src={getIconSource(
                     icons[Math.floor(Math.random() * 6)].src,
@@ -106,8 +106,12 @@ export default function PostCommentUserBody({
                   height={16}
                   alt={"Like"}
                 />
+              )} */}
+              {likesCount > 0 && (
+                <p className="pr-1">
+                  {likesCount} {likesCount > 1 ? "likes" : "like"}
+                </p>
               )}
-              {likesCount > 0 && <p className="pr-1">{likesCount}</p>}
             </div>
             <p className="mx-1 font-thin">|</p>
             <div className="flex items-center">

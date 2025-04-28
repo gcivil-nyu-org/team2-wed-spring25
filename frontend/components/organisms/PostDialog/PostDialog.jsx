@@ -10,7 +10,6 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import { getUserFullName } from "@/utils/string";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 import { closeDark, emojiDark, imagePickerDark } from "@/public/icons";
-import { Filter } from "bad-words";
 
 export default function PostDialog({
   onClick,
@@ -57,7 +56,6 @@ export default function PostDialog({
     is_repost,
     original_post_id
   );
-  const filter = new Filter();
   const { showError } = useNotification();
   let user = null;
 
@@ -135,7 +133,7 @@ export default function PostDialog({
               className="pl-7 text-xl flex-1 resize-none outline-none placeholder-forum-subheading bg-bg-post text-forum-heading"
               placeholder="Share Your Thoughts..."
               value={postContent}
-              onChange={(e) => setPostContent(filter.clean(e.target.value))}
+              onChange={(e) => setPostContent(e.target.value)}
             />
             {selectedImage && (
               <div className="mx-5 px-3 p-2 flex justify-between items-center border-2 border-slate-300 rounded">
