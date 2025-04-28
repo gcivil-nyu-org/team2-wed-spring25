@@ -357,6 +357,8 @@ class ChangeFCMTokenView(APIView):
             user_id = request.data.get("user_id")
             fcm_token = request.data.get("fcm_token")
             user = User.objects.get(id=user_id)
+            print(f"User id: {user.id}")
+            print(f"FCM token: {fcm_token}")
             if not fcm_token:
                 return Response(
                     {"error": "FCM token is required"},

@@ -26,6 +26,7 @@ export const getMessagingInstance = async () => {
 export const fetchToken = async () => {
   try {
     const messaging = await getMessagingInstance();
+    console.log("Messaging instance:", messaging);
 
     if (!messaging) return null;
 
@@ -33,8 +34,9 @@ export const fetchToken = async () => {
 
     if (permission !== "granted") {
       console.warn("Notification permission denied");
-      return null;
+      // return null;
     }
+    console.log("Notification permission granted");
 
     const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
@@ -45,7 +47,7 @@ export const fetchToken = async () => {
 
     return token;
   } catch (error) {
-    console.error("Error getting FCM token:", error);
+    console.log("Error getting FCM token:", error);
     return null;
   }
 };
