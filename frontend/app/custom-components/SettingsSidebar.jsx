@@ -17,6 +17,7 @@ import {
   MessageSquareText,
   ThumbsUp,
   ClipboardX,
+  TriangleAlert,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -143,6 +144,13 @@ const SettingsSidebar = () => {
   // Get avatar URL with proper fallbacks - handle Google profile URLs specially
   let avatarUrl = null;
 
+  // Debug what avatar values are available
+  // console.log("Avatar data:", {
+  //   contextAvatar: user.avatar,
+  //   contextAvatarUrl: user.avatar_url,
+  //   userObject: user
+  // });
+
   // Check if it's a Google avatar URL
   const isGoogleAvatar = (url) => {
     return (
@@ -178,6 +186,8 @@ const SettingsSidebar = () => {
       avatarUrl.includes("?") ? "&" : "?"
     }t=${Date.now()}`;
   }
+
+  // console.log("Final avatar URL:", avatarUrl);
 
   const renderMenuGroup = (label, menuItems) => (
     <SidebarGroup>
@@ -287,9 +297,14 @@ const SettingsSidebar = () => {
         {renderMenuGroup("Account", items)}
         {renderMenuGroup("Report History", [
           {
-            title: "Reports",
+            title: "App Bug Reports",
             url: "/users/settings/reportlog",
             icon: NotebookPen,
+          },
+          {
+            title: "Safety Reports",
+            url: "/users/settings/safety-reports",
+            icon: TriangleAlert,
           },
         ])}
         {renderMenuGroup("Route Management", routeItems)}

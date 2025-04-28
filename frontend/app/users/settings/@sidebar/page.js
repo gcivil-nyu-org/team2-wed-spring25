@@ -17,7 +17,7 @@ const DefaultSidebar = () => {
           href="/users/settings/reportlog"
           className="px-4 py-2 hover:bg-sidebar-border"
         >
-          Report History
+          App Report History
         </Link>
         <Link
           href="/users/settings/routes"

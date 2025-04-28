@@ -17,7 +17,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_DJANGO_API_URL;
 export async function enhancedFetch(url, options = {}, session = null) {
   const urlPath = url.startsWith("/") ? url : `/${url}`;
   const fullUrl = `${BASE_URL}${urlPath}`;
-  const { timeoutMs = 15000, ...fetchOptions } = options;
+  const { timeoutMs = 20000, ...fetchOptions } = options;
 
   // Setup abort controller for timeout
   const controller = new AbortController();

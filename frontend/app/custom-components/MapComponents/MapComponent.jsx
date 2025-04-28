@@ -15,6 +15,7 @@ import RouteInfo from "./RouteInfo";
 import RouteRenderer from "./RouteRender";
 import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { useRoute } from "./RouteContext";
+import ReportSafetyIssueComponent from "../SafetyReport/ReportSafetyIssueForm";
 
 // Default location (Washington Square Park)
 const DEFAULT_LOCATION = [40.7308, -73.9974];
@@ -30,15 +31,16 @@ const RoutingMapComponent = () => {
     isGettingLocation,
     locationDenied,
     fetchUserLocation,
-    routeKey
+    routeKey,
+    isCalculatingRoute,
+    setIsCalculatingRoute,
   } = useRoute();
-  
+
   const { showError, showWarning, showSuccess } = useNotification();
   const mapContainerRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapInstanceRef = useRef(null);
   const mapInitializedRef = useRef(false);
-  const [isLoadingRoute, setIsLoadingRoute] = useState(false);
   const [routeDetails, setRouteDetails] = useState(null);
   const [routeData, setRouteData] = useState(null); // Store the raw route data
   const [activeRoute, setActiveRoute] = useState("initial"); // 'initial' or 'safer'
@@ -46,18 +48,26 @@ const RoutingMapComponent = () => {
   const [successfulRoute, setSuccessfulRoute] = useState(false);
   const [showRouteInfoPanel, setShowRouteInfoPanel] = useState(true);
   const [waitingForLocation, setWaitingForLocation] = useState(isGettingLocation && !userLocation);
-  
+
   // Track if route has been calculated for these specific coordinates
   const previousDepartureRef = useRef(null);
   const previousDestinationRef = useRef(null);
   const routeCalculatedRef = useRef(false);
   const [shouldCalculateRoute, setShouldCalculateRoute] = useState(false);
 
+  const latestUserLocationRef = useRef(null);
+
+  useEffect(() => {
+    if (userLocation && canUseCurrentLocation) {
+      latestUserLocationRef.current = userLocation;
+    }
+  }, [userLocation, canUseCurrentLocation]);
+
   // Helper function to center map on user location
   const centerMapOnUserLocation = () => {
-    if (mapInstanceRef.current && userLocation && canUseCurrentLocation) {
-      // Center map on user location
-      mapInstanceRef.current.setView(userLocation, 15);
+    if (mapInstanceRef.current && latestUserLocationRef.current) {
+      // Center map on latest user location from the ref
+      mapInstanceRef.current.setView(latestUserLocationRef.current, 15);
     }
   };
 
@@ -120,8 +130,8 @@ const RoutingMapComponent = () => {
       // 1. Explicit departure coordinates
       // 2. Valid user location if using current location
       // 3. Default to Washington Square Park
-      const mapCenter = departureCoords || 
-        (canUseCurrentLocation && userLocation ? 
+      const mapCenter = departureCoords ||
+        (canUseCurrentLocation && userLocation ?
           userLocation : DEFAULT_LOCATION);
 
       // Create map centered on appropriate location
@@ -135,18 +145,19 @@ const RoutingMapComponent = () => {
         maxZoom: 18,
         bounceAtZoomLimits: true,
       }).setView(mapCenter, 15);
-      
+
       mapInstanceRef.current = map;
       const mapboxNavigationNightId = "mapbox/navigation-night-v1";
       const mapboxUrl = `https://api.mapbox.com/styles/v1/${mapboxNavigationNightId}/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`;
-      
+
       // Add tile layer
       L.tileLayer(mapboxUrl, {
         attribution:
-          'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+          'Map data &copy; <a href="https://www.mapbox.com/">Mapbox</a> contributors',
         maxZoom: 18,
         minZoom: 11,
         id: "mapbox/streets-v11",
+        className: "mapbox-navigation-night",
         tileSize: 512,
         zoomOffset: -1,
         accessToken: mapboxToken,
@@ -177,13 +188,14 @@ const RoutingMapComponent = () => {
         // Add locate button to container
         container.appendChild(locateButton);
 
-        // Handle locate button click
+        // Handle locate button click- this got updated to bypass the hook becasue I would need to modify more code and nope
         locateButton.addEventListener("click", (e) => {
           e.stopPropagation();
+          // Just center on the latest location we have
+          centerMapOnUserLocation();
+          // Optionally refresh location for future updates
           if (fetchUserLocation) {
-            fetchUserLocation(); // Get updated location
-            // Center on user location
-            setTimeout(() => centerMapOnUserLocation(), 300);
+            fetchUserLocation();
           }
         });
       }
@@ -192,7 +204,7 @@ const RoutingMapComponent = () => {
       setMapLoaded(true);
       mapInitializedRef.current = true;
       setMapCriticalError(null); // Clear any previous errors
-      
+
       // Trigger calculation after map is loaded
       setShouldCalculateRoute(true);
     } catch (error) {
@@ -233,8 +245,8 @@ const RoutingMapComponent = () => {
   // Update user marker position if location changes
   useEffect(() => {
     if (
-      mapInstanceRef.current && 
-      userLocation && 
+      mapInstanceRef.current &&
+      userLocation &&
       canUseCurrentLocation
     ) {
       if (mapInstanceRef.current._userMarker) {
@@ -245,8 +257,8 @@ const RoutingMapComponent = () => {
         addUserMarker(mapInstanceRef.current, userLocation);
       }
     } else if (
-      mapInstanceRef.current && 
-      mapInstanceRef.current._userMarker && 
+      mapInstanceRef.current &&
+      mapInstanceRef.current._userMarker &&
       (!canUseCurrentLocation)
     ) {
       // Remove marker if not using current location or location not valid
@@ -265,7 +277,7 @@ const RoutingMapComponent = () => {
   // Helper function to check if coordinates have meaningfully changed
   const areCoordinatesDifferent = (coords1, coords2) => {
     if (!coords1 || !coords2) return true;
-    
+
     // Deep comparison of coordinates
     return JSON.stringify(coords1) !== JSON.stringify(coords2);
   };
@@ -279,20 +291,20 @@ const RoutingMapComponent = () => {
     // Check if these are new coordinates or we need to recalculate
     const departureChanged = areCoordinatesDifferent(departureCoords, previousDepartureRef.current);
     const destinationChanged = areCoordinatesDifferent(destinationCoords, previousDestinationRef.current);
-    
+
     // Only fetch a new route if coordinates have changed or we haven't calculated yet
     if (!routeCalculatedRef.current || departureChanged || destinationChanged) {
       // Update references to current coordinates
       previousDepartureRef.current = [...departureCoords];
       previousDestinationRef.current = [...destinationCoords];
-      
+
       // Calculate the route
       fetchRouteData(departureCoords, destinationCoords);
-      
+
       // Mark that we've calculated for these coordinates
       routeCalculatedRef.current = true;
     }
-    
+
     // Reset the trigger flag
     setShouldCalculateRoute(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -304,7 +316,7 @@ const RoutingMapComponent = () => {
       return;
     }
 
-    setIsLoadingRoute(true);
+    setIsCalculatingRoute(true);
     setMapCriticalError(null); // Clear any previous errors
 
     try {
@@ -390,7 +402,7 @@ const RoutingMapComponent = () => {
       // Reset route calculated flag to allow retrying
       routeCalculatedRef.current = false;
     } finally {
-      setIsLoadingRoute(false);
+      setIsCalculatingRoute(false);
     }
   };
 
@@ -423,21 +435,18 @@ const RoutingMapComponent = () => {
         {waitingForLocation && <MapRenderMsg text="Waiting for your location..." />}
         {/* loading location */}
         {isGettingLocation && <MapRenderMsg text="Getting your location..." />}
-        {/* loading route */}
-        {isLoadingRoute && <MapRenderMsg text="Calculating Safe Route..." />}
         {/* catch all */}
         {!isGettingLocation && !mapLoaded && !mapCriticalError && !waitingForLocation && (
           <MapRenderMsg text="Loading map..." />
         )}
 
-        {/* Optional: Location retry button for when permission is denied */}
         {locationDenied && !isGettingLocation && (
           <div className="absolute top-4 right-4 z-[1000]">
             <button
               onClick={fetchUserLocation}
               className="bg-map-pointer text-white px-3 py-2 rounded-md text-sm shadow-md hover:bg-map-pointer2 transition-colors"
             >
-              Enable Location Access
+              Enable Location to report safety issues
             </button>
           </div>
         )}
@@ -452,12 +461,12 @@ const RoutingMapComponent = () => {
             showWarning={showWarning}
           />
         )}
+        <ReportSafetyIssueComponent />
       </div>
 
       <div
-        className={`absolute mt-2 mb-2 px-2 bottom-[52px] z-[1001] w-full bg-[#424d5c] transition-all duration-300 ease-in-out ${
-          showRouteInfoPanel ? "translate-y-0" : "translate-y-full"
-        }`}
+        className={`absolute mt-2 mb-2 px-2 bottom-[52px] z-[1001] w-full bg-[#424d5c] transition-all duration-300 ease-in-out ${showRouteInfoPanel ? "translate-y-0" : "translate-y-full"
+          }`}
       >
         {/* Route information panel */}
         {successfulRoute && (

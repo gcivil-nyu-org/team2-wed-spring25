@@ -167,7 +167,7 @@ const RouteRenderer = ({
 
         const div = L.DomUtil.create(
           "div",
-          "bg-[#1c2735] text-white shadow-md rounded-md p-2",
+          "bg-[#1c2735] text-white shadow-md rounded-md p-2 routes-legend",
           wrapper
         );
         div.innerHTML = `

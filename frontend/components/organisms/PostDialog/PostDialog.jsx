@@ -69,6 +69,34 @@ export default function PostDialog({
     return null; // or handle the case when user is not found
   }
 
+  // console.log("user in post dialog", user);
+
+  // const contentEditableRef = useRef(null);
+
+  // Handle keydown events
+
+  // Handle input changes
+  // const handleInput = (e) => {
+  //     const text = e.target.textContent;
+  //     if (postContent === "Share Your Thoughts...") {
+  //         setPostContent(text);
+  //         return;
+  //     }else{
+  //         setPostContent(text);
+  //     }
+  // };
+
+  // useEffect(() => {
+  //     if (contentEditableRef.current) {
+  //         contentEditableRef.current.textContent = postContent;
+  //     }
+  // }
+  // , [postContent]);
+  // useEffect(() => {
+  //     if (contentEditableRef.current) {
+  //         contentEditableRef.current.focus();
+  //     }
+  // }, []);
   return (
     <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0 z-50">
       <div className="mx-4 w-full md:w-1/2 max-w-3xl h-4/5 bg-bg-post rounded-lg flex flex-col">

@@ -17,6 +17,7 @@ export function RouteProvider({ children }) {
     const [destinationCoords, setDestinationCoords] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [routeCalculated, setRouteCalculated] = useState(false)
+    const [isCalculatingRoute, setIsCalculatingRoute] = useState(false)
 
     // State for tracking if we are using the current location 
     const [useCurrentLocation, setUseCurrentLocation] = useState(false)
@@ -29,7 +30,7 @@ export function RouteProvider({ children }) {
     const [initialDestinationCoords, setInitialDestinationCoords] = useState(null)
     const [initialLoad, setInitialLoad] = useState(true)
     const [readyToRender, setReadyToRender] = useState(false)
-    
+
     // Store location display names
     const [departureDisplayName, setDepartureDisplayName] = useState("")
     const [destinationDisplayName, setDestinationDisplayName] = useState("")
@@ -102,7 +103,7 @@ export function RouteProvider({ children }) {
                 // Store in initial coordinates for form population
                 setInitialDepartureCoords(departure);
                 setInitialDestinationCoords(destination);
-                
+
                 // But don't set actual departure/destination coordinates yet
                 // This prevents automatic route calculation
                 validParams = true;
@@ -191,7 +192,7 @@ export function RouteProvider({ children }) {
                 setDepartureDisplayName(departure);
             }
             setDestinationDisplayName(destination);
-            
+
             // Update state based on form input
             setUseCurrentLocation(formUseCurrentLocation);
 
@@ -283,7 +284,9 @@ export function RouteProvider({ children }) {
         initialDepartureCoords,
         initialDestinationCoords,
         readyToRender,
-        
+        isCalculatingRoute,
+        setIsCalculatingRoute,
+
         // Display names for locations
         departureDisplayName,
         setDepartureDisplayName,
@@ -302,7 +305,7 @@ export function RouteProvider({ children }) {
         handleSearch,
         resetRouteCalculation
     };
-    
+
     return <RouteContext.Provider value={value}>{children}</RouteContext.Provider>;
 }
 

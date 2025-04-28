@@ -64,7 +64,7 @@ const ReportAppIssueForm = () => {
   };
 
   return (
-    <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text w-full">
+    <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text w-full mb-6">
       <CardHeader>
         <CardTitle>Report an Issue</CardTitle>
         <CardDescription>

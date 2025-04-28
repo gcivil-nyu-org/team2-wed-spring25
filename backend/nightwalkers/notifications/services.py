@@ -8,6 +8,7 @@ import os
 import json
 from pathlib import Path
 import sys
+from unittest import mock
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -149,4 +150,4 @@ class NotificationService:
 if "test" not in sys.argv:
     notification_service = NotificationService()
 else:
-    notification_service = None  # or a mock
+    notification_service = mock.MagicMock(spec=NotificationService)
