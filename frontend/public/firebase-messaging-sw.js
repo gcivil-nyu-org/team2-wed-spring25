@@ -6,6 +6,7 @@ importScripts(
 );
 
 let firebaseInitialized = false;
+console.log("Firebase messaging service worker loaded.");
 
 async function initializeFirebase() {
   try {
@@ -30,7 +31,7 @@ async function initializeFirebase() {
       const notificationTitle = payload.notification.title;
       const notificationOptions = {
         body: payload.notification.body,
-        icon: "./logo.png",
+        icon: "./owl-logo.svg",
         data: { url: link },
       };
       self.registration.showNotification(

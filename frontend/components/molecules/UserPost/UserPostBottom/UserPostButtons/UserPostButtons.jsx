@@ -19,9 +19,9 @@ export default function UserPostButtons({
 }) {
   return (
     <div>
-      <div className="flex justify-between mr-1 py-2">
+      <div className="flex justify-between mx-2 py-2">
         <div className="flex gap-2">
-          <LikedIconList />
+          {/* <LikedIconList /> */}
           {getLikesCount(likesCount)}
         </div>
         {getCommentsCount(commentsCount)}

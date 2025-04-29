@@ -24,7 +24,7 @@ export default function useChat() {
 
         const response = await apiGet(`/chats/${user.id}`);
 
-        setChatUserList(response.data);
+        setChatUserList(response?.data || []); // Set initial chat user list
       } catch (error) {
         console.log(error);
       } finally {

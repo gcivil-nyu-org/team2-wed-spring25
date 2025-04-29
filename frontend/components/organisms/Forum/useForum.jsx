@@ -43,8 +43,8 @@ export default function useForum(settingsType) {
           `/forum/posts?user_id=${user?.id}&offset=0&limit=${limit}&settings_type=${settingsType}`
         );
         if (response) {
-          setUserPosts(response.posts);
-          setHasMore(response.has_more); // Update hasMore based on the response
+          setUserPosts(response?.posts || []); // Set initial posts
+          setHasMore(response?.has_more); // Update hasMore based on the response
         }
       } catch (error) {
         showSuccess("Trending posts.");
@@ -67,7 +67,7 @@ export default function useForum(settingsType) {
         `/forum/posts?user_id=${user?.id}&offset=${newOffset}&limit=${limit}&settings_type=${settingsType}` // Pass settingsType to the API
       );
       if (response) {
-        setUserPosts((prevPosts) => [...prevPosts, ...response.posts]); // Append new posts
+        setUserPosts((prevPosts) => [...prevPosts, ...response?.posts]); // Append new posts
         setHasMore(response.has_more); // Update hasMore based on the response
         setOffset(newOffset); // Update the offset
       }

@@ -165,8 +165,6 @@ export const WebSocketProvider = ({ children }) => {
       }
 
       if (data.type === "message_delivery") {
-        console.log("Message delivery status:", data);
-        //helpful for image delivery status
         setChatUserList((prev) => {
           return prev.map((chat) => {
             if (chat.chat_uuid == data.chat_uuid) {
