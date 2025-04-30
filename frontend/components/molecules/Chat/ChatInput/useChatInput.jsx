@@ -111,7 +111,7 @@ export default function useChatInput(
       await apiPost(`/notifications/send/`, {
         user_id: selectedUser.user.id,
         title: "New message",
-        body: "You have a new message from " + selectedUser.user.first_name,
+        body: "You have a new message from " + user.id,
       });
     } catch (error) {
       console.error("Error sending notification:", error);
