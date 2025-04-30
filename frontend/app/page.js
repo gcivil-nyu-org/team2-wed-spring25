@@ -208,7 +208,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col gap-4 w-full max-w-xs">
               <Link href="/login">
-                <Button className="w-full bg-white text-blue-800 font-semibold hover:bg-blue-100 transition">Sign In</Button>
+                <Button className="w-full bg-white text-[#0d1b2a] font-semibold hover:bg-blue-100 transition">Sign In</Button>
               </Link>
               <Link href="/register">
                 <Button className="w-full border border-white text-white hover:bg-white/10 transition">Create Account</Button>
