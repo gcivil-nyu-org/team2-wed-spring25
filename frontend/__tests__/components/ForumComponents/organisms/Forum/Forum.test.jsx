@@ -1,15 +1,3 @@
-jest.mock("bad-words", () => {
-  class MockFilter {
-    constructor() {
-      this.clean = jest.fn((text) => text);
-    }
-  }
-
-  return {
-    Filter: MockFilter,
-  };
-});
-
 jest.mock("public/icons/index.js", () => ({
   closeDark: "mocked-svg",
   emojiDark: "mocked-svg",

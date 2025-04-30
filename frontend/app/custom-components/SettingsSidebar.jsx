@@ -295,14 +295,16 @@ const SettingsSidebar = () => {
 
         {/* Menu Sections */}
         {renderMenuGroup("Account", items)}
-        {renderMenuGroup("Report History", [
+        {renderMenuGroup("Bug Reports", [
           {
-            title: "App Bug Reports",
+            title: "View Bug Reports Made",
             url: "/users/settings/reportlog",
             icon: NotebookPen,
           },
+        ])}
+        {renderMenuGroup("Safety Reports", [
           {
-            title: "Safety Reports",
+            title: "View Safety Reports Made",
             url: "/users/settings/safety-reports",
             icon: TriangleAlert,
           },
