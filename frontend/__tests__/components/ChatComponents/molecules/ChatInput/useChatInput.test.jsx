@@ -1,15 +1,3 @@
-jest.mock("bad-words", () => {
-  class MockFilter {
-    constructor() {
-      this.clean = jest.fn((text) => text);
-    }
-  }
-
-  return {
-    Filter: MockFilter,
-  };
-});
-
 import { renderHook, act } from "@testing-library/react";
 import useChatInput from "@/components/molecules/Chat/ChatInput/useChatInput";
 import { useWebSocket } from "@/contexts/WebSocketContext";
