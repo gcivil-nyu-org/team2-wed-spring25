@@ -12,9 +12,19 @@ export default function useChatUser() {
     }
   }, [openSettingsId]);
 
+  const scrollToBottom = (behavior = "smooth") => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: behavior,
+      });
+    }
+  };
+
   return {
     openSettingsId,
     setOpenSettingsId,
     messagesContainerRef,
+    scrollToBottom,
   };
 }

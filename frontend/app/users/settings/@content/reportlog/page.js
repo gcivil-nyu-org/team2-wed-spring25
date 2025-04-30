@@ -1,10 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import UserReportsList from "@/app/custom-components/ReportAppIssues/UserReportList";
 import { ArrowLeft } from "lucide-react";
-import SafetyReportsList from "@/app/custom-components/SafetyReport/SafetyReportList";
 
 const ReportLog = () => {
   return (
@@ -22,12 +21,6 @@ const ReportLog = () => {
       <div className="flex flex-col m-4">
         <div>
           <UserReportsList />
-        </div>
-      </div>
-      <Separator orientation="horizontal" />
-      <div className="flex flex-col m-4">
-        <div>
-          <SafetyReportsList />
         </div>
       </div>
     </div>
