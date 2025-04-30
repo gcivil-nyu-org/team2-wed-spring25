@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import UserReportsList from "@/app/custom-components/ReportAppIssues/UserReportList";
 import { ArrowLeft } from "lucide-react";
+import SafetyReportsList from "@/app/custom-components/SafetyReport/SafetyReportList";
 
 const SafetyReports = () => {
   return (
@@ -20,7 +20,7 @@ const SafetyReports = () => {
       <Separator orientation="horizontal" />
       <div className="flex flex-col m-4">
         <div>
-          <UserReportsList />
+          <SafetyReportsList />
         </div>
       </div>
     </div>

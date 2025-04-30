@@ -1,5 +1,11 @@
 import React from "react";
-import { render, fireEvent, act, screen, waitFor } from "@testing-library/react";
+import {
+  render,
+  fireEvent,
+  act,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import HeatmapLayer from "@/app/custom-components/MapComponents/HeatmapLayer";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
 import { authAPI } from "@/utils/fetch/fetch";
@@ -27,19 +33,6 @@ jest.mock("@/utils/fetch/fetch", () => ({
     authenticatedGet: jest.fn(),
   },
 }));
-
-// Add console mocking
-beforeAll(() => {
-  jest.spyOn(console, "log").mockImplementation(() => {});
-  jest.spyOn(console, "error").mockImplementation(() => {});
-  jest.spyOn(console, "warn").mockImplementation(() => {});
-});
-
-afterAll(() => {
-  console.log.mockRestore();
-  console.error.mockRestore();
-  console.warn.mockRestore();
-});
 
 describe("HeatmapLayer", () => {
   const mockShowError = jest.fn();
@@ -87,7 +80,7 @@ describe("HeatmapLayer", () => {
       { latitude: 1, longitude: 1, intensity: 0.5 },
       { latitude: 2, longitude: 2, intensity: 0.8 },
     ];
-    
+
     const mockSecondaryData = [
       { latitude: 3, longitude: 3, intensity: 0.3 },
       { latitude: 4, longitude: 4, intensity: 0.4 },
@@ -111,8 +104,12 @@ describe("HeatmapLayer", () => {
       );
     });
 
-    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/primary");
-    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/secondary");
+    expect(authAPI.authenticatedGet).toHaveBeenCalledWith(
+      "map/heatmap-data/primary"
+    );
+    expect(authAPI.authenticatedGet).toHaveBeenCalledWith(
+      "map/heatmap-data/secondary"
+    );
   });
 
   it("handles primary API errors gracefully", async () => {
@@ -170,7 +167,7 @@ describe("HeatmapLayer", () => {
   it("initializes heatmap layers when data is loaded", async () => {
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -192,14 +189,18 @@ describe("HeatmapLayer", () => {
     });
 
     // Verify heatmap data was loaded
-    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/primary");
-    expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/secondary");
+    expect(authAPI.authenticatedGet).toHaveBeenCalledWith(
+      "map/heatmap-data/primary"
+    );
+    expect(authAPI.authenticatedGet).toHaveBeenCalledWith(
+      "map/heatmap-data/secondary"
+    );
   });
 
   it("toggles low crime layer visibility when Low button is clicked", async () => {
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -219,28 +220,34 @@ describe("HeatmapLayer", () => {
     });
 
     const lowButton = screen.getByText("Low");
-    
+    const collapseButton = screen.getByRole("button", {
+      name: "", // The Plus/Minus button doesn't have text
+      hidden: true,
+    });
+
     // Click "Low" button to turn on low crime layer
     await act(async () => {
       fireEvent.click(lowButton);
     });
-    
+
+    // Click the collapse button to expand the legend
+    await act(async () => {
+      fireEvent.click(collapseButton);
+    });
+
     // L.heatLayer is called during initialization for both layers
     // and then again when toggling visibility
-    expect(L.heatLayer).toHaveBeenCalledWith(
-      [[3, 3, 0.3]],
-      expect.any(Object)
-    );
+    expect(L.heatLayer).toHaveBeenCalledWith([[3, 3, 0.3]], expect.any(Object));
     expect(mockAddTo).toHaveBeenCalled();
-    
+
     // Legend should now show low crime item
-    expect(screen.getByText("Low Crime")).toBeInTheDocument();
+    expect(screen.getByText(/Low Crime/)).toBeInTheDocument();
   });
 
   it("toggles high crime layer visibility when High button is clicked", async () => {
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -260,20 +267,29 @@ describe("HeatmapLayer", () => {
     });
 
     const highButton = screen.getByText("High");
-    
+    const collapseButton = screen.getByRole("button", {
+      name: "", // The Plus/Minus button doesn't have text
+      hidden: true,
+    });
+
     // Click "High" button to turn on high crime layer
     await act(async () => {
       fireEvent.click(highButton);
     });
-    
+
+    // Click the collapse button to expand the legend
+    await act(async () => {
+      fireEvent.click(collapseButton);
+    });
+
     // Expect legend to show high crime item
-    expect(screen.getByText("High Crime")).toBeInTheDocument();
+    expect(screen.getByText(/High Crime/)).toBeInTheDocument();
   });
 
   it("turns off both layers when Off button is clicked", async () => {
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -295,25 +311,34 @@ describe("HeatmapLayer", () => {
     const lowButton = screen.getByText("Low");
     const highButton = screen.getByText("High");
     const offButton = screen.getByText("Off");
-    
+    const collapseButton = screen.getByRole("button", {
+      name: "", // The Plus/Minus button doesn't have text
+      hidden: true,
+    });
+
     // Turn on both layers
     await act(async () => {
       fireEvent.click(lowButton);
       fireEvent.click(highButton);
     });
-    
+
+    // Click the collapse button to expand the legend
+    await act(async () => {
+      fireEvent.click(collapseButton);
+    });
+
     // Both legend items should be visible
-    expect(screen.getByText("Low Crime")).toBeInTheDocument();
-    expect(screen.getByText("High Crime")).toBeInTheDocument();
-    
+    expect(screen.getByText(/Low Crime/)).toBeInTheDocument();
+    expect(screen.getByText(/High Crime/)).toBeInTheDocument();
+
     // Now click "Off" to turn off both layers
     await act(async () => {
       fireEvent.click(offButton);
     });
-    
+
     // Legend items should not be visible (but the container should remain with fixed height)
-    expect(screen.queryByText("Low Crime (<5)")).not.toBeInTheDocument();
-    expect(screen.queryByText("High Crime (≥5)")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Low Crime/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/High Crime/)).not.toBeInTheDocument();
   });
 
   it("handles missing map instance gracefully", () => {
@@ -327,7 +352,7 @@ describe("HeatmapLayer", () => {
   it("applies the correct primary heatmap configuration", async () => {
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -351,7 +376,7 @@ describe("HeatmapLayer", () => {
     await act(async () => {
       fireEvent.click(highButton);
     });
-  
+
     // Check primary layer configuration
     expect(L.heatLayer).toHaveBeenCalledWith(
       [[1, 1, 0.5]],
@@ -369,11 +394,11 @@ describe("HeatmapLayer", () => {
       })
     );
   });
-  
+
   it("applies the correct secondary heatmap configuration", async () => {
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -397,7 +422,7 @@ describe("HeatmapLayer", () => {
     await act(async () => {
       fireEvent.click(lowButton);
     });
-  
+
     // Check secondary layer configuration
     expect(L.heatLayer).toHaveBeenCalledWith(
       [[3, 3, 0.3]],
@@ -420,30 +445,30 @@ describe("HeatmapLayer", () => {
     it("uses cached data when available and not expired", async () => {
       const cachedPrimaryData = [[1, 1, 0.5]];
       const cachedSecondaryData = [[3, 3, 0.3]];
-      
+
       const mockLocalStorage = {
         getItem: jest.fn((key) => {
           if (key === "primary_heatmap_data_cache") {
             return JSON.stringify({
               data: cachedPrimaryData,
-              timestamp: new Date().getTime() - 1000 * 60 * 60 // 1 hour ago (not expired)
+              timestamp: new Date().getTime() - 1000 * 60 * 60, // 1 hour ago (not expired)
             });
           } else if (key === "secondary_heatmap_data_cache") {
             return JSON.stringify({
               data: cachedSecondaryData,
-              timestamp: new Date().getTime() - 1000 * 60 * 60 // 1 hour ago (not expired)
+              timestamp: new Date().getTime() - 1000 * 60 * 60, // 1 hour ago (not expired)
             });
           }
           return null;
         }),
         setItem: jest.fn(),
       };
-      
+
       Object.defineProperty(window, "localStorage", {
         value: mockLocalStorage,
         writable: true,
       });
-      
+
       await act(async () => {
         render(
           <HeatmapLayer
@@ -452,19 +477,19 @@ describe("HeatmapLayer", () => {
           />
         );
       });
-      
+
       // Should not call API if cache is valid
       expect(authAPI.authenticatedGet).not.toHaveBeenCalled();
-      
+
       // Select both layers
       const lowButton = screen.getByText("Low");
       const highButton = screen.getByText("High");
-      
+
       await act(async () => {
         fireEvent.click(lowButton);
         fireEvent.click(highButton);
       });
-      
+
       // Verify both layers were created with cached data
       expect(L.heatLayer).toHaveBeenCalledWith(
         cachedPrimaryData,
@@ -475,11 +500,11 @@ describe("HeatmapLayer", () => {
         expect.any(Object)
       );
     });
-    
+
     it("fetches new data when cache is expired", async () => {
       const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-      
+
       authAPI.authenticatedGet.mockImplementation((url) => {
         if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
@@ -488,25 +513,28 @@ describe("HeatmapLayer", () => {
         }
         return Promise.reject(new Error("Invalid URL"));
       });
-      
+
       const mockLocalStorage = {
         getItem: jest.fn((key) => {
-          if (key === "primary_heatmap_data_cache" || key === "secondary_heatmap_data_cache") {
+          if (
+            key === "primary_heatmap_data_cache" ||
+            key === "secondary_heatmap_data_cache"
+          ) {
             return JSON.stringify({
               data: [],
-              timestamp: new Date().getTime() - 1000 * 60 * 60 * 4 // 4 hours ago (expired)
+              timestamp: new Date().getTime() - 1000 * 60 * 60 * 4, // 4 hours ago (expired)
             });
           }
           return null;
         }),
         setItem: jest.fn(),
       };
-      
+
       Object.defineProperty(window, "localStorage", {
         value: mockLocalStorage,
         writable: true,
       });
-      
+
       await act(async () => {
         render(
           <HeatmapLayer
@@ -515,10 +543,14 @@ describe("HeatmapLayer", () => {
           />
         );
       });
-      
+
       // Should call API for both types of data
-      expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/primary");
-      expect(authAPI.authenticatedGet).toHaveBeenCalledWith("map/heatmap-data/secondary");
+      expect(authAPI.authenticatedGet).toHaveBeenCalledWith(
+        "map/heatmap-data/primary"
+      );
+      expect(authAPI.authenticatedGet).toHaveBeenCalledWith(
+        "map/heatmap-data/secondary"
+      );
     });
   });
   describe("Error handling tests", () => {
@@ -528,7 +560,7 @@ describe("HeatmapLayer", () => {
     let mockShowWarning;
     let originalConsoleWarn;
     let originalConsoleError;
-  
+
     beforeEach(() => {
       mockHasLayer = jest.fn().mockReturnValue(true);
       mockMapInstance = {
@@ -537,31 +569,31 @@ describe("HeatmapLayer", () => {
         }),
         hasLayer: mockHasLayer,
       };
-      
+
       useNotification.mockReturnValue({
-        showError: mockShowError = jest.fn(),
-        showWarning: mockShowWarning = jest.fn(),
+        showError: (mockShowError = jest.fn()),
+        showWarning: (mockShowWarning = jest.fn()),
       });
-      
+
       // Save original console methods
       originalConsoleWarn = console.warn;
       originalConsoleError = console.error;
-      
+
       // Mock console methods to track calls
       console.warn = jest.fn();
       console.error = jest.fn();
     });
-    
+
     afterEach(() => {
       // Restore original console methods
       console.warn = originalConsoleWarn;
       console.error = originalConsoleError;
     });
-  
+
     it("handles errors when removing existing primary layer", async () => {
       const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-      
+
       authAPI.authenticatedGet.mockImplementation((url) => {
         if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
@@ -570,11 +602,11 @@ describe("HeatmapLayer", () => {
         }
         return Promise.reject(new Error("Invalid URL"));
       });
-      
+
       // Force L.heatLayer to throw an error on the first call
       const originalHeatLayer = L.heatLayer;
       let callCount = 0;
-      
+
       L.heatLayer = jest.fn((data, options) => {
         callCount++;
         // Return regular mock for first call (primary layer creation)
@@ -584,7 +616,7 @@ describe("HeatmapLayer", () => {
         // Return regular mock for second call (secondary layer creation)
         return { addTo: mockAddTo };
       });
-      
+
       await act(async () => {
         render(
           <HeatmapLayer
@@ -593,27 +625,27 @@ describe("HeatmapLayer", () => {
           />
         );
       });
-  
+
       // Toggle high crime to trigger layer removal error
       const highButton = screen.getByText("High");
       await act(async () => {
         fireEvent.click(highButton);
       });
-      
+
       // Verify error was caught and logged
       expect(console.warn).toHaveBeenCalledWith(
         "Error removing existing primary layer:",
         expect.any(Error)
       );
-      
+
       // Restore original heatLayer
       L.heatLayer = originalHeatLayer;
     });
-    
+
     it("handles errors when managing primary heatmap layer", async () => {
       const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-      
+
       authAPI.authenticatedGet.mockImplementation((url) => {
         if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
@@ -622,11 +654,11 @@ describe("HeatmapLayer", () => {
         }
         return Promise.reject(new Error("Invalid URL"));
       });
-      
+
       // Force L.heatLayer to throw an error on the first call
       const originalHeatLayer = L.heatLayer;
       let callCount = 0;
-      
+
       L.heatLayer = jest.fn((data, options) => {
         callCount++;
         // Throw error for primary layer creation
@@ -636,7 +668,7 @@ describe("HeatmapLayer", () => {
         // Return regular mock for secondary layer creation
         return { addTo: mockAddTo };
       });
-      
+
       await act(async () => {
         render(
           <HeatmapLayer
@@ -645,27 +677,27 @@ describe("HeatmapLayer", () => {
           />
         );
       });
-      
+
       // Try to toggle high crime layer which should have failed to initialize
       const highButton = screen.getByText("High");
       await act(async () => {
         fireEvent.click(highButton);
       });
-      
+
       // Verify error was caught and logged
       expect(console.error).toHaveBeenCalledWith(
         "Error managing primary heatmap layer:",
         expect.any(Error)
       );
-      
+
       // Restore original heatLayer
       L.heatLayer = originalHeatLayer;
     });
-    
+
     it("handles errors when managing secondary heatmap layer", async () => {
       const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-      
+
       authAPI.authenticatedGet.mockImplementation((url) => {
         if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
@@ -674,11 +706,11 @@ describe("HeatmapLayer", () => {
         }
         return Promise.reject(new Error("Invalid URL"));
       });
-      
+
       // Force L.heatLayer to throw an error on the second call
       const originalHeatLayer = L.heatLayer;
       let callCount = 0;
-      
+
       L.heatLayer = jest.fn((data, options) => {
         callCount++;
         // Return regular mock for primary layer creation
@@ -688,7 +720,7 @@ describe("HeatmapLayer", () => {
         // Throw error for secondary layer creation
         throw new Error("Mock secondary heatLayer creation error");
       });
-      
+
       await act(async () => {
         render(
           <HeatmapLayer
@@ -697,27 +729,27 @@ describe("HeatmapLayer", () => {
           />
         );
       });
-      
+
       // Try to toggle low crime layer which should have failed to initialize
       const lowButton = screen.getByText("Low");
       await act(async () => {
         fireEvent.click(lowButton);
       });
-      
+
       // Verify error was caught and logged
       expect(console.error).toHaveBeenCalledWith(
         "Error managing secondary heatmap layer:",
         expect.any(Error)
       );
-      
+
       // Restore original heatLayer
       L.heatLayer = originalHeatLayer;
     });
-  
+
     it("handles errors when toggling layers", async () => {
       const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
       const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-      
+
       authAPI.authenticatedGet.mockImplementation((url) => {
         if (url.includes("primary")) {
           return Promise.resolve(mockPrimaryData);
@@ -726,7 +758,7 @@ describe("HeatmapLayer", () => {
         }
         return Promise.reject(new Error("Invalid URL"));
       });
-      
+
       // Create a special map instance that will throw on the second removeLayer call
       let removeLayerCallCount = 0;
       const mockMapWithToggleError = {
@@ -736,9 +768,9 @@ describe("HeatmapLayer", () => {
           if (removeLayerCallCount > 1) {
             throw new Error("Mock toggle error");
           }
-        })
+        }),
       };
-      
+
       await act(async () => {
         render(
           <HeatmapLayer
@@ -747,16 +779,16 @@ describe("HeatmapLayer", () => {
           />
         );
       });
-      
+
       // Turn on both layers to trigger the toggle effect
       const lowButton = screen.getByText("Low");
       const highButton = screen.getByText("High");
-      
+
       await act(async () => {
         fireEvent.click(lowButton);
         fireEvent.click(highButton);
       });
-      
+
       // Verify toggle error was caught and logged
       expect(console.error).toHaveBeenCalledWith(
         "Error toggling heatmap layers:",
@@ -766,7 +798,6 @@ describe("HeatmapLayer", () => {
   });
 });
 // Add these tests to your existing HeatmapLayer.test.jsx file
-
 
 // Re-enable the Retry functionality tests with proper implementations
 describe("Retry functionality", () => {
@@ -779,18 +810,17 @@ describe("Retry functionality", () => {
       removeLayer: jest.fn(),
       hasLayer: jest.fn().mockReturnValue(false),
     };
-    
+
     useNotification.mockReturnValue({
-      showError: mockShowError = jest.fn(),
-      showWarning: mockShowWarning = jest.fn(),
+      showError: (mockShowError = jest.fn()),
+      showWarning: (mockShowWarning = jest.fn()),
     });
   });
-
 
   it("tests primary localStorage cache read error handling", async () => {
     // Mock localStorage to throw on the first getItem call
     let getItemCallCount = 0;
-    
+
     const mockLocalStorage = {
       getItem: jest.fn().mockImplementation((key) => {
         getItemCallCount++;
@@ -801,15 +831,15 @@ describe("Retry functionality", () => {
       }),
       setItem: jest.fn(),
     };
-    
+
     Object.defineProperty(window, "localStorage", {
       value: mockLocalStorage,
       writable: true,
     });
-    
+
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -818,11 +848,11 @@ describe("Retry functionality", () => {
       }
       return Promise.reject(new Error("Invalid URL"));
     });
-    
+
     // We need to get access to console.warn to verify it was called
     const originalConsoleWarn = console.warn;
     console.warn = jest.fn();
-    
+
     await act(async () => {
       render(
         <HeatmapLayer
@@ -831,13 +861,13 @@ describe("Retry functionality", () => {
         />
       );
     });
-    
+
     // Verify cache read error was caught and logged
     expect(console.warn).toHaveBeenCalledWith(
       "Primary cache read error:",
       expect.any(Error)
     );
-    
+
     // Restore console.warn
     console.warn = originalConsoleWarn;
   });
@@ -852,15 +882,15 @@ describe("Retry functionality", () => {
         }
       }),
     };
-    
+
     Object.defineProperty(window, "localStorage", {
       value: mockLocalStorage,
       writable: true,
     });
-    
+
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -869,11 +899,11 @@ describe("Retry functionality", () => {
       }
       return Promise.reject(new Error("Invalid URL"));
     });
-    
+
     // We need to get access to console.warn to verify it was called
     const originalConsoleWarn = console.warn;
     console.warn = jest.fn();
-    
+
     await act(async () => {
       render(
         <HeatmapLayer
@@ -882,13 +912,13 @@ describe("Retry functionality", () => {
         />
       );
     });
-    
+
     // Verify cache write error was caught and logged
     expect(console.warn).toHaveBeenCalledWith(
-      "Primary cache write error:", 
+      "Primary cache write error:",
       expect.any(Error)
     );
-    
+
     // Restore console.warn
     console.warn = originalConsoleWarn;
   });
@@ -896,7 +926,7 @@ describe("Retry functionality", () => {
   it("tests secondary localStorage cache read error handling", async () => {
     // Mock localStorage to throw on secondary cache getItem
     let getItemCallCount = 0;
-    
+
     const mockLocalStorage = {
       getItem: jest.fn().mockImplementation((key) => {
         getItemCallCount++;
@@ -907,15 +937,15 @@ describe("Retry functionality", () => {
       }),
       setItem: jest.fn(),
     };
-    
+
     Object.defineProperty(window, "localStorage", {
       value: mockLocalStorage,
       writable: true,
     });
-    
+
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -924,11 +954,11 @@ describe("Retry functionality", () => {
       }
       return Promise.reject(new Error("Invalid URL"));
     });
-    
+
     // We need to get access to console.warn to verify it was called
     const originalConsoleWarn = console.warn;
     console.warn = jest.fn();
-    
+
     await act(async () => {
       render(
         <HeatmapLayer
@@ -937,13 +967,13 @@ describe("Retry functionality", () => {
         />
       );
     });
-    
+
     // Verify cache read error was caught and logged
     expect(console.warn).toHaveBeenCalledWith(
       "Secondary cache read error:",
       expect.any(Error)
     );
-    
+
     // Restore console.warn
     console.warn = originalConsoleWarn;
   });
@@ -958,15 +988,15 @@ describe("Retry functionality", () => {
         }
       }),
     };
-    
+
     Object.defineProperty(window, "localStorage", {
       value: mockLocalStorage,
       writable: true,
     });
-    
+
     const mockPrimaryData = [{ latitude: 1, longitude: 1, intensity: 0.5 }];
     const mockSecondaryData = [{ latitude: 3, longitude: 3, intensity: 0.3 }];
-    
+
     authAPI.authenticatedGet.mockImplementation((url) => {
       if (url.includes("primary")) {
         return Promise.resolve(mockPrimaryData);
@@ -975,11 +1005,11 @@ describe("Retry functionality", () => {
       }
       return Promise.reject(new Error("Invalid URL"));
     });
-    
+
     // We need to get access to console.warn to verify it was called
     const originalConsoleWarn = console.warn;
     console.warn = jest.fn();
-    
+
     await act(async () => {
       render(
         <HeatmapLayer
@@ -988,13 +1018,13 @@ describe("Retry functionality", () => {
         />
       );
     });
-    
+
     // Verify cache write error was caught and logged
     expect(console.warn).toHaveBeenCalledWith(
-      "Secondary cache write error:", 
+      "Secondary cache write error:",
       expect.any(Error)
     );
-    
+
     // Restore console.warn
     console.warn = originalConsoleWarn;
   });

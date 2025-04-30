@@ -3,22 +3,6 @@ import Loader from "@/components/molecules/Loader/Loader"; // Adjust the import 
 import "@testing-library/jest-dom";
 
 describe("Loader Component", () => {
-  // Store original console.error
-  const originalConsoleError = console.error;
-
-  // mock console errors so they dont pollute test output log
-  beforeAll(() => {
-    console.error = jest.fn();
-  });
-
-  afterAll(() => {
-    console.error = originalConsoleError;
-  });
-
-  afterEach(() => {
-    console.error.mockClear();
-  });
-
   // Test 1: Ensure that the loader renders correctly.
   test("renders loader component", () => {
     render(<Loader />);
