@@ -271,6 +271,8 @@ export default function LocationSearchForm() {
       useCurrentLocation,
     });
 
+    setShowLocationSearchForm(false);
+
     // Generate a new session token for the next search
     setSessionToken(uuidv4());
   };
