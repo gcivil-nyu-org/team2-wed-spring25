@@ -10,7 +10,6 @@ import { useNotification } from "@/app/custom-components/ToastComponent/Notifica
 import { getUserFullName } from "@/utils/string";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
 import { closeDark, emojiDark, imagePickerDark } from "@/public/icons";
-import { Filter } from "bad-words";
 
 export default function PostDialog({
   onClick,
@@ -57,7 +56,6 @@ export default function PostDialog({
     is_repost,
     original_post_id
   );
-  const filter = new Filter();
   const { showError } = useNotification();
   let user = null;
 
@@ -99,7 +97,7 @@ export default function PostDialog({
   // }, []);
   return (
     <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0 z-50">
-      <div className="w-1/2 h-4/5 bg-bg-post rounded-lg flex flex-col">
+      <div className="mx-4 w-full md:w-1/2 max-w-3xl h-4/5 bg-bg-post rounded-lg flex flex-col">
         <div className="flex justify-between mb-2 p-4">
           <div className="flex items-center p-3 rounded-2xl hover:bg-black">
             <UserImage
@@ -135,7 +133,7 @@ export default function PostDialog({
               className="pl-7 text-xl flex-1 resize-none outline-none placeholder-forum-subheading bg-bg-post text-forum-heading"
               placeholder="Share Your Thoughts..."
               value={postContent}
-              onChange={(e) => setPostContent(filter.clean(e.target.value))}
+              onChange={(e) => setPostContent(e.target.value)}
             />
             {selectedImage && (
               <div className="mx-5 px-3 p-2 flex justify-between items-center border-2 border-slate-300 rounded">

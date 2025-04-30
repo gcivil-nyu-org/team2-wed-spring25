@@ -14,6 +14,10 @@ const useNotifications = () => {
       try {
         // Register service worker and get token
         const token = await fetchToken();
+        if (!token) {
+          console.error("No FCM token found. Notifications may not work.");
+          return;
+        }
         if (token) {
           // Send token to Django backend
           await registerToken(token);

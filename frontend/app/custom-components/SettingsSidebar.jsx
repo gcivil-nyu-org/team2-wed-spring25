@@ -17,7 +17,7 @@ import {
   MessageSquareText,
   ThumbsUp,
   ClipboardX,
-  TriangleAlert
+  TriangleAlert,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -87,11 +87,11 @@ const SettingsSidebar = () => {
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
-  
+
   const userContext = useUser();
-  
+
   const contextUser = userContext?.user || null;
-  
+
   // Log if context is not available
   if (!contextUser) {
     console.log("User context not available, falling back to localStorage");
@@ -143,25 +143,27 @@ const SettingsSidebar = () => {
 
   // Get avatar URL with proper fallbacks - handle Google profile URLs specially
   let avatarUrl = null;
-  
+
   // Debug what avatar values are available
   // console.log("Avatar data:", {
   //   contextAvatar: user.avatar,
   //   contextAvatarUrl: user.avatar_url,
   //   userObject: user
   // });
-  
+
   // Check if it's a Google avatar URL
   const isGoogleAvatar = (url) => {
-    return url && typeof url === 'string' && url.includes('googleusercontent.com');
+    return (
+      url && typeof url === "string" && url.includes("googleusercontent.com")
+    );
   };
-  
+
   // First try the direct avatar properties
-  if (user.avatar && typeof user.avatar === 'string') {
+  if (user.avatar && typeof user.avatar === "string") {
     avatarUrl = user.avatar;
-  } else if (user.avatar_url && typeof user.avatar_url === 'string') {
+  } else if (user.avatar_url && typeof user.avatar_url === "string") {
     avatarUrl = user.avatar_url;
-  } 
+  }
   // If we have no avatar yet, and we're using localStorage user
   else if (!contextUser && typeof window !== "undefined") {
     // Try to extract avatar from localStorage user if needed
@@ -176,13 +178,15 @@ const SettingsSidebar = () => {
       console.error("Error parsing user avatar from localStorage", error);
     }
   }
-  
+
   // For Google profile pictures, ensure they work by adding parameters
   if (isGoogleAvatar(avatarUrl)) {
     // Add a cache-busting parameter to force reload
-    avatarUrl = `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
+    avatarUrl = `${avatarUrl}${
+      avatarUrl.includes("?") ? "&" : "?"
+    }t=${Date.now()}`;
   }
-  
+
   // console.log("Final avatar URL:", avatarUrl);
 
   const renderMenuGroup = (label, menuItems) => (

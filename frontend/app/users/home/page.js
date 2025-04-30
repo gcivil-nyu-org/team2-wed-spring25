@@ -41,6 +41,7 @@ export function DashboardHeader() {
 
 export default function Dashboard() {
   const { user, isLoading } = useUser();
+  console.log(localStorage.getItem("fcm_token"));
   useEffect(() => {
     const setFCMToken = async () => {
       try {

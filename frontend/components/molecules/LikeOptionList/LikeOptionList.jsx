@@ -44,6 +44,7 @@ export default function LikeOptionList({ onClick }) {
           onMouseLeave={() => setHoveredIcon(null)}
           tooltipText={icon.alt}
           onClick={handleIconClick} // Use our safe handler
+          className={"w-10 h-10 sm:w-[50px] sm:h-[50px]"}
         />
       ))}
     </div>

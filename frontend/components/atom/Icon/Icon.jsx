@@ -13,6 +13,7 @@ export default function Icon({
   onMouseLeave = null,
   selected = null,
   tooltipText = "",
+  className = "",
 }) {
   const [isHovered, setIsHovered] = useState(false); // State to manage hover
   let data =
