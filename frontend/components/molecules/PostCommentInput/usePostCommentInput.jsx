@@ -3,7 +3,6 @@ import { useEmojiPicker } from "@/hooks/useEmojiPicker";
 import { useState } from "react";
 import { apiPost } from "@/utils/fetch/fetch";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
-import { fallbackUserProfileImage } from "@/constants/imageUrls";
 export default function usePostCommentInput(
   post_id,
   setCommentsCount,

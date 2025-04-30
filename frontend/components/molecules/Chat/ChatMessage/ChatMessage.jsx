@@ -6,10 +6,9 @@ import {
   isMessageSentWithin2Days,
 } from "@/utils/datetime";
 import Image from "next/image";
-import Loader from "../../Loader/Loader";
 import useChatMessage from "./useChatMessage";
 import { useNotification } from "@/app/custom-components/ToastComponent/NotificationContext";
-import { useEffect, useLayoutEffect } from "react";
+import { useLayoutEffect } from "react";
 import Icon from "@/components/atom/Icon/Icon";
 import ChatInput from "../ChatInput/ChatInput";
 
@@ -51,12 +50,6 @@ const Message = ({
       const container = messagesContainerRef.current.getBoundingClientRect();
       const settings = settingsRef.current.getBoundingClientRect();
 
-      const isOverlapping =
-        settings.top < container.top ||
-        settings.bottom > container.bottom ||
-        settings.left < container.left ||
-        settings.right > container.right;
-
       //set the direction of the settings div based on the position of the message and the container
       //  setSettingsDivDirection,
       let direction = "left-bottom"; // Default direction
@@ -77,7 +70,7 @@ const Message = ({
 
       setSettingsDivDirection(direction);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSettingsOpen]);
   const settingsClasses = clsx("absolute z-10 chatBackgroundDark w-40", {
     "top-6": settingsDivDirection === "left-bottom",
@@ -91,22 +84,6 @@ const Message = ({
   }
 
   const messageSettings = [
-    // {
-    //   id: 1,
-    //   title: "Message Info",
-    //   onClick: () => {
-    //     setOpenSettingsId(null);
-    //     console.log("Message Info clicked");
-    //   },
-    // },
-    // {
-    //   id: 2,
-    //   title: "Reply",
-    //   onClick: () => {
-    //     setOpenSettingsId(null);
-    //     console.log("Reply clicked");
-    //   },
-    // },
     {
       id: 3,
       title: "Copy",
@@ -115,38 +92,6 @@ const Message = ({
         handleCopy();
       },
     },
-    // {
-    //   id: 4,
-    //   title: "React",
-    //   onClick: () => {
-    //     setOpenSettingsId(null);
-    //     console.log("React clicked");
-    //   },
-    // },
-    // {
-    //   id: 5,
-    //   title: "Forward",
-    //   onClick: () => {
-    //     setOpenSettingsId(null);
-    //     console.log("Forward clicked");
-    //   },
-    // },
-    // {
-    //   id: 6,
-    //   title: "Pin",
-    //   onClick: () => {
-    //     setOpenSettingsId(null);
-    //     console.log("Pin clicked");
-    //   },
-    // },
-    // {
-    //   id: 7,
-    //   title: "Star",
-    //   onClick: () => {
-    //     setOpenSettingsId(null);
-    //     console.log("Star clicked");
-    //   },
-    // },
     {
       id: 8,
       title: "Edit",
@@ -220,18 +165,16 @@ const Message = ({
                 </div>
               </div>
             </div>
-            <div>
-              <ChatInput
-                selectedUser={selectedUser}
-                setChatUserList={setChatUserList}
-                isEdit={true}
-                messageId={message.id}
-                initialContent={message.content}
-                closeEditDialog={() => {
-                  setIsEditDialogOpen(false);
-                }}
-              />
-            </div>
+            <ChatInput
+              selectedUser={selectedUser}
+              setChatUserList={setChatUserList}
+              isEdit={true}
+              messageId={message.id}
+              initialContent={message.content}
+              closeEditDialog={() => {
+                setIsEditDialogOpen(false);
+              }}
+            />
           </div>
         </div>
       )}
@@ -291,16 +234,24 @@ const Message = ({
             {isSettingsOpen && (
               <div ref={settingsRef} className={`${settingsClasses}`}>
                 <ul className="my-2 w-full overflow-auto">
-                  {messageSettings.map((setting) => (
-                    <li className="w-full" key={setting.id}>
-                      <button
-                        className="text-sm text-left w-full text-forum-heading chatHoverDark px-6 py-3"
-                        onClick={setting.onClick}
-                      >
-                        {setting.title}
-                      </button>
-                    </li>
-                  ))}
+                  {messageSettings.map((setting) => {
+                    if (
+                      setting.id === 8 &&
+                      message.sender_id !== currentUserId
+                    ) {
+                      return null; // Skip rendering the Edit option if the condition is not met
+                    }
+                    return (
+                      <li className="w-full" key={setting.id}>
+                        <button
+                          className="text-sm text-left w-full text-forum-heading chatHoverDark px-6 py-3"
+                          onClick={setting.onClick}
+                        >
+                          {setting.title}
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
