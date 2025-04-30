@@ -4,6 +4,7 @@ import ChatInput from "@/components/molecules/Chat/ChatInput/ChatInput";
 import useChatUser from "./useChatUser";
 import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
+import { useEffect } from "react";
 
 const ChatUser = ({
   selectedUser,
@@ -15,9 +16,40 @@ const ChatUser = ({
   handleUserTyping,
   listOfUsersTyping,
 }) => {
-  const { openSettingsId, setOpenSettingsId, messagesContainerRef } =
-    useChatUser();
+  const {
+    openSettingsId,
+    setOpenSettingsId,
+    messagesContainerRef,
+    scrollToBottom,
+  } = useChatUser();
+  console.log(selectedUser, "selectedUser in ChatUser");
 
+  // Store the current user's ID to detect changes
+  const currentUserId = selectedUser?.user?.id;
+  const currentUserMessages =
+    chatUserList.find((user) => user.user.id === currentUserId)?.messages || [];
+
+  // Scroll handling
+  useEffect(() => {
+    // Always scroll to bottom when user changes
+    scrollToBottom("auto");
+
+    // This ensures the scroll happens after the messages are rendered
+    const timer = setTimeout(() => {
+      scrollToBottom("auto");
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [currentUserId]);
+
+  // Also scroll when messages change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToBottom("auto");
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [currentUserMessages.length]); // Using length as dependency
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header with Back Button */}
