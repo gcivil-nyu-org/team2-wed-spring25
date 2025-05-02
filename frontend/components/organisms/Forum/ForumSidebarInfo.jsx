@@ -76,16 +76,14 @@ export default function ForumSidebarInfo() {
     <div className="flex flex-col gap-3 w-[250px] max-w-[250px] text-sm text-gray-300 pb-2">
       {/* Community Bookmarks Card */}
       <div className="bg-[#1e1e1e] rounded-xl p-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-        <h2 className="font-bold text-sm bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-3">
-          Community Bookmarks
-        </h2>
+        <h2 className="font-semibold text-forum-heading text-base mb-3">Community Bookmarks</h2>
         {resources.map((res, i) => (
           <a
             key={i}
             href={res.href}
             target="_blank"
             rel="noreferrer"
-            className="block w-full bg-[#2c2c2c] rounded-full px-4 py-1 text-xs text-gray-200 hover:bg-gray-700 hover:text-white hover:ring-1 hover:ring-white/10 transition-all mb-2"
+            className="block w-full bg-[#2c2c2c] rounded-lg px-4 py-1 text-xs text-gray-200 hover:bg-gray-700 hover:text-white hover:ring-1 hover:ring-white/10 transition-all mb-2"
           >
             {res.label}
           </a>
@@ -94,9 +92,7 @@ export default function ForumSidebarInfo() {
 
       {/* Rules Card */}
       <div className="bg-[#1e1e1e] rounded-xl p-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-        <h2 className="font-bold text-sm bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-3">
-          Rules
-        </h2>
+        <h2 className="font-semibold text-forum-heading text-base mb-3">Rules</h2>
         {rules.map((rule, index) => (
           <div key={index}>
             <button
