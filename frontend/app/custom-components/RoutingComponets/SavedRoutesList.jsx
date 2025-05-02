@@ -274,7 +274,7 @@ const SavedRoutesList = ({ homepage }) => {
                 <span className="flex gap-2">
                   <h3 className="font-medium">{route.name}</h3>
                 </span>
-                <p className="text-sm text-gray-500">
+                <p className="hidden md:block text-sm text-gray-500">
                   Created {formatDate(route.created_at)}
                 </p>
               </div>

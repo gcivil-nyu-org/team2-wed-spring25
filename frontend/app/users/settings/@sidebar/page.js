@@ -20,6 +20,12 @@ const DefaultSidebar = () => {
           App Report History
         </Link>
         <Link
+          href="/users/settings/safety-reports"
+          className="px-4 py-2 hover:bg-sidebar-border"
+        >
+          Safety Report History
+        </Link>
+        <Link
           href="/users/settings/routes"
           className="px-4 py-2 hover:bg-sidebar-border"
         >
