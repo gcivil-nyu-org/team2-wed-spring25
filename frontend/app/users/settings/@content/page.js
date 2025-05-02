@@ -43,7 +43,7 @@ const SettingsContent = () => {
             </CardHeader>
           </Card>
         </Link>
-        <Link href="/users/settings/reportlog">
+        <Link href="/users/settings/safety-reports">
           <Card className="bg-sidebar-bg border-sidebar-border text-sidebar-text hover:bg-sidebar-separator">
             <CardHeader>
               <CardTitle>Safety Report History</CardTitle>

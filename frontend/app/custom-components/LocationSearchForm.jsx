@@ -27,6 +27,8 @@ export default function LocationSearchForm() {
     formatCoords,
     handleSearch,
     isCalculatingRoute,
+    showLocationSearchForm,
+    setShowLocationSearchForm
   } = useRoute();
 
   // Local form state
@@ -38,7 +40,6 @@ export default function LocationSearchForm() {
   const [destinationSuggestions, setDestinationSuggestions] = useState([]);
   const [showDepartureSuggestions, setShowDepartureSuggestions] = useState(false);
   const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
-  const [showLocationSearchForm, setShowLocationSearchForm] = useState(true);
   const [formError, setFormError] = useState(null);
   const [inputsModified, setInputsModified] = useState(false);
   const [sessionToken, setSessionToken] = useState(uuidv4());
@@ -270,8 +271,6 @@ export default function LocationSearchForm() {
       destinationCoordinates: destinationCoords,
       useCurrentLocation,
     });
-
-    setShowLocationSearchForm(false);
 
     // Generate a new session token for the next search
     setSessionToken(uuidv4());
