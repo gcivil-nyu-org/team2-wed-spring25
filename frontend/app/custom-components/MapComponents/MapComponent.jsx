@@ -34,6 +34,7 @@ const RoutingMapComponent = () => {
     routeKey,
     isCalculatingRoute,
     setIsCalculatingRoute,
+    setRouteCalculated
   } = useRoute();
 
   const { showError, showWarning, showSuccess } = useNotification();
@@ -47,7 +48,9 @@ const RoutingMapComponent = () => {
   const [mapCriticalError, setMapCriticalError] = useState(null); // Keep this for UI display of critical errors
   const [successfulRoute, setSuccessfulRoute] = useState(false);
   const [showRouteInfoPanel, setShowRouteInfoPanel] = useState(true);
-  const [waitingForLocation, setWaitingForLocation] = useState(isGettingLocation && !userLocation);
+  const [waitingForLocation, setWaitingForLocation] = useState(
+    isGettingLocation && !userLocation
+  );
 
   // Track if route has been calculated for these specific coordinates
   const previousDepartureRef = useRef(null);
@@ -130,9 +133,11 @@ const RoutingMapComponent = () => {
       // 1. Explicit departure coordinates
       // 2. Valid user location if using current location
       // 3. Default to Washington Square Park
-      const mapCenter = departureCoords ||
-        (canUseCurrentLocation && userLocation ?
-          userLocation : DEFAULT_LOCATION);
+      const mapCenter =
+        departureCoords ||
+        (canUseCurrentLocation && userLocation
+          ? userLocation
+          : DEFAULT_LOCATION);
 
       // Create map centered on appropriate location
       const map = L.map(container, {
@@ -218,7 +223,15 @@ const RoutingMapComponent = () => {
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapboxToken, departureCoords, userLocation, canUseCurrentLocation, fetchUserLocation, showError, waitingForLocation]);
+  }, [
+    mapboxToken,
+    departureCoords,
+    userLocation,
+    canUseCurrentLocation,
+    fetchUserLocation,
+    showError,
+    waitingForLocation,
+  ]);
 
   // Function to add user marker with pulsing effect
   const addUserMarker = (map, location) => {
@@ -244,11 +257,7 @@ const RoutingMapComponent = () => {
 
   // Update user marker position if location changes
   useEffect(() => {
-    if (
-      mapInstanceRef.current &&
-      userLocation &&
-      canUseCurrentLocation
-    ) {
+    if (mapInstanceRef.current && userLocation && canUseCurrentLocation) {
       if (mapInstanceRef.current._userMarker) {
         // Update existing marker
         mapInstanceRef.current._userMarker.setLatLng(userLocation);
@@ -259,7 +268,7 @@ const RoutingMapComponent = () => {
     } else if (
       mapInstanceRef.current &&
       mapInstanceRef.current._userMarker &&
-      (!canUseCurrentLocation)
+      !canUseCurrentLocation
     ) {
       // Remove marker if not using current location or location not valid
       mapInstanceRef.current.removeLayer(mapInstanceRef.current._userMarker);
@@ -284,13 +293,24 @@ const RoutingMapComponent = () => {
 
   // Trigger route calculation
   useEffect(() => {
-    if (!mapLoaded || !departureCoords || !destinationCoords || !shouldCalculateRoute) {
+    if (
+      !mapLoaded ||
+      !departureCoords ||
+      !destinationCoords ||
+      !shouldCalculateRoute
+    ) {
       return;
     }
 
     // Check if these are new coordinates or we need to recalculate
-    const departureChanged = areCoordinatesDifferent(departureCoords, previousDepartureRef.current);
-    const destinationChanged = areCoordinatesDifferent(destinationCoords, previousDestinationRef.current);
+    const departureChanged = areCoordinatesDifferent(
+      departureCoords,
+      previousDepartureRef.current
+    );
+    const destinationChanged = areCoordinatesDifferent(
+      destinationCoords,
+      previousDestinationRef.current
+    );
 
     // Only fetch a new route if coordinates have changed or we haven't calculated yet
     if (!routeCalculatedRef.current || departureChanged || destinationChanged) {
@@ -392,6 +412,7 @@ const RoutingMapComponent = () => {
 
       //Show the option to save this route
       setSuccessfulRoute(true);
+      setRouteCalculated(true);
     } catch (error) {
       console.error("Error fetching route:", error);
       showError(
@@ -432,13 +453,16 @@ const RoutingMapComponent = () => {
 
         {/* Map loading states */}
         {/* Waiting for initial location */}
-        {waitingForLocation && <MapRenderMsg text="Waiting for your location..." />}
+        {waitingForLocation && (
+          <MapRenderMsg text="Waiting for your location..." />
+        )}
         {/* loading location */}
         {isGettingLocation && <MapRenderMsg text="Getting your location..." />}
         {/* catch all */}
-        {!isGettingLocation && !mapLoaded && !mapCriticalError && !waitingForLocation && (
-          <MapRenderMsg text="Loading map..." />
-        )}
+        {!isGettingLocation &&
+          !mapLoaded &&
+          !mapCriticalError &&
+          !waitingForLocation && <MapRenderMsg text="Loading map..." />}
 
         {locationDenied && !isGettingLocation && (
           <div className="absolute top-4 right-4 z-[1000]">
@@ -465,8 +489,9 @@ const RoutingMapComponent = () => {
       </div>
 
       <div
-        className={`absolute mt-2 mb-2 px-2 bottom-[52px] z-[1001] w-full bg-[#424d5c] transition-all duration-300 ease-in-out ${showRouteInfoPanel ? "translate-y-0" : "translate-y-full"
-          }`}
+        className={`absolute mt-2 mb-2 px-2 bottom-[52px] z-[1001] w-full bg-[#424d5c] transition-all duration-300 ease-in-out ${
+          showRouteInfoPanel ? "translate-y-0" : "translate-y-full"
+        }`}
       >
         {/* Route information panel */}
         {successfulRoute && (
