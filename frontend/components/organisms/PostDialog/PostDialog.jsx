@@ -67,7 +67,7 @@ export default function PostDialog({
     return null; // or handle the case when user is not found
   }
 
-  console.log("user in post dialog", user);
+  // console.log("user in post dialog", user);
 
   // const contentEditableRef = useRef(null);
 
@@ -97,7 +97,7 @@ export default function PostDialog({
   // }, []);
   return (
     <div className="flex justify-center items-start pt-10 fixed w-full h-full bg-black bg-opacity-50 left-0 top-0 z-50">
-      <div className="w-1/2 h-4/5 bg-bg-post rounded-lg flex flex-col">
+      <div className="mx-4 w-full md:w-1/2 max-w-3xl h-4/5 bg-bg-post rounded-lg flex flex-col">
         <div className="flex justify-between mb-2 p-4">
           <div className="flex items-center p-3 rounded-2xl hover:bg-black">
             <UserImage
@@ -150,27 +150,6 @@ export default function PostDialog({
                 />
               </div>
             )}
-            {/* <div 
-                            className="w-full h-1 outline-none pl-7 text-xl relative text-slate-700 select-text" 
-                            contentEditable="true"
-                            ref={contentEditableRef}
-                            onInput={handleInput}
-                            suppressContentEditableWarning={true} 
-                            >
-                            {postContent === "" && "Share Your Thoughts..."}
-                            {postContent !== "" && postContent}
-                            <div>
-                            {selectedImage &&
-                                <Image
-                                    src={selectedImage}
-                                    width={500}
-                                    height={500}
-                                    alt={selectedImageName}
-                                    className="absolute w-full left-0 mt-4 select-none"
-                                />
-                                }
-                            </div>
-                        </div> */}
           </div>
 
           <div className="flex justify-between items-center mx-3 px-2 pt-3">

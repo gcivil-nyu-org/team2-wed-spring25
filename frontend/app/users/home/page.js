@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import SettingPanel from "@/app/custom-components/SettingPanel";
 import { useUser } from "@/components/Auth/UserContextProvider";
-import { authAPI } from "@/utils/fetch/fetch";
+import { apiPost, authAPI } from "@/utils/fetch/fetch";
+import EnableNotifications from "@/components/atom/EnableNotification/EnableNotification";
 import {
   Card,
   CardHeader,
@@ -13,6 +14,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import SavedRoutesList from "@/app/custom-components/RoutingComponets/SavedRoutesList";
+import { useEffect } from "react";
 
 // Dashboard header component
 export function DashboardHeader() {
@@ -39,6 +41,28 @@ export function DashboardHeader() {
 
 export default function Dashboard() {
   const { user, isLoading } = useUser();
+  console.log(localStorage.getItem("fcm_token"));
+  useEffect(() => {
+    const setFCMToken = async () => {
+      try {
+        await apiPost(
+          "/user/update-fcm-token/",
+          {
+            user_id: user?.id || null,
+            fcm_token: localStorage.getItem("fcm_token") || null,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } catch (error) {
+        console.error("Error setting FCM token:", error);
+      }
+    };
+    setFCMToken();
+  }, []); // Empty dependency array to run only once on mount
   return (
     <div className="min-h-screen text-white font-sans">
       <div className="mx-auto">
@@ -73,6 +97,7 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
+      {/* <EnableNotifications /> */}
     </div>
   );
 }

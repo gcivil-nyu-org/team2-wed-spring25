@@ -52,6 +52,7 @@ jest.mock("@/app/custom-components/ToastComponent/NotificationContext", () => ({
   }),
 }));
 
+
 describe("PostDialog", () => {
   const mockProps = {
     onClick: jest.fn(),

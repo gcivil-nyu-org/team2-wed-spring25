@@ -76,8 +76,8 @@ describe("Forum", () => {
 
   it("shows community bookmarks and rules in xlg viewport", () => {
     render(<Forum />);
-  
+
     expect(screen.getByText(/Bookmarks/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rules/i)).toBeInTheDocument();    
-  });  
+    expect(screen.getByText(/Rules/i)).toBeInTheDocument();
+  });
 });

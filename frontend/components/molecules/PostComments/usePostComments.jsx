@@ -36,7 +36,7 @@ export default function usePostComments(
       );
 
       // Check if response contains the expected data
-      if (!response || !response.comments) {
+      if (!response?.comments) {
         showError("Error fetching post comments");
         return;
       }
@@ -44,7 +44,9 @@ export default function usePostComments(
       // If it's the first page, replace the comments
       // Otherwise, append the new comments to the existing list
       setComments((prevComments) =>
-        page === 1 ? response.comments : [...prevComments, ...response.comments]
+        page === 1
+          ? response.comments
+          : [...prevComments, ...(response?.comments || [])]
       );
 
       // Update hasMore based on the response

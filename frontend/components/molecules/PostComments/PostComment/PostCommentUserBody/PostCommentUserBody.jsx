@@ -70,7 +70,7 @@ export default function PostCommentUserBody({
             <div className="relative flex items-center">
               {isTooltipVisible && (
                 <div
-                  className="absolute -top-[4.9rem] bg-bg-post p-1 rounded-full shadow-md pointer-events-auto border border-gray-500 border-opacity-100"
+                  className="absolute -top-[4.9rem] bg-bg-post p-1 rounded-full shadow-md pointer-events-auto border border-gray-500 border-opacity-100 -left-12 sm:left-0 z-10"
                   onMouseEnter={handleMouseEnter} // Keep tooltip visible when hovering over it
                   onMouseLeave={handleMouseLeave} // Hide tooltip after 0.5 seconds when leaving
                 >
@@ -93,8 +93,8 @@ export default function PostCommentUserBody({
               >
                 {likeType ?? "Like"}
               </p>
-              {likesCount > 0 && <span className="text-xs">•</span>}
-              {likesCount > 0 && (
+              {likesCount > 0 && <span className="text-xs mr-1">•</span>}
+              {/* {likesCount > 0 && (
                 <Icon
                   src={getIconSource(
                     icons[Math.floor(Math.random() * 6)].src,
@@ -106,8 +106,12 @@ export default function PostCommentUserBody({
                   height={16}
                   alt={"Like"}
                 />
+              )} */}
+              {likesCount > 0 && (
+                <p className="pr-1">
+                  {likesCount} {likesCount > 1 ? "likes" : "like"}
+                </p>
               )}
-              {likesCount > 0 && <p className="pr-1">{likesCount}</p>}
             </div>
             <p className="mx-1 font-thin">|</p>
             <div className="flex items-center">

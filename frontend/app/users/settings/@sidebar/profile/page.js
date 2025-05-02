@@ -25,29 +25,17 @@ const ProfileSidebar = () => {
           Change Password
         </Link>
         <Link
-          href="/users/settings/profile#locationsettings"
-          className="px-4 py-2 hover:bg-sidebar-border"
-        >
-          Enable Location
-        </Link>
-        <Link
-          href="/users/settings/profile#privacy"
-          className="px-4 py-2 hover:bg-sidebar-border"
-        >
-          Privacy
-        </Link>
-        <Link
           href="/users/settings/profile#report"
           className="px-4 py-2 hover:bg-sidebar-border"
         >
           Report a Bug
         </Link>
-        <Link
+        {/* <Link
           href="/users/settings/profile#flagged_posts"
           className="px-4 py-2 hover:bg-sidebar-border"
         >
           My Reports
-        </Link>
+        </Link> */}
       </nav>
     </>
   );

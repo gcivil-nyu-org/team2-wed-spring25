@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import UserReportsList from "@/app/custom-components/ReportAppIssues/UserReportList";
@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 
 const ReportLog = () => {
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full overflow-scroll">
       <div className="lg:h-header h-mobileheader flex items-center ml-8">
         <Link href="/users/settings">
           <ArrowLeft />

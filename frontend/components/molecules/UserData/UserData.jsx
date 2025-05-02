@@ -1,6 +1,5 @@
 "use client";
 import { getUserFullName } from "@/utils/string";
-import Loader from "../Loader/Loader";
 import UserImage from "@/components/atom/UserImage/UserImage";
 import Image from "next/image";
 import { fallbackUserProfileImage } from "@/constants/imageUrls";
@@ -13,8 +12,8 @@ export default function UserData({
   userSideCardData,
 }) {
   return (
-    <div className="text-text-forum-heading">
-      <div className="relative  rounded-lg max-h-[210px] pb-4 w-full bg-bg-post">
+    <div className="text-text-forum-heading w-full ">
+      <div className="relative  rounded-lg max-h-[270px] pb-4 w-full bg-bg-post">
         <div className="h-[58px] absolute left-0 top-0 w-full bg-purple-300 rounded-t-lg">
           <Image
             src={"/topography.svg"}
@@ -35,7 +34,7 @@ export default function UserData({
               </div>
 
               {/* Text placeholders (shimmer effect) */}
-              <div className="mt-3 space-y-2">
+              <div className="mt-3 space-y-2 w-full">
                 <div className="h-6 w-3/4 bg-gray-600 rounded" />
                 <div className="h-4 w-1/2 bg-gray-600 rounded" />
                 <div className="h-4 w-2/3 bg-gray-600 rounded" />
@@ -73,7 +72,7 @@ export default function UserData({
       </div>
       <div className="flex flex-col bg-bg-post w-full mt-4 rounded-lg p-4 text-xs font-semibold text-forum-subheading border-dark">
         {isUserDataCardLoading || isLoading ? (
-          <div className="animate-pulse space-y-2">
+          <div className="animate-pulse space-y-2 w-full">
             <div className="h-5 w-full bg-gray-600 rounded"></div>
             <div className="h-5 w-full bg-gray-600 rounded"></div>
             <div className="h-5 w-full bg-gray-600 rounded"></div>

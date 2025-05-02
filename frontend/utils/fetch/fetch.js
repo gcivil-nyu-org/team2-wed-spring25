@@ -2,7 +2,7 @@
 // utils/fetch/api.js - Hybrid approach with both direct imports and hooks
 
 import { getDjangoErrorMessage } from "../django-error-handler";
-import { getSession, useSession, signOut } from "next-auth/react";
+import { getSession, useSession, signOut } from "next-auth/react"; //....
 
 // Import your base URL from environment configuration
 const BASE_URL = process.env.NEXT_PUBLIC_DJANGO_API_URL;
@@ -17,7 +17,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_DJANGO_API_URL;
 export async function enhancedFetch(url, options = {}, session = null) {
   const urlPath = url.startsWith("/") ? url : `/${url}`;
   const fullUrl = `${BASE_URL}${urlPath}`;
-  const { timeoutMs = 15000, ...fetchOptions } = options;
+  const { timeoutMs = 20000, ...fetchOptions } = options;
 
   // Setup abort controller for timeout
   const controller = new AbortController();
@@ -41,8 +41,8 @@ export async function enhancedFetch(url, options = {}, session = null) {
 
     if (response.status === 401 && session) {
       // Token expired - redirect to login
-      if (typeof window !== 'undefined') {
-        signOut({ callbackUrl: '/login' });
+      if (typeof window !== "undefined") {
+        signOut({ callbackUrl: "/login" });
       }
       throw new Error("Session expired. Please login again.");
     }
@@ -112,8 +112,8 @@ export const apiDelete = (url, options) =>
 export const authAPI = {
   // Helper to get auth headers from session
   getAuthHeaders(session) {
-    return session?.djangoTokens?.access 
-      ? { Authorization: `Bearer ${session.djangoTokens.access}` } 
+    return session?.djangoTokens?.access
+      ? { Authorization: `Bearer ${session.djangoTokens.access}` }
       : {};
   },
 
@@ -125,64 +125,84 @@ export const authAPI = {
   // Authenticated fetch methods
   async authenticatedGet(url, options = {}) {
     const session = await this.getSession();
-    return enhancedFetch(url, {
-      method: "GET",
-      ...options,
-      headers: {
-        ...options.headers,
-        ...this.getAuthHeaders(session),
+    return enhancedFetch(
+      url,
+      {
+        method: "GET",
+        ...options,
+        headers: {
+          ...options.headers,
+          ...this.getAuthHeaders(session),
+        },
       },
-    }, session);
+      session
+    );
   },
 
   async authenticatedPost(url, data, options = {}) {
     const session = await this.getSession();
-    return enhancedFetch(url, {
-      method: "POST",
-      body: JSON.stringify(data),
-      ...options,
-      headers: {
-        ...options.headers,
-        ...this.getAuthHeaders(session),
+    return enhancedFetch(
+      url,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        ...options,
+        headers: {
+          ...options.headers,
+          ...this.getAuthHeaders(session),
+        },
       },
-    }, session);
+      session
+    );
   },
 
   async authenticatedPut(url, data, options = {}) {
     const session = await this.getSession();
-    return enhancedFetch(url, {
-      method: "PUT",
-      body: JSON.stringify(data),
-      ...options,
-      headers: {
-        ...options.headers,
-        ...this.getAuthHeaders(session),
+    return enhancedFetch(
+      url,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+        ...options,
+        headers: {
+          ...options.headers,
+          ...this.getAuthHeaders(session),
+        },
       },
-    }, session);
+      session
+    );
   },
 
   async authenticatedPatch(url, data, options = {}) {
     const session = await this.getSession();
-    return enhancedFetch(url, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-      ...options,
-      headers: {
-        ...options.headers,
-        ...this.getAuthHeaders(session),
+    return enhancedFetch(
+      url,
+      {
+        method: "PATCH",
+        body: JSON.stringify(data),
+        ...options,
+        headers: {
+          ...options.headers,
+          ...this.getAuthHeaders(session),
+        },
       },
-    }, session);
+      session
+    );
   },
 
   async authenticatedDelete(url, options = {}) {
     const session = await this.getSession();
-    return enhancedFetch(url, {
-      method: "DELETE",
-      ...options,
-      headers: {
-        ...options.headers,
-        ...this.getAuthHeaders(session),
+    return enhancedFetch(
+      url,
+      {
+        method: "DELETE",
+        ...options,
+        headers: {
+          ...options.headers,
+          ...this.getAuthHeaders(session),
+        },
       },
-    }, session);
+      session
+    );
   },
 };

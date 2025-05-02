@@ -42,10 +42,11 @@ export default function PostCommentInput({
     isEdit,
     setIsInputVisible
   );
+
   return (
     <div
       className={`flex justify-between text-sm ${
-        commentContent !== "" ? " flex-col rounded-3xl " : "rounded-full"
+        commentContent !== "" ? " flex-col rounded-3xl " : " rounded-full "
       }  mx-1 mb-4 border-light relative`}
     >
       {showEmojiPicker && (
@@ -70,10 +71,10 @@ export default function PostCommentInput({
       <div className="flex justify-between">
         <Icon
           onClick={handleClickOnEmojiPicker}
-          src={"/icons/emoji.svg"}
+          src={"/icons/emoji-white.svg"}
           width={20}
           height={20}
-          alt="Image Picker"
+          alt="Emoji Picker"
           size={"lg"}
         />
         {commentContent !== "" && (

@@ -1,6 +1,5 @@
 "use client";
 import useForum from "@/components/organisms/Forum/useForum";
-import Loader from "@/components/molecules/Loader/Loader";
 import UserData from "@/components/molecules/UserData/UserData";
 import PostInput from "@/components/molecules/PostInput/PostInput";
 import UserPosts from "@/components/organisms/Forum/UserPosts/UserPosts";
@@ -50,7 +49,7 @@ export default function Forums({ settingsType = "" }) {
     >
       {/* Left column: profile card (desktop only) */}
       {!settingsType && (
-        <div className="flex-col hidden xsm:flex lg:w-2/6 xl:flex xl:flex-col xl:items-center max-w-[225px]">
+        <div className="flex-col hidden  xsm:flex w-1/3 xl:flex xl:flex-col xl:items-center max-w-[225px]">
           <UserData
             isLoading={isLoading}
             user={user}
@@ -119,7 +118,9 @@ export default function Forums({ settingsType = "" }) {
               <div className="relative w-[75%] max-w-sm max-h-[80dvh] bg-[#1e1e1e] rounded-t-2xl shadow-xl flex flex-col">
                 {/* Sticky header */}
                 <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700 sticky top-0 bg-[#1e1e1e] z-10">
-                  <h2 className="font-semibold text-white text-sm">Resources & Rules</h2>
+                  <h2 className="font-semibold text-white text-sm">
+                    Resources & Rules
+                  </h2>
                   <button
                     onClick={() => setDrawerOpen(false)}
                     className="text-gray-400 hover:text-white transition"
