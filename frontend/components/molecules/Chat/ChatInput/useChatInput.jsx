@@ -114,12 +114,12 @@ export default function useChatInput(
         body: "You have a new message from " + user.first_name,
       });
     } catch (error) {
-      console.error("Error sending notification:", error);
-      showError(
-        "Failed",
-        "Failed to send notification",
-        "send_notification_error"
-      );
+      // console.error("Error sending notification:", error);
+      // showError(
+      //   "Failed",
+      //   "Failed to send notification",
+      //   "send_notification_error"
+      // );
     }
 
     setMessageContent("");
