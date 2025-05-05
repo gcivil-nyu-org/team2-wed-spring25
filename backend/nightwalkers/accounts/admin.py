@@ -77,7 +77,6 @@ class CustomUserAdmin(UserAdmin):
     readonly_fields = (
         "date_joined",
         "avatar_preview",
-        "karma",
         "provider",
         "provider_id",
     )

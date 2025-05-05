@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 
 const RoutesContent = () => {
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full overflow-scroll custom-scrollbar">
       <div className="lg:h-header h-mobileheader flex items-center ml-8">
         <Link href="/users/settings">
           <ArrowLeft />

@@ -20,7 +20,7 @@ const ProfileContent = () => {
   const [location, setLocation] = useState(true);
 
   return (
-    <div className="h-auto w-full mb-12 overflow-y-scroll">
+    <div className="h-auto w-full mb-12 overflow-scroll custom-scrollbar">
       <div className="lg:h-header h-mobileheader flex items-center ml-8">
         <Link href="/users/settings">
           <ArrowLeft />
