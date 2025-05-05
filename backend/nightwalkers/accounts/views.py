@@ -240,7 +240,9 @@ class ReportIssueView(APIView):
     serializer_class = UserReportSerializer
 
     def get_queryset(self):
-        return ReportIssue.objects.filter(user=self.request.user)
+        return ReportIssue.objects.filter(user=self.request.user).order_by(
+            "-reported_at"
+        )
 
     def get(self, request, *args, **kwargs):
         reports = self.get_queryset()
