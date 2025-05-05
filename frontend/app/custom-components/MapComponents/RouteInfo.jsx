@@ -157,28 +157,6 @@ const RouteInfo = ({ routeDetails, activeRoute, setActiveRoute }) => {
 
             {showInstructions && currentRouteData?.instructions && currentRouteData.instructions.length > 0 && (
               <>
-                <style>
-                  {`
-                    .custom-scrollbar::-webkit-scrollbar {
-                      width: 6px;
-                    }
-                    .custom-scrollbar::-webkit-scrollbar-track {
-                      background: ${COLORS.darkBg};
-                      border-radius: 3px;
-                    }
-                    .custom-scrollbar::-webkit-scrollbar-thumb {
-                      background: ${COLORS.accent};
-                      border-radius: 3px;
-                    }
-                    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                      background: ${COLORS.mutedText};
-                    }
-                    .custom-scrollbar {
-                      scrollbar-width: thin;
-                      scrollbar-color: ${COLORS.accent} ${COLORS.darkBg};
-                    }
-                  `}
-                </style>
                 <div 
                   className="mt-2 rounded-md divide-y max-h-80 overflow-y-auto custom-scrollbar" 
                   style={{ 
