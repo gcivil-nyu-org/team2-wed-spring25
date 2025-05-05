@@ -473,13 +473,13 @@ class LikeAdmin(admin.ModelAdmin):
 
         badge_html = ""
         if obj.post.is_repost:
-            badge_html = (
+            badge_html = format_html(
                 '<span style="background-color: #f39c12; color: #fff; '
                 "padding: 2px 5px; "
                 'border-radius: 3px; margin-right: 5px; font-size: 12px;">Repost</span>'
             )
         else:
-            badge_html = (
+            badge_html = format_html(
                 '<span style="background-color: #3498db; color: #fff; '
                 "padding: 2px 5px; "
                 'border-radius:3px; margin-right: 5px; font-size: 12px;">'
@@ -491,7 +491,7 @@ class LikeAdmin(admin.ModelAdmin):
     post_preview.short_description = "Liked Post"
 
     def post_link(self, obj):
-        url = reverse("admin:social_post_change", args=[obj.post.id])
+        url = reverse("admin:forum_post_change", args=[obj.post.id])
         preview = (
             obj.post.content[:100] + "..."
             if len(obj.post.content) > 100
@@ -548,13 +548,13 @@ class CommentLikeAdmin(admin.ModelAdmin):
 
         badge_html = ""
         if obj.comment.parent_comment:
-            badge_html = (
+            badge_html = format_html(
                 '<span style="background-color: #9b59b6; color: #fff; '
                 "padding: 2px 5px; "
                 'border-radius: 3px; margin-right: 5px; font-size: 12px;">Reply</span>'
             )
         else:
-            badge_html = (
+            badge_html = format_html(
                 '<span style="background-color: #2ecc71; color: #fff; '
                 "padding: 2px 5px; "
                 'border-radius: 3px; margin-right: 5px; font-size: 12px;">'
